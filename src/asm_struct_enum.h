@@ -45,6 +45,8 @@ function_declaration,
 external_var,
 external_call,
 data,
+number,
+number_label,
 data_label,
 not_known
 };

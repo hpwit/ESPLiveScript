@@ -86,7 +86,7 @@ typedef struct
 {
   const char *ENDLINE = "\r\n";
   const char *ESC_RESET = "\u001b[0m";
-  const char *DEFAULT_PROMPT = "LedOS>";
+  const char *DEFAULT_PROMPT = "\u001b[7mLedOS\u001b[1m\u25b6";
   const char *PROGRAM_PROMPT = "";
   const char *DOWN = "\u001b[100B";
   const char *MOVEUP = "\u001b[0F";

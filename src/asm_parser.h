@@ -299,7 +299,7 @@ int findLabel(string s, vector<result_parse_line> *asm_parsed)
   int res = -1;
   for (int i = 0; i < (*asm_parsed).size(); i++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::label || (*asm_parsed)[i].op == opCodeType::data_label)
+    if ((*asm_parsed)[i].op == opCodeType::label || (*asm_parsed)[i].op == opCodeType::data_label || (*asm_parsed)[i].op == opCodeType::number_label)
     {
       if (trim((*asm_parsed)[i].name).compare(trim(s)) == 0)
       {
@@ -393,6 +393,10 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);
   }
+    if (sp.opcde.compare("mull") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_mov, 3, bin_mull);
+  }
   if (sp.opcde.compare("mov.n") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_mov_n, 2, bin_mov_n);
@@ -448,10 +452,54 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 0, NULL, 2, bin_retw_n);
   }
+if (sp.opcde.compare(".bytes") == 0)
+{
+  char *endptr = NULL;
+int value = strtol(sp.operandes.c_str(), &endptr, 10);
+if (*endptr == 0)
+{
+  result_parse_line ps;
+    ps.op = opCodeType::number;
+    result_parse_line *ps1 = &(*asm_parsed)[(*asm_parsed).size() - 1];
+      if (ps1->op == opCodeType::label)
+      {
+        ps1->size = value;
+        ps1->op = opCodeType::number_label;
+        ps1->align = true;
+        ps.error.error = 0;
+        ps.size = value;
+        ps.name = sp.operandes;
+        printf(".woprd %s\n\r",ps.name.c_str());
+      }
+}
+else
+{
+  result_parse_line ps;
+  ps.error.error=1;
+  ps.error.error_message="Not Valid size for bytes";
+  return ps;
 
+}
+
+}
   if (sp.opcde.compare(".word") == 0)
   {
-    return parseOperandes(sp.operandes, 1, op_word, 4, bin_word);
+    result_parse_line ps;
+    ps.op = opCodeType::number;
+    result_parse_line *ps1 = &(*asm_parsed)[(*asm_parsed).size() - 1];
+      if (ps1->op == opCodeType::label)
+      {
+        ps1->size = 4;
+        ps1->op = opCodeType::number_label;
+        ps1->align = true;
+        ps.error.error = 0;
+        ps.size = 4;
+        ps.name = sp.operandes;
+        printf(".woprd %s\n\r",ps.name.c_str());
+        //ps.name = ps.name + '\n' + '\0';
+      }
+      return ps;
+    //return parseOperandes(sp.operandes, 1, op_word, 4, bin_word);
   }
 
   if (sp.opcde.compare(".align") == 0)
@@ -638,7 +686,7 @@ void createAddress(vector<result_parse_line> *asm_parsed)
   for (it; it < (*asm_parsed).end(); it++)
   {
    
-    if(it->op != opCodeType::data)
+    if(it->op != opCodeType::data && it->op != opCodeType::number)
     {
       // printf("%s %s\n\r",it->debugtxt.c_str(), it->name.c_str());
       // result_parse_line  *re_sparse=&asmParsed[i];
@@ -666,14 +714,15 @@ void createAddress(vector<result_parse_line> *asm_parsed)
             add_op.bincode = bin_nop(0);
           }
           add_op.address = add_instr;
-          add_op.debugtxt = "nop filler";
+          add_op.debugtxt = string_format("nop filler %d",add_op.size);
 
           add_op.error.error = 0;
           it->address = add_instr + add_op.size;
           //printf("function not aligned\t %s \t %s\n", it->debugtxt.c_str(), it->name.c_str());
           (*asm_parsed).insert(it, add_op);
           it++;
-          add_instr += 4 - (add_instr & 3);
+          add_instr=add_instr + add_op.size;
+         // add_instr += 4 - (add_instr & 3);
         }
       }
       add_instr += it->size;
@@ -800,7 +849,7 @@ void createAbsoluteJump(uint8_t *exec, vector<result_parse_line> *asm_parsed, ui
 {
   for (int i = 0; i < (*asm_parsed).size(); i++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::data_label)
+    if ((*asm_parsed)[i].op == opCodeType::data_label || (*asm_parsed)[i].op == opCodeType::number_label)
     {
       uint32_t content = (*asm_parsed)[i + 1].address + address;
       (*asm_parsed)[i].bincode = content;
@@ -808,6 +857,7 @@ void createAbsoluteJump(uint8_t *exec, vector<result_parse_line> *asm_parsed, ui
       // printf("new content %x atr adress %x\n",content,(uint32_t)new_adr);
       memcpy(new_adr, &content, 4);
     }
+    
   }
 }
 
@@ -848,7 +898,7 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
   int last_one = -1;
   for (int i = 0; i < asm_parsed->size(); i++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::data)
+    if ((*asm_parsed)[i].op == opCodeType::data || (*asm_parsed)[i].op == opCodeType::number)
     {
       last_one = i;
     }
@@ -871,7 +921,7 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
 
   for (int i = 0; i < (*asm_parsed).size(); i++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::data)
+    if ((*asm_parsed)[i].op == opCodeType::data || (*asm_parsed)[i].op == opCodeType::number)
     {
       memcpy(data + (*asm_parsed)[i].address, (*asm_parsed)[i].name.c_str(), (*asm_parsed)[i].size);
     }
@@ -889,7 +939,7 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
   for (int i = 0; i < exe.functions.size(); i++)
   {
     exe.functions[i].address = (uint32_t)(exec + exe.functions[i].address / 4);
-    Serial.printf("%2d: %s\r\n", i, exe.functions[i].name.c_str());
+    Serial.printf("%2d: %s\t%x\r\n", i, exe.functions[i].name.c_str(), exe.functions[i].address);
   }
   exe.start_program = exec;
   exe.data = data;

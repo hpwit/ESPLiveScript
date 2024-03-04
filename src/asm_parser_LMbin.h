@@ -50,6 +50,13 @@ uint32_t bin_add(uint32_t *values)
 {
     return (( (values[2] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) +(( (values[0] <<12) & 0xF000 )) +0x800000;
 }
+
+operandeType *op_mull=op_mov;
+uint32_t bin_mull(uint32_t *values)
+{
+    return (( (values[2] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) +(( (values[0] <<12) & 0xF000 )) +0x820000;
+}
+
 uint32_t bin_add_n(uint32_t *values)
 {
     return 10+ (( (values[2] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) +(( (values[0] <<12) & 0xF000 )) ;
