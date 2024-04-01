@@ -19,7 +19,7 @@
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 // #endif
 
-#define push(x) Serial.print(x)
+#define _push(x) Serial.print(x)
 
 using namespace std;
 
@@ -137,7 +137,7 @@ string moveright(int i)
 string defaultPrompt(console *cons);
 string editPrompt(console *cons);
 void insertLine(console *cons);
-void list(console *cons, int start, int len);
+void _list(console *cons, int start, int len);
 class console
 {
 public:
@@ -265,7 +265,7 @@ public:
     printf("welcome\r\n");
 
     // Serial.printf("%d:%d:%s",width,height,config.DEFAULT_PROMPT);
-    push(prompt(this).c_str());
+    _push(prompt(this).c_str());
     // internal_coordinates=getCursorPos();
     internal_coordinates.x = 1;
     internal_coordinates.y = 1;
@@ -302,9 +302,9 @@ public:
                 internal_coordinates.x--;
 
                 Serial.printf("\u001b[1D");
-                push(config.SAVE);
+                _push(config.SAVE);
                 Serial.printf("\u001b[0K%s", save.c_str());
-                push(config.RESTORE);
+                _push(config.RESTORE);
               }
               if (cmode == edit)
               {
@@ -318,28 +318,28 @@ public:
             {
               if (cmode == edit)
               {
-                push(config.SAVE);
+                _push(config.SAVE);
                 string save_sentence = script[internal_coordinates.y - 2];
                 script.erase(script.begin() + internal_coordinates.y - 1);
                 internal_coordinates.y--;
                 int save=internal_coordinates.y;
                 int save2=internal_coordinates.internaly;
                 
-                push(config.LEFT);
-                list(this, internal_coordinates.y+1, height - internal_coordinates.internaly);
+                _push(config.LEFT);
+                _list(this, internal_coordinates.y+1, height - internal_coordinates.internaly);
                 internal_coordinates.y=save;
               internal_coordinates.internaly=save2-1;
                 if(internal_coordinates.internaly+1<height-2 && internal_coordinates.y<=script.size())
                 {
-                  push(config.LEFT);
-                  push(config.DELINE);
+                  _push(config.LEFT);
+                  _push(config.DELINE);
                 }
-                push(config.RESTORE);
-                push(config.LEFT);
-                push(config.MOVEUP);
+                _push(config.RESTORE);
+                _push(config.LEFT);
+                _push(config.MOVEUP);
                 sentence=save_sentence;
                 internal_coordinates.x=sentence.size()+1;
-                push(moveright(5 + sentence.size()).c_str());
+                _push(moveright(5 + sentence.size()).c_str());
               }
             }
             break;
@@ -351,7 +351,7 @@ public:
               if (sentence.size() < 1)
               {
                 gotoline();
-                push(prompt(this).c_str());
+                _push(prompt(this).c_str());
                 continue;
               }
 
@@ -388,7 +388,7 @@ public:
               {
                 gotoline();
               }
-              push(prompt(this).c_str());
+              _push(prompt(this).c_str());
               sentence = "";
               delay(10);
             }
@@ -401,17 +401,17 @@ public:
                 {
                   script.push_back(sentence.substr(0, internal_coordinates.x - 1));
                   string save = sentence.substr(internal_coordinates.x - 1, sentence.size());
-                  push(config.ERASE_FROM_CURSOR_TO_EOL);
+                  _push(config.ERASE_FROM_CURSOR_TO_EOL);
                   gotoline();
                   if (displayf == true)
                   {
-                    push(prompt(this).c_str());
+                    _push(prompt(this).c_str());
                   }
-                  push(save.c_str());
+                  _push(save.c_str());
                   sentence = save;
                   internal_coordinates.x = 1;
-                  push(config.LEFT);
-                  push(moveright(5).c_str());
+                  _push(config.LEFT);
+                  _push(moveright(5).c_str());
                 }
                 else
                 {
@@ -422,7 +422,7 @@ public:
               else
               {
                 script.push_back(sentence);
-                push(config.ENDLINE);
+                _push(config.ENDLINE);
                 internal_coordinates.y++;
                 internal_coordinates.x = 1;
                 if (internal_coordinates.internaly < height - 2)
@@ -438,19 +438,21 @@ public:
           {
             if (displayf == true)
             {
-              push(config.SAVE);
+              _push(config.SAVE);
               Serial.printf("%c%s", c, sentence.substr(internal_coordinates.x - 1, sentence.size()).c_str());
               sentence = sentence.substr(0, internal_coordinates.x - 1) + c + sentence.substr(internal_coordinates.x - 1, sentence.size());
               // Serial.printf("%c%s",c,sentence.substr(internal_coordinates.x-1,sentence.size()));
               //  if(displayf==true)
-              push(config.RESTORE);
-              push(config.FORWARD);
+              _push(config.RESTORE);
+              _push(config.FORWARD);
               internal_coordinates.x++;
             }
             else
             {
               sentence += c;
+
               Serial.write(c);
+            
               internal_coordinates.x++;
             }
           }
@@ -592,7 +594,7 @@ void exitProgMode(console *cons)
     cons->displayf = false;
     // cons->gotoline();
     // Serial.printf("%s",config.ESC_RESET);
-    push(cons->prompt(cons).c_str());
+    _push(cons->prompt(cons).c_str());
     // cons->gotoline();
   }
 }
@@ -602,12 +604,12 @@ void test(console *cons)
   cons->getConsoleSize();
   Serial.printf("%d %d\r\n", cons->width, cons->height);
 }
-void list(console *cons)
+void _list(console *cons)
 {
   cons->cls(cons);
   for (int i = 0; i < cons->script.size(); i++)
   {
-    push(config.DELINE);
+    _push(config.DELINE);
     Serial.printf("%s%3d %s %s", cons->editprompt.c_str(), i + 1, cons->editcontent.c_str(), cons->script[i].c_str());
     // Serial.printf("%s%s", cons->prompt(cons).c_str(), cons->script[i].c_str());
 
@@ -615,7 +617,7 @@ void list(console *cons)
   }
 }
 
-void list(console *cons, int start, int len)
+void _list(console *cons, int start, int len)
 {
   // je peux en mettre height-internaly+1
   int end = start + len - 1;
@@ -625,7 +627,7 @@ void list(console *cons, int start, int len)
 
     if (i < cons->script.size())
     {
-      push(config.DELINE);
+      _push(config.DELINE);
       //
       Serial.printf("%s%3d %s %s", cons->editprompt.c_str(), i + 1, cons->editcontent.c_str(), cons->script[i].c_str());
       // Serial.printf("%s%s", cons->prompt(cons).c_str(), cons->script[i].c_str());
@@ -669,11 +671,11 @@ void enterProgMode(console *cons)
     cons->getConsoleSize();
     cons->cls(cons);
     cons->displayf = true;
-    list(cons, 1, cons->height - 1);
+    _list(cons, 1, cons->height - 1);
     
     if (cons->script.size() < cons->height - 1)
     {
-      push(cons->prompt(cons).c_str());
+      _push(cons->prompt(cons).c_str());
     }
   }
   else
@@ -684,7 +686,7 @@ void enterProgMode(console *cons)
 
 void scrollup(console *cons)
 {
-  push("\u001b[1S");
+  _push("\u001b[1S");
 }
 
 void editorup(console *cons)
@@ -708,8 +710,8 @@ void editorup(console *cons)
 
     cons->sentence = cons->script[cons->internal_coordinates.y - 2];
     int x = cons->sentence.size() + 5;
-    push(config.MOVEUP);
-    push(moveright(x).c_str());
+    _push(config.MOVEUP);
+    _push(moveright(x).c_str());
     cons->internal_coordinates.y--;
     cons->internal_coordinates.x = x - 5 + 1;
     if (cons->internal_coordinates.internaly > 0)
@@ -720,15 +722,15 @@ void editorup(console *cons)
     if (cons->internal_coordinates.y > 1)
     {
       cons->internal_coordinates.y--;
-      push("\u001b[0T");
-      push("\u001b[0;0H");
+      _push("\u001b[0T");
+      _push("\u001b[0;0H");
 
       int save = cons->internal_coordinates.y;
-      list(cons, cons->internal_coordinates.y, 1);
-      push("\u001b[0;0H");
+      _list(cons, cons->internal_coordinates.y, 1);
+      _push("\u001b[0;0H");
 
       cons->internal_coordinates.y = save;
-      push(moveright(cons->script[cons->internal_coordinates.y - 1].size() + 5).c_str());
+      _push(moveright(cons->script[cons->internal_coordinates.y - 1].size() + 5).c_str());
       cons->internal_coordinates.internaly = 0;
       cons->internal_coordinates.x = cons->script[cons->internal_coordinates.y - 1].size() + 1;
     }
@@ -760,8 +762,8 @@ void editordown(console *cons)
       cons->internal_coordinates.y++;
       cons->sentence = cons->script[cons->internal_coordinates.y - 1];
       int x = cons->sentence.size() + 5;
-      push(config.MOVEDOWN);
-      push(moveright(x).c_str());
+      _push(config.MOVEDOWN);
+      _push(moveright(x).c_str());
       cons->internal_coordinates.x = x - 5 + 1;
       if (cons->internal_coordinates.internaly < cons->height - 2)
         cons->internal_coordinates.internaly++;
@@ -773,16 +775,16 @@ void editordown(console *cons)
     // Serial.printf("jkjdfksd");
     if (cons->internal_coordinates.y < cons->script.size())
     {
-      push("\u001b[1S");
-      push("\u001b[2K");
-      push("\u001b[100D");
+      _push("\u001b[1S");
+      _push("\u001b[2K");
+      _push("\u001b[100D");
       cons->internal_coordinates.y++;
       displayline(cons, cons->internal_coordinates.y);
       cons->sentence = cons->script[cons->internal_coordinates.y - 1];
       int x = cons->sentence.size() + 5;
-      // push(moveright(x).c_str());
+      // _push(moveright(x).c_str());
       cons->internal_coordinates.x = x - 5 + 1;
-      // push("\u001b[0;0H");
+      // _push("\u001b[0;0H");
     }
   }
 }
@@ -792,7 +794,7 @@ void editorleft(console *cons)
   if (cons->internal_coordinates.x > 1)
   {
     cons->internal_coordinates.x--;
-    push(config.BACK);
+    _push(config.BACK);
   }
 }
 void editorright(console *cons)
@@ -800,7 +802,7 @@ void editorright(console *cons)
   if (cons->internal_coordinates.x <= cons->sentence.size())
   {
     cons->internal_coordinates.x++;
-    push(config.FORWARD);
+    _push(config.FORWARD);
   }
 }
 
@@ -852,7 +854,7 @@ void initEscCommands(console *cons)
   cons->addEscCommand(15, test);
   cons->addEscCommand(5, scrollup);
   cons->addEscCommand(22, switchfooter);
-  // cons->addKeywordCommand("list", list);
+  // cons->addKeywordCommand("_list", _list);
   cons->addKeywordCommand("cls", cons->cls);
   cons->addKeywordCommand("clear", clear);
   // cons->addEscCommand(27,top);
@@ -872,7 +874,7 @@ void insertLine(console *cons)
 {
 
   cons->script[cons->internal_coordinates.y - 1] = cons->sentence.substr(0, cons->internal_coordinates.x - 1);
-  push(config.ERASE_FROM_CURSOR_TO_EOL);
+  _push(config.ERASE_FROM_CURSOR_TO_EOL);
   cons->script.push_back(""); // on ajoute une ligne
   for (int i = cons->script.size() - 1; i >= cons->internal_coordinates.y + 1; i--)
   {
@@ -886,28 +888,28 @@ void insertLine(console *cons)
   if (cons->internal_coordinates.internaly < cons->height - 2)
   {
     save2++;
-    push(config.MOVEDOWN);
+    _push(config.MOVEDOWN);
 
-    push(config.LEFT);
-    push(config.SAVE);
+    _push(config.LEFT);
+    _push(config.SAVE);
     int line_dispo = cons->height - cons->internal_coordinates.internaly - 2;
-    list(cons, save, line_dispo);
+    _list(cons, save, line_dispo);
     cons->internal_coordinates.y = save;
     cons->internal_coordinates.internaly = save2;
-    push(config.RESTORE);
+    _push(config.RESTORE);
     if (cons->displayf == true)
     {
-      push(cons->prompt(cons).c_str());
+      _push(cons->prompt(cons).c_str());
     }
   }
   else
   {
 
-    push(config.SCROLLUP);
-    push(config.LEFT);
-    // push(config.DOWN);
-    push(config.DELINE);
-    push(config.BEGIN_OF_LINE);
+    _push(config.SCROLLUP);
+    _push(config.LEFT);
+    // _push(config.DOWN);
+    _push(config.DELINE);
+    _push(config.BEGIN_OF_LINE);
     displayline(cons, cons->internal_coordinates.y);
     cons->internal_coordinates.y = save;
     cons->internal_coordinates.internaly = save2;

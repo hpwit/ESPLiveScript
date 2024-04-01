@@ -89,16 +89,68 @@ uint32_t bin_s32i_n(uint32_t *values)
 operandeType op_bnez[3]={operandeType::registers,operandeType::label};;
 uint32_t bin_bnez(uint32_t *values)
 {
+   
     return 0x56 +  (( (values[0] <<8) & 0xF00 ));
-    
    // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
 }
 uint32_t jump_bnez(uint32_t value,uint32_t current_address,uint32_t destination_address)
 {
             uint32_t dif=destination_address-current_address-4;
+            return value+ ((dif<<12) & 0xFFF000);
           
-          return value+ ((dif<<12) & 0xFFF000);
 }
+
+
+
+operandeType op_blt[3]={operandeType::registers,operandeType::registers,operandeType::label};
+uint32_t bin_blt(uint32_t *values)
+{
+    
+     return 0x7 +  (( (values[1] <<4) & 0xF0 ))+ (( (values[0] <<8) & 0xF00 ))+0x2000;
+    
+   // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
+uint32_t jump_blt(uint32_t value,uint32_t current_address,uint32_t destination_address)
+{
+            uint32_t dif=destination_address-current_address-4;
+          
+          return value+ ((dif<<16) & 0xFF0000);
+        
+}
+
+
+operandeType op_bge[3]={operandeType::registers,operandeType::registers,operandeType::label};
+uint32_t bin_bge(uint32_t *values)
+{
+    
+     return 0x7 +  (( (values[1] <<4) & 0xF0 ))+ (( (values[0] <<8) & 0xF00 ))+0xa000;
+    
+   // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
+uint32_t jump_bge(uint32_t value,uint32_t current_address,uint32_t destination_address)
+{
+            uint32_t dif=destination_address-current_address-4;
+          
+          return value+ ((dif<<16) & 0xFF0000);
+        
+}
+
+operandeType op_j[3]={operandeType::label};
+uint32_t bin_j(uint32_t *values)
+{
+    
+     return 0x6;
+    
+   // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
+uint32_t jump_j(uint32_t value,uint32_t current_address,uint32_t destination_address)
+{
+            uint32_t dif=destination_address-current_address-4;
+          
+          return value+ ((dif<<6) & 0xFFFFC0);
+        
+}
+
 operandeType op_slli[3]={operandeType::registers,operandeType::registers,operandeType::l1_31};;
 uint32_t bin_slli(uint32_t *values)
 {
