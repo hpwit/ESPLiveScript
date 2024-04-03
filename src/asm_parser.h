@@ -349,6 +349,14 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 3, op_add, 3, bin_add);
   }
+    if (sp.opcde.compare("sub") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_sub, 3, bin_sub);
+  }
+      if (sp.opcde.compare("quou") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_quou, 3, bin_quou);
+  }
   if (sp.opcde.compare("add.n") == 0)
   {
     return parseOperandes(sp.operandes, 3, op_add, 2, bin_add_n);
@@ -416,6 +424,16 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
     ps.calculateOfssetJump = jump_l32r;
     return ps;
   }
+
+    if (sp.opcde.compare("call8") == 0)
+  {
+    result_parse_line ps = parseOperandes(sp.operandes, 1, op_call8, 3, bin_call8);
+    ps.op = opCodeType::jump_32aligned;
+    ps.calculateOfssetJump = jump_call8;
+    return ps;
+  }
+
+
   if (sp.opcde.compare("mov") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);
@@ -453,9 +471,21 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 3, op_l8ui, 3, bin_l8ui);
   }
+    if (sp.opcde.compare("s16i") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_s16i, 3, bin_s16i);
+  }
+  if (sp.opcde.compare("l16si") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_l16si, 3, bin_l16si);
+  }
   if (sp.opcde.compare("slli") == 0)
   {
     return parseOperandes(sp.operandes, 3, op_slli, 3, bin_slli);
+  }
+    if (sp.opcde.compare("remu") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_remu, 3, bin_remu);
   }
   if (sp.opcde.compare("entry") == 0)
   {
@@ -496,7 +526,9 @@ if (*endptr == 0)
         ps.error.error = 0;
         ps.size = value;
         ps.name = sp.operandes;
-        printf(".woprd %s\n\r",ps.name.c_str());
+        
+        
+        return ps;
       }
 }
 else
@@ -1099,7 +1131,7 @@ error_message_struct executeBinary(string function,executable ex)
     }
   }
   res.error=1;
-  res.error_message=string_format("Impossible to execute %s: not found\n");
+  res.error_message=string_format("Impossible to execute %s: not found\n",function);
   return res;
 }
 

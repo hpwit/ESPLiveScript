@@ -91,7 +91,7 @@ public:
             resParse result;
             result.error.error = 0;
             result._nd = arg;
-            //printf("on retourne with argh ide\n");
+            printf("on retourne with argh ide\n");
             return result;
         }
         resParse type = parseType();
@@ -112,7 +112,7 @@ public:
         current_cntx->addVariable(var);
         // arg.addChild(nd);
         // next();
-        //printf("current %s\n", tokenNames[current()->type].c_str());
+        printf("current %s\n", tokenNames[current()->type].c_str());
         while (Match(TokenComma))
         {
             next();
@@ -143,11 +143,11 @@ public:
     void getVariable(bool isStore)
     {
 
-        current_cntx->findVariable(current(), false); //false
+        current_cntx->findVariable(current(), false);
         NodeToken *nd = search_result;
         if (nd == NULL)
         {
-            // //printf("hhheeheh\n");
+            // printf("hhheeheh\n");
 
             Error.error = 1;
             Error.error_message = string_format("impossible to find declaraiton for %s %s", current()->text.c_str(), linepos().c_str());
@@ -208,7 +208,7 @@ public:
     {
         // resParse result;
         Error.error = 0;
-        //printf("entering factor line:%d pos:%d\n",current()->line,current()->pos);
+        printf("entering factor\n");
         token *_f = current();
         if (_f->type == TokenEndOfFile)
         {
@@ -224,7 +224,7 @@ public:
             NodeNumber g = NodeNumber(_f);
             Error.error = 0;
             // result._nd = g;
-            //printf("exit factor\n");
+            printf("exit factor\n");
             current_node->addChild(g);
             return;
         }
@@ -351,9 +351,8 @@ public:
 
     void parseTerm()
     {
-        //printf("entering term line:%d pos:%d\n",current()->line,current()->pos);
-       // NodeToken *sav_pa = current_node;
-        sav_token.push_back(current_node);
+        printf("entering term\n");
+        NodeToken *sav_pa = current_node;
         parseFactor();
         if (Error.error)
         {
@@ -383,17 +382,14 @@ public:
             // left._nd = NodeBinOperator(left._nd, opt, right._nd);
         }
         // next();
-        current_node=sav_token.back();
-        sav_token.pop_back();
-       // current_node = sav_pa;
-        //printf("exit term\n");
+        current_node = sav_pa;
+        printf("exit term\n");
         return;
     }
 
     void parseExpr()
     {
-        //NodeToken *sav_pa = current_node;
-        sav_token.push_back(current_node);
+        NodeToken *sav_pa = current_node;
         parseTerm();
         if (Error.error == 1)
         {
@@ -424,10 +420,8 @@ public:
             // left._nd = NodeBinOperator(left._nd, opt, right._nd);
         }
         // next();
-         current_node=sav_token.back();
-        sav_token.pop_back();
-       // current_node = sav_pa;
-        //printf("exit expr");
+        current_node = sav_pa;
+        printf("exit expr");
         Error.error = 0;
         return;
     }
@@ -444,7 +438,7 @@ public:
             // resParse result;
             Error.error = 0;
             // result._nd = arg;
-            //printf("on retourne with argh ide\n");
+            printf("on retourne with argh ide\n");
             current_node = current_node->parent;
             next();
             return;
@@ -645,12 +639,11 @@ public:
             token *fort=current();
                     Context cntx;
                     cntx.name = current()->text;
-                   // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
+                   // printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
                     Context *k = (*(current_cntx)).addChild(cntx);
                     current_cntx = k;
                     string target =string_format("label_%d%s",for_if_num,k->name.c_str());
                     //=target;
-                    for_if_num++;
                 next();
                 if(Match(TokenOpenParenthesis))
                 {
@@ -665,14 +658,14 @@ public:
                         return ;
                      }
                     current_node=current_node->parent;
-                     //printf(" *************** on parse comp/n");
+                     printf(" *************** on parse comp/n");
                      parseComparaison(target);
                      if(Error.error)
                      {
                         return ;
                      }
-                    ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
-                   //printf(" *************** on parse inc/n");
+                    //printf("on a parse %s\n",comparator._nd._token->text.c_str());
+                   printf(" *************** on parse inc/n");
                      parseStatement();
                      if(Error.error)
                      {
@@ -712,7 +705,7 @@ public:
 
         else if (Match(TokenKeyword) && MatchKeyword(KeywordVarType))
         {
-            //printf("trying to create %s\n", current()->text.c_str());
+            printf("trying to create %s\n", current()->text.c_str());
             resParse type = parseType();
             if (type.error.error)
             {
@@ -730,7 +723,7 @@ public:
             }
 
             auto var = createNodeLocalVariableForCreation(&res._nd, &type._nd);
-            //printf("111&&&&&&&dddddddddd&&&&qssdqsdqsd& %s\n", nodeTypeNames[var._nodetype].c_str());
+            printf("111&&&&&&&dddddddddd&&&&qssdqsdqsd& %s\n", nodeTypeNames[var._nodetype].c_str());
             string var_name = res._nd._token->text;
             // pritnf()
             current_cntx->addVariable(var);
@@ -805,11 +798,11 @@ public:
         next();
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {
-            //printf("on tente aouter un stamt\n");
+            printf("on tente aouter un stamt\n");
             parseStatement();
             if (Error.error == 0)
             {
-                //printf("on aouter un stamt\n");
+                printf("on aouter un stamt\n");
                 // current_node->addChild(res._nd);
             }
             else
@@ -837,7 +830,7 @@ public:
     {
         Error.error = 0;
         bool ext_function = false;
-        //printf("entering function\n");
+        printf("entering function\n");
         if (isExternal)
         {
             ext_function = true;
@@ -1115,7 +1108,7 @@ public:
         }
         // result._nd = program;
         Error.error = 0;
-        //printf("exit programm\n");
+        printf("exit programm\n");
         return;
     }
 

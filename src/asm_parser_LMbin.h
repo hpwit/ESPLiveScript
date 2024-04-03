@@ -38,6 +38,21 @@ uint32_t bin_s8i(uint32_t *values)
 }
 
 
+operandeType op_l16si[3]={operandeType::registers,operandeType::registers,operandeType::l0_510};
+uint32_t bin_l16si(uint32_t *values)
+{
+ return 0x2+(( (values[0] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + 0x9000+(( ((values[2]/2) <<16) & 0xFF0000 ));
+}
+
+operandeType op_s16i[3]={operandeType::registers,operandeType::registers,operandeType::l0_510};
+uint32_t bin_s16i(uint32_t *values)
+{
+ return 0x2+(( (values[0] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + 0x5000+ (( ((values[2]/2) <<16) & 0xFF0000 ));
+}
+
+
+
+
 operandeType op_l32i_n[3]={operandeType::registers,operandeType::registers,operandeType::l0_60};
 uint32_t bin_l32i_n(uint32_t *values)
 {
@@ -49,6 +64,18 @@ operandeType *op_add=op_mov;
 uint32_t bin_add(uint32_t *values)
 {
     return (( (values[2] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) +(( (values[0] <<12) & 0xF000 )) +0x800000;
+}
+
+operandeType *op_quou=op_mov;
+uint32_t bin_quou(uint32_t *values)
+{
+    return (( (values[2] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) +(( (values[0] <<12) & 0xF000 )) +0x820000;
+}
+
+operandeType *op_sub=op_mov;
+uint32_t bin_sub(uint32_t *values)
+{
+    return (( (values[2] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) +(( (values[0] <<12) & 0xF000 )) +0xc00000;
 }
 
 operandeType *op_mull=op_mov;
@@ -79,6 +106,7 @@ uint32_t bin_s32i(uint32_t *values)
 {
     return 0x2+(( (values[0] <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) +0x6000+ (( ((values[2]/4) <<16) & 0xFF0000 ));
 }
+
 
 operandeType op_s32i_n[3]={operandeType::registers,operandeType::registers,operandeType::l0_60};;
 uint32_t bin_s32i_n(uint32_t *values)
@@ -175,6 +203,13 @@ uint32_t bin_and(uint32_t *values)
 {
     return  (( (values[2] <<4) & 0xF0 )) +   ((values[1]<<8) &0xF00 )  +  ((values[0]<<12) &0x0F000 ) +0x100000 ;   
 }
+
+operandeType op_remu[3]={operandeType::registers,operandeType::registers,operandeType::registers};
+uint32_t bin_remu(uint32_t *values)
+{
+    return  (( (values[2] <<4) & 0xF0 )) +   ((values[1]<<8) &0xF00 )  +  ((values[0]<<12) &0x0F000 ) +0xe20000;   
+}
+
 operandeType op_entry[2]={operandeType::registers,operandeType::l0_32760};
 uint32_t bin_entry(uint32_t *values)
 {
@@ -199,6 +234,43 @@ uint32_t bin_l32r(uint32_t *values)
 {
     return  1+ ((values[0]<<4)&0xF0);   
 }
+
+
+operandeType op_call8[2]={operandeType::label};
+uint32_t bin_call8(uint32_t *values)
+{
+    return  0x25;   
+}
+uint32_t jump_call8(uint32_t value,uint32_t current_address,uint32_t destination_address)
+{
+    if((((destination_address)/4)*4)!=destination_address)
+    {
+        printf("impossible de calculer le jump\n");
+        return 0;
+    }
+    else 
+    {
+        uint32_t dif=((destination_address-(current_address&0xFFFFFFFC))-4) & 0xFFFFFFC;
+        /*
+                uint32_t recalculate=(((current_address & 0xFFFF)+dif*4)+3)& 0xFFFc ;
+        if(recalculate!=(destination_address & 0xFFFF))
+        {
+        
+            recalculate=((current_address & 0xFFFF)+3+4)& 0xFFFFFc ;
+            if(recalculate==(destination_address & 0xFFFF))
+                {
+                        dif++;
+                }
+                else
+                {
+                    printf("not it\n");
+                }
+        }ffd
+        */
+        return  value+((dif<<4) & 0xFFFFC0);
+    }    
+}
+
 uint32_t jump_l32r(uint32_t value,uint32_t current_address,uint32_t destination_address)
 {
     if((((destination_address)/4)*4)!=destination_address)
