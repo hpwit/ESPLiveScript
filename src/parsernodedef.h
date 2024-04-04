@@ -591,6 +591,7 @@ void _visitNodeProgramNode(NodeToken *nd)
     //printf("in programl\n");
      content.begin();
    header.begin();
+   header.addAfter("stack:\n.bytes 120");
    register_numr.clear();
    register_numl.clear();
    register_numl.push(15);
@@ -1516,9 +1517,14 @@ void _visitNodeCallFunction(NodeToken *nd)
                
                 return ;
             }
+            content.addAfter(string_format("l32r a%d,stack",point_regnum));
              for(int i=0;i<t->getChildAtPos(1)->children.size();i++)
             {
-                content.addAfter(string_format("addi a%d,a1,%d",11+i,t->getChildAtPos(1)->getChildAtPos(i)->stack_pos));
+                                register_numl.duplicate();
+                nd->getChildAtPos(0)->getChildAtPos(i)->visitNode(nd->getChildAtPos(0)->getChildAtPos(i));
+               register_numl.pop();
+               content.addAfter(string_format("%s a%d,a%d,%d",t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->store[0].c_str(),register_numl.get(),point_regnum,t->getChildAtPos(1)->getChildAtPos(i)->stack_pos-16));
+               // content.addAfter(string_format("addi a%d,a1,%d",11+i,t->getChildAtPos(1)->getChildAtPos(i)->stack_pos));
             }
 
        content.addAfter(string_format("mov a10,a2"));
@@ -1778,9 +1784,10 @@ public:
 
 void _visitNodeInputArguments(NodeToken *nd)
 {
+    content.addAfter(string_format("l32r a%d,stack",point_regnum));
 for (int i = 0; i < nd->children.size(); i++)
     {
-        content.addAfter(string_format("%s a15,a%d,0",nd->getChildAtPos(i)->_token->_vartype->load[0].c_str(),3+i));
+        content.addAfter(string_format("%s a15,a%d,0",nd->getChildAtPos(i)->_token->_vartype->load[0].c_str(),point_regnum));
         content.addAfter(string_format("%s a15,a1,%d",nd->getChildAtPos(i)->_token->_vartype->store[0].c_str(),nd->getChildAtPos(i)->stack_pos));
     }
 }
