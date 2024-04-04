@@ -1510,7 +1510,19 @@ void _visitNodeCallFunction(NodeToken *nd)
     r.register_numr=register_numr;
         return r;
         */
-       content.addAfter(string_format("mov a10,a2\nmov a11,a3"));
+       NodeToken *t =nd->_link;// cntx.findFunction(nd->_token);
+            if(t==NULL)
+            {
+               
+                return ;
+            }
+             for(int i=0;i<t->getChildAtPos(1)->children.size();i++)
+            {
+                content.addAfter(string_format("addi a%d,a1,%d",11+i,t->getChildAtPos(1)->getChildAtPos(i)->stack_pos));
+            }
+
+       content.addAfter(string_format("mov a10,a2"));
+
        content.addAfter(string_format("call8 %s\n",nd->_token->text.c_str()));
 
 
@@ -1764,6 +1776,15 @@ public:
     }
 };
 
+void _visitNodeInputArguments(NodeToken *nd)
+{
+for (int i = 0; i < nd->children.size(); i++)
+    {
+        content.addAfter(string_format("%s a15,a%d,0",nd->getChildAtPos(i)->_token->_vartype->load[0].c_str(),3+i));
+        content.addAfter(string_format("%s a15,a1,%d",nd->getChildAtPos(i)->_token->_vartype->store[0].c_str(),nd->getChildAtPos(i)->stack_pos));
+    }
+}
+
 class NodeInputArguments : public NodeToken
 {
 public:
@@ -1771,14 +1792,14 @@ public:
     {
         _nodetype = inputArgumentsNode;
         _token = NULL;
-        // visitNode = visitNodeFunctionNode;
+         visitNode = _visitNodeInputArguments;
     }
     NodeInputArguments(token *t)
     {
         _token = t;
         _nodetype = inputArgumentsNode;
         _token = NULL;
-        // visitNode = visitNodeFunctionNode;
+         visitNode = _visitNodeInputArguments;
     }
 };
 
