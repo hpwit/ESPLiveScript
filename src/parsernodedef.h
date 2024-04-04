@@ -2348,6 +2348,7 @@ prt_r visitNodeAssignement(NodeToken *nd, int register_numl, int register_numr)
 void _visitNodeAssignement(NodeToken *nd)
 {
     //printf("in Assignment Node\n");
+    point_regnum=4;
     content.sp.push(content.get());
    register_numl.duplicate();
  content.sp.displaystack("PILE");
@@ -2413,6 +2414,7 @@ prt_r visitNodeStatement(NodeToken *nd, int register_numl, int register_numr)
 }*/
 void visitNodeStatement(NodeToken *nd)
 {
+    point_regnum=4;
    
     for (int i = 0; i < nd->children.size(); i++)
     {
