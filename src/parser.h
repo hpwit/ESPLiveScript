@@ -595,7 +595,28 @@ public:
         }
         if(Match(TokenIdentifier) && Match(TokenPlusPlus,1))
         {
-            //on fait++
+            NodeAssignement d=NodeAssignement();
+            current_node=current_node->addChild(d);
+            getVariable(true);
+            NodeUnitary g=NodeUnitary();
+            current_node=current_node->addChild(g);
+            prev();
+            getVariable(false);
+            current_node->addChild(NodeOperator(current()));
+            next();
+            current_node=current_node->parent;
+            current_node=current_node->parent;
+                if (!Match(TokenSemicolon) && !Match(TokenCloseParenthesis))
+                {
+                    Error.error = 1;
+                    Error.error_message = string_format("Expected ; %s", linepos().c_str());
+                    next();
+                    return;
+                }
+                Error.error=0;
+                next();
+                return;
+
         }
         else if (Match(TokenIdentifier))
         {

@@ -1893,11 +1893,16 @@ void _visitNodeOperator(NodeToken *nd)
         content.addAfter(string_format("mull a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
         return ;
   break;
+      case TokenPlusPlus:
+
+        content.addAfter(string_format("addi a%d,a%d,1", register_numl.get(), register_numl.get()));
+        return ;
+  break;
     case TokenModulo:
 
         content.addAfter(string_format("remu a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
         return ;
-        break;   
+        
 
     default:
         return ;
@@ -1989,8 +1994,6 @@ register_numl.swap();
   register_numr.pop();
   // register_numr.pop();
 
-
-
 }
 class NodeBinOperator : public NodeToken
 {
@@ -2011,6 +2014,33 @@ public:
          visitNode = _visitNodeBinOperator;
     }
 };
+
+
+void _visitNodeUnitary(NodeToken *nd)
+{
+    //printf("bin operator\n");
+    register_numl.displaystack();
+   register_numl.duplicate();
+   
+  // register_numr.duplicate();
+     if (nd->getChildAtPos(0)->visitNode != NULL)
+            nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
+ register_numl.displaystack();
+
+register_numl.increase();
+
+  if (nd->getChildAtPos(1)->visitNode != NULL)
+  nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
+   register_numl.pop();
+   //content.sp.pop();
+   content.sp.push(content.get());
+   //register_numl.pop();
+   
+  //register_numr.pop();
+  // register_numr.pop();
+
+}
+
 class NodeUnitary : public NodeToken
 {
 public:
@@ -2020,18 +2050,21 @@ public:
         children.push_back(right);
         _nodetype = unitaryOpNode;
         _token = NULL;
+        visitNode=_visitNodeUnitary;
     }
         NodeUnitary()
     {
 
         _nodetype = unitaryOpNode;
         _token = NULL;
+        visitNode=_visitNodeUnitary;
     }
             NodeUnitary(NodeOperator t)
     {
 children.push_back(t);
         _nodetype = unitaryOpNode;
         _token = NULL;
+        visitNode=_visitNodeUnitary;
     }
 
 };
