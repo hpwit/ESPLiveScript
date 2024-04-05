@@ -163,6 +163,37 @@ uint32_t jump_bge(uint32_t value,uint32_t current_address,uint32_t destination_a
         
 }
 
+operandeType op_bne[3]={operandeType::registers,operandeType::registers,operandeType::label};
+uint32_t bin_bne(uint32_t *values)
+{
+    
+     return 0x7 +  (( (values[1] <<4) & 0xF0 ))+ (( (values[0] <<8) & 0xF00 ))+0x9000;
+    
+   // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
+uint32_t jump_bne(uint32_t value,uint32_t current_address,uint32_t destination_address)
+{
+            uint32_t dif=destination_address-current_address-4;
+          
+          return value+ ((dif<<16) & 0xFF0000);
+        
+}
+
+operandeType op_beq[3]={operandeType::registers,operandeType::registers,operandeType::label};
+uint32_t bin_beq(uint32_t *values)
+{
+    
+     return 0x7 +  (( (values[1] <<4) & 0xF0 ))+ (( (values[0] <<8) & 0xF00 ))+0x1000;
+    
+   // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
+uint32_t jump_beq(uint32_t value,uint32_t current_address,uint32_t destination_address)
+{
+            uint32_t dif=destination_address-current_address-4;
+          
+          return value+ ((dif<<16) & 0xFF0000);
+        
+}
 operandeType op_j[3]={operandeType::label};
 uint32_t bin_j(uint32_t *values)
 {

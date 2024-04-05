@@ -7,7 +7,6 @@ using namespace std;
 
 #define EOF_TEXT 0
 
-
 #ifndef ARDUINO
 template <typename... Args>
 std::string string_format(const std::string &format, Args... args)
@@ -63,16 +62,14 @@ string varTypeEnumNames[] =
 
 varType _varTypes[] =
     {
-        {
-            ._varType = __unit8_t__,
-            ._varSize = 1,
-            .load = {"l8ui"},
-            .store = {"s8i"},
-            .reg_name = "a",
-            .sizes = {1},
-            .size = 1,
-            .total_size=1 
-        },
+        {._varType = __unit8_t__,
+         ._varSize = 1,
+         .load = {"l8ui"},
+         .store = {"s8i"},
+         .reg_name = "a",
+         .sizes = {1},
+         .size = 1,
+         .total_size = 1},
         {
             ._varType = __unit16_t__,
             ._varSize = 2,
@@ -81,7 +78,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
-            .total_size=2,
+            .total_size = 2,
         },
         {
             ._varType = __unit32_t__,
@@ -91,7 +88,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
-            .total_size=4,
+            .total_size = 4,
         },
         {
             ._varType = __int__,
@@ -101,7 +98,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
-            .total_size=2,
+            .total_size = 2,
         },
         {
             ._varType = __float__,
@@ -111,7 +108,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
-            .total_size=4,
+            .total_size = 4,
         },
         {
             ._varType = __void__,
@@ -121,7 +118,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {0},
             .size = 0,
-            .total_size=0,
+            .total_size = 0,
         },
         {
             ._varType = __CRGB__,
@@ -131,7 +128,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1, 1, 1},
             .size = 3,
-            .total_size=3,
+            .total_size = 3,
         }
 
 };
@@ -144,6 +141,7 @@ enum KeywordType
     KeywordIf,
     KeywordThen,
     KeywordElse,
+    KeywordWhile
 };
 
 KeywordType __keywordTypes[] =
@@ -160,6 +158,7 @@ KeywordType __keywordTypes[] =
         KeywordIf,
         KeywordThen,
         KeywordElse,
+        KeywordWhile,
 };
 string keywordTypeNames[] =
     {
@@ -175,10 +174,11 @@ string keywordTypeNames[] =
         "KeywordIf",
         "KeywordThen",
         "KeywordElse",
+        "KeywordWhile"
 
 };
 
-string keyword_array[12] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "__ext__", "for", "if", "then", "else"};
+string keyword_array[13] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "__ext__", "for", "if", "then", "else", "while"};
 
 enum tokenType
 {
@@ -209,6 +209,11 @@ enum tokenType
     TokenPlusPlus,
     TokenMinusMinus,
     TokenModulo,
+    TokenLessOrEqualThan,
+    TokenMoreThan,
+    TokenMoreOrEqualThan,
+    TokenNotEqual,
+    TokenNot
 };
 
 string tokenNames[] = {
@@ -239,7 +244,11 @@ string tokenNames[] = {
     "TokenPlusPlus",
     "TokenMinusMinus",
     "TokenModulo",
-};
+    "TokenLessOrEqualThan",
+    "TokenMoreThan",
+    "TokenMoreOrEqualThan",
+    "TokenNot"
+    };
 
 typedef struct
 {
@@ -320,7 +329,7 @@ token transNumber(string str)
 
 int isKeyword(string str)
 {
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 13; i++)
     {
         if (keyword_array[i].compare(str) == 0)
         {
@@ -457,7 +466,6 @@ list<token> list_of_token;
 class Tokens
 {
 public:
-
     Tokens()
     {
         position = 0;
@@ -583,7 +591,7 @@ Tokens _tks;
 void tokenizer(Script *script)
 {
 
-   // list<token> list_of_token;
+    // list<token> list_of_token;
     int line = 1;
     int pos = 0;
     list_of_token.clear();
@@ -596,52 +604,138 @@ void tokenizer(Script *script)
         // printf("line : %d pos:%d char:%c token size:%d %d\n",line,pos,c,list_of_token.size(),heap_caps_get_free_size(MALLOC_CAP_8BIT));
         if (c == '=')
         {
-            token t;
-            t._vartype = NULL;
-            t.type = TokenEqual;
-            t.line = line;
-            t.pos = pos;
-            t.text = "=";
-            list_of_token.push_back(t);
-            continue;
+            char c2 = script->nextChar();
+            if (c2 == '=')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenDoubleEqual;
+                t.text = "==";
+                t.line = line;
+                t.pos = pos;
+                list_of_token.push_back(t);
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                token t;
+                t._vartype = NULL;
+                t.type = TokenEqual;
+                t.line = line;
+                t.pos = pos;
+                t.text = "=";
+                list_of_token.push_back(t);
+                continue;
+            }
         }
         if (c == '<')
         {
-            token t;
-            t._vartype = NULL;
-            t.type = TokenLessThan;
-            t.line = line;
-            t.pos = pos;
-            t.text = "<";
-            list_of_token.push_back(t);
-            continue;
+            char c2 = script->nextChar();
+            if (c2 == '=')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenLessOrEqualThan;
+                t.text = "<=";
+                t.line = line;
+                t.pos = pos;
+                list_of_token.push_back(t);
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                token t;
+                t._vartype = NULL;
+                t.type = TokenLessThan;
+                t.line = line;
+                t.pos = pos;
+                t.text = "<";
+                list_of_token.push_back(t);
+                continue;
+            }
         }
+        if (c == '>')
+        {
+            char c2 = script->nextChar();
+            if (c2 == '=')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenMoreOrEqualThan;
+                t.text = ">=";
+                t.line = line;
+                t.pos = pos;
+                list_of_token.push_back(t);
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                token t;
+                t._vartype = NULL;
+                t.type = TokenMoreThan;
+                t.line = line;
+                t.pos = pos;
+                t.text = ">";
+                list_of_token.push_back(t);
+                continue;
+            }
+        }        
+    if (c == '!')
+        {
+            char c2 = script->nextChar();
+            if (c2 == '=')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenNotEqual;
+                t.text = "!=";
+                t.line = line;
+                t.pos = pos;
+                list_of_token.push_back(t);
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                token t;
+                t._vartype = NULL;
+                t.type = TokenNot;
+                t.line = line;
+                t.pos = pos;
+                t.text = "!";
+                list_of_token.push_back(t);
+                continue;
+            }
+        }                
         if (c == '+')
         {
-           char  c2 = script->nextChar();
-           if(c2=='+')
-           {
-            token t;
-            t._vartype = NULL;
-            t.type = TokenPlusPlus;
-            t.text = "++";
-            t.line = line;
-            t.pos = pos;
-            list_of_token.push_back(t);
-            continue;
-           }
-           else
-           {
-            script->previousChar();
-            token t;
-            t._vartype = NULL;
-            t.type = TokenAddition;
-            t.text = "+";
-            t.line = line;
-            t.pos = pos;
-            list_of_token.push_back(t);
-            continue;
-           }
+            char c2 = script->nextChar();
+            if (c2 == '+')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenPlusPlus;
+                t.text = "++";
+                t.line = line;
+                t.pos = pos;
+                list_of_token.push_back(t);
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                token t;
+                t._vartype = NULL;
+                t.type = TokenAddition;
+                t.text = "+";
+                t.line = line;
+                t.pos = pos;
+                list_of_token.push_back(t);
+                continue;
+            }
         }
 
         if (isIna_zA_Z_(c))
@@ -908,5 +1002,5 @@ void tokenizer(Script *script)
     t.line = line;
     t.pos = pos + 1;
     list_of_token.push_back(t);
-    //return list_of_token;
+    // return list_of_token;
 }

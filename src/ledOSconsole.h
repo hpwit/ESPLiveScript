@@ -473,7 +473,7 @@ public:
     Serial.printf(config.DOWN);
     Serial.printf(config.LEFT);
     Serial.print("\u001b[0K");
-    Serial.printf("%sPos x:%3d:y%3d height:%d curpos:%d script size:%d  mem:%12d%s", footerformat.c_str(), internal_coordinates.x, internal_coordinates.y, height, internal_coordinates.internaly, script.size(), esp_get_free_heap_size(), currentformat.c_str());
+    Serial.printf("%sPos x:%3d y:%3d height:%d curpos:%d script size:%d  mem:%12d%s", footerformat.c_str(), internal_coordinates.x, internal_coordinates.y, height, internal_coordinates.internaly, script.size(), esp_get_free_heap_size(), currentformat.c_str());
     Serial.printf(config.RESTORE);
     // Serial.printf(config.SHOWCURSOR);
   }

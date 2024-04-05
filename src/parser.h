@@ -659,7 +659,163 @@ public:
                 return;
             }
         }
-        
+
+                    else if (MatchKeyword(KeywordElse) && Match(TokenKeyword))
+        {
+            //on tente le for(){}
+            token *fort=current();
+                    Context cntx;
+                    cntx.name = current()->text;
+                   // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
+                    Context *k = (*(current_cntx)).addChild(cntx);
+                    current_cntx = k;
+                    string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+                    //=target;
+                    for_if_num++;
+               
+
+                    NodeElse ndf=NodeElse(fort);
+                    ndf.target=target;
+                    current_node=current_node->addChild(ndf);
+                    next();
+
+                    parseBlockStatement();
+                    if( Error.error)
+                    {
+                        return ;
+                    }
+
+                    // current_node->target=target;
+         
+                    //resParse result;
+
+                    Error.error = 0;
+                    //result._nd = ndf;
+                   // next();
+                     current_cntx = current_cntx->parent;
+                     current_node=current_node->parent;
+                    //  current_node=current_node->parent;
+                    return ;
+
+
+          
+        } 
+                    else if (MatchKeyword(KeywordWhile) && Match(TokenKeyword))
+        {
+            //on tente le for(){}
+            token *fort=current();
+                    Context cntx;
+                    cntx.name = current()->text;
+                   // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
+                    Context *k = (*(current_cntx)).addChild(cntx);
+                    current_cntx = k;
+                    string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+                    //=target;
+                    for_if_num++;
+                next();
+                if(Match(TokenOpenParenthesis))
+                {
+                    NodeWhile ndf=NodeWhile(fort);
+                    ndf.target=target;
+                    current_node=current_node->addChild(ndf);
+                    next();
+                    
+                     //printf(" *************** on parse comp/n");
+                     parseComparaison(target);
+                     if(Error.error)
+                     {
+                        return ;
+                     }
+                    ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
+                   //printf(" *************** on parse inc/n");
+                     
+                    parseBlockStatement();
+                    if( Error.error)
+                    {
+                        return ;
+                    }
+
+                    // current_node->target=target;
+         
+                    //resParse result;
+
+                    Error.error = 0;
+                    //result._nd = ndf;
+                   // next();
+                     current_cntx = current_cntx->parent;
+                     current_node=current_node->parent;
+                    //  current_node=current_node->parent;
+                    return ;
+
+
+                }
+                else
+                {
+                    //resParse res;
+                    Error.error = 1;
+                    Error.error_message = string_format("expecting ( %s", linepos().c_str());
+                    next();
+                    return;
+                }
+        }  
+            else if (MatchKeyword(KeywordIf) && Match(TokenKeyword))
+        {
+            //on tente le for(){}
+            token *fort=current();
+                    Context cntx;
+                    cntx.name = current()->text;
+                   // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
+                    Context *k = (*(current_cntx)).addChild(cntx);
+                    current_cntx = k;
+                    string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+                    //=target;
+                    for_if_num++;
+                next();
+                if(Match(TokenOpenParenthesis))
+                {
+                    NodeIf ndf=NodeIf(fort);
+                    ndf.target=target;
+                    current_node=current_node->addChild(ndf);
+                    next();
+                    
+                     //printf(" *************** on parse comp/n");
+                     parseComparaison(target);
+                     if(Error.error)
+                     {
+                        return ;
+                     }
+                    ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
+                   //printf(" *************** on parse inc/n");
+                     
+                    parseBlockStatement();
+                    if( Error.error)
+                    {
+                        return ;
+                    }
+
+                    // current_node->target=target;
+         
+                    //resParse result;
+
+                    Error.error = 0;
+                    //result._nd = ndf;
+                   // next();
+                     current_cntx = current_cntx->parent;
+                     current_node=current_node->parent;
+                    //  current_node=current_node->parent;
+                    return ;
+
+
+                }
+                else
+                {
+                    //resParse res;
+                    Error.error = 1;
+                    Error.error_message = string_format("expecting ( %s", linepos().c_str());
+                    next();
+                    return;
+                }
+        }    
         else if (MatchKeyword(KeywordFor) && Match(TokenKeyword))
         {
             //on tente le for(){}

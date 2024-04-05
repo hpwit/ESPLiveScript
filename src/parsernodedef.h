@@ -169,7 +169,9 @@ public:
     }
         void addBefore(string s)
     {
-        _it=l->insert(_it,s);
+       _it= l->insert(_it,s);
+       _it++;
+       position++;
     }
         void addBefore(list<string>::iterator it,string s)
     {
@@ -283,6 +285,9 @@ enum nodeType
     storeLocalVariableNode,
     storeGlobalVariableNode,
     storeExtGlocalVariableNode,
+    ifNode,
+    elseNode,
+    whileNode,
 };
 
 string nodeTypeNames[] =
@@ -317,6 +322,9 @@ string nodeTypeNames[] =
         "storeLocalVariableNode",
         "storeGlobalVariableNode",
         "storeExtGlocalVariableNode",
+        "ifNode",
+        "elseNode",
+        "whileNode"
 };
 
 typedef struct
@@ -750,6 +758,112 @@ public:
         _total_size = nd._total_size;
         visitNode=_visitNodeExtGlobalVariable;
     }
+};
+
+void _visitNodeElse(NodeToken *nd)
+{
+    content.addBefore(  string_format("j %s\n",nd->target.c_str()));
+        if (nd->getChildAtPos(0)->visitNode != NULL)
+        {
+            register_numl.duplicate();
+         nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
+         register_numl.pop();
+        }
+        content.addAfter(  string_format("%s:\n",nd->target.c_str()));
+        
+                     
+}
+
+class NodeElse : public NodeToken
+{
+public:
+    NodeElse()
+    {
+        _nodetype = elseNode;
+        _token = NULL;
+        visitNode=_visitNodeElse;
+    }
+        NodeElse(NodeToken nd)
+    {
+        _nodetype = elseNode;
+        _token = nd._token;
+        visitNode=_visitNodeElse;
+    }
+
+};
+
+void _visitNodeWhile(NodeToken *nd)
+{
+    content.addAfter(  string_format("%s_while:\n",nd->target.c_str()));
+        if (nd->getChildAtPos(0)->visitNode != NULL)
+        {
+            register_numl.duplicate();
+         nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
+         register_numl.pop();
+        }
+        content.addAfter(  string_format("%s:\n",nd->target.c_str()));
+        if (nd->getChildAtPos(1)->visitNode != NULL)
+        {
+            register_numl.duplicate();
+         nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
+         register_numl.pop();
+        }
+        content.addAfter( string_format("j %s_while\n",nd->target.c_str()));
+                      content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
+}
+
+class NodeWhile : public NodeToken
+{
+public:
+    NodeWhile()
+    {
+        _nodetype = whileNode;
+        _token = NULL;
+        visitNode=_visitNodeWhile;
+    }
+        NodeWhile(NodeToken nd)
+    {
+        _nodetype = whileNode;
+        _token = nd._token;
+        visitNode=_visitNodeWhile;
+    }
+
+};
+
+void _visitNodeIf(NodeToken *nd)
+{
+        if (nd->getChildAtPos(0)->visitNode != NULL)
+        {
+            register_numl.duplicate();
+         nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
+         register_numl.pop();
+        }
+        content.addAfter(  string_format("%s:\n",nd->target.c_str()));
+        if (nd->getChildAtPos(1)->visitNode != NULL)
+        {
+            register_numl.duplicate();
+         nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
+         register_numl.pop();
+        }
+                      content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
+}
+
+class NodeIf : public NodeToken
+{
+public:
+    NodeIf()
+    {
+        _nodetype = ifNode;
+        _token = NULL;
+        visitNode=_visitNodeIf;
+    }
+        NodeIf(NodeToken nd)
+    {
+        _nodetype = ifNode;
+        _token = nd._token;
+        visitNode=_visitNodeIf;
+    }
+
 };
 
 /*
@@ -2567,7 +2681,7 @@ void _visitNodeFor(NodeToken *nd)
          register_numl.pop();
         }
     
-
+content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
 
 
        // r.header=start.header+compar.header+inc.header+block.header;
@@ -2654,27 +2768,44 @@ void _visitNodeComparatorFunction(NodeToken *nd)
         nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
         
 ////printf("compare %s %s\n",tokenNames[nd->_token->type ].c_str(),nd->_token->text.c_str());
+ string compop="";
+ //to compose 
+ int h;
     switch(nd->_token->type)
     {
         case TokenLessThan:
-           content.addAfter( string_format("bge a%d,a%d,%s_end\n",numl,leftl,nd->target.c_str()));
-            content.addAfter(  string_format("j %s\n",nd->target.c_str()));
-              content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
+            compop="bge"; //greater or equal
+             // content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
         break;
+        case TokenDoubleEqual:
+            compop="bne"; //not equal
+        break;
+        case TokenNotEqual:
+            compop="beq"; // equal
+        break;
+        case TokenMoreOrEqualThan:
+            compop="blt"; // less then
+        break;        
+        case TokenMoreThan:
+            compop="bge"; //not equal
+             h=numl;
+            numl=leftl;
+            leftl=h;
+        break;
+        case TokenLessOrEqualThan:
+            compop="blt"; //not equal
+             h=numl;
+            numl=leftl;
+            leftl=h;
+        break;        
+
+
         default:
         break;        
     }
-/*
-    prt_r r;
-    r.f = fleft.f + fright.f + f;
-    r.header=fleft.header+fright.header;
+               content.addAfter( string_format("%s a%d,a%d,%s_end\n",compop.c_str(), numl,leftl,nd->target.c_str()));
+            content.addAfter(  string_format("j %s\n",nd->target.c_str()));
 
-    r.register_numl = fright.register_numl;
-
-        r.register_numl += 1;
-
-    r.register_numr = fright.register_numr;
-    */
    register_numl.increase();
 
     return ;

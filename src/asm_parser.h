@@ -409,6 +409,25 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
 
     return ps;
   }
+     if (sp.opcde.compare("beq") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_beq, 3, bin_beq);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_beq;
+
+    return ps;
+  }
+     if (sp.opcde.compare("bne") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_bne, 3, bin_bne);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_bne;
+
+    return ps;
+  }
+
   if (sp.opcde.compare("l32i") == 0)
   {
     return parseOperandes(sp.operandes, 3, op_l32i, 3, bin_l32i);
