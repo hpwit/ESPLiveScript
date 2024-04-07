@@ -657,6 +657,9 @@ void clear(console *cons, vector<string> args)
   // cons->gotoline();
 }
 
+
+
+
 void enterProgMode(console *cons)
 {
   if (cons->cmode == keyword)
@@ -853,6 +856,7 @@ void initEscCommands(console *cons)
   cons->addEscCommand(27, extraEscCommand);
   cons->addEscCommand(15, test);
   cons->addEscCommand(5, scrollup);
+  //cons->addEscCommand(18, compilerun);
   cons->addEscCommand(22, switchfooter);
   // cons->addKeywordCommand("_list", _list);
   cons->addKeywordCommand("cls", cons->cls);

@@ -63,6 +63,10 @@ public:
     {
         root._nodetype = programNode;
         point_regnum=4;
+     stack_size = 0;
+for_if_num = 0;
+ block_statement_num = 0;
+ nb_argument=0;
         _tks.init();
 
         parseProgram();

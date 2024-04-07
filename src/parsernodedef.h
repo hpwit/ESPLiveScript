@@ -801,7 +801,7 @@ void _visitNodeWhile(NodeToken *nd)
          nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
          register_numl.pop();
         }
-        content.addAfter(  string_format("%s:\n",nd->target.c_str()));
+        //content.addAfter(  string_format("%s:\n",nd->target.c_str()));
         if (nd->getChildAtPos(1)->visitNode != NULL)
         {
             register_numl.duplicate();
@@ -838,13 +838,14 @@ void _visitNodeIf(NodeToken *nd)
          nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
          register_numl.pop();
         }
-        content.addAfter(  string_format("%s:\n",nd->target.c_str()));
+       // content.addAfter(  string_format("%s:\n",nd->target.c_str()));
         if (nd->getChildAtPos(1)->visitNode != NULL)
         {
             register_numl.duplicate();
          nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
          register_numl.pop();
         }
+         
                       content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
 }
 
@@ -2680,7 +2681,7 @@ void _visitNodeFor(NodeToken *nd)
          nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
          register_numl.pop();
         }
-    
+    content.addAfter(  string_format("j %s\n",nd->target.c_str()));
 content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
 
 
@@ -2774,26 +2775,26 @@ void _visitNodeComparatorFunction(NodeToken *nd)
     switch(nd->_token->type)
     {
         case TokenLessThan:
-            compop="bge"; //greater or equal
+            compop="blt"; //greater or equal
              // content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
         break;
         case TokenDoubleEqual:
-            compop="bne"; //not equal
+            compop="bqe"; //not equal
         break;
         case TokenNotEqual:
-            compop="beq"; // equal
+            compop="bne"; // equal
         break;
         case TokenMoreOrEqualThan:
-            compop="blt"; // less then
+            compop="bge"; // less then
         break;        
         case TokenMoreThan:
-            compop="bge"; //not equal
+            compop="blt"; //not equal
              h=numl;
             numl=leftl;
             leftl=h;
         break;
         case TokenLessOrEqualThan:
-            compop="blt"; //not equal
+            compop="bge"; //not equal
              h=numl;
             numl=leftl;
             leftl=h;
@@ -2803,8 +2804,9 @@ void _visitNodeComparatorFunction(NodeToken *nd)
         default:
         break;        
     }
-               content.addAfter( string_format("%s a%d,a%d,%s_end\n",compop.c_str(), numl,leftl,nd->target.c_str()));
-            content.addAfter(  string_format("j %s\n",nd->target.c_str()));
+               content.addAfter( string_format("%s a%d,a%d,%s_if\n",compop.c_str(), numl,leftl,nd->target.c_str()));
+            content.addAfter(  string_format("j %s_end\n",nd->target.c_str()));
+             content.addAfter( string_format("%s_if:\n",nd->target.c_str()));
 
    register_numl.increase();
 
