@@ -84,6 +84,9 @@ for_if_num = 0;
         _header.clear();
         _content.clear();
         _sp.clear();
+        _target_stack.clear();
+        _register_numr.clear();
+        _register_numl.clear();
     }
 
     resParse parseCreateArguments()
@@ -148,8 +151,8 @@ for_if_num = 0;
     {
 
         current_cntx->findVariable(current(), false); //false
-        NodeToken *nd = search_result;
-        if (nd == NULL)
+      // NodeToken *nd = search_result;
+        if (search_result == NULL)
         {
             // //printf("hhheeheh\n");
 
@@ -160,9 +163,10 @@ for_if_num = 0;
         }
         else
         {
-            token *vartoken = current();
-            auto var = createNodeVariable(vartoken, nd, isStore);
-            current_node = current_node->addChild(var);
+            //token *vartoken = current();
+           // auto var =
+           // current_node = current_node->addChild(
+                 createNodeVariable(current(), search_result, isStore);
             next();
             if (Match(TokenOpenBracket))
             {
@@ -673,13 +677,14 @@ for_if_num = 0;
                    // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
                     Context *k = (*(current_cntx)).addChild(cntx);
                     current_cntx = k;
-                    string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+                   //string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+                    targetList.push(string_format("label_%d%s",for_if_num,current_cntx->name.c_str()));
                     //=target;
                     for_if_num++;
                
 
                     NodeElse ndf=NodeElse(fort);
-                    ndf.target=target;
+                    ndf.target=targetList.pop();
                     current_node=current_node->addChild(ndf);
                     next();
 
@@ -765,25 +770,27 @@ for_if_num = 0;
             else if (MatchKeyword(KeywordIf) && Match(TokenKeyword))
         {
             //on tente le for(){}
-            token *fort=current();
+            //token *fort=current();
                     Context cntx;
                     cntx.name = current()->text;
                    // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
                     Context *k = (*(current_cntx)).addChild(cntx);
                     current_cntx = k;
-                    string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+                    //string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+                    targetList.push(string_format("label_%d%s",for_if_num,current_cntx->name.c_str()));
                     //=target;
                     for_if_num++;
-                next();
-                if(Match(TokenOpenParenthesis))
+                //next();
+                if(Match(TokenOpenParenthesis,1))
                 {
-                    NodeIf ndf=NodeIf(fort);
-                    ndf.target=target;
+                    NodeIf ndf=NodeIf(current());
+                    ndf.target=targetList.get();
+                    next();
                     current_node=current_node->addChild(ndf);
                     next();
                     
                      //printf(" *************** on parse comp/n");
-                     parseComparaison(target);
+                     parseComparaison(targetList.pop());
                      if(Error.error)
                      {
                         return ;
@@ -823,20 +830,22 @@ for_if_num = 0;
         else if (MatchKeyword(KeywordFor) && Match(TokenKeyword))
         {
             //on tente le for(){}
-            token *fort=current();
+           // token *fort=current();
                     Context cntx;
                     cntx.name = current()->text;
                    // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
-                    Context *k = (*(current_cntx)).addChild(cntx);
-                    current_cntx = k;
-                    string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+                    current_cntx = (*(current_cntx)).addChild(cntx);
+                    //current_cntx = k;
+                    //string target =string_format("label_%d%s",for_if_num,current_cntx->name.c_str());
+                    targetList.push(string_format("label_%d%s",for_if_num,current_cntx->name.c_str()));
                     //=target;
                     for_if_num++;
-                next();
-                if(Match(TokenOpenParenthesis))
+               // next();
+                if(Match(TokenOpenParenthesis,1))
                 {
-                    NodeFor ndf=NodeFor(fort);
-                    ndf.target=target;
+                    NodeFor ndf=NodeFor(current());
+                    ndf.target=targetList.get();
+                    next();
                     current_node=current_node->addChild(ndf);
                     next();
                     current_node=current_node->addChild(NodeStatement());
@@ -847,7 +856,7 @@ for_if_num = 0;
                      }
                     current_node=current_node->parent;
                      //printf(" *************** on parse comp/n");
-                     parseComparaison(target);
+                     parseComparaison(targetList.pop());
                      if(Error.error)
                      {
                         return ;

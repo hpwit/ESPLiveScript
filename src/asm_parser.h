@@ -535,12 +535,12 @@ int value = strtol(sp.operandes.c_str(), &endptr, 10);
 if (*endptr == 0)
 {
   result_parse_line ps;
-    ps.op = opCodeType::number;
+    ps.op = opCodeType::data;
     result_parse_line *ps1 = &(*asm_parsed)[(*asm_parsed).size() - 1];
       if (ps1->op == opCodeType::label)
       {
-        ps1->size = value;
-        ps1->op = opCodeType::number_label;
+        ps1->size = 4;
+        ps1->op = opCodeType::data_label;
         ps1->align = true;
         ps.error.error = 0;
         ps.size = value;
@@ -766,10 +766,12 @@ void createAddress(vector<result_parse_line> *asm_parsed)
    
     if(it->op != opCodeType::data && it->op != opCodeType::number)
     {
+      
       // printf("%s %s\n\r",it->debugtxt.c_str(), it->name.c_str());
       // result_parse_line  *re_sparse=&asmParsed[i];
+      
       it->address = add_instr;
-      if (it->align == true)
+      if(it->align == true)
       {
         // printf("%s %s %d\n\r",it->debugtxt.c_str(), it->name.c_str(),add_instr & 3);
         if ((add_instr & 3) != 0)
@@ -804,6 +806,8 @@ void createAddress(vector<result_parse_line> *asm_parsed)
         }
       }
       add_instr += it->size;
+
+      
     }
     else  
     {
@@ -925,14 +929,17 @@ error_message_struct calculateJump(vector<result_parse_line> *asm_parsed)
 
 void createAbsoluteJump(uint8_t *exec, vector<result_parse_line> *asm_parsed, uint32_t address)
 {
+  int nb_data=0;
   for (int i = 0; i < (*asm_parsed).size(); i++)
   {
     if ((*asm_parsed)[i].op == opCodeType::data_label || (*asm_parsed)[i].op == opCodeType::number_label)
     {
       uint32_t content = (*asm_parsed)[i + 1].address + address;
+      printf("on veut mapper address:%d\r\n",(*asm_parsed)[i + 1].address);
       (*asm_parsed)[i].bincode = content;
-      uint32_t *new_adr = (uint32_t *)exec + (*asm_parsed)[i].address / 4;
+      uint32_t *new_adr = (uint32_t *)exec +nb_data;// (*asm_parsed)[i].address / 4;
       // printf("new content %x atr adress %x\n",content,(uint32_t)new_adr);
+      nb_data++;
       memcpy(new_adr, &content, 4);
     }
     
@@ -972,12 +979,14 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
     exe.error.error_message = "No global start function found";
     return exe;
   }
-  int data_size = -1;
+  int data_size = 0;
   int last_one = -1;
+  int nb_data=0;
   for (int i = 0; i < asm_parsed->size(); i++)
   {
     if ((*asm_parsed)[i].op == opCodeType::data || (*asm_parsed)[i].op == opCodeType::number)
     {
+      nb_data++;
       last_one = i;
     }
   }
@@ -986,17 +995,17 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
     data_size = (*asm_parsed)[last_one].size + (*asm_parsed)[last_one].address;
   }
   uint32_t intr_size = (*asm_parsed)[(*asm_parsed).size() - 1].address + (*asm_parsed)[(*asm_parsed).size() - 1].size;
-  printf("Creation of an %d bytes binary and %d bytes data\n", intr_size, data_size);
+  printf("Creation of an %d bytes binary and %d bytes data, nb data_label %d\r\n", intr_size, data_size,nb_data);
 
-  uint8_t *val_tmp = (uint8_t *)malloc((intr_size / 4) * 4 + 4);
+  uint8_t *val_tmp = (uint8_t *)malloc((intr_size / 8) * 8 + 8);
   uint8_t *data;
   if (data_size > 0)
   {
     data = (uint8_t *)malloc((data_size / 4) * 4 + 4);
   }
 
-  uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 4) * 4 + 4, MALLOC_CAP_32BIT);
-
+  uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 8) * 8 + 8, MALLOC_CAP_32BIT);
+int h=0;
   for (int i = 0; i < (*asm_parsed).size(); i++)
   {
     if ((*asm_parsed)[i].op == opCodeType::data || (*asm_parsed)[i].op == opCodeType::number)
@@ -1005,18 +1014,33 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
     }
     else
     {
+      if(i<=last_one)
+      {
+     // printf("address %d  size:%d\r\n",(*asm_parsed)[i].address,(*asm_parsed)[i].size);
+     // memcpy(val_tmp + (*asm_parsed)[i].address, &(*asm_parsed)[i].bincode, (*asm_parsed)[i].size);
+     //h+=4;
+     
+      }
+      else
+      {
+       // printf("address %d new address%d size %d\r\n",(*asm_parsed)[i].address,(*asm_parsed)[i].address,(*asm_parsed)[i].size);
       memcpy(val_tmp + (*asm_parsed)[i].address, &(*asm_parsed)[i].bincode, (*asm_parsed)[i].size);
+    // (*asm_parsed)[i].address=(*asm_parsed)[i].address-data_size+nb_data*4;
+      }
     }
   }
+ // printf("create absolute jump \r\n");
   createAbsoluteJump(val_tmp, asm_parsed, (uint32_t)data);
-  memcpy(exec, val_tmp, (intr_size / 4) * 4 + 4);
+   //printf("copy \r\n");
+  memcpy(exec, val_tmp, (intr_size / 8) * 8 + 8);
+ // printf("cleaning \r\n");
   free(val_tmp);
 
   // exe.start_function = (uint32_t)(exec + (*asm_parsed)[index].address / 4);
   Serial.printf("%d start function(s) found:\r\n", exe.functions.size());
   for (int i = 0; i < exe.functions.size(); i++)
   {
-    exe.functions[i].address = (uint32_t)(exec + exe.functions[i].address / 4);
+    exe.functions[i].address = (uint32_t)(exec + (exe.functions[i].address) / 4);
     Serial.printf("%2d: %s\t%x\r\n", i, exe.functions[i].name.c_str(), exe.functions[i].address);
   }
   exe.start_program = exec;

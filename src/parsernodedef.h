@@ -18,26 +18,27 @@ int nb_argument=0;
 list<int> nb_args;
 list<string> _header;
 list<string> _content;
+list<string> _target_stack;
 int point_regnum=4;
 bool isExternal = false;
 list<int> _register_numl;
 list<int> _register_numr;
 list<int> _sp;
 
-class StackPosition
+class StackString
 {
     public:
- StackPosition(list<list<string>::iterator> *l2)
+ StackString(list<string> *l2)
  {
     l=l2;
  }
- void push(list<string>::iterator a)
+ void push(string a)
  {
     l->push_back(a);
  }
- list<string>::iterator pop()
+ string pop()
  {
-    list<string>::iterator  sav=l->back();
+    string sav=l->back();
     l->pop_back();
     return sav;
  }
@@ -45,7 +46,7 @@ class StackPosition
  {
     l->clear();
  }
- list<string>::iterator  get()
+ string  get()
  {
     return l->back();
  }
@@ -53,13 +54,13 @@ class StackPosition
  {
     l->push_back(l->back());
  }
- list<list<string>::iterator> *l;
+list<string> *l;
 
 
 void swap()
 {
-    list<string>::iterator  sav=pop();
-    list<string>::iterator sav2=pop();
+    string  sav=pop();
+    string sav2=pop();
     push(sav);
     push(sav2);
 }
@@ -222,6 +223,7 @@ list<string>::iterator _it;
 list<string>::iterator parent;
 StackInt sp=StackInt(&_sp);
 
+
 int position;
 };
 
@@ -229,6 +231,7 @@ IteratorString content=IteratorString(&_content);
 IteratorString header=IteratorString(&_header);
 StackInt register_numr=StackInt(&_register_numr);
 StackInt register_numl=StackInt(&_register_numl);
+StackString targetList=StackString(&_target_stack);
 enum statementType
 {
     statementAssignment,
@@ -386,10 +389,10 @@ public:
     token *_token;
     // statementType stmttype;
     void (*visitNode)(NodeToken *nd) = NULL;
-    string target;
+   
     NodeToken *_link;
     NodeToken *parent;
-    // string target;
+     string target;
     //  Context *cntx;
     uint8_t stack_pos = 0;
     bool isPointer = false;
@@ -483,7 +486,7 @@ public:
     void findVariable(token *t, bool isCreation)
     {
 search_result=NULL;
-      // //printf("lokking for variable |%s| dans %s  already %d variables defined \n", t->text.c_str(),name.c_str(),variables.size());
+     // printf("lokking for variable |%s| dans %s  already %d variables defined \n", t->text.c_str(),name.c_str(),variables.size());
         for (list<NodeToken>::iterator it = variables.begin(); it != variables.end(); ++it)
         {
           // //printf("is equalt to |%s|\n", (*it)._token->text.c_str());
@@ -732,7 +735,7 @@ for (int i = 0; i < v->size; i++)
     }
     //res.f = f;
    // res.header = number.header + h;
-    point_regnum++;
+   // point_regnum++;
     register_numl.pop();
     //    res.register_numl=register_numl;
    // res.register_numr=register_numr;
@@ -756,6 +759,13 @@ public:
         _token = nd._token;
         isPointer = nd.isPointer;
         _total_size = nd._total_size;
+        visitNode=_visitNodeExtGlobalVariable;
+    }
+        NodeExtGlobalVariable(token *nd)
+    {
+        _nodetype = extGlobalVariableNode;
+        _token = nd;
+  
         visitNode=_visitNodeExtGlobalVariable;
     }
 };
@@ -789,6 +799,7 @@ public:
         _token = nd._token;
         visitNode=_visitNodeElse;
     }
+     
 
 };
 
@@ -827,6 +838,8 @@ public:
         _token = nd._token;
         visitNode=_visitNodeWhile;
     }
+    
+
 
 };
 
@@ -864,6 +877,7 @@ public:
         _token = nd._token;
         visitNode=_visitNodeIf;
     }
+     
 
 };
 
@@ -998,6 +1012,13 @@ public:
         _total_size = nd._total_size;
         visitNode=_visitNodeStoreExtGlobalVariable;
     }
+        NodeStoreExtGlobalVariable(token *nd)
+    {
+        _nodetype = extGlobalVariableNode;
+        _token = nd;
+    
+        visitNode=_visitNodeStoreExtGlobalVariable;
+    }
 };
 /*
 prt_r visitNodeGlobalVariable(NodeToken *nd, int register_numl, int register_numr)
@@ -1092,7 +1113,7 @@ for (int i = 0; i < v->size; i++)
     }
     //res.f = f;
    // res.header = number.header + h;
-   // point_regnum++;
+    //point_regnum++;
     register_numl.pop();
     //    res.register_numl=register_numl;
    // res.register_numr=register_numr;
@@ -1126,6 +1147,13 @@ public:
         _total_size = nd._total_size;
         visitNode=_visitNodeGlobalVariable;
     }
+    NodeGlobalVariable(token *nd)
+    {
+        _nodetype = globalVariableNode;
+        _token = nd;
+
+        visitNode=_visitNodeGlobalVariable;
+    }    
 };
 
 /*
@@ -1221,7 +1249,7 @@ if (nd->children.size() > 0)
        register_numl.pop();
     }
     
-content.addAfter( string_format("l32r a%d,main_%s\n",point_regnum, nd->_token->text.c_str()));
+content.addAfter( string_format("//stor\nl32r a%d,main_%s\n",point_regnum, nd->_token->text.c_str()));
     
     if (nd->isPointer)
     {
@@ -1233,9 +1261,9 @@ content.addAfter( string_format("l32r a%d,main_%s\n",point_regnum, nd->_token->t
     }
 content.end();
 content.sp.pop();
-    point_regnum++;
+  //  point_regnum++;
     register_numl.pop();
-    point_regnum--;
+   // point_regnum--;
 
     //    res.register_numl=register_numl;
    // res.register_numr=register_numr;
@@ -1257,6 +1285,13 @@ public:
         _token = nd._token;
         isPointer = nd.isPointer;
         _total_size = nd._total_size;
+        visitNode = _visitNodeStoreGlobalVariable;
+    }
+        NodeStoreGlobalVariable(token *nd)
+    {
+        _nodetype = storeGlobalVariableNode;
+        _token = nd;
+
         visitNode = _visitNodeStoreGlobalVariable;
     }
 };
@@ -1386,6 +1421,13 @@ public:
         stack_pos = nd.stack_pos;
         visitNode=_visitNodeLocalVariable;
     }
+        NodeLocalVariable(token  *nd)
+    {
+        _nodetype = localVariableNode;
+        _token = nd;
+
+        visitNode=_visitNodeLocalVariable;
+    }
 };
 /*
 prt_r visitNodeStoreLocalVariable(NodeToken *nd, int register_numl, int register_numr)
@@ -1476,6 +1518,13 @@ public:
         isPointer = nd.isPointer;
         _total_size = nd._total_size;
         stack_pos = nd.stack_pos;
+        visitNode = _visitNodeStoreLocalVariable;
+    }
+    NodeStoreLocalVariable(token *nd)
+    {
+        _nodetype = storeLocalVariableNode;
+        _token = nd;
+
         visitNode = _visitNodeStoreLocalVariable;
     }
 };
@@ -1900,9 +1949,10 @@ public:
 void _visitNodeInputArguments(NodeToken *nd)
 {
     content.addAfter(string_format("l32r a%d,stack",point_regnum));
+    
 for (int i = 0; i < nd->children.size(); i++)
     {
-        content.addAfter(string_format("%s a15,a%d,0",nd->getChildAtPos(i)->_token->_vartype->load[0].c_str(),point_regnum));
+        content.addAfter(string_format("%s a15,a%d,%d",nd->getChildAtPos(i)->_token->_vartype->load[0].c_str(),point_regnum,nd->getChildAtPos(i)->stack_pos-16));
         content.addAfter(string_format("%s a15,a1,%d",nd->getChildAtPos(i)->_token->_vartype->store[0].c_str(),nd->getChildAtPos(i)->stack_pos));
     }
 }
@@ -2288,10 +2338,10 @@ public:
     }
 };
 
-NodeToken createNodeVariable(token *_var, NodeToken *nd, bool isStore)
+void createNodeVariable(token *_var, NodeToken *nd, bool isStore)
 {
-    //////printf("***************create cariavbla %d %s\n", isStore ,nodeTypeNames[nd->_nodetype].c_str());
-    NodeToken var = NodeToken(_var);
+    //printf("***************create cariavbla %d %s\n", isStore ,nd->_token->text.c_str());
+   // NodeToken var = NodeToken(_var);
     switch (nd->_nodetype)
     {
     case extGlobalVariableNode:
@@ -2299,15 +2349,18 @@ NodeToken createNodeVariable(token *_var, NodeToken *nd, bool isStore)
         
         if (isStore)
         {
-            NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(var);
+           // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(var);
+           NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
         else
         {
-            NodeExtGlobalVariable v = NodeExtGlobalVariable(var);
+            NodeExtGlobalVariable v = NodeExtGlobalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
     }
     break;
@@ -2316,15 +2369,17 @@ NodeToken createNodeVariable(token *_var, NodeToken *nd, bool isStore)
         
         if (isStore)
         {
-            NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(var);
+            NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
         else
         {
-            NodeExtGlobalVariable v = NodeExtGlobalVariable(var);
+            NodeExtGlobalVariable v = NodeExtGlobalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
     }
     break;
@@ -2333,15 +2388,17 @@ NodeToken createNodeVariable(token *_var, NodeToken *nd, bool isStore)
        
         if (isStore == true)
         {
-            NodeStoreLocalVariable v = NodeStoreLocalVariable(var);
+            NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
         else
         {
-            NodeLocalVariable v = NodeLocalVariable(var);
+            NodeLocalVariable v = NodeLocalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
     }
     break;
@@ -2350,15 +2407,17 @@ NodeToken createNodeVariable(token *_var, NodeToken *nd, bool isStore)
        
         if (isStore == true)
         {
-            NodeStoreLocalVariable v = NodeStoreLocalVariable(var);
+            NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+      current_node = current_node->addChild(v);
+            return ;
         }
         else
         {
-            NodeLocalVariable v = NodeLocalVariable(var);
+            NodeLocalVariable v = NodeLocalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
     }
     break;
@@ -2367,15 +2426,17 @@ NodeToken createNodeVariable(token *_var, NodeToken *nd, bool isStore)
        
         if (isStore)
         {
-            NodeStoreGlobalVariable v = NodeStoreGlobalVariable(var);
+            NodeStoreGlobalVariable v = NodeStoreGlobalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
         else
         {
-            NodeGlobalVariable v = NodeGlobalVariable(var);
+            NodeGlobalVariable v = NodeGlobalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
     }
     break;    
@@ -2384,15 +2445,17 @@ NodeToken createNodeVariable(token *_var, NodeToken *nd, bool isStore)
        
         if (isStore)
         {
-            NodeStoreGlobalVariable v = NodeStoreGlobalVariable(var);
+            NodeStoreGlobalVariable v = NodeStoreGlobalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
         else
         {
-            NodeGlobalVariable v = NodeGlobalVariable(var);
+            NodeGlobalVariable v = NodeGlobalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
     }
     break;
@@ -2401,15 +2464,17 @@ NodeToken createNodeVariable(token *_var, NodeToken *nd, bool isStore)
         
         if (isStore)
         {
-            NodeStoreLocalVariable v = NodeStoreLocalVariable(var);
+            NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
         else
         {
-            NodeLocalVariable v = NodeLocalVariable(var);
+            NodeLocalVariable v = NodeLocalVariable(_var);
             copyPrty(nd, &v);
-            return v;
+     current_node = current_node->addChild(v);
+            return ;
         }
     }
     break;
@@ -2536,6 +2601,7 @@ void _visitNodeAssignement(NodeToken *nd)
     }
     content.sp.displaystack("PILE");
     //printf("before store\n");
+    point_regnum++;
     register_numl.displaystack();
   // register_numl.pop();
     //register_numl.displaystack();
@@ -2714,6 +2780,7 @@ public:
 
         visitNode = _visitNodeFor;
     }
+     
 };
 
 /*
@@ -2779,7 +2846,7 @@ void _visitNodeComparatorFunction(NodeToken *nd)
              // content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
         break;
         case TokenDoubleEqual:
-            compop="bqe"; //not equal
+            compop="beq"; //not equal
         break;
         case TokenNotEqual:
             compop="bne"; // equal
