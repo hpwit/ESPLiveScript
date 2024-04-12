@@ -87,6 +87,7 @@ for_if_num = 0;
         _target_stack.clear();
         _register_numr.clear();
         _register_numl.clear();
+        _node_token_stack.clear();
     }
 
     resParse parseCreateArguments()
@@ -101,17 +102,18 @@ for_if_num = 0;
             //printf("on retourne with argh ide\n");
             return result;
         }
-        resParse type = parseType();
-        if (type.error.error)
+         parseType();
+        if (Error.error)
         {
-            return type;
+            return resParse();
         }
         resParse res = parseVariableForCreation();
         if (res.error.error)
         {
             return res;
         }
-        copyPrty(&type._nd, &res._nd);
+        NodeToken t=nodeTokenList.pop();
+        copyPrty(&t, &res._nd);
         NodeDefLocalVariable var = NodeDefLocalVariable(res._nd);
 
         // copyPrty(type._nd,&var);
@@ -123,17 +125,18 @@ for_if_num = 0;
         while (Match(TokenComma))
         {
             next();
-            resParse type = parseType();
-            if (type.error.error)
+           parseType();
+            if (Error.error)
             {
-                return type;
+                return resParse();
             }
             resParse res = parseVariableForCreation();
             if (res.error.error)
             {
                 return res;
             }
-            copyPrty(&type._nd, &res._nd);
+            NodeToken t=nodeTokenList.pop();           
+            copyPrty(&t, &res._nd);
             NodeDefLocalVariable var = NodeDefLocalVariable(res._nd);
 
             arg.addChild(var);
@@ -903,11 +906,11 @@ for_if_num = 0;
         else if (Match(TokenKeyword) && MatchKeyword(KeywordVarType))
         {
             //printf("trying to create %s\n", current()->text.c_str());
-            resParse type = parseType();
-            if (type.error.error)
+             parseType();
+            if (Error.error)
             {
                 Error.error = 1;
-                Error.error_message = type.error.error;
+       
                 return;
             }
 
@@ -918,8 +921,8 @@ for_if_num = 0;
                 Error.error_message = res.error.error;
                 return;
             }
-
-            auto var = createNodeLocalVariableForCreation(&res._nd, &type._nd);
+            NodeToken f=nodeTokenList.pop();
+            auto var = createNodeLocalVariableForCreation(&res._nd, &f);
             //printf("111&&&&&&&dddddddddd&&&&qssdqsdqsd& %s\n", nodeTypeNames[var._nodetype].c_str());
             string var_name = res._nd._token->text;
             // pritnf()
@@ -1124,11 +1127,11 @@ for_if_num = 0;
         return;
     }
 
-    resParse parseType()
+    void parseType()
     {
 
-        resParse res;
-
+       // resParse res;
+        NodeToken _nd;
         if (Match(TokenExternal))
         {
             isExternal = true;
@@ -1136,29 +1139,30 @@ for_if_num = 0;
         }
         if (Match(TokenKeyword) && MatchKeyword(KeywordVarType))
         {
-            res._nd._nodetype = typeNode;
-            res._nd._token = current();
+            _nd._nodetype = typeNode;
+            _nd._token = current();
 
             next();
             if (Match(TokenStar))
             {
-                res._nd.isPointer = true;
+                _nd.isPointer = true;
                 next();
             }
             else
             {
-                res._nd.isPointer = false;
+              _nd.isPointer = false;
             }
         }
         else
         {
-            res.error.error = 1;
-            res.error.error_message = string_format("expecting __ext__ or variable type %s", linepos().c_str());
+            Error.error = 1;
+            Error.error_message = string_format("expecting __ext__ or variable type %s", linepos().c_str());
             next();
-            return res;
+            return ;
         }
-        res.error.error = 0;
-        return res;
+        Error.error = 0;
+        nodeTokenList.push(_nd);
+        return ;
     }
 
     resParse parseVariableForCreation()
@@ -1237,19 +1241,18 @@ for_if_num = 0;
         // resParse result;
         while (Match(TokenEndOfFile) == false)
         {
-            resParse type = parseType();
-            if (type.error.error)
+             parseType();
+            if (Error.error)
             {
-                Error.error = 1;
-                Error.error_message = type.error.error_message;
+          
                 return;
             }
-
+            
             if (Match(TokenIdentifier))
             {
                 if (Match(TokenOpenParenthesis, 1))
                 {
-                    parseDefFunction(type._nd);
+                    parseDefFunction(nodeTokenList.get());
                     if (Error.error)
                     {
                         return;
@@ -1270,7 +1273,8 @@ for_if_num = 0;
                     if (isExternal)
                     {
                         NodeDefExtGlobalVariable var = NodeDefExtGlobalVariable(res._nd);
-                        copyPrty(&type._nd, &var);
+                        NodeToken t=nodeTokenList.pop();
+                        copyPrty(&t, &var);
                         program.addChild(var);
                         current_cntx->addVariable(var);
                         isExternal = false;
@@ -1278,7 +1282,8 @@ for_if_num = 0;
                     else
                     {
                         NodeDefGlobalVariable var = NodeDefGlobalVariable(res._nd);
-                        copyPrty(&type._nd, &var);
+                        NodeToken t=nodeTokenList.pop();
+                        copyPrty(&t, &var);
                         program.addChild(var);
                         current_cntx->addVariable(var);
                     }

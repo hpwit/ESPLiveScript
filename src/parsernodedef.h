@@ -19,6 +19,7 @@ list<int> nb_args;
 list<string> _header;
 list<string> _content;
 list<string> _target_stack;
+
 int point_regnum=4;
 bool isExternal = false;
 list<int> _register_numl;
@@ -147,6 +148,8 @@ void swap()
 
 
 
+
+
 class IteratorString
 {
 public:
@@ -232,6 +235,7 @@ IteratorString header=IteratorString(&_header);
 StackInt register_numr=StackInt(&_register_numr);
 StackInt register_numl=StackInt(&_register_numl);
 StackString targetList=StackString(&_target_stack);
+
 enum statementType
 {
     statementAssignment,
@@ -417,7 +421,48 @@ public:
     }
 };
 
+list<NodeToken>_node_token_stack;
+class StackNodeToken
+{
+    public:
+ StackNodeToken(list<NodeToken> *l2)
+ {
+    l=l2;
+ }
+ void push(NodeToken a)
+ {
+    l->push_back(a);
+ }
+ NodeToken pop()
+ {
+    NodeToken sav=l->back();
+    l->pop_back();
+    return sav;
+ }
+ void clear()
+ {
+    l->clear();
+ }
+ NodeToken  get()
+ {
+    return l->back();
+ }
+ void duplicate()
+ {
+    l->push_back(l->back());
+ }
+list<NodeToken> *l;
 
+
+void swap()
+{
+    NodeToken  sav=pop();
+    NodeToken sav2=pop();
+    push(sav);
+    push(sav2);
+}
+};
+StackNodeToken nodeTokenList=StackNodeToken(&_node_token_stack);
 NodeToken *current_node;
 
 NodeToken *search_result;
