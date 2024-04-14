@@ -2774,6 +2774,13 @@ void _visitNodeFor(NodeToken *nd)
          register_numl.pop();
         }
         content.addAfter(string_format("%s:",nd->target.c_str()));
+               if (nd->getChildAtPos(1)->visitNode != NULL)
+        {
+            register_numl.duplicate();
+         nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
+         register_numl.pop();
+        }
+       
         if (nd->getChildAtPos(3)->visitNode != NULL)
         {
              register_numl.duplicate();
@@ -2789,12 +2796,7 @@ void _visitNodeFor(NodeToken *nd)
     }
 
 
-        if (nd->getChildAtPos(1)->visitNode != NULL)
-        {
-            register_numl.duplicate();
-         nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
-         register_numl.pop();
-        }
+
     content.addAfter(  string_format("j %s",nd->target.c_str()));
 content.addAfter( string_format("%s_end:",nd->target.c_str()));
 

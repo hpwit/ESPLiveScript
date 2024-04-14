@@ -760,7 +760,7 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
   int i=0;
   for (list<string>::iterator it = _lines->begin(); it != _lines->end(); it++)
   {
-    printf("Parsing; %s\n",(*it).c_str());
+   // printf("Parsing; %s\n",(*it).c_str());
     line res = splitOpcodeOperande(*it);
   
     if (!res.error)
