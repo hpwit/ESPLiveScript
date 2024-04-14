@@ -473,7 +473,7 @@ void copyNodeToken(NodeToken from, NodeToken *to)
     to->_token = from._token;
 }
 
-list<NodeToken> _functions;
+list<NodeToken *> _functions;
 
 class Context
 {
@@ -521,7 +521,7 @@ public:
         ////printf("i have added %s \n", nd._token->text.c_str());
         variables.push_back(nd);
     }
-    void addFunction(NodeToken nd)
+    void addFunction(NodeToken *nd)
     {
         ////printf("adding function %s\n", nd._token->text.c_str());
        // nd._token->text = name + "_" + nd._token->text;
@@ -585,13 +585,13 @@ search_result=NULL;
     {
 
 
-        for (list<NodeToken>::iterator it = _functions.begin(); it != _functions.end(); ++it)
+        for (list<NodeToken*>::iterator it = _functions.begin(); it != _functions.end(); ++it)
         {
             
 
-            if ((*it)._token->text.compare( t->text) == 0)
+            if ((*it)->_token->text.compare( t->text) == 0)
             {
-                return &*it;
+                return *it;
             }
         }
         /*
@@ -647,7 +647,8 @@ void _visitNodeProgramNode(NodeToken *nd)
     //printf("in programl\n");
      content.begin();
    header.begin();
-   header.addAfter("stack:\n.bytes 120");
+   header.addAfter("stack:");
+   header.addAfter(".bytes 120");
    register_numr.clear();
    register_numl.clear();
    register_numl.push(15);
@@ -760,20 +761,20 @@ void _visitNodeExtGlobalVariable(NodeToken *nd)
     string body = "";
     
     //register_numl++;
-      content.addAfter(string_format("movExt a%d,%s\n",point_regnum, nd->_token->text.c_str()));
+      content.addAfter(string_format("movExt a%d,%s",point_regnum, nd->_token->text.c_str()));
     
     if (nd->isPointer)
     {
        // f=f+number.f;
         for (int i = 0; i < v->total_size; i++)
         {
-            content.addAfter(  string_format("add a%d,a%d,a%d\n", point_regnum,point_regnum,register_numl.get()));
+            content.addAfter(  string_format("add a%d,a%d,a%d", point_regnum,point_regnum,register_numl.get()));
         }
     }
     content.sp.push(content.get());
 for (int i = 0; i < v->size; i++)
     {
-        content.addAfter( string_format("%s %s%d,%s%d,%d\n", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
+        content.addAfter( string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
        // register_numl--;
         start += v->sizes[i];
         content.sp.push(content.get());
@@ -817,14 +818,14 @@ public:
 
 void _visitNodeElse(NodeToken *nd)
 {
-    content.addBefore(  string_format("j %s\n",nd->target.c_str()));
+    content.addBefore(  string_format("j %s",nd->target.c_str()));
         if (nd->getChildAtPos(0)->visitNode != NULL)
         {
             register_numl.duplicate();
          nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
          register_numl.pop();
         }
-        content.addAfter(  string_format("%s:\n",nd->target.c_str()));
+        content.addAfter(  string_format("%s:",nd->target.c_str()));
         
                      
 }
@@ -850,7 +851,7 @@ public:
 
 void _visitNodeWhile(NodeToken *nd)
 {
-    content.addAfter(  string_format("%s_while:\n",nd->target.c_str()));
+    content.addAfter(  string_format("%s_while:",nd->target.c_str()));
         if (nd->getChildAtPos(0)->visitNode != NULL)
         {
             register_numl.duplicate();
@@ -864,8 +865,8 @@ void _visitNodeWhile(NodeToken *nd)
          nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
          register_numl.pop();
         }
-        content.addAfter( string_format("j %s_while\n",nd->target.c_str()));
-                      content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
+        content.addAfter( string_format("j %s_while",nd->target.c_str()));
+                      content.addAfter( string_format("%s_end:",nd->target.c_str()));
 }
 
 class NodeWhile : public NodeToken
@@ -904,7 +905,7 @@ void _visitNodeIf(NodeToken *nd)
          register_numl.pop();
         }
          
-                      content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
+                      content.addAfter( string_format("%s_end:",nd->target.c_str()));
 }
 
 class NodeIf : public NodeToken
@@ -1138,20 +1139,20 @@ void _visitNodeGlobalVariable(NodeToken *nd)
     string body = "";
     
     //register_numl++;
-      content.addAfter( string_format("l32r a%d,main_%s\n",point_regnum, nd->_token->text.c_str()));
+      content.addAfter( string_format("l32r a%d,main_%s",point_regnum, nd->_token->text.c_str()));
     
     if (nd->isPointer)
     {
        // f=f+number.f;
         for (int i = 0; i < v->total_size; i++)
         {
-            content.addAfter(  string_format("add a%d,a%d,a%d\n", point_regnum,point_regnum,register_numl.get()));
+            content.addAfter(  string_format("add a%d,a%d,a%d", point_regnum,point_regnum,register_numl.get()));
         }
     }
     content.sp.push(content.get());
 for (int i = 0; i < v->size; i++)
     {
-        content.addAfter( string_format("%s %s%d,%s%d,%d\n", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
+        content.addAfter( string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
        // register_numl--;
         start += v->sizes[i];
         content.sp.push(content.get());
@@ -1294,7 +1295,7 @@ if (nd->children.size() > 0)
        register_numl.pop();
     }
     
-content.addAfter( string_format("//stor\nl32r a%d,main_%s\n",point_regnum, nd->_token->text.c_str()));
+content.addAfter( string_format("l32r a%d,main_%s",point_regnum, nd->_token->text.c_str()));
     
     if (nd->isPointer)
     {
@@ -1627,7 +1628,8 @@ void _visitNodeDefGlobalVariable(NodeToken *nd)
     ////printf("in visitNodeDefGlobalVariable\n");
     string f = "";
     string h = "";
-    header.addAfter( string_format("%s:\n.bytes %d", nd->_token->text.c_str(), nd->_total_size));
+    header.addAfter( string_format("%s:", nd->_token->text.c_str()));
+    header.addAfter(string_format(".bytes %d", nd->_total_size));
     
     return ;
 }
@@ -1738,7 +1740,7 @@ void _visitNodeCallFunction(NodeToken *nd)
 
        content.addAfter(string_format("mov a10,a2"));
 
-       content.addAfter(string_format("call8 %s\n",nd->_token->text.c_str()));
+       content.addAfter(string_format("call8 %s",nd->_token->text.c_str()));
 
 
 }
@@ -1909,7 +1911,8 @@ void _visitNodeDefFunction(NodeToken *nd)
     header.addAfter (string_format(".global %s", nd->_token->text.c_str()));
     
    
-     content.addAfter(  string_format("%s: \nentry a1,%d", nd->_token->text.c_str(),80)); // ((nd->stack_pos) / 8 + 1) * 8)
+     content.addAfter(  string_format("%s:",nd->_token->text.c_str()));
+      content.addAfter(  string_format("entry a1,%d", 80)); // ((nd->stack_pos) / 8 + 1) * 8)
     for (int i = 0; i < nd->children.size(); i++)
     {
         if (nd->getChildAtPos(i)->visitNode != NULL)
@@ -2792,8 +2795,8 @@ void _visitNodeFor(NodeToken *nd)
          nd->getChildAtPos(1)->visitNode(nd->getChildAtPos(1));
          register_numl.pop();
         }
-    content.addAfter(  string_format("j %s\n",nd->target.c_str()));
-content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
+    content.addAfter(  string_format("j %s",nd->target.c_str()));
+content.addAfter( string_format("%s_end:",nd->target.c_str()));
 
 
        // r.header=start.header+compar.header+inc.header+block.header;
@@ -2916,9 +2919,9 @@ void _visitNodeComparatorFunction(NodeToken *nd)
         default:
         break;        
     }
-               content.addAfter( string_format("%s a%d,a%d,%s_if\n",compop.c_str(), numl,leftl,nd->target.c_str()));
-            content.addAfter(  string_format("j %s_end\n",nd->target.c_str()));
-             content.addAfter( string_format("%s_if:\n",nd->target.c_str()));
+               content.addAfter( string_format("%s a%d,a%d,%s_if",compop.c_str(), numl,leftl,nd->target.c_str()));
+            content.addAfter(  string_format("j %s_end",nd->target.c_str()));
+             content.addAfter( string_format("%s_if:",nd->target.c_str()));
 
    register_numl.increase();
 

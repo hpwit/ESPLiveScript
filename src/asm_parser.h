@@ -7,6 +7,7 @@ using namespace std;
 #include <stdlib.h>
 #include <memory>
 #include <vector>
+#include <list>
 // #include <iostream>
 // #include <functional>
 #include <Arduino.h>
@@ -736,7 +737,7 @@ error_message_struct parseASM(vector<string> *_lines, vector<result_parse_line> 
     if (!res.error)
     {
       result_parse_line re_sparse = parseline(res, asm_parsed);
-      re_sparse.debugtxt = lines[i];
+     // re_sparse.debugtxt = lines[i];
       re_sparse.line = i + 1;
       (*asm_parsed).push_back(re_sparse);
       if (re_sparse.error.error)
@@ -745,6 +746,36 @@ error_message_struct parseASM(vector<string> *_lines, vector<result_parse_line> 
         main_error.error_message += string_format("line:%d %s\n", i, re_sparse.error.error_message.c_str());
       }
     }
+  }
+  printf("Done.\r\n");
+  return main_error;
+}
+error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *asm_parsed)
+{
+  //list<string> lines = *_lines;
+  error_message_struct main_error;
+  main_error.error = 0;
+  main_error.error_message = "";
+  printf("Parsing %d list lines ...\r\n ", _lines->size());
+  int i=0;
+  for (list<string>::iterator it = _lines->begin(); it != _lines->end(); it++)
+  {
+    printf("Parsing; %s\n",(*it).c_str());
+    line res = splitOpcodeOperande(*it);
+  
+    if (!res.error)
+    {
+      result_parse_line re_sparse = parseline(res, asm_parsed);
+     // re_sparse.debugtxt = lines[i];
+      re_sparse.line = i + 1;
+      (*asm_parsed).push_back(re_sparse);
+      if (re_sparse.error.error)
+      {
+        main_error.error = 1;
+        main_error.error_message += string_format("line:%d %s\n", i, re_sparse.error.error_message.c_str());
+      }
+    }
+  i++;
   }
   printf("Done.\r\n");
   return main_error;
@@ -1053,6 +1084,54 @@ executable createExectutable(vector<string> *lines, bool display)
 {
   vector<result_parse_line> asm_parsed;
   executable exec;
+  error_message_struct err = parseASM(lines, &asm_parsed);
+  if (err.error == 0)
+  {
+    flagLabel32aligned(&asm_parsed);
+    createAddress(&asm_parsed);
+    err = calculateJump(&asm_parsed);
+
+    if (err.error == 0)
+    {
+
+      exec = createBinary(&asm_parsed);
+
+      if (exec.error.error == 0)
+      {
+        // createAbsoluteJump(exec.start_program,&asm_parsed);
+        if (display == true)
+        {
+          printparsdAsm((uint32_t)exec.start_program, &asm_parsed);
+          // dumpmem(exec.start_program);
+        }
+
+        replaceExternal("start_program", (void *)exec.start_program);
+        uint32_t dd = (uint32_t)createExternalLinks();
+        exec.links = dd;
+        exec.error.error = 0;
+      }
+      return exec;
+    }
+    else
+    {
+      exec.error = err;
+      return exec;
+    }
+  }
+  else
+  {
+
+    exec.error = err;
+    exec.error.error = 1;
+    return exec;
+  }
+}
+
+executable createExectutable(list<string> *lines, bool display)
+{
+  vector<result_parse_line> asm_parsed;
+  executable exec;
+  printf("lines %d\n",lines->size());
   error_message_struct err = parseASM(lines, &asm_parsed);
   if (err.error == 0)
   {

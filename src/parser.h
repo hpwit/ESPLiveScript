@@ -90,34 +90,38 @@ for_if_num = 0;
         _node_token_stack.clear();
     }
 
-    resParse parseCreateArguments()
+    void parseCreateArguments()
     {
         Error.error = 0;
         NodeInputArguments arg;
+        current_node=current_node->addChild(arg);
         if (Match(TokenCloseParenthesis))
         {
-            resParse result;
-            result.error.error = 0;
-            result._nd = arg;
+           // resParse result;
+            Error.error = 0;
+           // result._nd = arg;
+            current_node=current_node->parent;
             //printf("on retourne with argh ide\n");
-            return result;
+            return;
         }
          parseType();
         if (Error.error)
         {
-            return resParse();
+            return;
         }
-        resParse res = parseVariableForCreation();
-        if (res.error.error)
+         parseVariableForCreation();
+        if (Error.error)
         {
-            return res;
+            return ;
         }
+         NodeToken _nd=nodeTokenList.pop();
         NodeToken t=nodeTokenList.pop();
-        copyPrty(&t, &res._nd);
-        NodeDefLocalVariable var = NodeDefLocalVariable(res._nd);
+       
+        copyPrty(&t, &_nd);
+        NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
 
         // copyPrty(type._nd,&var);
-        arg.addChild(var);
+       current_node->addChild(var);
         current_cntx->addVariable(var);
         // arg.addChild(nd);
         // next();
@@ -128,26 +132,28 @@ for_if_num = 0;
            parseType();
             if (Error.error)
             {
-                return resParse();
+                return ;
             }
-            resParse res = parseVariableForCreation();
-            if (res.error.error)
+             parseVariableForCreation();
+            if (Error.error)
             {
-                return res;
+                return ;
             }
+             NodeToken _nd=nodeTokenList.pop();
             NodeToken t=nodeTokenList.pop();           
-            copyPrty(&t, &res._nd);
-            NodeDefLocalVariable var = NodeDefLocalVariable(res._nd);
+            copyPrty(&t, &_nd);
+            NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
 
-            arg.addChild(var);
+            //arg.addChild(var);
+            current_node->addChild(var);
             current_cntx->addVariable(var);
             // next();
         }
         // prev();
-        resParse result;
-        result.error.error = 0;
-        result._nd = arg;
-        return result;
+       // resParse result;
+        Error.error = 0;
+        current_node=current_node->parent;
+        return ;
     }
 
     void getVariable(bool isStore)
@@ -445,7 +451,7 @@ for_if_num = 0;
 
     void parseArguments()
     {
-        resParse result;
+        //resParse result;
         nb_argument = 0;
         nb_args.push_back(0);
         NodeInputArguments arg;
@@ -914,17 +920,17 @@ for_if_num = 0;
                 return;
             }
 
-            resParse res = parseVariableForCreation();
-            if (res.error.error)
+            parseVariableForCreation();
+            if (Error.error)
             {
-                Error.error = 1;
-                Error.error_message = res.error.error;
+      
                 return;
             }
+             NodeToken nd=nodeTokenList.pop();
             NodeToken f=nodeTokenList.pop();
-            auto var = createNodeLocalVariableForCreation(&res._nd, &f);
+            auto var = createNodeLocalVariableForCreation(&nd, &f);
             //printf("111&&&&&&&dddddddddd&&&&qssdqsdqsd& %s\n", nodeTypeNames[var._nodetype].c_str());
-            string var_name = res._nd._token->text;
+            string var_name = nd._token->text;
             // pritnf()
             current_cntx->addVariable(var);
 
@@ -987,7 +993,7 @@ for_if_num = 0;
 
     void parseBlockStatement()
     {
-        resParse result;
+       // resParse result;
 
         NodeBlockStatement nbStmnt;
         Context cntx;
@@ -1038,6 +1044,7 @@ for_if_num = 0;
         }
         // resParse result;
         token *func = current();
+ 
         if (current_cntx->findFunction(current()) != NULL)
         {
 
@@ -1045,6 +1052,23 @@ for_if_num = 0;
             Error.error_message = string_format("function already declared in the scope for %s", linepos().c_str());
             next();
             return;
+        }
+                if (ext_function)
+        {
+                          NodeDefExtFunction function = NodeDefExtFunction(func);
+              function.addChild(oritype);
+              //  function.addChild(arguments._nd);
+                
+                current_node=current_node->addChild(function);
+                current_cntx->parent->addFunction(current_node);
+        }
+        else{
+                                      NodeDefFunction function = NodeDefFunction(func);
+              function.addChild(oritype);
+              //  function.addChild(arguments._nd);
+                
+                current_node=current_node->addChild(function);
+                current_cntx->parent->addFunction(current_node);
         }
         // on ajoute un nouveau contexte
         Context cntx;
@@ -1055,7 +1079,7 @@ for_if_num = 0;
         block_statement_num = 0;
         next();
         next();
-        resParse arguments = parseCreateArguments();
+         parseCreateArguments();
         if (Error.error)
         {
             return;
@@ -1072,14 +1096,15 @@ for_if_num = 0;
         {
             if (Match(TokenSemicolon))
             {
-                NodeDefExtFunction function = NodeDefExtFunction(func);
-                function.addChild(oritype);
-                function.addChild(arguments._nd);
-                current_cntx->parent->addFunction(function);
-                current_node->addChild(function);
+             //   NodeDefExtFunction function = NodeDefExtFunction(func);
+              //  function.addChild(oritype);
+              //  function.addChild(arguments._nd);
+               // current_cntx->parent->addFunction(function);
+               // current_node->addChild(function);
                 // result._nd = function;
                 Error.error = 0;
                 current_cntx = current_cntx->parent;
+                current_node = current_node->parent;
                 next();
                 return;
             }
@@ -1095,11 +1120,11 @@ for_if_num = 0;
         {
             if (Match(TokenOpenCurlyBracket))
             {
-                NodeDefFunction function = NodeDefFunction(func);
-                function.addChild(oritype);
-                function.addChild(arguments._nd);
-                current_cntx->parent->addFunction(function);
-                current_node = current_node->addChild(function);
+               // NodeDefFunction function = NodeDefFunction(func);
+               // function.addChild(oritype);
+               // function.addChild(arguments._nd);
+               // current_cntx->parent->addFunction(function);
+               // current_node = current_node->addChild(function);
                 
                 parseBlockStatement();
                 if (Error.error)
@@ -1165,16 +1190,16 @@ for_if_num = 0;
         return ;
     }
 
-    resParse parseVariableForCreation()
+    void parseVariableForCreation()
     {
         current_cntx->findVariable(current(), true);
         if (search_result != NULL)
         {
-            resParse res;
-            res.error.error = 1;
-            res.error.error_message = string_format("variable already declared in the scope for %s", linepos().c_str());
+            //resParse res;
+            Error.error = 1;
+            Error.error_message = string_format("variable already declared in the scope for %s", linepos().c_str());
             next();
-            return res;
+            return ;
         }
         if (Match(TokenOpenBracket, 1))
         {
@@ -1194,38 +1219,39 @@ for_if_num = 0;
                         var._nodetype = defGlobalVariableNode; // we can't have arrays in the stack
                         var._total_size = stringToInt(num->text);
                         next();
-                        resParse result;
-                        result.error.error = 0;
-                        result._nd = var;
-                        return result;
+                       // resParse result;
+                        Error.error = 0;
+                       nodeTokenList.push( var);
+                        return ;
                     }
                     else
                     {
-                        resParse res;
-                        res.error.error = 1;
-                        res.error.error_message = string_format("expecting ] %s", linepos().c_str());
+                        //resParse res;
+                        Error.error = 1;
+                        Error.error_message = string_format("expecting ] %s", linepos().c_str());
                         next();
-                        return res;
+                        return ;
                     }
                 }
                 else
                 {
-                    resParse res;
-                    res.error.error = 1;
-                    res.error.error_message = string_format("expecting an integer %s", linepos().c_str());
+                    //resParse res;
+                    Error.error = 1;
+                    Error.error_message = string_format("expecting an integer %s", linepos().c_str());
                     next();
-                    return res;
+                    return ;
                 }
             }
         }
         else
         {
             NodeToken nd = NodeToken(current());
-            resParse result;
-            result._nd = nd;
-            result.error.error = 0;
+           // resParse result;
+           // result._nd = nd;
+            Error.error = 0;
+            nodeTokenList.push(nd);
             next();
-            return result;
+            return ;
         }
     }
 
@@ -1262,17 +1288,17 @@ for_if_num = 0;
                 else
                 {
 
-                    resParse res = parseVariableForCreation();
-                    if (res.error.error)
+                 parseVariableForCreation();
+                    if (Error.error)
                     {
-                        Error.error = 1;
-                        Error.error_message = res.error.error_message;
+
                         return;
                     }
-
-                    if (isExternal)
+                     NodeToken nd=nodeTokenList.pop();
+                    if (isExternal) 
                     {
-                        NodeDefExtGlobalVariable var = NodeDefExtGlobalVariable(res._nd);
+                       
+                        NodeDefExtGlobalVariable var = NodeDefExtGlobalVariable(nd);
                         NodeToken t=nodeTokenList.pop();
                         copyPrty(&t, &var);
                         program.addChild(var);
@@ -1281,7 +1307,7 @@ for_if_num = 0;
                     }
                     else
                     {
-                        NodeDefGlobalVariable var = NodeDefGlobalVariable(res._nd);
+                        NodeDefGlobalVariable var = NodeDefGlobalVariable(nd);
                         NodeToken t=nodeTokenList.pop();
                         copyPrty(&t, &var);
                         program.addChild(var);

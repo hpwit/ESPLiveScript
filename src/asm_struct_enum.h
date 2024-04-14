@@ -113,8 +113,8 @@ typedef struct
 {
   error_message_struct error;
   vector<globalcall> functions;
-  uint32_t *start_program;
-  uint8_t *data;
+  uint32_t *start_program=NULL;
+  uint8_t *data=NULL;
   uint32_t links;
 
 } executable;
