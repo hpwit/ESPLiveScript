@@ -730,7 +730,7 @@ error_message_struct parseASM(vector<string> *_lines, vector<result_parse_line> 
   error_message_struct main_error;
   main_error.error = 0;
   main_error.error_message = "";
-  printf("Parsing %d lines ... ", lines.size());
+ // printf("Parsing %d lines ... ", lines.size());
   for (int i = 0; i < lines.size(); i++)
   {
     line res = splitOpcodeOperande(lines[i]);
@@ -747,7 +747,7 @@ error_message_struct parseASM(vector<string> *_lines, vector<result_parse_line> 
       }
     }
   }
-  printf("Done.\r\n");
+  //printf("Done.\r\n");
   return main_error;
 }
 error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *asm_parsed)
@@ -756,7 +756,7 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
   error_message_struct main_error;
   main_error.error = 0;
   main_error.error_message = "";
-  printf("Parsing %d list lines ...\r\n ", _lines->size());
+  printf("Parsing %d assembly lines ...\r\n ", _lines->size());
   int i=0;
   for (list<string>::iterator it = _lines->begin(); it != _lines->end(); it++)
   {
@@ -966,7 +966,7 @@ void createAbsoluteJump(uint8_t *exec, vector<result_parse_line> *asm_parsed, ui
     if ((*asm_parsed)[i].op == opCodeType::data_label || (*asm_parsed)[i].op == opCodeType::number_label)
     {
       uint32_t content = (*asm_parsed)[i + 1].address + address;
-      printf("on veut mapper address:%d\r\n",(*asm_parsed)[i + 1].address);
+     // printf("on veut mapper address:%d\r\n",(*asm_parsed)[i + 1].address);
       (*asm_parsed)[i].bincode = content;
       uint32_t *new_adr = (uint32_t *)exec +nb_data;// (*asm_parsed)[i].address / 4;
       // printf("new content %x atr adress %x\n",content,(uint32_t)new_adr);
@@ -1068,11 +1068,11 @@ int h=0;
   free(val_tmp);
 
   // exe.start_function = (uint32_t)(exec + (*asm_parsed)[index].address / 4);
-  Serial.printf("%d start function(s) found:\r\n", exe.functions.size());
+  //Serial.printf("%d start function(s) found:\r\n", exe.functions.size());
   for (int i = 0; i < exe.functions.size(); i++)
   {
     exe.functions[i].address = (uint32_t)(exec + (exe.functions[i].address) / 4);
-    Serial.printf("%2d: %s\t%x\r\n", i, exe.functions[i].name.c_str(), exe.functions[i].address);
+    //Serial.printf("%2d: %s\t%x\r\n", i, exe.functions[i].name.c_str(), exe.functions[i].address);
   }
   exe.start_program = exec;
   exe.data = data;
@@ -1131,7 +1131,7 @@ executable createExectutable(list<string> *lines, bool display)
 {
   vector<result_parse_line> asm_parsed;
   executable exec;
-  printf("lines %d\n",lines->size());
+ // printf("lines %d\n",lines->size());
   error_message_struct err = parseASM(lines, &asm_parsed);
   if (err.error == 0)
   {

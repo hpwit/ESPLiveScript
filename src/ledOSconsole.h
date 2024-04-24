@@ -32,7 +32,7 @@ typedef struct
 
 typedef struct
 {
-  const char *White = "\u001b[37m";
+  const char *White = "\u001b[38;5;15m";
   const char *Black = "\u001b[30m";
   const char *Red = "\u001b[38;5;196m";
   const char *Green = "\u001b[32m";
@@ -159,13 +159,15 @@ public:
   string editcontent = config.ESC_RESET;   //+termBackgroundColor.Black+termColor.BWhite+termFormat.Bold;
   string footerformat = config.ESC_RESET;
   string currentformat;
+  string filename="";
 
   int index_sentence;
 
   console()
   {
     // initEscCommands();
-    footerformat += termFormat.Reversed;
+    //footerformat += termFormat.Reversed;
+    footerformat += termBackgroundColor.BBlue;
     footerformat += termColor.BWhite;
 
     // defaultformat+=termBackgroundColor.BBlack;
@@ -240,9 +242,9 @@ public:
       if (internal_coordinates.internaly >= height - 1)
       {
         internal_coordinates.internaly = height - 2;
-        Serial.print("\u001b[0S");
-        Serial.print("\u001b[1G");
-        Serial.print("\u001b[0K");
+        _push("\u001b[0S");
+        _push("\u001b[1G");
+        _push("\u001b[0K");
 
         return;
       }
@@ -439,6 +441,7 @@ public:
             if (displayf == true)
             {
               _push(config.SAVE);
+              _push(config.ERASE_FROM_CURSOR_TO_EOL);
               Serial.printf("%c%s", c, sentence.substr(internal_coordinates.x - 1, sentence.size()).c_str());
               sentence = sentence.substr(0, internal_coordinates.x - 1) + c + sentence.substr(internal_coordinates.x - 1, sentence.size());
               // Serial.printf("%c%s",c,sentence.substr(internal_coordinates.x-1,sentence.size()));
@@ -472,8 +475,15 @@ public:
     Serial.printf(config.HIDECURSOR);
     Serial.printf(config.DOWN);
     Serial.printf(config.LEFT);
-    Serial.print("\u001b[0K");
-    Serial.printf("%sPos x:%3d y:%3d height:%d curpos:%d script size:%d  mem:%12d%s", footerformat.c_str(), internal_coordinates.x, internal_coordinates.y, height, internal_coordinates.internaly, script.size(), esp_get_free_heap_size(), currentformat.c_str());
+    Serial.printf("%s\r",footerformat.c_str());
+  // Serial.print("\u001b[0K");
+  
+    Serial.printf("%sPos x:%3d y:%3d height:%d  width:%d curpos:%d script size:%d  filename: %s\u304F\u3008", footerformat.c_str(), internal_coordinates.x, internal_coordinates.y, height, width,internal_coordinates.internaly, script.size(),filename.c_str() );
+     Serial.print("\u001b[0K");
+    Serial.printf("\u001b[%dC",width);
+    Serial.printf("\u001b[%dD",11);
+    Serial.printf(termBackgroundColor.BYellow);
+    Serial.printf(" mem:%6d %s",esp_get_free_heap_size(), currentformat.c_str());
     Serial.printf(config.RESTORE);
     // Serial.printf(config.SHOWCURSOR);
   }
@@ -654,6 +664,7 @@ void clear(console *cons, vector<string> args)
 {
 
   cons->script.clear();
+  cons->filename="";
   // cons->gotoline();
 }
 

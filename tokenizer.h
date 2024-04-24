@@ -7,6 +7,7 @@ using namespace std;
 
 #define EOF_TEXT 0
 
+
 #ifndef ARDUINO
 template <typename... Args>
 std::string string_format(const std::string &format, Args... args)
@@ -62,14 +63,16 @@ string varTypeEnumNames[] =
 
 varType _varTypes[] =
     {
-        {._varType = __unit8_t__,
-         ._varSize = 1,
-         .load = {"l8ui"},
-         .store = {"s8i"},
-         .reg_name = "a",
-         .sizes = {1},
-         .size = 1,
-         .total_size = 1},
+        {
+            ._varType = __unit8_t__,
+            ._varSize = 1,
+            .load = {"l8ui"},
+            .store = {"s8i"},
+            .reg_name = "a",
+            .sizes = {1},
+            .size = 1,
+            .total_size=1 
+        },
         {
             ._varType = __unit16_t__,
             ._varSize = 2,
@@ -78,7 +81,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
-            .total_size = 2,
+            .total_size=2,
         },
         {
             ._varType = __unit32_t__,
@@ -88,7 +91,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
-            .total_size = 4,
+            .total_size=4,
         },
         {
             ._varType = __int__,
@@ -98,7 +101,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
-            .total_size = 2,
+            .total_size=2,
         },
         {
             ._varType = __float__,
@@ -108,7 +111,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
-            .total_size = 4,
+            .total_size=4,
         },
         {
             ._varType = __void__,
@@ -118,7 +121,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {0},
             .size = 0,
-            .total_size = 0,
+            .total_size=0,
         },
         {
             ._varType = __CRGB__,
@@ -128,7 +131,7 @@ varType _varTypes[] =
             .reg_name = "a",
             .sizes = {1, 1, 1},
             .size = 3,
-            .total_size = 3,
+            .total_size=3,
         }
 
 };
@@ -141,10 +144,7 @@ enum KeywordType
     KeywordIf,
     KeywordThen,
     KeywordElse,
-    KeywordWhile,
-    KeyWordReturn
 };
-
 
 KeywordType __keywordTypes[] =
     {
@@ -160,8 +160,6 @@ KeywordType __keywordTypes[] =
         KeywordIf,
         KeywordThen,
         KeywordElse,
-        KeywordWhile,
-        KeyWordReturn,
 };
 string keywordTypeNames[] =
     {
@@ -177,13 +175,10 @@ string keywordTypeNames[] =
         "KeywordIf",
         "KeywordThen",
         "KeywordElse",
-        "KeywordWhile",
-        "KeyWordReturn"
 
 };
 
-int nb_keywords = 14;
-string keyword_array[14] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "__ext__", "for", "if", "then", "else", "while", "return"};
+string keyword_array[12] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "__ext__", "for", "if", "then", "else"};
 
 enum tokenType
 {
@@ -214,14 +209,6 @@ enum tokenType
     TokenPlusPlus,
     TokenMinusMinus,
     TokenModulo,
-    TokenLessOrEqualThan,
-    TokenMoreThan,
-    TokenMoreOrEqualThan,
-    TokenNotEqual,
-    TokenNot,
-    TokenFunction,
-    TokenUppersand,
-    TokenDiese
 };
 
 string tokenNames[] = {
@@ -252,67 +239,8 @@ string tokenNames[] = {
     "TokenPlusPlus",
     "TokenMinusMinus",
     "TokenModulo",
-    "TokenLessOrEqualThan",
-    "TokenMoreThan",
-    "TokenMoreOrEqualThan",
-    "TokenNotEqual",
-    "TokenNot",
-    "TokenFunction",
-    "TokenUppersand",
-    "TokenDiese"};
-
-#ifdef __CONSOLE_ESP32
-const char *tokenFormat[] = {
-    termColor.Yellow,   // TokenNumber,
-    termColor.BWhite,    // TokenAddition,
-    termColor.BWhite,    // TokenStar,
-    termColor.BWhite,    // TokenSubstraction,
-    termColor.BWhite,    // TokenOpenParenthesis,
-    termColor.BWhite,    //  TokenCloseParenthesis,
-    termColor.BWhite,    // TokenOpenBracket,
-    termColor.BWhite,    // TokenCloseBracket,
-    termColor.BWhite,    //  TokenOpenCurlyBracket,
-    termColor.BWhite,    //  TokenCloseCurlyBracket,
-    termColor.BWhite,    //  TokenEqual,
-    termColor.BWhite,    //  TokenDoubleEqual,
-    termColor.Cyan,     //  TokenIdentifier,
-    termColor.BWhite,    //  TokenSemicolon,
-    termColor.BWhite,    // TokenUnknown,
-    termColor.BWhite,    //  TokenSpace,
-    termColor.BWhite,    //  TokenNewline,
-    termColor.BWhite,    // TokenEndOfFile,
-    termColor.BWhite,    // TokenSlash,
-    termColor.Magenta,  //   TokenKeyword,
-    termColor.Orange,   // TokenString,
-    termColor.LMagenta, //   TokenExternal,
-    termColor.BWhite,    //  TokenComma,
-    termColor.BWhite,    //   TokenLessThan,
-    termColor.BWhite,    // TokenPlusPlus,
-    termColor.BWhite,    // TokenMinusMinus,
-    termColor.BWhite,    // TokenModulo,
-    termColor.BWhite,    // TokenLessOrEqualThan,
-    termColor.BWhite,    // TokenMoreThan,
-    termColor.BWhite,    // TokenMoreOrEqualThan,
-    termColor.BWhite,    // TokenNotEqual,
-    termColor.BWhite,    // TokenNot,
-    termColor.Yellow,  // TokenFunction
-    termColor.BWhite,  //TokenUppersand
-    termColor.BWhite,  //TokenDiese
 };
 
-const char * KeywordTypeFormat[] =
-    {
-    termColor.Green , //KeywordVarType,
-    termColor.Green , // KeywordExternalVar,
-    termColor.Magenta , // KeywordFor,
-    termColor.Magenta , // KeywordIf,
-    termColor.Magenta , // KeywordThen,
-    termColor.Magenta , // KeywordElse,
-    termColor.Magenta , // KeywordWhile,
-    termColor.Magenta , // KeyWordReturn
-        };
-
-#endif
 typedef struct
 {
     // switch to uin8_t
@@ -392,7 +320,7 @@ token transNumber(string str)
 
 int isKeyword(string str)
 {
-    for (int i = 0; i < nb_keywords; i++)
+    for (int i = 0; i < 12; i++)
     {
         if (keyword_array[i].compare(str) == 0)
         {
@@ -470,7 +398,6 @@ bool isIn0_9_x_b(unsigned char c)
     return false;
 }
 
-bool _for_display = false;
 class Script
 {
 public:
@@ -530,6 +457,7 @@ list<token> list_of_token;
 class Tokens
 {
 public:
+
     Tokens()
     {
         position = 0;
@@ -644,10 +572,6 @@ public:
             return false;
         }
     }
-    void clear()
-    {
-        _tokens->clear();
-    }
 
 private:
     int position;
@@ -659,7 +583,7 @@ Tokens _tks;
 void tokenizer(Script *script)
 {
 
-    // list<token> list_of_token;
+   // list<token> list_of_token;
     int line = 1;
     int pos = 0;
     list_of_token.clear();
@@ -672,138 +596,52 @@ void tokenizer(Script *script)
         // printf("line : %d pos:%d char:%c token size:%d %d\n",line,pos,c,list_of_token.size(),heap_caps_get_free_size(MALLOC_CAP_8BIT));
         if (c == '=')
         {
-            char c2 = script->nextChar();
-            if (c2 == '=')
-            {
-                token t;
-                t._vartype = NULL;
-                t.type = TokenDoubleEqual;
-                t.text = "==";
-                t.line = line;
-                t.pos = pos;
-                list_of_token.push_back(t);
-                continue;
-            }
-            else
-            {
-                script->previousChar();
-                token t;
-                t._vartype = NULL;
-                t.type = TokenEqual;
-                t.line = line;
-                t.pos = pos;
-                t.text = "=";
-                list_of_token.push_back(t);
-                continue;
-            }
+            token t;
+            t._vartype = NULL;
+            t.type = TokenEqual;
+            t.line = line;
+            t.pos = pos;
+            t.text = "=";
+            list_of_token.push_back(t);
+            continue;
         }
         if (c == '<')
         {
-            char c2 = script->nextChar();
-            if (c2 == '=')
-            {
-                token t;
-                t._vartype = NULL;
-                t.type = TokenLessOrEqualThan;
-                t.text = "<=";
-                t.line = line;
-                t.pos = pos;
-                list_of_token.push_back(t);
-                continue;
-            }
-            else
-            {
-                script->previousChar();
-                token t;
-                t._vartype = NULL;
-                t.type = TokenLessThan;
-                t.line = line;
-                t.pos = pos;
-                t.text = "<";
-                list_of_token.push_back(t);
-                continue;
-            }
-        }
-        if (c == '>')
-        {
-            char c2 = script->nextChar();
-            if (c2 == '=')
-            {
-                token t;
-                t._vartype = NULL;
-                t.type = TokenMoreOrEqualThan;
-                t.text = ">=";
-                t.line = line;
-                t.pos = pos;
-                list_of_token.push_back(t);
-                continue;
-            }
-            else
-            {
-                script->previousChar();
-                token t;
-                t._vartype = NULL;
-                t.type = TokenMoreThan;
-                t.line = line;
-                t.pos = pos;
-                t.text = ">";
-                list_of_token.push_back(t);
-                continue;
-            }
-        }
-        if (c == '!')
-        {
-            char c2 = script->nextChar();
-            if (c2 == '=')
-            {
-                token t;
-                t._vartype = NULL;
-                t.type = TokenNotEqual;
-                t.text = "!=";
-                t.line = line;
-                t.pos = pos;
-                list_of_token.push_back(t);
-                continue;
-            }
-            else
-            {
-                script->previousChar();
-                token t;
-                t._vartype = NULL;
-                t.type = TokenNot;
-                t.line = line;
-                t.pos = pos;
-                t.text = "!";
-                list_of_token.push_back(t);
-                continue;
-            }
+            token t;
+            t._vartype = NULL;
+            t.type = TokenLessThan;
+            t.line = line;
+            t.pos = pos;
+            t.text = "<";
+            list_of_token.push_back(t);
+            continue;
         }
         if (c == '+')
         {
-            char c2 = script->nextChar();
-            if (c2 == '+')
-            {
-                token t;
-                t._vartype = NULL;
-                t.type = TokenPlusPlus;
-                t.text = "++";
-                t.line = line;
-                t.pos = pos;
-                list_of_token.push_back(t);
-                continue;
-            }
-            else
-            {
-                script->previousChar();
-                token t;
-                t._vartype = NULL;
-                t.type = TokenAddition;
-                t.text = "+";
-                t.line = line;
-                t.pos = pos;
-                list_of_token.push_back(t);
-                continue;
-            }
+           char  c2 = script->nextChar();
+           if(c2=='+')
+           {
+            token t;
+            t._vartype = NULL;
+            t.type = TokenPlusPlus;
+            t.text = "++";
+            t.line = line;
+            t.pos = pos;
+            list_of_token.push_back(t);
+            continue;
+           }
+           else
+           {
+            script->previousChar();
+            token t;
+            t._vartype = NULL;
+            t.type = TokenAddition;
+            t.text = "+";
+            t.line = line;
+            t.pos = pos;
+            list_of_token.push_back(t);
+            continue;
+           }
         }
 
         if (isIna_zA_Z_(c))
@@ -874,40 +712,6 @@ void tokenizer(Script *script)
             list_of_token.push_back(t);
             continue;
         }
-        if (c == '\t')
-        {
-            token t;
-            t.type = TokenSpace;
-            t._vartype = NULL;
-            t.text = "\t";
-            t.line = line;
-            t.pos = pos;
-              if (_for_display)
-            list_of_token.push_back(t);
-            continue;
-        }
-        if (c == '&')
-        {
-            token t;
-            t.type = TokenUppersand;
-            t._vartype = NULL;
-            t.text = "&";
-            t.line = line;
-            t.pos = pos;
-            list_of_token.push_back(t);
-            continue;
-        }        
-        if (c == '#')
-        {
-            token t;
-            t.type = TokenDiese;
-            t._vartype = NULL;
-            t.text = "#";
-            t.line = line;
-            t.pos = pos;
-            list_of_token.push_back(t);
-            continue;
-        } 
         if (c == '(')
         {
             token t;
@@ -1012,19 +816,16 @@ void tokenizer(Script *script)
             token t;
             t.line = line;
             t.pos = pos;
-            t.text = "";
             while (c == ' ')
             {
                 c = script->nextChar();
                 pos++;
-                t.text = t.text + " ";
             }
             script->previousChar(); // on revient un caractere en arriere
             pos--;
             t.type = TokenSpace;
-            // t.text = " ";
-            if (_for_display)
-                list_of_token.push_back(t);
+            t.text = "";
+            // list_of_token.push_back(t);
             continue;
         }
         if (c == '"')
@@ -1036,7 +837,7 @@ void tokenizer(Script *script)
             t.pos = pos;
             c = script->nextChar();
             pos++;
-            while (c != '"' && c!=EOF_TEXT)
+            while (c != '"')
             {
                 v += c;
                 c = script->nextChar();
@@ -1054,16 +855,14 @@ void tokenizer(Script *script)
         {
             token t;
             t.type = TokenNewline;
-            t.text = "\r\n";
+            t.text = "";
             t.line = line;
             t.pos = pos;
             line++;
             pos = 0;
-            if (_for_display)
-                list_of_token.push_back(t);
+            // list_of_token.push_back(t);
             continue;
         }
-        /*
         if (c == ';')
         {
             token t;
@@ -1078,7 +877,7 @@ void tokenizer(Script *script)
             list_of_token.push_back(t);
             continue;
         }
-        */
+
         if (c == '*')
         {
             token t;
@@ -1108,161 +907,6 @@ void tokenizer(Script *script)
     t.text = "";
     t.line = line;
     t.pos = pos + 1;
-
     list_of_token.push_back(t);
-    // return list_of_token;
+    //return list_of_token;
 }
-
-#ifdef __CONSOLE_ESP32
-list<const char *> _parenthesis;
-list<const char *> _curlybracket;
-list<const char *> _bracket;
-int _prevparenthesis;
-int _prevcurlybracket;
-int _prevbracket;
-#define _NB_COLORS 3
-const char *_colors[_NB_COLORS] =
-    {
-        
-        termColor.Magenta,
-        termColor.LBlue,
-        termColor.Yellow,
-
-};
-
-void formatInit()
-{
-     _parenthesis.clear();
-     _curlybracket.clear();
-_bracket.clear();
- _prevparenthesis=0;
-_prevcurlybracket=0;
-_prevbracket=0;
-}
-
-void formatNewLine()
-{
-     _prevparenthesis=0;
-_prevcurlybracket=0;
-_prevbracket=0;
-}
-
-string formatLine(string str)
-{
-    // Serial.printf("streing:%s\r\n",str.c_str());
-    // _parent.clear();
-    _for_display = true;
-    Script s(str);
-    tokenizer(&s);
-    _tks.init();
-    string res = "";
-for(int i=0;i<_prevparenthesis;i++)
-{
-_parenthesis.pop_back();
-}
-for(int i=0;i<_prevbracket;i++)
-{
-_bracket.pop_back();
-}
-for(int i=0;i<_prevcurlybracket;i++)
-{
-_curlybracket.pop_back();
-}
- _prevparenthesis=0;
-_prevcurlybracket=0;
-_prevbracket=0;
-
-    for (int i = 0; i < _tks.size(); i++)
-    {
-        token tk = *_tks.current();
-        //    Serial.printf("token %s\r\n",tk.text.c_str());
-        if (tk.type == TokenOpenCurlyBracket)
-        {
-
-            // char *color= (char *)_colors[_curlybracket.size()%_NB_COLORS];
-            res = res + string_format("%s%s", _colors[_curlybracket.size() % _NB_COLORS], tk.text.c_str());
-            _curlybracket.push_back(_colors[_curlybracket.size() % _NB_COLORS]);
-            _prevcurlybracket++;
-        }
-        else if (tk.type == TokenCloseCurlyBracket)
-        {
-
-            if (_curlybracket.size() == 0)
-            {
-                res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
-            }
-            else
-            {
-                // char * color=_curlybracket.back();
-                _prevcurlybracket--;
-                res = res + string_format("%s%s", _curlybracket.back(), tk.text.c_str());
-                _curlybracket.pop_back();
-            }
-        }
-        else if (tk.type == TokenOpenParenthesis)
-        {
-_prevparenthesis++;
-            res = res + string_format("%s%s", _colors[(_parenthesis.size()+2) % _NB_COLORS], tk.text.c_str());
-            _parenthesis.push_back(_colors[(_parenthesis.size()+2) % _NB_COLORS]);
-        }
-        else if (tk.type == TokenCloseParenthesis)
-        {
-
-            if (_parenthesis.size() == 0)
-            {
-                res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
-            }
-            else
-            {
-_prevparenthesis--;
-                res = res + string_format("%s%s", _parenthesis.back(), tk.text.c_str());
-                _parenthesis.pop_back();
-            }
-        }
-        else if (tk.type == TokenOpenBracket)
-        {
-_prevbracket++;
-            res = res + string_format("%s%s", _colors[_bracket.size() % _NB_COLORS], tk.text.c_str());
-            _bracket.push_back(_colors[_bracket.size() % _NB_COLORS]);
-        }
-        else if (tk.type == TokenCloseBracket)
-        {
-
-            if (_bracket.size() == 0)
-            {
-                res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
-            }
-            else
-            {
-_prevbracket--;
-                res = res + string_format("%s%s", _bracket.back(), tk.text.c_str());
-                _bracket.pop_back();
-            }
-        }
-        else if (tk.type == TokenKeyword)
-        {
-            res = res + string_format("%s%s", KeywordTypeFormat[tk._keyword], tk.text.c_str());
-        }
-        else
-        {
-            token tkn = *_tks.next();
-            if (tk.type == TokenIdentifier && tkn.type == TokenOpenParenthesis)
-            {
-                res = res + string_format("%s%s", tokenFormat[TokenFunction], tk.text.c_str());
-            }
-            else
-            {
-
-                res = res + string_format("%s%s", tokenFormat[tk.type], tk.text.c_str());
-            }
-            _tks.prev();
-        }
-        _tks.next();
-    }
-
-    _tks.clear();
-    //  _parent.clear();
-    _for_display = false;
-    return res;
-}
-#endif
