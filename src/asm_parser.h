@@ -756,7 +756,12 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
   error_message_struct main_error;
   main_error.error = 0;
   main_error.error_message = "";
+  #ifdef __CONSOLE_ESP32
+ string d=string_format("Parsing %d assembly lines ... ", _lines->size());
+ LedOS.pushToConsole(d);
+  #else
   printf("Parsing %d assembly lines ...\r\n ", _lines->size());
+  #endif
   int i=0;
   for (list<string>::iterator it = _lines->begin(); it != _lines->end(); it++)
   {
@@ -768,6 +773,7 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
       result_parse_line re_sparse = parseline(res, asm_parsed);
      // re_sparse.debugtxt = lines[i];
       re_sparse.line = i + 1;
+     // printf("%d %s\r\n",i+1,(*it).c_str());
       (*asm_parsed).push_back(re_sparse);
       if (re_sparse.error.error)
       {
@@ -777,7 +783,7 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
     }
   i++;
   }
-  printf("Done.\r\n");
+  //printf("Done.\r\n");
   return main_error;
 }
 
@@ -905,7 +911,12 @@ void printparsdAsm(uint32_t start_address, vector<result_parse_line> *asm_parsed
 
 void flagLabel32aligned(vector<result_parse_line> *asm_parsed)
 {
-  printf("Flag label(s) to align ... ");
+  #ifdef __CONSOLE_ESP32
+  LedOS.pushToConsole("Flag label(s) to align ... ");
+  
+  #else
+printf("Flag label(s) to align ... ");
+  #endif
   uint32_t add = 0;
   vector<result_parse_line>::iterator it = (*asm_parsed).begin();
   for (it; it < (*asm_parsed).end(); it++)
@@ -920,12 +931,25 @@ void flagLabel32aligned(vector<result_parse_line> *asm_parsed)
       }
     }
   }
-  printf("Done.\r\b");
+    #ifdef __CONSOLE_ESP32
+  LedOS.pushToConsole("Done. ");
+  
+  #else
+printf("Done.");
+  #endif
+ // printf("Done.\r\b");
 }
 
 error_message_struct calculateJump(vector<result_parse_line> *asm_parsed)
 {
-  printf("Calculating jumps ... ");
+  
+      #ifdef __CONSOLE_ESP32
+  LedOS.pushToConsole("alculating jumps ...");
+  
+  #else
+printf("Calculating jumps ... ");
+  #endif
+  
   error_message_struct error;
   error.error = 0;
   error.error_message = "";
@@ -954,7 +978,7 @@ error_message_struct calculateJump(vector<result_parse_line> *asm_parsed)
       }
     }
   }
-  printf("Done.\r\n");
+ // printf("Done.\r\n");
   return error;
 }
 
@@ -1026,8 +1050,13 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
     data_size = (*asm_parsed)[last_one].size + (*asm_parsed)[last_one].address;
   }
   uint32_t intr_size = (*asm_parsed)[(*asm_parsed).size() - 1].address + (*asm_parsed)[(*asm_parsed).size() - 1].size;
+ 
+#ifdef __CONSOLE_ESP32
+ string d=string_format("Creation of an %d bytes binary and %d bytes data, nb data_label %d", intr_size, data_size,nb_data);
+LedOS.pushToConsole(d);
+#else
   printf("Creation of an %d bytes binary and %d bytes data, nb data_label %d\r\n", intr_size, data_size,nb_data);
-
+#endif
   uint8_t *val_tmp = (uint8_t *)malloc((intr_size / 8) * 8 + 8);
   uint8_t *data;
   if (data_size > 0)
@@ -1131,7 +1160,7 @@ executable createExectutable(list<string> *lines, bool display)
 {
   vector<result_parse_line> asm_parsed;
   executable exec;
- // printf("lines %d\n",lines->size());
+ //printf("lines %d\n",lines->size());
   error_message_struct err = parseASM(lines, &asm_parsed);
   if (err.error == 0)
   {
@@ -1228,13 +1257,21 @@ executable createExectutable(string script)
 }
 void executeBinaryAsm(uint32_t *j, uint32_t *c)
 {
+  #ifdef __CONSOLE_ESP32
+  LedOS.pushToConsole("Executing asm code ...");
+  #else
   printf("Executing asm code ...\n");
+  #endif
   asm volatile("l32i a10,%1,0\n\t"
                "l32i a15,%0,0\n\t"
                "callx8 a15"
                : : "r"(j), "r"(c)
                :);
-  printf("Execution done\n");
+   #ifdef __CONSOLE_ESP32
+  LedOS.pushToConsole("Execution Done.");
+  #else
+  printf("Execution Done.\n");
+  #endif
   // free(exec);
 }
 
@@ -1246,7 +1283,7 @@ error_message_struct executeBinary(string function,executable ex)
   {
     if(ex.functions[i].name.compare(function)==0)
     {
-      printf("address of function %s :%x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
+      //printf("address of function %s :%x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
       executeBinaryAsm(&ex.functions[i].address, &ex.links);
       //freeBinary(ex);
       return res;
@@ -1263,15 +1300,21 @@ error_message_struct executeBinary(executable ex)
 return executeBinary(ex.functions[0].name,ex);
 
 }
-void freeBinary(executable ex)
+void freeBinary(executable *ex)
 {
-  if (ex.start_program != NULL)
-    heap_caps_aligned_free(ex.start_program);
+  if (ex->start_program != NULL)
+  {
+  
+    heap_caps_aligned_free(ex->start_program);
+  }
 
-  ex.start_program=NULL;
+  ex->start_program=NULL;
 
-  if (ex.data != NULL)
-    free(ex.data);
-  ex.data=NULL;
+  if (ex->data != NULL)
+{
+   
+    free(ex->data);
+  }
+  ex->data=NULL;
 }
 #endif

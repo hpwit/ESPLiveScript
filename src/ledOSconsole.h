@@ -478,7 +478,7 @@ public:
     Serial.printf("%s\r",footerformat.c_str());
   // Serial.print("\u001b[0K");
   
-    Serial.printf("%sPos x:%3d y:%3d height:%d  width:%d curpos:%d script size:%d  filename: %s\u304F\u3008", footerformat.c_str(), internal_coordinates.x, internal_coordinates.y, height, width,internal_coordinates.internaly, script.size(),filename.c_str() );
+    Serial.printf("%sPos x:%3d y:%3d height:%d  width:%d curpos:%d script size:%d  filename: %s", footerformat.c_str(), internal_coordinates.x, internal_coordinates.y, height, width,internal_coordinates.internaly, script.size(),filename.c_str() );
      Serial.print("\u001b[0K");
     Serial.printf("\u001b[%dC",width);
     Serial.printf("\u001b[%dD",11);

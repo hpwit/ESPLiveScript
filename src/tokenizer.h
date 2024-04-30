@@ -271,8 +271,8 @@ const char *tokenFormat[] = {
     termColor.BWhite,    //  TokenCloseParenthesis,
     termColor.BWhite,    // TokenOpenBracket,
     termColor.BWhite,    // TokenCloseBracket,
-    termColor.BWhite,    //  TokenOpenCurlyBracket,
-    termColor.BWhite,    //  TokenCloseCurlyBracket,
+    termColor.LMagenta,    //  TokenOpenCurlyBracket,
+    termColor.LMagenta,    //  TokenCloseCurlyBracket,
     termColor.BWhite,    //  TokenEqual,
     termColor.BWhite,    //  TokenDoubleEqual,
     termColor.Cyan,     //  TokenIdentifier,
@@ -1029,11 +1029,12 @@ void tokenizer(Script *script)
         }
         if (c == '"')
         {
-            string v;
+            string v="";
             token t;
             t._vartype = NULL;
             t.line = line;
             t.pos = pos;
+            v+=c;
             c = script->nextChar();
             pos++;
             while (c != '"' && c!=EOF_TEXT)
@@ -1044,7 +1045,7 @@ void tokenizer(Script *script)
             }
             // script->previousChar(); //on revient un caractere en arriere
             // pos--;
-
+            v+=c;
             t.type = TokenString;
             t.text = v;
             list_of_token.push_back(t);
@@ -1055,6 +1056,58 @@ void tokenizer(Script *script)
             token t;
             t.type = TokenNewline;
             t.text = "\r\n";
+            t.line = line;
+            t.pos = pos;
+            line++;
+            pos = 0;
+            if (_for_display)
+                list_of_token.push_back(t);
+            continue;
+        }
+         if (c == '?')
+        {
+            token t;
+            t.type = TokenUnknown;
+            t.text = "?";
+            t.line = line;
+            t.pos = pos;
+            line++;
+            pos = 0;
+            if (_for_display)
+                list_of_token.push_back(t);
+            continue;
+        }
+        if (c == '.')
+        {
+            token t;
+            t.type = TokenUnknown;
+            t.text = ".";
+            t.line = line;
+            t.pos = pos;
+            line++;
+            pos = 0;
+            if (_for_display)
+                list_of_token.push_back(t);
+            continue;
+        }
+        if (c == '\'')
+        {
+            token t;
+            t.type = TokenUnknown;
+            t.text = ".";
+            t.line = line;
+            t.pos = pos;
+            line++;
+            pos = 0;
+            if (_for_display)
+                list_of_token.push_back(t);
+            continue;
+        }
+        if (c == ':')
+        {
+            token t;
+            t.type = TokenUnknown;
+            t.text = ":";
             t.line = line;
             t.pos = pos;
             line++;
@@ -1176,7 +1229,7 @@ _prevbracket=0;
     {
         token tk = *_tks.current();
         //    Serial.printf("token %s\r\n",tk.text.c_str());
-        if (tk.type == TokenOpenCurlyBracket)
+       /* if (tk.type == TokenOpenCurlyBracket)
         {
 
             // char *color= (char *)_colors[_curlybracket.size()%_NB_COLORS];
@@ -1198,8 +1251,8 @@ _prevbracket=0;
                 res = res + string_format("%s%s", _curlybracket.back(), tk.text.c_str());
                 _curlybracket.pop_back();
             }
-        }
-        else if (tk.type == TokenOpenParenthesis)
+        }*/
+         if (tk.type == TokenOpenParenthesis)
         {
 _prevparenthesis++;
             res = res + string_format("%s%s", _colors[(_parenthesis.size()+2) % _NB_COLORS], tk.text.c_str());
@@ -1265,4 +1318,13 @@ _prevbracket--;
     _for_display = false;
     return res;
 }
+class __INIT_TOKEN
+{
+    public:
+    __INIT_TOKEN()
+    {
+        LedOS.addHightLightinf("sc", formatLine,formatInit,formatNewLine);
+    }
+};
+__INIT_TOKEN _init_token;
 #endif

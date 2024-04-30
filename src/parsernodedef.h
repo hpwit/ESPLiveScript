@@ -498,7 +498,7 @@ public:
 
         cntx.parent = this;
         cntx.name = name + "_" + cntx.name;
-
+        
         // cntx._global = _global;
         children.push_back(cntx);
         list<Context>::iterator it = children.end();
