@@ -8,6 +8,7 @@ using namespace std;
 #define EOF_TEXT 0
 
 #ifndef ARDUINO
+
 template <typename... Args>
 std::string string_format(const std::string &format, Args... args)
 
@@ -33,6 +34,7 @@ enum varTypeEnum
     __float__,
     __void__,
     __CRGB__,
+    __char__,
 
 };
 
@@ -56,7 +58,8 @@ string varTypeEnumNames[] =
         "__int__",
         "__float__",
         "__void__",
-        "__CRGB__"
+        "__CRGB__",
+         "__char__"
 
 };
 
@@ -129,6 +132,16 @@ varType _varTypes[] =
             .sizes = {1, 1, 1},
             .size = 3,
             .total_size = 3,
+        },
+                {
+            ._varType = __char__,
+            ._varSize = 1,
+            .load = {"l8ui"},
+            .store = {"s8i"},
+            .reg_name = "a",
+            .sizes = {1},
+            .size = 1,
+            .total_size = 1,
         }
 
 };
@@ -142,12 +155,14 @@ enum KeywordType
     KeywordThen,
     KeywordElse,
     KeywordWhile,
-    KeyWordReturn
+    KeyWordReturn,
+    KeyWordImport
 };
 
 
 KeywordType __keywordTypes[] =
     {
+        KeywordVarType,
         KeywordVarType,
         KeywordVarType,
         KeywordVarType,
@@ -162,9 +177,11 @@ KeywordType __keywordTypes[] =
         KeywordElse,
         KeywordWhile,
         KeyWordReturn,
+        KeyWordImport
 };
 string keywordTypeNames[] =
     {
+        "KeywordVarType",
         "KeywordVarType",
         "KeywordVarType",
         "KeywordVarType",
@@ -178,12 +195,15 @@ string keywordTypeNames[] =
         "KeywordThen",
         "KeywordElse",
         "KeywordWhile",
-        "KeyWordReturn"
+        "KeyWordReturn",
+        "KeyWordImport"
+        
 
 };
 
-int nb_keywords = 14;
-string keyword_array[14] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "__ext__", "for", "if", "then", "else", "while", "return"};
+#define nb_keywords 16
+#define nb_typeVariables 8
+string keyword_array[nb_keywords] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "__ext__", "for", "if", "then", "else", "while", "return","import"};
 
 enum tokenType
 {
@@ -221,7 +241,11 @@ enum tokenType
     TokenNot,
     TokenFunction,
     TokenUppersand,
-    TokenDiese
+    TokenDiese,
+    TokenLineComment,
+    TokenStartBlockComment,
+    TokenEndBlockComment,
+    
 };
 
 string tokenNames[] = {
@@ -259,7 +283,13 @@ string tokenNames[] = {
     "TokenNot",
     "TokenFunction",
     "TokenUppersand",
-    "TokenDiese"};
+    "TokenDiese",
+    "TokenLineComment",
+    "TokenStartBlockComment",
+    "TokenEndBlockComment",
+};
+
+
 
 #ifdef __CONSOLE_ESP32
 const char *tokenFormat[] = {
@@ -298,6 +328,9 @@ const char *tokenFormat[] = {
     termColor.Yellow,  // TokenFunction
     termColor.BWhite,  //TokenUppersand
     termColor.BWhite,  //TokenDiese
+    termColor.Grey, //TokenLineComment
+    termColor.Grey, //  TokenStartBlockComment
+    termColor.Grey,  //TokenEndBlockComment
 };
 
 const char * KeywordTypeFormat[] =
@@ -826,7 +859,7 @@ void tokenizer(Script *script)
                 // printf("keyword;%s\n",v.c_str());
                 t.type = TokenKeyword;
                 t._keyword = __keywordTypes[isKeyword(v)];
-                if (isKeyword(v) < 7)
+                if (isKeyword(v) < nb_typeVariables)
                     t._vartype = &_varTypes[isKeyword(v)];
                 if (t._keyword == KeywordExternalVar)
                 {
@@ -987,14 +1020,60 @@ void tokenizer(Script *script)
         }
         if (c == '/')
         {
-            token t;
-            t.type = TokenSlash;
-            t._vartype = NULL;
-            t.text = "/";
-            t.line = line;
-            t.pos = pos;
-            list_of_token.push_back(t);
-            continue;
+            char c2 = script->nextChar();
+            if (c2 == '/')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenLineComment;
+                
+                t.text = "//";
+                c2 = script->nextChar();
+                while(c2!='\n' and c2!=EOF_TEXT)
+                {
+                    t.text=t.text+c2;
+                    c2 = script->nextChar();
+                }
+                t.line = line;
+                t.pos = pos;
+                if (_for_display)
+                list_of_token.push_back(t);
+                continue;
+            }
+            else if(c2 == '*')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenLineComment;
+                
+                t.text = "/*";
+                c = script->nextChar();
+                c2=script->nextChar();
+                while((c!='*' or c2!='/') and c2!=EOF_TEXT and c!=EOF_TEXT) //stop when (c=* and c2=/) or c=0 or c2=0 
+                {
+                    t.text=t.text+c;
+                    c=c2;
+                    c2 = script->nextChar();
+                }
+                t.line = line;
+                t.pos = pos;
+                if (_for_display)
+                list_of_token.push_back(t);
+                continue;
+            
+            }
+            else
+            {
+                script->previousChar();
+                token t;
+                t.type = TokenSlash;
+                t._vartype = NULL;
+                t.text = "/";
+                t.line = line;
+                t.pos = pos;
+                list_of_token.push_back(t);
+                continue;
+            }
         }
         if (c == '-')
         {
@@ -1037,7 +1116,7 @@ void tokenizer(Script *script)
             v+=c;
             c = script->nextChar();
             pos++;
-            while (c != '"' && c!=EOF_TEXT)
+            while (c != '"' && c!=EOF_TEXT )
             {
                 v += c;
                 c = script->nextChar();
