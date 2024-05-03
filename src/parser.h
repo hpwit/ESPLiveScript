@@ -67,6 +67,7 @@ public:
         stack_size = 0;
         for_if_num = 0;
         block_statement_num = 0;
+        local_var_num=0;
         nb_argument = 0;
         _tks.init();
         current_cntx = &cntx;
@@ -1220,6 +1221,7 @@ public:
         if (Match(TokenOpenBracket, 1))
         {
             // we are in the case led[];
+            
             NodeToken var = NodeToken(current());
             next();
             next();
@@ -1389,9 +1391,9 @@ void parse_c(Console *cons, vector<string> args)
         rt = rt + s + "\n";
     }
     rt = rt + '\0';
-
+//cons->script.clear();
     Script sc(rt);
-    rt = "";
+    rt.clear();
     _tks.init();
     tokenizer(&sc);
     cons->pushToConsole("***********TOKENISATION DONE***********");

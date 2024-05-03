@@ -15,6 +15,7 @@ int stack_size = 0;
 int for_if_num = 0;
 int block_statement_num = 0;
 int nb_argument=0;
+int local_var_num=0;
 list<int> nb_args;
 list<string> _header;
 list<string> _content;
@@ -2365,13 +2366,50 @@ if (nd->children.size() > 0)
     }
     else
     {
+        int __num=0;
+        sscanf( nd->_token->text.c_str(),"%d",&__num);
+        if (__num>=2048 or __num<-2046)
+        {
+            header.addAfter(string_format("%s_%d:","local_var",local_var_num));
+            string val=".bytes 4 ";
+            char c=__num & 0xff;
+            val=val+c;
+            //val=val+'A';
+            __num=__num/256;
+c=__num & 0xff;
+                        val=val+c;
+            //val=val+'A';
+            __num=__num/256;
+            c=__num & 0xff;
+                       val=val+c;
+            //val=val+'A';
+            __num=__num/256;
+            c=__num & 0xff;
+                        val=val+c;
+            //val=val+'A';
+        
+             header.addAfter(val);
+             
+             
+             point_regnum++;
+             content.addAfter( string_format("l32r a%d,%s_%d",point_regnum,"local_var",local_var_num));
+              content.addAfter( string_format("l32i a%d,a%d,0",register_numl.get(),point_regnum));
+                      content.sp.push(content.get());
+                      point_regnum--;
+                      local_var_num++;
+        register_numl.decrease();
+        }
+        else{
+
+        
         //register_numl.pop();
        // register_numl.pop();
         content.addAfter(string_format("movi a%d,%s", register_numl.get(), nd->_token->text.c_str()));
         content.sp.push(content.get());
         register_numl.decrease();
+        }
             //printf("exit number\n");
-register_numl.displaystack();
+//register_numl.displaystack();
     }
         
          
