@@ -15,6 +15,7 @@ using namespace std;
 #include "string_function.h"
 #include "asm_parser_LMbin.h"
 #include "asm_external.h"
+bool __parser_debug=false;
 
 class opRegister
 {
@@ -523,6 +524,10 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 1, op_callx8, 3, bin_callx8);
   }
+  if (sp.opcde.compare("extui") == 0)
+  {
+    return parseOperandes(sp.operandes, 4, op_extui, 3, bin_extui);
+  }
 
   if (sp.opcde.compare("retw.n") == 0)
   {
@@ -531,25 +536,26 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   if (sp.opcde.compare(".bytes") == 0)
   {
     char *endptr = NULL;
-    //vector<string> sf=split(sp.operandes," ");
-int value;
-string suite;
+    // vector<string> sf=split(sp.operandes," ");
+    int value;
+    string suite;
 
-string depart=trim(sp.operandes);
-    if (depart.find_first_of(" ")<depart.size())
-  {
-    suite = depart.substr(depart.find_first_of(" ")+1, depart.size());
-    value =strtol(depart.substr(0, depart.find_first_of(" ")).c_str(), &endptr, 10);
-  }
-  else{
-    suite=depart;
-    value=strtol(depart.c_str(), &endptr, 10);
-  }
+    string depart = trim(sp.operandes);
+    if (depart.find_first_of(" ") < depart.size())
+    {
+      suite = depart.substr(depart.find_first_of(" ") + 1, depart.size());
+      value = strtol(depart.substr(0, depart.find_first_of(" ")).c_str(), &endptr, 10);
+    }
+    else
+    {
+      suite = depart;
+      value = strtol(depart.c_str(), &endptr, 10);
+    }
 
-   // int value = strtol(sp.operandes.substr(0, sp.operandes.find_first_of(" ")).c_str(), &endptr, 10);
-   // printf("first of %d\n",sp.operandes.find_first_of(" "));
-   // printf("on a /%s/%s/%d\n",depart.c_str(), suite.c_str(),value);
-    
+    // int value = strtol(sp.operandes.substr(0, sp.operandes.find_first_of(" ")).c_str(), &endptr, 10);
+    // printf("first of %d\n",sp.operandes.find_first_of(" "));
+    // printf("on a /%s/%s/%d\n",depart.c_str(), suite.c_str(),value);
+
     if (*endptr == 0)
     {
       result_parse_line ps;
@@ -562,8 +568,8 @@ string depart=trim(sp.operandes);
         ps1->align = true;
         ps.error.error = 0;
         ps.size = value;
-        ps.name=suite;
-       // sf.clear();
+        ps.name = suite;
+        // sf.clear();
         return ps;
       }
     }
@@ -805,19 +811,25 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
   int size = _lines->size();
   for (int i = 0; i < size; i++)
   {
-    //printf("on parse : %s\r\n",_lines->front().c_str());
+    if(__parser_debug)
+    {
+     printf("on parse : %s\r\n",_lines->front().c_str());
+    }
     line res = splitOpcodeOperande(_lines->front());
     if (!res.error)
     {
       result_parse_line re_sparse = parseline(res, asm_parsed);
-      // re_sparse.debugtxt = lines[i];
+      if(__parser_debug)
+      {
+       re_sparse.debugtxt = _lines->front();
+      }
       re_sparse.line = i + 1;
       // printf("%d %s\r\n",i+1,(*it).c_str());
       (*asm_parsed).push_back(re_sparse);
       if (re_sparse.error.error)
       {
         main_error.error = 1;
-        main_error.error_message += string_format("line:%d %s\n", i, re_sparse.error.error_message.c_str());
+        main_error.error_message += string_format("line:%d %s\r\n", i, re_sparse.error.error_message.c_str());
       }
     }
     _lines->pop_front();

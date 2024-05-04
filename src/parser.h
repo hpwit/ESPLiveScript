@@ -1,7 +1,10 @@
 #include <vector>
 #include <string>
 // #include "tokenizer.h"
+#ifndef  __TEST_DEBUG
 #include "asm_parser.h"
+#endif
+
 #pragma once
 using namespace std;
 
@@ -1372,10 +1375,11 @@ void parse_c(Console *cons, vector<string> args)
 {
     exeExist = false;
     freeBinary(&executecmd);
-    bool debug = false;
+   // bool debug = false;
+   //__parser_debug=true;
     if (args.size() > 0)
     {
-        debug = true;
+        __parser_debug = true;
     }
 
     p.clean();
@@ -1431,7 +1435,7 @@ void parse_c(Console *cons, vector<string> args)
             _header.pop_back();
         }
         cons->pushToConsole("***********CREATE EXECUTABLE*********");
-        executecmd = createExectutable(&_content, debug);
+        executecmd = createExectutable(&_content, __parser_debug);
         // strcompile = "";
         p.clean2();
         // Serial.printf(config.ESC_RESET);
@@ -1453,6 +1457,7 @@ void parse_c(Console *cons, vector<string> args)
             Serial.printf(config.ESC_RESET);
         }
     }
+    __parser_debug=false;
 }
 void parsec_cEsc(Console *cons)
 {
