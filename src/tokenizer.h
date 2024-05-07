@@ -155,8 +155,10 @@ enum KeywordType
     KeywordThen,
     KeywordElse,
     KeywordWhile,
-    KeyWordReturn,
-    KeyWordImport
+    KeywordReturn,
+    KeywordImport,
+    KeywordFrom,
+    KeywordASM
 };
 
 
@@ -176,8 +178,10 @@ KeywordType __keywordTypes[] =
         KeywordThen,
         KeywordElse,
         KeywordWhile,
-        KeyWordReturn,
-        KeyWordImport
+        KeywordReturn,
+        KeywordImport,
+        KeywordFrom,
+        KeywordASM
 };
 string keywordTypeNames[] =
     {
@@ -195,15 +199,17 @@ string keywordTypeNames[] =
         "KeywordThen",
         "KeywordElse",
         "KeywordWhile",
-        "KeyWordReturn",
-        "KeyWordImport"
+        "KeywordReturn",
+        "KeywordImport",
+        "KeywordFrom",
+        "KeywordASM"
         
 
 };
 
-#define nb_keywords 16
+#define nb_keywords 18
 #define nb_typeVariables 8
-string keyword_array[nb_keywords] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "__ext__", "for", "if", "then", "else", "while", "return","import"};
+string keyword_array[nb_keywords] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "__ext__", "for", "if", "then", "else", "while", "return","import","from","__ASM__"};
 
 enum tokenType
 {
@@ -343,6 +349,9 @@ const char * KeywordTypeFormat[] =
     termColor.Magenta , // KeywordElse,
     termColor.Magenta , // KeywordWhile,
     termColor.Magenta , // KeyWordReturn
+    termColor.LMagenta , // KeyWordImport
+    termColor.LMagenta , // KeyWordFrom
+    termColor.LMagenta , // KeyWordASM
         };
 
 #endif

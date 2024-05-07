@@ -1313,7 +1313,7 @@ void executeBinaryAsm(uint32_t *j, uint32_t *c)
 #ifdef __CONSOLE_ESP32
   LedOS.pushToConsole("Executing asm code ...");
 #else
-  printf("Executing asm code ...\n");
+  printf("Executing asm code ...\r\n");
 #endif
   asm volatile("l32i a10,%1,0\n\t"
                "l32i a15,%0,0\n\t"

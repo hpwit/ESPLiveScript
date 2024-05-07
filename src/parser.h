@@ -4,7 +4,9 @@
 #ifndef  __TEST_DEBUG
 #include "asm_parser.h"
 #endif
-
+#include "soc/timer_group_struct.h"
+#include "soc/timer_group_reg.h"
+#include "soc/rtc_wdt.h"
 #pragma once
 using namespace std;
 
@@ -255,7 +257,7 @@ public:
             return;
         }
 
-        else if (Match(TokenAddition) || Match(TokenSubstraction))
+        else if (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand))
         {
             // token *t = current();
             NodeUnitary g = NodeUnitary();
@@ -596,7 +598,13 @@ public:
         // current_node=current_node->addChild(statement);
 
         // on demarre avec la function
-        if (Match(TokenKeyword) && MatchKeyword(KeyWordReturn))
+        if(Match(TokenString))
+        {
+            current_node->addChild(NodeString(current()));
+                next();
+                return;
+        }
+        else if (Match(TokenKeyword) && MatchKeyword(KeywordReturn))
         {
             next();
             if (Match(TokenSemicolon))
@@ -1013,7 +1021,13 @@ public:
 
             return;
         }
+        else
+        {
+             Error.error = 1;
+            Error.error_message = string_format(" Unexpected %s at %s",current()->text.c_str(), linepos().c_str());
         return;
+        }
+
     }
 
     void parseBlockStatement()
@@ -1055,11 +1069,17 @@ public:
     {
         Error.error = 0;
         bool ext_function = false;
+        bool is_asm=false;
         // printf("entering function\n");
         if (isExternal)
         {
             ext_function = true;
             isExternal = false;
+        }
+        if(isASM)
+        {
+            isASM=false;
+            is_asm=true;
         }
         // resParse result;
         token *func = current();
@@ -1075,6 +1095,15 @@ public:
         if (ext_function)
         {
             NodeDefExtFunction function = NodeDefExtFunction(func);
+            function.addChild(oritype);
+            //  function.addChild(arguments._nd);
+
+            current_node = current_node->addChild(function);
+            current_cntx->parent->addFunction(current_node);
+        }
+        else if(is_asm)
+        {
+            NodeDefAsmFunction function = NodeDefAsmFunction(func);
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1182,6 +1211,12 @@ public:
             isExternal = true;
             next();
         }
+        else if(Match(TokenKeyword) && MatchKeyword(KeywordASM))
+        {
+            isASM = true;
+            next();
+        }
+        
         if (Match(TokenKeyword) && MatchKeyword(KeywordVarType))
         {
             _nd._nodetype = typeNode;
@@ -1362,24 +1397,118 @@ public:
         return;
     }
 
+void setPrekill(void (*function)())
+{
+    prekill=function;
+}
+void(*prekill)()=NULL;
 private:
     Tokens _tks;
+    
 };
 #ifdef __CONSOLE_ESP32
+static volatile TaskHandle_t __run_handle = NULL;
 executable executecmd;
 // string strcompile;
 bool exeExist;
-Parser p = Parser();
+typedef struct
+{
+  vector<string> args;
+  executable exe;
+} _exe_args;
 
+ static void _udp_task_subrarnet(void *pvParameters)
+ {
+
+_exe_args *_fg = ((_exe_args *)pvParameters);
+  if(_fg->args.size()>0)
+  {
+  executeBinary(_fg->args[0],_fg->exe);
+  }
+  else {
+  executeBinary("main",_fg->exe);
+  }
+ // _push("Done ...");
+  vTaskDelete(NULL);
+ }
+Parser p = Parser();
+static void feedTheDog()
+{
+  // feed dog 0
+  TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE; // write enable
+  TIMERG0.wdt_feed=1;                       // feed dog
+  TIMERG0.wdt_wprotect=0;                   // write protect
+  // feed dog 1
+  TIMERG1.wdt_wprotect=TIMG_WDT_WKEY_VALUE; // write enable
+  TIMERG1.wdt_feed=1;                       // feed dog
+  TIMERG1.wdt_wprotect=0;                   // write protect
+}
+
+void run(Console *cons,vector<string> args)
+{
+  if(exeExist==true)
+  {
+ // _push(termColor.Cyan);
+ // Serial.printf(config.ENDLINE);
+ // Serial.print("Executing ...\r\n");
+  _exe_args df;
+  df.args=args;
+  df.exe=executecmd;
+  //executeBinary("main",executecmd);
+  xTaskCreateUniversal(_udp_task_subrarnet, "_run_task", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&__run_handle, 0);
+ 
+// xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
+ 
+  delay(10);
+  cons->pushToConsole("Execution on going CTRL + k to stop");
+ // Serial.printf(config.ESC_RESET);
+  }
+  else {
+  //  Serial.printf(termColor.Red);
+  //printf("No executable ready\r\n");
+  //Serial.printf(config.ESC_RESET);
+  }
+}
+
+void kill(Console *cons,vector<string> args)
+{
+    cons->pushToConsole("Stopping code...");
+    if(p.prekill!=NULL)
+    p.prekill();
+if(__run_handle!=NULL)
+    vTaskDelete(__run_handle);
+  __run_handle=NULL;
+  cons->pushToConsole("Code stoppeed.");
+
+}
+void kill_cEsc(Console *cons)
+{
+     cons->displayf = false;
+    vector<string> f;
+    if(cons->cmode==edit)
+    {
+        cons->storeCurrentLine();
+    }
+    kill(cons, f);
+    if(cons->cmode==keyword)
+    {
+    _push(config.ENDLINE);
+    _push(cons->prompt(cons).c_str());
+    }
+}
 void parse_c(Console *cons, vector<string> args)
 {
+    bool othercore=false;
     exeExist = false;
     freeBinary(&executecmd);
    // bool debug = false;
    //__parser_debug=true;
     if (args.size() > 0)
     {
-        __parser_debug = true;
+        if(args[0].compare("&")!=0)
+            __parser_debug = true;
+        if(args[args.size()-1].compare("&")==0)
+        othercore=true;
     }
 
     p.clean();
@@ -1395,7 +1524,7 @@ void parse_c(Console *cons, vector<string> args)
         rt = rt + s + "\n";
     }
     rt = rt + '\0';
-//cons->script.clear();
+   // cons->script.clear();
     Script sc(rt);
     rt.clear();
     _tks.init();
@@ -1442,12 +1571,31 @@ void parse_c(Console *cons, vector<string> args)
 
         if (executecmd.error.error == 0)
         {
+           
             exeExist = true;
+            if(othercore)
+            {
             vector<string> d;
-            // d.push_back("main");
-            cons->pushToConsole("***********START RUN*********");
-            executeBinary("main", executecmd);
-            // run2(d);
+             d.push_back("main");
+             cons->pushToConsole("***********START RUN *********");
+            run(cons,d);
+                if(cons->cmode==keyword)
+    {
+    _push(config.ENDLINE);
+    _push(cons->prompt(cons).c_str());
+    }
+            }
+            else
+            {
+                cons->pushToConsole("***********START RUN*********");
+                executeBinary("main", executecmd);
+                    if(cons->cmode==keyword)
+    {
+    _push(config.ENDLINE);
+    _push(cons->prompt(cons).c_str());
+    }
+            }
+             
         }
         else
         {
@@ -1463,11 +1611,17 @@ void parsec_cEsc(Console *cons)
 {
     cons->displayf = false;
     vector<string> f;
+    f.push_back("&");
     if(cons->cmode==edit)
     {
         cons->storeCurrentLine();
     }
     parse_c(cons, f);
+    if(cons->cmode==keyword)
+    {
+    _push(config.ENDLINE);
+    _push(cons->prompt(cons).c_str());
+    }
 }
 class __INIT_PARSER
 {
@@ -1475,7 +1629,11 @@ public:
     __INIT_PARSER()
     {
         LedOS.addKeywordCommand("compile", parse_c);
+        LedOS.addKeywordCommand("run", run);
+        LedOS.addKeywordCommand("kill", kill);
         LedOS.addEscCommand(18, parsec_cEsc);
+        LedOS.addEscCommand(11, kill_cEsc);
+        
     }
 };
 __INIT_PARSER _init_parser;
