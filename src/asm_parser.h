@@ -16,7 +16,7 @@ using namespace std;
 #include "asm_parser_LMbin.h"
 #include "asm_external.h"
 bool __parser_debug=false;
-
+vector<result_parse_line> _asm_parsed;
 class opRegister
 {
 public:
@@ -537,7 +537,7 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     char *endptr = NULL;
     // vector<string> sf=split(sp.operandes," ");
-    int value;
+    uint16_t value;
     string suite;
 
     string depart = trim(sp.operandes);
@@ -551,7 +551,7 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
       suite = depart;
       value = strtol(depart.c_str(), &endptr, 10);
     }
-
+ //value = strtol(sp.operandes.c_str(), &endptr, 10);
     // int value = strtol(sp.operandes.substr(0, sp.operandes.find_first_of(" ")).c_str(), &endptr, 10);
     // printf("first of %d\n",sp.operandes.find_first_of(" "));
     // printf("on a /%s/%s/%d\n",depart.c_str(), suite.c_str(),value);
@@ -571,6 +571,12 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
         ps.name = suite;
         // sf.clear();
         return ps;
+      }
+      else{
+              //result_parse_line ps;
+      ps.error.error = 1;
+      ps.error.error_message = "Prior instruction is not a label";
+      return ps;
       }
     }
     else
@@ -776,44 +782,20 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
   error_message_struct main_error;
   main_error.error = 0;
   main_error.error_message = "";
+ // printf("her:\r\n");
 #ifdef __CONSOLE_ESP32
   string d = string_format("Parsing %d assembly lines ... ", _lines->size());
   LedOS.pushToConsole(d);
 #else
   printf("Parsing %d assembly lines ...\r\n ", _lines->size());
 #endif
-  /*
-    int i=0;
-
-    for (list<string>::iterator it = _lines->begin(); it != _lines->end(); it++)
-    {
-     // printf("Parsing; %s\n",(*it).c_str());
-      line res = splitOpcodeOperande(*it);
-
-      if (!res.error)
-      {
-        result_parse_line re_sparse = parseline(res, asm_parsed);
-       // re_sparse.debugtxt = lines[i];
-        re_sparse.line = i + 1;
-       // printf("%d %s\r\n",i+1,(*it).c_str());
-        (*asm_parsed).push_back(re_sparse);
-        if (re_sparse.error.error)
-        {
-          main_error.error = 1;
-          main_error.error_message += string_format("line:%d %s\n", i, re_sparse.error.error_message.c_str());
-        }
-      }
-    i++;
-    }
-    */
-  // new method
 
   int size = _lines->size();
   for (int i = 0; i < size; i++)
   {
     if(__parser_debug)
     {
-     printf("on parse : %s\r\n",_lines->front().c_str());
+     printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
     }
     line res = splitOpcodeOperande(_lines->front());
     if (!res.error)
@@ -824,12 +806,15 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
        re_sparse.debugtxt = _lines->front();
       }
       re_sparse.line = i + 1;
-      // printf("%d %s\r\n",i+1,(*it).c_str());
-      (*asm_parsed).push_back(re_sparse);
+      //printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
+     
       if (re_sparse.error.error)
       {
         main_error.error = 1;
         main_error.error_message += string_format("line:%d %s\r\n", i, re_sparse.error.error_message.c_str());
+      }
+      else{
+       (*asm_parsed).push_back(re_sparse);
       }
     }
     _lines->pop_front();
@@ -1112,6 +1097,10 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
   {
     data = (uint8_t *)malloc((data_size / 4) * 4 + 4);
   }
+  else
+  {
+    data=NULL;
+  }
 
   uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 8) * 8 + 8, MALLOC_CAP_32BIT);
   int h = 0;
@@ -1159,26 +1148,27 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
 
 executable createExectutable(vector<string> *lines, bool display)
 {
-  vector<result_parse_line> asm_parsed;
+//vector<result_parse_line> asm_parsed;
   executable exec;
-  error_message_struct err = parseASM(lines, &asm_parsed);
+  _asm_parsed.clear();
+  error_message_struct err = parseASM(lines, &_asm_parsed);
   if (err.error == 0)
   {
-    flagLabel32aligned(&asm_parsed);
-    createAddress(&asm_parsed);
-    err = calculateJump(&asm_parsed);
+    flagLabel32aligned(&_asm_parsed);
+    createAddress(&_asm_parsed);
+    err = calculateJump(&_asm_parsed);
 
     if (err.error == 0)
     {
 
-      exec = createBinary(&asm_parsed);
+      exec = createBinary(&_asm_parsed);
 
       if (exec.error.error == 0)
       {
         // createAbsoluteJump(exec.start_program,&asm_parsed);
         if (display == true)
         {
-          printparsdAsm((uint32_t)exec.start_program, &asm_parsed);
+          printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
           // dumpmem(exec.start_program);
         }
 
@@ -1203,31 +1193,32 @@ executable createExectutable(vector<string> *lines, bool display)
     return exec;
   }
 }
-vector<result_parse_line> asm_parsed;
+
 executable createExectutable(list<string> *lines, bool display)
 {
 
   executable exec;
-  asm_parsed.clear();
-  // printf("lines %d\n",lines->size());
-  error_message_struct err = parseASM(lines, &asm_parsed);
+  _asm_parsed.clear();
+  //printf("max size:%d\r\n",_asm_parsed.max_size());
+   //printf("lines %d\n",lines->size());
+  error_message_struct err = parseASM(lines, &_asm_parsed);
   if (err.error == 0)
   {
-    flagLabel32aligned(&asm_parsed);
-    createAddress(&asm_parsed);
-    err = calculateJump(&asm_parsed);
+    flagLabel32aligned(&_asm_parsed);
+    createAddress(&_asm_parsed);
+    err = calculateJump(&_asm_parsed);
 
     if (err.error == 0)
     {
 
-      exec = createBinary(&asm_parsed);
+      exec = createBinary(&_asm_parsed);
 
       if (exec.error.error == 0)
       {
         // createAbsoluteJump(exec.start_program,&asm_parsed);
         if (display == true)
         {
-          printparsdAsm((uint32_t)exec.start_program, &asm_parsed);
+          printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
           // dumpmem(exec.start_program);
         }
 
@@ -1236,13 +1227,13 @@ executable createExectutable(list<string> *lines, bool display)
         exec.links = dd;
         exec.error.error = 0;
       }
-      asm_parsed.clear();
+      _asm_parsed.clear();
       return exec;
     }
     else
     {
       exec.error = err;
-      asm_parsed.clear();
+      _asm_parsed.clear();
       return exec;
     }
   }
@@ -1251,34 +1242,34 @@ executable createExectutable(list<string> *lines, bool display)
 
     exec.error = err;
     exec.error.error = 1;
-    asm_parsed.clear();
+    _asm_parsed.clear();
     return exec;
   }
-  asm_parsed.clear();
+  _asm_parsed.clear();
 }
 
 executable createExectutable(string script, bool display)
 {
-  vector<result_parse_line> asm_parsed;
+ /// vector<result_parse_line> asm_parsed;
   executable exec;
-  error_message_struct err = parseASM(script, &asm_parsed);
+  error_message_struct err = parseASM(script, &_asm_parsed);
   if (err.error == 0)
   {
-    flagLabel32aligned(&asm_parsed);
-    createAddress(&asm_parsed);
-    err = calculateJump(&asm_parsed);
+    flagLabel32aligned(&_asm_parsed);
+    createAddress(&_asm_parsed);
+    err = calculateJump(&_asm_parsed);
 
     if (err.error == 0)
     {
 
-      exec = createBinary(&asm_parsed);
+      exec = createBinary(&_asm_parsed);
 
       if (exec.error.error == 0)
       {
         // createAbsoluteJump(exec.start_program,&asm_parsed);
         if (display == true)
         {
-          printparsdAsm((uint32_t)exec.start_program, &asm_parsed);
+          printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
           // dumpmem(exec.start_program);
         }
 
@@ -1311,9 +1302,9 @@ executable createExectutable(string script)
 void executeBinaryAsm(uint32_t *j, uint32_t *c)
 {
 #ifdef __CONSOLE_ESP32
-  LedOS.pushToConsole("Executing asm code ...");
+//  LedOS.pushToConsole("Executing asm code ...");
 #else
-  printf("Executing asm code ...\r\n");
+ // printf("Executing asm code ...\r\n");
 #endif
   asm volatile("l32i a10,%1,0\n\t"
                "l32i a15,%0,0\n\t"
@@ -1321,9 +1312,9 @@ void executeBinaryAsm(uint32_t *j, uint32_t *c)
                : : "r"(j), "r"(c)
                :);
 #ifdef __CONSOLE_ESP32
-  LedOS.pushToConsole("Execution Done.");
+ // LedOS.pushToConsole("Execution Done.");
 #else
-  printf("Execution Done.\n");
+  //printf("Execution Done.\n");
 #endif
   // free(exec);
 }

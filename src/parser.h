@@ -75,12 +75,13 @@ public:
         local_var_num=0;
         nb_argument = 0;
         _tks.init();
-        current_cntx = &cntx;
+        current_cntx = &main_cntx;
+        
         parseProgram();
     }
     void clean()
     {
-        clearContext(&cntx);
+        clearContext(&main_cntx);
         clearNodeToken(&program);
         list_of_token.clear();
         nb_args.clear();
@@ -1236,7 +1237,7 @@ public:
         else
         {
             Error.error = 1;
-            Error.error_message = string_format("expecting __ext__ or variable type %s", linepos().c_str());
+            Error.error_message = string_format("expecting external, __ASM__  or variable type %s", linepos().c_str());
             next();
             return;
         }
@@ -1397,11 +1398,13 @@ public:
         return;
     }
 
-void setPrekill(void (*function)())
+void setPrekill(void (*function)(),void (*function2)())
 {
     prekill=function;
+    postkill=function2;
 }
 void(*prekill)()=NULL;
+void(*postkill)()=NULL;
 private:
     Tokens _tks;
     
@@ -1459,7 +1462,7 @@ void run(Console *cons,vector<string> args)
  
 // xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
  
-  delay(10);
+ // delay(10);
   cons->pushToConsole("Execution on going CTRL + k to stop");
  // Serial.printf(config.ESC_RESET);
   }
@@ -1475,9 +1478,14 @@ void kill(Console *cons,vector<string> args)
     cons->pushToConsole("Stopping code...");
     if(p.prekill!=NULL)
     p.prekill();
+    delay(20);
 if(__run_handle!=NULL)
     vTaskDelete(__run_handle);
   __run_handle=NULL;
+  delay(10);
+      if(p.postkill!=NULL)
+    p.postkill();
+    //delay(10)
   cons->pushToConsole("Code stoppeed.");
 
 }
@@ -1496,11 +1504,60 @@ void kill_cEsc(Console *cons)
     _push(cons->prompt(cons).c_str());
     }
 }
+void parseasm(Console *cons, vector<string> args)
+{
+    bool othercore=false;
+     executecmd = createExectutable(&cons->script, false);
+        // strcompile = "";
+        p.clean2();
+        // Serial.printf(config.ESC_RESET);
+
+        if (executecmd.error.error == 0)
+        {
+           
+            exeExist = true;
+            if(othercore)
+            {
+            vector<string> d;
+             d.push_back("main");
+             cons->pushToConsole("***********START RUN *********");
+            run(cons,d);
+                if(cons->cmode==keyword)
+    {
+    _push(config.ENDLINE);
+    _push(cons->prompt(cons).c_str());
+    }
+            }
+            else
+            {
+                cons->pushToConsole("***********START RUN*********");
+                executeBinary("main", executecmd);
+                    if(cons->cmode==keyword)
+    {
+    _push(config.ENDLINE);
+    _push(cons->prompt(cons).c_str());
+    }
+            }
+             
+        }
+        else
+        {
+            exeExist = false;
+            Serial.printf(termColor.Red);
+            cons->pushToConsole(executecmd.error.error_message.c_str());
+            Serial.printf(config.ESC_RESET);
+        }
+    
+}
 void parse_c(Console *cons, vector<string> args)
 {
     bool othercore=false;
     exeExist = false;
-    freeBinary(&executecmd);
+        freeBinary(&executecmd);
+    uint8_t *val_tmp = (uint8_t *)malloc(5000);
+    if(val_tmp!=NULL)
+        free(val_tmp);
+
    // bool debug = false;
    //__parser_debug=true;
     if (args.size() > 0)
@@ -1631,9 +1688,25 @@ public:
         LedOS.addKeywordCommand("compile", parse_c);
         LedOS.addKeywordCommand("run", run);
         LedOS.addKeywordCommand("kill", kill);
+         LedOS.addKeywordCommand("parseasm", parseasm);
         LedOS.addEscCommand(18, parsec_cEsc);
         LedOS.addEscCommand(11, kill_cEsc);
-        
+       addExternal("__feed",externalType::function,(void*)feedTheDog);
+       LedOS.script.clear();
+        LedOS.script.push_back("stack:");
+          LedOS.script.push_back(".bytes 120");
+        LedOS.script.push_back(".global main");
+         LedOS.script.push_back("main:");
+          LedOS.script.push_back("entry a1,72");
+for(int i=1;i<400;i++)
+{
+    LedOS.script.push_back("nop");
+}
+          LedOS.script.push_back("retw.n");
+//          vector<string> j;
+//parseasm(&LedOS,j);
+//LedOS.script.clear();
+
     }
 };
 __INIT_PARSER _init_parser;

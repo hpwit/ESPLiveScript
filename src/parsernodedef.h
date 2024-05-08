@@ -598,8 +598,8 @@ public:
         return NULL;
     }
 };
-Context cntx = Context();
-Context *current_cntx = &cntx;
+Context main_cntx = Context();
+Context *current_cntx = &main_cntx;
 typedef struct
 {
     f_error_struct error;
@@ -3145,16 +3145,20 @@ public:
         visitNode = _visitNodeReturn;
     };
 };
-void clearContext(Context *cntx)
+void clearContext(Context *_cntx)
 {
     ////printf("clearContect\n");
-    for (list<Context>::iterator it = cntx->children.begin(); it != cntx->children.end(); ++it)
+    for (list<Context>::iterator it = _cntx->children.begin(); it != _cntx->children.end(); ++it)
     {
         clearContext(&*it);
-    }
-    cntx->functions.clear();
-    cntx->variables.clear();
-    cntx->children.clear();
+    } 
+    //clearContext(&*it);
+
+    _cntx->functions.clear();
+    _cntx->variables.clear();
+    _cntx->children.clear();
+    _cntx->parent = NULL;
+    _cntx->name=" ";
     /*
     if(cntx->parent!=NULL)
     {

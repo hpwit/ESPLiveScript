@@ -209,7 +209,7 @@ string keywordTypeNames[] =
 
 #define nb_keywords 18
 #define nb_typeVariables 8
-string keyword_array[nb_keywords] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "__ext__", "for", "if", "then", "else", "while", "return","import","from","__ASM__"};
+string keyword_array[nb_keywords] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "external", "for", "if", "then", "else", "while", "return","import","from","__ASM__"};
 
 enum tokenType
 {
