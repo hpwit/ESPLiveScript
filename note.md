@@ -1,4 +1,4 @@
-#DONE :
+# DONE :
 ## pointers
                * Local functions:
                               * test pointer loval variable (Done)
@@ -22,7 +22,7 @@ void kill()
 * add run to the parser command
 * add ctrl-R                                    
 
-#To be done:
+# To be done:
 * pointers
                * Local functions:
                               

@@ -1,12 +1,13 @@
 #include <vector>
 #include <string>
 // #include "tokenizer.h"
-#ifndef  __TEST_DEBUG
+#ifndef __TEST_DEBUG
 #include "asm_parser.h"
-#endif
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
 #include "soc/rtc_wdt.h"
+#endif
+
 #pragma once
 using namespace std;
 
@@ -72,11 +73,11 @@ public:
         stack_size = 0;
         for_if_num = 0;
         block_statement_num = 0;
-        local_var_num=0;
+        local_var_num = 0;
         nb_argument = 0;
         _tks.init();
         current_cntx = &main_cntx;
-        
+
         parseProgram();
     }
     void clean()
@@ -599,11 +600,11 @@ public:
         // current_node=current_node->addChild(statement);
 
         // on demarre avec la function
-        if(Match(TokenString))
+        if (Match(TokenString))
         {
             current_node->addChild(NodeString(current()));
-                next();
-                return;
+            next();
+            return;
         }
         else if (Match(TokenKeyword) && MatchKeyword(KeywordReturn))
         {
@@ -1024,11 +1025,10 @@ public:
         }
         else
         {
-             Error.error = 1;
-            Error.error_message = string_format(" Unexpected %s at %s",current()->text.c_str(), linepos().c_str());
-        return;
+            Error.error = 1;
+            Error.error_message = string_format(" Unexpected %s at %s", current()->text.c_str(), linepos().c_str());
+            return;
         }
-
     }
 
     void parseBlockStatement()
@@ -1070,17 +1070,17 @@ public:
     {
         Error.error = 0;
         bool ext_function = false;
-        bool is_asm=false;
+        bool is_asm = false;
         // printf("entering function\n");
         if (isExternal)
         {
             ext_function = true;
             isExternal = false;
         }
-        if(isASM)
+        if (isASM)
         {
-            isASM=false;
-            is_asm=true;
+            isASM = false;
+            is_asm = true;
         }
         // resParse result;
         token *func = current();
@@ -1102,7 +1102,7 @@ public:
             current_node = current_node->addChild(function);
             current_cntx->parent->addFunction(current_node);
         }
-        else if(is_asm)
+        else if (is_asm)
         {
             NodeDefAsmFunction function = NodeDefAsmFunction(func);
             function.addChild(oritype);
@@ -1212,12 +1212,12 @@ public:
             isExternal = true;
             next();
         }
-        else if(Match(TokenKeyword) && MatchKeyword(KeywordASM))
+        else if (Match(TokenKeyword) && MatchKeyword(KeywordASM))
         {
             isASM = true;
             next();
         }
-        
+
         if (Match(TokenKeyword) && MatchKeyword(KeywordVarType))
         {
             _nd._nodetype = typeNode;
@@ -1260,7 +1260,7 @@ public:
         if (Match(TokenOpenBracket, 1))
         {
             // we are in the case led[];
-            
+
             NodeToken var = NodeToken(current());
             next();
             next();
@@ -1398,16 +1398,16 @@ public:
         return;
     }
 
-void setPrekill(void (*function)(),void (*function2)())
-{
-    prekill=function;
-    postkill=function2;
-}
-void(*prekill)()=NULL;
-void(*postkill)()=NULL;
+    void setPrekill(void (*function)(), void (*function2)())
+    {
+        prekill = function;
+        postkill = function2;
+    }
+    void (*prekill)() = NULL;
+    void (*postkill)() = NULL;
+
 private:
     Tokens _tks;
-    
 };
 #ifdef __CONSOLE_ESP32
 static volatile TaskHandle_t __run_handle = NULL;
@@ -1416,156 +1416,154 @@ executable executecmd;
 bool exeExist;
 typedef struct
 {
-  vector<string> args;
-  executable exe;
+    vector<string> args;
+    executable exe;
 } _exe_args;
 
- static void _udp_task_subrarnet(void *pvParameters)
- {
+static void _run_task(void *pvParameters)
+{
 
-_exe_args *_fg = ((_exe_args *)pvParameters);
-  if(_fg->args.size()>0)
-  {
-  executeBinary(_fg->args[0],_fg->exe);
-  }
-  else {
-  executeBinary("main",_fg->exe);
-  }
- // _push("Done ...");
-  vTaskDelete(NULL);
- }
+    _exe_args *_fg = ((_exe_args *)pvParameters);
+    if (_fg->args.size() > 0)
+    {
+        executeBinary(_fg->args[0], _fg->exe);
+    }
+    else
+    {
+        executeBinary("main", _fg->exe);
+    }
+    LedOS.pushToConsole("Execution done.");
+    vTaskDelete(NULL);
+}
 Parser p = Parser();
 static void feedTheDog()
 {
-  // feed dog 0
-  TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE; // write enable
-  TIMERG0.wdt_feed=1;                       // feed dog
-  TIMERG0.wdt_wprotect=0;                   // write protect
-  // feed dog 1
-  TIMERG1.wdt_wprotect=TIMG_WDT_WKEY_VALUE; // write enable
-  TIMERG1.wdt_feed=1;                       // feed dog
-  TIMERG1.wdt_wprotect=0;                   // write protect
+    // feed dog 0
+    TIMERG0.wdt_wprotect = TIMG_WDT_WKEY_VALUE; // write enable
+    TIMERG0.wdt_feed = 1;                       // feed dog
+    TIMERG0.wdt_wprotect = 0;                   // write protect
+    // feed dog 1
+    TIMERG1.wdt_wprotect = TIMG_WDT_WKEY_VALUE; // write enable
+    TIMERG1.wdt_feed = 1;                       // feed dog
+    TIMERG1.wdt_wprotect = 0;                   // write protect
 }
 
-void run(Console *cons,vector<string> args)
+void run(Console *cons, vector<string> args)
 {
-  if(exeExist==true)
-  {
- // _push(termColor.Cyan);
- // Serial.printf(config.ENDLINE);
- // Serial.print("Executing ...\r\n");
-  _exe_args df;
-  df.args=args;
-  df.exe=executecmd;
-  //executeBinary("main",executecmd);
-  xTaskCreateUniversal(_udp_task_subrarnet, "_run_task", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&__run_handle, 0);
- 
-// xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
- 
- // delay(10);
-  cons->pushToConsole("Execution on going CTRL + k to stop");
- // Serial.printf(config.ESC_RESET);
-  }
-  else {
-  //  Serial.printf(termColor.Red);
-  //printf("No executable ready\r\n");
-  //Serial.printf(config.ESC_RESET);
-  }
+    if (exeExist == true)
+    {
+        // _push(termColor.Cyan);
+        // Serial.printf(config.ENDLINE);
+        // Serial.print("Executing ...\r\n");
+        _exe_args df;
+        df.args = args;
+        df.exe = executecmd;
+        // executeBinary("main",executecmd);
+        xTaskCreateUniversal(_run_task, "_run_task", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&__run_handle, 0);
+
+        // xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
+
+        // delay(10);
+        cons->pushToConsole("Execution on going CTRL + k to stop");
+        // Serial.printf(config.ESC_RESET);
+    }
+    else
+    {
+        cons->pushToConsole("Nothing to execute.");
+    }
 }
 
-void kill(Console *cons,vector<string> args)
+void kill(Console *cons, vector<string> args)
 {
-    cons->pushToConsole("Stopping code...");
-    if(p.prekill!=NULL)
-    p.prekill();
-    delay(20);
-if(__run_handle!=NULL)
-    vTaskDelete(__run_handle);
-  __run_handle=NULL;
-  delay(10);
-      if(p.postkill!=NULL)
-    p.postkill();
-    //delay(10)
-  cons->pushToConsole("Code stoppeed.");
-
+    if (__run_handle != NULL)
+    {
+        cons->pushToConsole("Stopping code...");
+        if (p.prekill != NULL)
+            p.prekill();
+        delay(20);
+        if (__run_handle != NULL)
+            vTaskDelete(__run_handle);
+        __run_handle = NULL;
+        delay(10);
+        if (p.postkill != NULL)
+            p.postkill();
+        // delay(10)
+        cons->pushToConsole("Code stopped.");
+    }
+    else
+    {
+        cons->pushToConsole("Nothing is currently running.");
+    }
 }
 void kill_cEsc(Console *cons)
 {
-     cons->displayf = false;
+    cons->displayf = false;
     vector<string> f;
-    if(cons->cmode==edit)
+    if (cons->cmode == edit)
     {
         cons->storeCurrentLine();
     }
     kill(cons, f);
-    if(cons->cmode==keyword)
+    if (cons->cmode == keyword)
     {
-    _push(config.ENDLINE);
-    _push(cons->prompt(cons).c_str());
+        _push(config.ENDLINE);
+        _push(cons->prompt(cons).c_str());
     }
 }
 void parseasm(Console *cons, vector<string> args)
 {
-    bool othercore=false;
-     executecmd = createExectutable(&cons->script, false);
-        // strcompile = "";
-        p.clean2();
-        // Serial.printf(config.ESC_RESET);
+    bool othercore = false;
+    executecmd = createExectutable(&cons->script, false);
+    // strcompile = "";
+    p.clean2();
+    // Serial.printf(config.ESC_RESET);
 
-        if (executecmd.error.error == 0)
+    if (executecmd.error.error == 0)
+    {
+
+        exeExist = true;
+        if (othercore)
         {
-           
-            exeExist = true;
-            if(othercore)
-            {
             vector<string> d;
-             d.push_back("main");
-             cons->pushToConsole("***********START RUN *********");
-            run(cons,d);
-                if(cons->cmode==keyword)
-    {
-    _push(config.ENDLINE);
-    _push(cons->prompt(cons).c_str());
-    }
-            }
-            else
+            d.push_back("main");
+            cons->pushToConsole("***********START RUN *********");
+            run(cons, d);
+            if (cons->cmode == keyword)
             {
-                cons->pushToConsole("***********START RUN*********");
-                executeBinary("main", executecmd);
-                    if(cons->cmode==keyword)
-    {
-    _push(config.ENDLINE);
-    _push(cons->prompt(cons).c_str());
-    }
+                _push(config.ENDLINE);
+                _push(cons->prompt(cons).c_str());
             }
-             
         }
         else
         {
-            exeExist = false;
-            Serial.printf(termColor.Red);
-            cons->pushToConsole(executecmd.error.error_message.c_str());
-            Serial.printf(config.ESC_RESET);
+            cons->pushToConsole("***********START RUN*********");
+            executeBinary("main", executecmd);
+            if (cons->cmode == keyword)
+            {
+                _push(config.ENDLINE);
+                _push(cons->prompt(cons).c_str());
+            }
         }
-    
+    }
+    else
+    {
+        exeExist = false;
+        Serial.printf(termColor.Red);
+        cons->pushToConsole(executecmd.error.error_message.c_str());
+        Serial.printf(config.ESC_RESET);
+    }
 }
 void parse_c(Console *cons, vector<string> args)
 {
-    bool othercore=false;
+    bool othercore = false;
     exeExist = false;
-        freeBinary(&executecmd);
-    uint8_t *val_tmp = (uint8_t *)malloc(5000);
-    if(val_tmp!=NULL)
-        free(val_tmp);
-
-   // bool debug = false;
-   //__parser_debug=true;
+    freeBinary(&executecmd);
     if (args.size() > 0)
     {
-        if(args[0].compare("&")!=0)
+        if (args[0].compare("&") != 0)
             __parser_debug = true;
-        if(args[args.size()-1].compare("&")==0)
-        othercore=true;
+        if (args[args.size() - 1].compare("&") == 0)
+            othercore = true;
     }
 
     p.clean();
@@ -1581,7 +1579,7 @@ void parse_c(Console *cons, vector<string> args)
         rt = rt + s + "\n";
     }
     rt = rt + '\0';
-   // cons->script.clear();
+    // cons->script.clear();
     Script sc(rt);
     rt.clear();
     _tks.init();
@@ -1628,31 +1626,30 @@ void parse_c(Console *cons, vector<string> args)
 
         if (executecmd.error.error == 0)
         {
-           
+
             exeExist = true;
-            if(othercore)
+            if (othercore)
             {
-            vector<string> d;
-             d.push_back("main");
-             cons->pushToConsole("***********START RUN *********");
-            run(cons,d);
-                if(cons->cmode==keyword)
-    {
-    _push(config.ENDLINE);
-    _push(cons->prompt(cons).c_str());
-    }
+                vector<string> d;
+                d.push_back("main");
+                cons->pushToConsole("***********START RUN *********");
+                run(cons, d);
+                if (cons->cmode == keyword)
+                {
+                    _push(config.ENDLINE);
+                    _push(cons->prompt(cons).c_str());
+                }
             }
             else
             {
                 cons->pushToConsole("***********START RUN*********");
                 executeBinary("main", executecmd);
-                    if(cons->cmode==keyword)
-    {
-    _push(config.ENDLINE);
-    _push(cons->prompt(cons).c_str());
-    }
+                if (cons->cmode == keyword)
+                {
+                    _push(config.ENDLINE);
+                    _push(cons->prompt(cons).c_str());
+                }
             }
-             
         }
         else
         {
@@ -1662,24 +1659,25 @@ void parse_c(Console *cons, vector<string> args)
             Serial.printf(config.ESC_RESET);
         }
     }
-    __parser_debug=false;
+    __parser_debug = false;
 }
 void parsec_cEsc(Console *cons)
 {
     cons->displayf = false;
     vector<string> f;
     f.push_back("&");
-    if(cons->cmode==edit)
+    if (cons->cmode == edit)
     {
         cons->storeCurrentLine();
     }
     parse_c(cons, f);
-    if(cons->cmode==keyword)
+    if (cons->cmode == keyword)
     {
-    _push(config.ENDLINE);
-    _push(cons->prompt(cons).c_str());
+        _push(config.ENDLINE);
+        _push(cons->prompt(cons).c_str());
     }
 }
+
 class __INIT_PARSER
 {
 public:
@@ -1688,25 +1686,21 @@ public:
         LedOS.addKeywordCommand("compile", parse_c);
         LedOS.addKeywordCommand("run", run);
         LedOS.addKeywordCommand("kill", kill);
-         LedOS.addKeywordCommand("parseasm", parseasm);
+        LedOS.addKeywordCommand("parseasm", parseasm);
         LedOS.addEscCommand(18, parsec_cEsc);
         LedOS.addEscCommand(11, kill_cEsc);
-       addExternal("__feed",externalType::function,(void*)feedTheDog);
-       LedOS.script.clear();
+        addExternal("__feed", externalType::function, (void *)feedTheDog);
+        LedOS.script.clear();
         LedOS.script.push_back("stack:");
-          LedOS.script.push_back(".bytes 120");
+        LedOS.script.push_back(".bytes 120");
         LedOS.script.push_back(".global main");
-         LedOS.script.push_back("main:");
-          LedOS.script.push_back("entry a1,72");
-for(int i=1;i<400;i++)
-{
-    LedOS.script.push_back("nop");
-}
-          LedOS.script.push_back("retw.n");
-//          vector<string> j;
-//parseasm(&LedOS,j);
-//LedOS.script.clear();
-
+        LedOS.script.push_back("main:");
+        LedOS.script.push_back("entry a1,72");
+        for (int i = 1; i < 400; i++)
+        {
+            LedOS.script.push_back("nop");
+        }
+        LedOS.script.push_back("retw.n");
     }
 };
 __INIT_PARSER _init_parser;
