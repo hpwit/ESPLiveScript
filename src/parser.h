@@ -618,9 +618,26 @@ public:
             }
             else
             {
+                current_node= current_node->addChild(NodeReturn());
+               // next();
+                parseExpr();
+                if(Error.error)
+                {
+                    return;
+                }
+                if (Match(TokenSemicolon))
+            {
+                                    Error.error = 0;
+                    current_node = current_node->parent;
+                    // res._nd = var;
+                    next();
+                    return;
+            }
+            else{
                 Error.error = 1;
                 Error.error_message = string_format("d Expected ; %s", linepos().c_str());
                 return;
+            }
             }
         }
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))

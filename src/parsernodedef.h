@@ -645,7 +645,9 @@ void _visitNodeProgramNode(NodeToken *nd)
     content.begin();
     header.begin();
     header.addAfter("stack:");
-    header.addAfter(".bytes 120");
+    header.addAfter(".bytes 60");
+    header.addAfter("stackr:");
+    header.addAfter(".bytes 60");
     register_numr.clear();
     register_numl.clear();
     register_numl.push(15);
@@ -1777,14 +1779,14 @@ void _visitNodeCallFunction(NodeToken *nd)
     r.register_numr=register_numr;
         return r;
         */
-    NodeToken *t = nd->_link; // cntx.findFunction(nd->_token);
+   NodeToken *t = nd->_link; // cntx.findFunction(nd->_token);
     if (t == NULL)
     {
 
         return;
     }
-    if(t->getChildAtPos(1)->children.size()<1)
-     return;
+   // if(t->getChildAtPos(1)->children.size()<1)
+    // return;
     content.addAfter(string_format("l32r a%d,stack", point_regnum));
     for (int i = 0; i < t->getChildAtPos(1)->children.size(); i++)
     {
@@ -1821,6 +1823,19 @@ void _visitNodeCallFunction(NodeToken *nd)
     content.addAfter(string_format("mov a10,a2")); //neded to find the external variables !!!!!!
 
     content.addAfter(string_format("call8 %s", nd->_token->text.c_str()));
+
+
+    int start = nd->stack_pos;  
+    varType *v = nd->_link->getChildAtPos(0)->_token->_vartype;
+content.addAfter(string_format("l32r a%d,stackr", point_regnum));
+    for (int i = 0; i < v->size; i++)
+    {
+        // content.addAfter(string_format("mov a15,a10"));
+        content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
+        // register_numl--;
+        start += v->sizes[i];
+        content.sp.push(content.get());
+    }
 }
 
 class NodeCallFunction : public NodeToken
@@ -1991,7 +2006,7 @@ void _visitNodeDefFunction(NodeToken *nd)
 
     content.addAfter(string_format("%s:", nd->_token->text.c_str()));
     content.addAfter(string_format("entry a1,%d", 80)); // ((nd->stack_pos) / 8 + 1) * 8)
-    for (int i = 0; i < nd->children.size(); i++)
+    for (int i = 1; i < nd->children.size(); i++)
     {
         if (nd->getChildAtPos(i)->visitNode != NULL)
         {
@@ -2160,6 +2175,8 @@ public:
 
 void _visitNodeInputArguments(NodeToken *nd)
 {
+    if(nd->children.size()<1)
+    return;
     content.addAfter(string_format("l32r a%d,stack", point_regnum));
 
     for (int i = 0; i < nd->children.size(); i++)
@@ -3154,6 +3171,34 @@ public:
 };
 void _visitNodeReturn(NodeToken *nd)
 {
+ 
+NodeToken *t=nd;
+while(t->_nodetype!=defFunctionNode and t->parent!=NULL)
+{
+    t=t->parent;
+}
+//NodeToken *t = te->_link;
+content.addAfter(string_format("l32r a%d,stackr", point_regnum));
+    for (int i = 0; i < nd->children.size(); i++)
+    {
+                register_numl.duplicate();
+        nd->getChildAtPos(i)->visitNode(nd->getChildAtPos(i));
+       // content.sp.push(content.get());
+        register_numl.pop();
+
+        int start=nd->stack_pos+t->_token->_vartype->total_size;
+        // content.addAfter(string_format(" le start %d %d size: %d",t->stack_pos,start,t->_token->_vartype->size));
+        int tot=t->_token->_vartype->size-1;
+        for(int j=0;j< t->_token->_vartype->size;j++)
+        {
+            start-=t->_token->_vartype->sizes[tot-j]; 
+            //content.sp.pop(), 
+        content.addAfter(content.sp.pop(),string_format("%s a%d,a%d,%d", t->_token->_vartype->store[tot-j].c_str(), register_numl.get(), point_regnum, start));
+       // start+=t->_token->_vartype->sizes[j];
+        }
+    }
+   
+
     content.addAfter("retw.n");
 }
 
