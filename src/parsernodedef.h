@@ -28,6 +28,7 @@ bool isPointer = true;
 bool isASM= false;
 list<int> _register_numl;
 list<int> _register_numr;
+
 list<int> _sp;
 
 class StackString
@@ -1114,6 +1115,8 @@ void _visitNodeGlobalVariable(NodeToken *nd)
     varType *v = nd->_token->_vartype;
     int start = nd->stack_pos;
     uint8_t regnum = 1;
+    if(nd->asPointer or (nd->isPointer &&nd->children.size()==0))
+         point_regnum++;
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
@@ -1124,7 +1127,7 @@ void _visitNodeGlobalVariable(NodeToken *nd)
     // register_numl++;
     content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->_token->text.c_str()));
 
-    if (nd->isPointer)
+    if (nd->isPointer && nd->children.size()>0) //leds[g];
     {
         // f=f+number.f;
         for (int i = 0; i < v->total_size; i++)
@@ -1133,20 +1136,38 @@ void _visitNodeGlobalVariable(NodeToken *nd)
         }
     }
     content.sp.push(content.get());
-    for (int i = 0; i < v->size; i++)
+    if(nd->asPointer) //(&d)
     {
-        content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
-        // register_numl--;
-        start += v->sizes[i];
-        content.sp.push(content.get());
+                content.addAfter(string_format("mov a%d,a%d",register_numl.get(),point_regnum));
+
+         content.sp.push(content.get());
     }
-    // res.f = f;
+    else if(nd->children.size()>0 or !nd->isPointer) //leds[h] or h h being global)
+    {
+    
+        for (int i = 0; i < v->size; i++)
+        {
+            content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
+            // register_numl--;
+            start += v->sizes[i];
+            content.sp.push(content.get());
+        }
+    }
+    else //s(leds)
+    {
+        content.addAfter(string_format("mov a%d,a%d",register_numl.get(),point_regnum));
+
+         content.sp.push(content.get());
+    }
+        // res.f = f;
     // res.header = number.header + h;
-    // point_regnum++;
+     //point_regnum++;
     register_numl.pop();
     //    res.register_numl=register_numl;
     // res.register_numr=register_numr;
     register_numl.decrease();
+    if(nd->asPointer or (nd->isPointer &&nd->children.size()==0))
+    point_regnum--;
     return;
     /*
 if (nd->children.size() > 0)
@@ -1397,6 +1418,7 @@ return;
     varType *v = nd->_token->_vartype;
     int start = nd->stack_pos;
     uint8_t regnum = 1;
+   // point_regnum++;
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
@@ -1429,7 +1451,7 @@ return;
             content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
         }
     }
-    // point_regnum--;
+     //point_regnum--;
 
     // content.end();
     // content.sp.pop();

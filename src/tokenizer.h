@@ -1045,6 +1045,7 @@ void tokenizer(Script *script)
                 }
                 t.line = line;
                 t.pos = pos;
+                line++;
                 if (_for_display)
                 list_of_token.push_back(t);
                 continue;

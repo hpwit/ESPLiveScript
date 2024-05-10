@@ -546,13 +546,14 @@ public:
             return;
         }
 
-        if (sav_nb_arg != nb_argument)
+        if (sav_nb_arg != nb_args.back())
         {
             Error.error = 1;
 
-            Error.error_message = string_format("Expected %d arguments got %d %s\n", sav_nb_arg, nb_argument, linepos().c_str());
+            Error.error_message = string_format("Expected %d arguments got %d %s", sav_nb_arg, nb_argument, linepos().c_str());
             return;
         }
+        nb_args.pop_back();
         Error.error = 0;
         current_node = current_node->parent;
 
@@ -1253,7 +1254,7 @@ public:
         {
             // resParse res;
             Error.error = 1;
-            Error.error_message = string_format("variable already declared in the scope for %s", linepos().c_str());
+            Error.error_message = string_format("variable %s already declared in the scope for %s",current()->text.c_str(), linepos().c_str());
             next();
             return;
         }
@@ -1403,6 +1404,31 @@ public:
         prekill = function;
         postkill = function2;
     }
+/*
+    bool run()
+    {
+        if (exeExist == true)
+            {
+                // _push(termColor.Cyan);
+                // Serial.printf(config.ENDLINE);
+                // Serial.print("Executing ...\r\n");
+                _exe_args df;
+                df.args = args;
+                df.exe = executecmd;
+                // executeBinary("main",executecmd);
+                xTaskCreateUniversal(_run_task, "_run_task", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&__run_handle, 0);
+
+                // xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
+
+                // delay(10);
+                return true;
+                // Serial.printf(config.ESC_RESET);
+            }
+            else
+            {
+                return false;
+            }
+    }*/
     void (*prekill)() = NULL;
     void (*postkill)() = NULL;
 
@@ -1433,6 +1459,7 @@ static void _run_task(void *pvParameters)
         executeBinary("main", _fg->exe);
     }
     LedOS.pushToConsole("Execution done.");
+    __run_handle=NULL;
     vTaskDelete(NULL);
 }
 Parser p = Parser();
@@ -1448,30 +1475,8 @@ static void feedTheDog()
     TIMERG1.wdt_wprotect = 0;                   // write protect
 }
 
-void run(Console *cons, vector<string> args)
-{
-    if (exeExist == true)
-    {
-        // _push(termColor.Cyan);
-        // Serial.printf(config.ENDLINE);
-        // Serial.print("Executing ...\r\n");
-        _exe_args df;
-        df.args = args;
-        df.exe = executecmd;
-        // executeBinary("main",executecmd);
-        xTaskCreateUniversal(_run_task, "_run_task", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&__run_handle, 0);
 
-        // xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
 
-        // delay(10);
-        cons->pushToConsole("Execution on going CTRL + k to stop");
-        // Serial.printf(config.ESC_RESET);
-    }
-    else
-    {
-        cons->pushToConsole("Nothing to execute.");
-    }
-}
 
 void kill(Console *cons, vector<string> args)
 {
@@ -1493,6 +1498,45 @@ void kill(Console *cons, vector<string> args)
     else
     {
         cons->pushToConsole("Nothing is currently running.");
+    }
+}
+void run(Console *cons, vector<string> args)
+{
+    if(__run_handle!=NULL)
+    {
+        cons->pushToConsole("Something Already running kill it first ...");
+        kill(cons,args);
+    }
+/*
+    if(p.run())
+    {
+ cons->pushToConsole("Execution on going CTRL + k to stop");
+    }
+    else
+    {
+cons->pushToConsole("Nothing to execute.");
+    }
+    */
+    if (exeExist == true)
+    {
+        // _push(termColor.Cyan);
+        // Serial.printf(config.ENDLINE);
+        // Serial.print("Executing ...\r\n");
+        _exe_args df;
+        df.args = args;
+        df.exe = executecmd;
+        // executeBinary("main",executecmd);
+        xTaskCreateUniversal(_run_task, "_run_task", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&__run_handle, 0);
+
+        // xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
+
+        // delay(10);
+       cons->pushToConsole("Execution on going CTRL + k to stop");
+        // Serial.printf(config.ESC_RESET);
+    }
+    else
+    {
+        cons->pushToConsole("Nothing to execute.");
     }
 }
 void kill_cEsc(Console *cons)
@@ -1555,6 +1599,11 @@ void parseasm(Console *cons, vector<string> args)
 }
 void parse_c(Console *cons, vector<string> args)
 {
+        if(__run_handle!=NULL)
+    {
+        cons->pushToConsole("Something Already running kill it first ...");
+        kill(cons,args);
+    }
     bool othercore = false;
     exeExist = false;
     freeBinary(&executecmd);
@@ -1683,6 +1732,7 @@ class __INIT_PARSER
 public:
     __INIT_PARSER()
     {
+        __run_handle=NULL; 
         LedOS.addKeywordCommand("compile", parse_c);
         LedOS.addKeywordCommand("run", run);
         LedOS.addKeywordCommand("kill", kill);
