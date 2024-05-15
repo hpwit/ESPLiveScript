@@ -2,13 +2,18 @@
 #include <stdio.h>
 #include <list>
 #include <string>
+#include <memory>
+
 #pragma once
 using namespace std;
+//#include "asm_parser.h"
+#include "asm_struct_enum.h"
+
 
 #define EOF_TEXT 0
 
 #ifndef ARDUINO
-
+/*
 template <typename... Args>
 std::string string_format(const std::string &format, Args... args)
 
@@ -23,10 +28,12 @@ std::string string_format(const std::string &format, Args... args)
     std::snprintf(buf.get(), size, format.c_str(), args...);
     return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
 }
+*/
 #endif
 
 enum varTypeEnum
 {
+    __none__,
     __unit8_t__,
     __unit16_t__,
     __unit32_t__,
@@ -36,14 +43,18 @@ enum varTypeEnum
     __CRGB__,
     __char__,
 
+
 };
 
 struct varType
 {
     varTypeEnum _varType;
     uint8_t _varSize;
-    string load[3];
-    string store[3];
+    asmInstruction load[3];
+    asmInstruction store[3];
+    asmInstruction add;
+    asmInstruction mul;
+    asmInstruction div;
     string reg_name;
     int sizes[3];
     int size;
@@ -52,6 +63,7 @@ struct varType
 
 string varTypeEnumNames[] =
     {
+        "__none__",
         "__unit8_t__",
         "__unit16_t__",
         "__unit32_t__",
@@ -59,16 +71,22 @@ string varTypeEnumNames[] =
         "__float__",
         "__void__",
         "__CRGB__",
-         "__char__"
+         "__char__",
+        
 
 };
 
+
+
 varType _varTypes[] =
     {
+        {
+            ._varType = __none__,
+        },
         {._varType = __unit8_t__,
          ._varSize = 1,
-         .load = {"l8ui"},
-         .store = {"s8i"},
+         .load = {l8ui},
+         .store = {s8i},
          .reg_name = "a",
          .sizes = {1},
          .size = 1,
@@ -76,8 +94,8 @@ varType _varTypes[] =
         {
             ._varType = __unit16_t__,
             ._varSize = 2,
-            .load = {"l16ui"},
-            .store = {"s16i"},
+            .load = {l16ui},
+            .store = {s16i},
             .reg_name = "a",
             .sizes = {2},
             .size = 1,
@@ -86,8 +104,8 @@ varType _varTypes[] =
         {
             ._varType = __unit32_t__,
             ._varSize = 4,
-            .load = {"l32i"},
-            .store = {"s32i"},
+            .load = {l32i},
+            .store = {s32i},
             .reg_name = "a",
             .sizes = {4},
             .size = 1,
@@ -96,8 +114,8 @@ varType _varTypes[] =
         {
             ._varType = __int__,
             ._varSize = 2,
-            .load = {"l16si"},
-            .store = {"s16i"},
+            .load = {l16si},
+            .store = {s16i},
             .reg_name = "a",
             .sizes = {2},
             .size = 1,
@@ -106,9 +124,9 @@ varType _varTypes[] =
         {
             ._varType = __float__,
             ._varSize = 4,
-            .load = {"l16si"},
-            .store = {"s16i"},
-            .reg_name = "a",
+            .load = {lsi},
+            .store = {ssi},
+            .reg_name = "f",
             .sizes = {4},
             .size = 1,
             .total_size = 4,
@@ -116,8 +134,8 @@ varType _varTypes[] =
         {
             ._varType = __void__,
             ._varSize = 0,
-            .load = {"l16si"},
-            .store = {"s16i"},
+            .load = {l16si},
+            .store = {s16i},
             .reg_name = "a",
             .sizes = {0},
             .size = 0,
@@ -126,8 +144,8 @@ varType _varTypes[] =
         {
             ._varType = __CRGB__,
             ._varSize = 3,
-            .load = {"l8ui", "l8ui", "l8ui"},
-            .store = {"s8i", "s8i", "s8i"},
+            .load = {l8ui, l8ui, l8ui},
+            .store = {s8i, s8i, s8i},
             .reg_name = "a",
             .sizes = {1, 1, 1},
             .size = 3,
@@ -136,8 +154,8 @@ varType _varTypes[] =
                 {
             ._varType = __char__,
             ._varSize = 1,
-            .load = {"l8ui"},
-            .store = {"s8i"},
+            .load = {l8ui},
+            .store = {s8i},
             .reg_name = "a",
             .sizes = {1},
             .size = 1,
@@ -164,6 +182,7 @@ enum KeywordType
 
 KeywordType __keywordTypes[] =
     {
+        KeywordVarType,
         KeywordVarType,
         KeywordVarType,
         KeywordVarType,
@@ -207,9 +226,9 @@ string keywordTypeNames[] =
 
 };
 
-#define nb_keywords 18
-#define nb_typeVariables 8
-string keyword_array[nb_keywords] = {"uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "external", "for", "if", "then", "else", "while", "return","import","from","__ASM__"};
+#define nb_keywords 19
+#define nb_typeVariables 9
+string keyword_array[nb_keywords] = {"none","uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "external", "for", "if", "then", "else", "while", "return","import","from","__ASM__"};
 
 enum tokenType
 {
@@ -372,6 +391,8 @@ typedef struct
     KeywordType _keyword;
 
     varType *_vartype;
+
+    varTypeEnum _varType;
 
     // possible sizee  1+4+4+1+1+4=15 au lieu de 44 ...
 

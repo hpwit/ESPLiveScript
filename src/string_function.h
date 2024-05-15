@@ -9,7 +9,7 @@ using namespace std;
 #include <vector>
 //#include <iostream>
 //#include <functional>
-#include <Arduino.h>
+//#include <Arduino.h>
 
 vector<string> split(string s, string delimiter)
  {

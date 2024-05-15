@@ -3,8 +3,9 @@
 #define _ASM_STRUCT
 
 #include <stdlib.h>
-//#include <vector>
-//#include <string>
+#include <vector>
+#include <string>
+using namespace std;
 enum  class operandeType
 {
   registers,
@@ -104,6 +105,54 @@ typedef struct result_parse_line
 
 };
 
+
+enum asmInstruction
+{
+    s8i,
+    l8ui,
+    l16ui,
+    l16si,
+    s16i,
+    l32i,
+    s32i,
+    lsi,
+    ssi,
+    add,
+    sub,
+    quou,
+    mull,
+    adds,
+    subs,
+    quous,
+    muls
+
+
+
+
+};
+
+string asmInstructionsName[] =
+    {
+        "s8i",
+        "l8ui",
+        "l16ui",
+        "l16si",
+        "s16i",
+        "l32i",
+        "s32i",
+        "lsi",
+        "ssi",
+        "add",
+    "sub",
+    "quou",
+    "mull",
+    "add.s",
+    "sub.s",
+    "quou",
+    "mul.s"
+        
+};
+
 typedef struct {
   string name;
   uint32_t address;
@@ -120,6 +169,74 @@ typedef struct
 } executable;
 
 
+operandeType op_mov_n[2] = {operandeType::registers, operandeType::registers};
+operandeType *op_mov=op_mov_n; //[3] = {operandeType::registers, operandeType::registers};
+operandeType op_l8ui[3] = {operandeType::registers, operandeType::registers, operandeType::l0_255};
+operandeType *op_s8i=op_l8ui;  //[3] = {operandeType::registers, operandeType::registers, operandeType::l0_255};
+operandeType op_l16si[3] = {operandeType::registers, operandeType::registers, operandeType::l0_510};
+operandeType *op_l16ui= op_l16si;   //[3] = {operandeType::registers, operandeType::registers, operandeType::l0_510};
+operandeType *op_s16i =op_l16si;    //[3] = {operandeType::registers, operandeType::registers, operandeType::l0_510};
+operandeType op_l32i_n[3] = {operandeType::registers, operandeType::registers, operandeType::l0_60};
+operandeType op_s32i[3] = {operandeType::registers, operandeType::registers, operandeType::l0_1020};
+operandeType *op_s32i_n=op_l32i_n;    //[3] = {operandeType::registers, operandeType::registers, operandeType::l0_60};
+operandeType *op_l32i =op_s32i;   // [3] = {operandeType::registers, operandeType::registers, operandeType::l0_1020};
+operandeType op_lsi[3] = {operandeType::floatregisters, operandeType::registers, operandeType::l0_1020};
+operandeType *op_ssi=op_lsi;          //[3] = {operandeType::floatregisters, operandeType::registers, operandeType::l0_1020};
+operandeType op_rfr[2] = {operandeType::registers, operandeType::floatregisters};
+operandeType op_wfr[2] = {operandeType::floatregisters, operandeType::registers};
+operandeType op_add[3] = {operandeType::registers, operandeType::registers,  operandeType::registers};
+operandeType *op_quou = op_add;
+operandeType *op_sub = op_add;
+operandeType *op_mull = op_add;
+operandeType op_adds[3] = {operandeType::floatregisters, operandeType::floatregisters,  operandeType::floatregisters};
+operandeType *op_quous = op_adds;
+operandeType *op_subs = op_adds;
+operandeType *op_muls = op_adds;
+
+
+operandeType *asmInstructionOperandes[] =
+    {
+        op_s8i,
+        op_l8ui,
+        op_l16ui,
+        op_l16si,
+        op_s16i,
+        op_l32i,
+        op_s32i,
+        op_lsi,
+        op_ssi,
+        op_add, //add
+        op_sub, //sub
+        op_quou, //quou
+        op_mull, //mull
+        op_adds,
+        op_subs,
+        op_quou,
+        op_muls
+};
+
+string getRegType(asmInstruction instr,int pos)
+{
+  operandeType *l=asmInstructionOperandes[instr];
+  operandeType op=l[pos];
+  
+    if(op==operandeType::registers)
+    {
+    return "a";
+    }
+    else if(op==operandeType::floatregisters)
+    {
+     
+    return "f";
+    }
+    else{
+      return "unknown";
+    }
+
+    
+  
+
+}
 
 
 #endif

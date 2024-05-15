@@ -15,7 +15,9 @@ uint32_t * createExternalLinks()
 {
       for(int i=0;i<external_links.size();i++)
   {
+    #ifndef __TEST_DEBUG
      external_links_array[i]=(uint32_t) external_links[i].ptr;
+     #endif
     }
     return external_links_array;
 

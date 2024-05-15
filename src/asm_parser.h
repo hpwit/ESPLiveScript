@@ -10,8 +10,10 @@ using namespace std;
 #include <list>
 // #include <iostream>
 // #include <functional>
-#include <Arduino.h>
+//#include <Arduino.h>
+#ifndef __TEST_DEBUG
 #include "esp_heap_caps.h"
+#endif
 #include "string_function.h"
 #include "asm_parser_LMbin.h"
 #include "asm_external.h"
@@ -28,6 +30,40 @@ public:
     error.error = 0;
     s = trim(s);
     if (s.at(0) == 'a')
+    {
+
+      string s2 = s.substr(1, s.size());
+      if (s2.size() > 0)
+      {
+        int value = strtol(s2.c_str(), &endptr, 10);
+        if (*endptr == 0)
+        {
+          if (value >= 0 and value <= 15)
+          {
+            res.value = value;
+            res.error = error;
+            return res;
+          }
+        }
+      }
+    }
+    error.error_message = string_format("Unknown register %s\n", s.c_str());
+    error.error = 1;
+    res.error = error;
+    return res;
+  }
+};
+class opFloatRegister
+{
+public:
+  static result_parse_operande parse(std::string s)
+  {
+    error_message_struct error;
+    result_parse_operande res;
+    char *endptr = NULL;
+    error.error = 0;
+    s = trim(s);
+    if (s.at(0) == 'f')
     {
 
       string s2 = s.substr(1, s.size());
@@ -150,6 +186,7 @@ result_parse_operande operandeParse(string s, operandeType optype)
   }
   if (optype == operandeType::floatregisters)
   {
+    return opFloatRegister::parse(s);
   }
 
   if (optype == operandeType::boolregisters)
@@ -460,7 +497,7 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   }
   if (sp.opcde.compare("mull") == 0)
   {
-    return parseOperandes(sp.operandes, 3, op_mov, 3, bin_mull);
+    return parseOperandes(sp.operandes, 3, op_add, 3, bin_mull);
   }
   if (sp.opcde.compare("mov.n") == 0)
   {
@@ -499,6 +536,10 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 3, op_l16si, 3, bin_l16si);
   }
+  if (sp.opcde.compare("l16ui") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_l16ui, 3, bin_l16ui);
+  }
   if (sp.opcde.compare("slli") == 0)
   {
     return parseOperandes(sp.operandes, 3, op_slli, 3, bin_slli);
@@ -528,7 +569,7 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 4, op_extui, 3, bin_extui);
   }
-
+  
   if (sp.opcde.compare("retw.n") == 0)
   {
     return parseOperandes(sp.operandes, 0, NULL, 2, bin_retw_n);
@@ -715,6 +756,91 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
     return ps;
   }
 
+  /************float operator********/
+if (sp.opcde.compare("lsi") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_lsi, 3, bin_lsi);
+  }
+  if (sp.opcde.compare("ssi") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_ssi, 3, bin_ssi);
+  }
+    if (sp.opcde.compare("rfr") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_rfr, 3, bin_rfr);
+  }
+     if (sp.opcde.compare("wfr") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_wfr, 3, bin_wfr);
+  }
+
+if (sp.opcde.compare("add.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_adds, 3, bin_adds);
+  }
+
+  if (sp.opcde.compare("sub.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_adds, 3, bin_adds);
+  }
+  if (sp.opcde.compare("float.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_floats, 3, bin_floats);
+  }
+  if (sp.opcde.compare("floor.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_floors, 3, bin_floors);
+  }
+   if (sp.opcde.compare("mul.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_muls, 3, bin_muls);
+  }
+     if (sp.opcde.compare("trunc.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_truncs, 3, bin_truncs);
+  }
+
+     if (sp.opcde.compare("div0.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_div0s, 3, bin_div0s);
+  }
+     if (sp.opcde.compare("divn.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_divns, 3, bin_divns);
+  }
+     if (sp.opcde.compare("const.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_consts, 3, bin_consts);
+  }
+
+    if (sp.opcde.compare("mov.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_movs, 3, bin_movs);
+  }
+      if (sp.opcde.compare("maddn.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_maddns, 3, bin_maddns);
+  }
+  if (sp.opcde.compare("nexp01.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_nexp01s, 3, bin_nexp01s);
+  }
+   if (sp.opcde.compare("neg.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_negs, 3, bin_negs);
+  }
+     if (sp.opcde.compare("addexpm.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_addexpms, 3, bin_addexpms);
+  }
+       if (sp.opcde.compare("addexp.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_addexps, 3, bin_addexps);
+  }
+         if (sp.opcde.compare("mkdadj.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_mkdadjs, 3, bin_mkdadjs);
+  }
   result_parse_line res;
   error_message_struct err;
   err.error = 1;
@@ -814,7 +940,7 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
         main_error.error_message += string_format("line:%d %s\r\n", i, re_sparse.error.error_message.c_str());
       }
       else{
-       (*asm_parsed).push_back(re_sparse);
+       asm_parsed->push_back(re_sparse);
       }
     }
     _lines->pop_front();
@@ -1035,6 +1161,8 @@ void createAbsoluteJump(uint8_t *exec, vector<result_parse_line> *asm_parsed, ui
   }
 }
 
+#ifndef __TEST_DEBUG
+
 executable createBinary(vector<result_parse_line> *asm_parsed)
 {
 
@@ -1096,6 +1224,12 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
   if (data_size > 0)
   {
     data = (uint8_t *)malloc((data_size / 4) * 4 + 4);
+    if(data==NULL)
+    {
+      exe.error.error =1;
+      exe.error.error_message= "Impossible de to create the data";
+      return exe; 
+    }
   }
   else
   {
@@ -1108,6 +1242,7 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
   {
     if ((*asm_parsed)[i].op == opCodeType::data || (*asm_parsed)[i].op == opCodeType::number)
     {
+      // Serial.printf("store data %d at %d\r\n",i,(*asm_parsed)[i].address);
       memcpy(data + (*asm_parsed)[i].address, (*asm_parsed)[i].name.c_str(), (*asm_parsed)[i].size);
     }
     else
@@ -1120,17 +1255,18 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
       }
       else
       {
+         // Serial.printf("store instr %d at %d \r\n",i,(*asm_parsed)[i].address);
         // printf("address %d new address%d size %d\r\n",(*asm_parsed)[i].address,(*asm_parsed)[i].address,(*asm_parsed)[i].size);
         memcpy(val_tmp + (*asm_parsed)[i].address, &(*asm_parsed)[i].bincode, (*asm_parsed)[i].size);
         // (*asm_parsed)[i].address=(*asm_parsed)[i].address-data_size+nb_data*4;
       }
     }
   }
-  // printf("create absolute jump \r\n");
+    //Serial.printf("create absolute jump \r\n");
   createAbsoluteJump(val_tmp, asm_parsed, (uint32_t)data);
-  // printf("copy \r\n");
+   //Serial.printf("copy \r\n");
   memcpy(exec, val_tmp, (intr_size / 8) * 8 + 8);
-  // printf("cleaning \r\n");
+  // Serial.printf("cleaning \r\n");
   free(val_tmp);
 
   // exe.start_function = (uint32_t)(exec + (*asm_parsed)[index].address / 4);
@@ -1145,6 +1281,8 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
 
   return exe;
 }
+
+
 
 executable createExectutable(vector<string> *lines, bool display)
 {
@@ -1202,6 +1340,8 @@ executable createExectutable(list<string> *lines, bool display)
   //printf("max size:%d\r\n",_asm_parsed.max_size());
    //printf("lines %d\n",lines->size());
   error_message_struct err = parseASM(lines, &_asm_parsed);
+  //on clean les lignes
+  lines->clear();
   if (err.error == 0)
   {
     flagLabel32aligned(&_asm_parsed);
@@ -1334,7 +1474,7 @@ error_message_struct executeBinary(string function, executable ex)
     }
   }
   res.error = 1;
-  res.error_message = string_format("Impossible to execute %s: not found\n", function);
+  res.error_message = string_format("Impossible to execute %s: not found\n", function.c_str());
   return res;
 }
 
@@ -1360,4 +1500,5 @@ void freeBinary(executable *ex)
   }
   ex->data = NULL;
 }
+#endif
 #endif
