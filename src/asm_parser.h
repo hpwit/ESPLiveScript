@@ -18,7 +18,44 @@ using namespace std;
 #include "asm_parser_LMbin.h"
 #include "asm_external.h"
 bool __parser_debug=false;
-vector<result_parse_line> _asm_parsed;
+list<result_parse_line> _asm_parsed;
+
+result_parse_line * getInstrAtPos(int pos)
+    {
+        int i = 0;
+        if (pos >= _asm_parsed.size() || pos < 0)
+        {
+            return &(*_asm_parsed.end());
+        }
+        for (list<result_parse_line>::iterator it = _asm_parsed.begin(); it != _asm_parsed.end(); it++)
+        {
+            if (i == pos)
+            {
+
+                return &*it;
+            }
+            i++;
+        }
+        return &(*_asm_parsed.end());
+    }
+    list<result_parse_line>::iterator  getIterAtPos(int pos)
+    {
+        int i = 0;
+        if (pos >= _asm_parsed.size() || pos < 0)
+        {
+            return _asm_parsed.end();
+        }
+        for (list<result_parse_line>::iterator it = _asm_parsed.begin(); it != _asm_parsed.end(); it++)
+        {
+            if (i == pos)
+            {
+
+                return it;
+            }
+            i++;
+        }
+        return _asm_parsed.end();
+    }
 class opRegister
 {
 public:
@@ -333,39 +370,43 @@ result_parse_line parseOperandes(string str, int nboperande, operandeType *optyp
   return result;
 }
 
-int findLabel(string s, vector<result_parse_line> *asm_parsed)
+int findLabel(string s, list<result_parse_line> *asm_parsed)
 {
   int res = -1;
-  for (int i = 0; i < (*asm_parsed).size(); i++)
+  int i=0;
+  for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::label || (*asm_parsed)[i].op == opCodeType::data_label || (*asm_parsed)[i].op == opCodeType::number_label)
+    if ((*it).op == opCodeType::label || (*it).op == opCodeType::data_label || (*it).op == opCodeType::number_label)
     {
-      if (trim((*asm_parsed)[i].name).compare(trim(s)) == 0)
+      if (trim((*it).name).compare(trim(s)) == 0)
       {
         return i;
       }
     }
+    i++;
   }
   return res;
 }
 
-int findFunction(string s, vector<result_parse_line> *asm_parsed)
+int findFunction(string s, list<result_parse_line> *asm_parsed)
 {
   int res = -1;
-  for (int i = 0; i < (*asm_parsed).size(); i++)
+  int i=0;
+  for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::function_declaration)
+    if ((*it).op == opCodeType::function_declaration)
     {
-      if ((*asm_parsed)[i].name.compare(s) == 0)
+      if ((*it).name.compare(s) == 0)
       {
         return i;
       }
     }
+    i++;
   }
   return res;
 }
 
-result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
+result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
 {
 
   if (sp.opcde.find(":") != -1)
@@ -379,7 +420,8 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
     if (findLabel(res.name, asm_parsed) != -1)
     {
       res.error.error = 1;
-      res.error.error_message = string_format("label %s is already declared in line %d\n", res.name.c_str(), (*asm_parsed)[findLabel(res.name, asm_parsed)].line);
+     // res.error.error_message = string_format("label %s is already declared in line %d\n", res.name.c_str(), (*asm_parsed)[findLabel(res.name, asm_parsed)].line);
+     res.error.error_message = string_format("label %s is already declare\n", res.name.c_str());
     }
 
     return res;
@@ -601,7 +643,7 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
     {
       result_parse_line ps;
       ps.op = opCodeType::data;
-      result_parse_line *ps1 = &(*asm_parsed)[(*asm_parsed).size() - 1];
+      result_parse_line *ps1 =   getInstrAtPos((*asm_parsed).size()-1); //&(*asm_parsed)[(*asm_parsed).size() - 1];
       if (ps1->op == opCodeType::label)
       {
         ps1->size = 4;
@@ -632,7 +674,7 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
   {
     result_parse_line ps;
     ps.op = opCodeType::number;
-    result_parse_line *ps1 = &(*asm_parsed)[(*asm_parsed).size() - 1];
+    result_parse_line *ps1 =getInstrAtPos((*asm_parsed).size()-1);// &(*asm_parsed)[(*asm_parsed).size() - 1];
     if (ps1->op == opCodeType::label)
     {
       ps1->size = 4;
@@ -727,7 +769,7 @@ result_parse_line parseline(line sp, vector<result_parse_line> *asm_parsed)
     {
 
       ps.op = opCodeType::data;
-      result_parse_line *ps1 = &(*asm_parsed)[(*asm_parsed).size() - 1];
+      result_parse_line *ps1 = getInstrAtPos((*asm_parsed).size()-1);//&(*asm_parsed)[(*asm_parsed).size() - 1];
       if (ps1->op == opCodeType::label)
       {
         ps1->size = 4;
@@ -781,7 +823,7 @@ if (sp.opcde.compare("add.s") == 0)
 
   if (sp.opcde.compare("sub.s") == 0)
   {
-    return parseOperandes(sp.operandes, 3, op_adds, 3, bin_adds);
+    return parseOperandes(sp.operandes, 3, op_subs, 3, bin_subs);
   }
   if (sp.opcde.compare("float.s") == 0)
   {
@@ -875,7 +917,7 @@ line splitOpcodeOperande(string s)
   res.operandes = operandes;
   return res;
 }
-
+/*
 error_message_struct parseASM(vector<string> *_lines, vector<result_parse_line> *asm_parsed)
 {
   vector<string> lines = *_lines;
@@ -902,7 +944,9 @@ error_message_struct parseASM(vector<string> *_lines, vector<result_parse_line> 
   // printf("Done.\r\n");
   return main_error;
 }
-error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *asm_parsed)
+*/
+
+error_message_struct parseASM(list<string> *_lines, list<result_parse_line> *asm_parsed)
 {
   // list<string> lines = *_lines;
   error_message_struct main_error;
@@ -950,21 +994,25 @@ error_message_struct parseASM(list<string> *_lines, vector<result_parse_line> *a
   return main_error;
 }
 
+
+/*
 error_message_struct parseASM(string s, vector<result_parse_line> *asm_parsed)
 {
   vector<string> lines = split(s, "\n");
   return parseASM(&lines, asm_parsed);
 }
-
-void createAddress(vector<result_parse_line> *asm_parsed)
+*/
+void createAddress(list<result_parse_line> *asm_parsed)
 {
   uint32_t add_instr = 0;
   uint32_t add_data = 0;
-  vector<result_parse_line>::iterator it = (*asm_parsed).begin();
-  for (it; it < (*asm_parsed).end(); it++)
+  //printf("create address\r\n");
+ // list<result_parse_line>::iterator it = (*asm_parsed).begin();
+ int i=0;
+  for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
 
-    if (it->op != opCodeType::data && it->op != opCodeType::number)
+if (it->op != opCodeType::data && it->op != opCodeType::number)
     {
 
       // printf("%s %s\n\r",it->debugtxt.c_str(), it->name.c_str());
@@ -1000,7 +1048,7 @@ void createAddress(vector<result_parse_line> *asm_parsed)
           it->address = add_instr + add_op.size;
           // printf("function not aligned\t %s \t %s\n", it->debugtxt.c_str(), it->name.c_str());
           (*asm_parsed).insert(it, add_op);
-          it++;
+          //it++;
           add_instr = add_instr + add_op.size;
           // add_instr += 4 - (add_instr & 3);
         }
@@ -1011,11 +1059,13 @@ void createAddress(vector<result_parse_line> *asm_parsed)
     {
       // we suppose that above it's the label
       it->address = add_data;
-      vector<result_parse_line>::iterator prev_it = it - 1;
+      list<result_parse_line>::iterator prev_it = it--;
+      it++;
       prev_it->bincode = add_data;
       add_data += it->size;
     }
   }
+//printf("Done\r\n");
 }
 void dumpmem(uint32_t *dump)
 {
@@ -1047,11 +1097,11 @@ void dumpmem(uint32_t *dump)
   printf("\n\n\n");
 }
 
-void printparsdAsm(uint32_t start_address, vector<result_parse_line> *asm_parsed)
+void printparsdAsm(uint32_t start_address, list<result_parse_line> *asm_parsed)
 {
-  for (int i = 0; i < (*asm_parsed).size(); i++)
+  for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    result_parse_line re_sparse = (*asm_parsed)[i];
+    result_parse_line re_sparse = (*it);
     if (re_sparse.error.error)
     {
       printf("%8x \t %s\t %s\n", re_sparse.address + start_address, re_sparse.debugtxt.c_str(), re_sparse.error.error_message.c_str());
@@ -1070,7 +1120,7 @@ void printparsdAsm(uint32_t start_address, vector<result_parse_line> *asm_parsed
   }
 }
 
-void flagLabel32aligned(vector<result_parse_line> *asm_parsed)
+void flagLabel32aligned(list<result_parse_line> *asm_parsed)
 {
 #ifdef __CONSOLE_ESP32
   LedOS.pushToConsole("Flag label(s) to align ... ");
@@ -1079,15 +1129,15 @@ void flagLabel32aligned(vector<result_parse_line> *asm_parsed)
   printf("Flag label(s) to align ... ");
 #endif
   uint32_t add = 0;
-  vector<result_parse_line>::iterator it = (*asm_parsed).begin();
-  for (it; it < (*asm_parsed).end(); it++)
+  //list<result_parse_line>::iterator it = (*asm_parsed).begin();
+ for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     if (it->op == opCodeType::jump_32aligned || it->op == opCodeType::function_declaration)
     {
       int i = findLabel(it->name, asm_parsed);
       if (i != -1)
       {
-        result_parse_line *parse_line = &(*asm_parsed)[i];
+        result_parse_line *parse_line = getInstrAtPos(i);// &(*asm_parsed)[i];
         parse_line->align = true;
       }
     }
@@ -1101,7 +1151,7 @@ void flagLabel32aligned(vector<result_parse_line> *asm_parsed)
   // printf("Done.\r\b");
 }
 
-error_message_struct calculateJump(vector<result_parse_line> *asm_parsed)
+error_message_struct calculateJump(list<result_parse_line> *asm_parsed)
 {
 
 #ifdef __CONSOLE_ESP32
@@ -1114,9 +1164,9 @@ error_message_struct calculateJump(vector<result_parse_line> *asm_parsed)
   error_message_struct error;
   error.error = 0;
   error.error_message = "";
-  for (int i = 0; i < (*asm_parsed).size(); i++)
+  for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    result_parse_line *parse_line = &(*asm_parsed)[i];
+    result_parse_line *parse_line = &*it;
     if ((parse_line->op == opCodeType::jump) || (parse_line->op == opCodeType::jump_32aligned))
     {
       int index = findLabel(parse_line->name, asm_parsed);
@@ -1124,7 +1174,7 @@ error_message_struct calculateJump(vector<result_parse_line> *asm_parsed)
       {
         if (parse_line->calculateOfssetJump)
         {
-          parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address, (*asm_parsed)[index].address);
+          parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address, getInstrAtPos(index)->address);
         }
         else
         {
@@ -1143,16 +1193,18 @@ error_message_struct calculateJump(vector<result_parse_line> *asm_parsed)
   return error;
 }
 
-void createAbsoluteJump(uint8_t *exec, vector<result_parse_line> *asm_parsed, uint32_t address)
+void createAbsoluteJump(uint8_t *exec, list<result_parse_line> *asm_parsed, uint32_t address)
 {
   int nb_data = 0;
-  for (int i = 0; i < (*asm_parsed).size(); i++)
+  for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::data_label || (*asm_parsed)[i].op == opCodeType::number_label)
+    if ((*it).op == opCodeType::data_label || (*it).op == opCodeType::number_label)
     {
-      uint32_t content = (*asm_parsed)[i + 1].address + address;
+      it++;
+      uint32_t content = (*(it)).address + address;
+      it--; //à cause de l'"it++"
       // printf("on veut mapper address:%d\r\n",(*asm_parsed)[i + 1].address);
-      (*asm_parsed)[i].bincode = content;
+      (*it).bincode = content;
       uint32_t *new_adr = (uint32_t *)exec + nb_data; // (*asm_parsed)[i].address / 4;
       // printf("new content %x atr adress %x\n",content,(uint32_t)new_adr);
       nb_data++;
@@ -1163,28 +1215,28 @@ void createAbsoluteJump(uint8_t *exec, vector<result_parse_line> *asm_parsed, ui
 
 #ifndef __TEST_DEBUG
 
-executable createBinary(vector<result_parse_line> *asm_parsed)
+executable createBinary(list<result_parse_line> *asm_parsed)
 {
 
   executable exe;
   exe.error.error = 0;
 
-  for (int i = 0; i < asm_parsed->size(); i++)
+ for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::function_declaration)
+    if ((*it).op == opCodeType::function_declaration)
     {
-      int index = findLabel((*asm_parsed)[i].name, asm_parsed);
+      int index = findLabel((*it).name, asm_parsed);
       if (index == -1)
       {
         exe.error.error = 1;
-        exe.error.error_message = string_format("Impossible to find start function :%s", (*asm_parsed)[i].name.c_str());
+        exe.error.error_message = string_format("Impossible to find start function :%s", (*it).name.c_str());
         return exe;
       }
       else
       {
         globalcall gc;
-        gc.name = (*asm_parsed)[i].name;
-        gc.address = (*asm_parsed)[index].address;
+        gc.name = (*it).name;
+        gc.address =  getInstrAtPos(index)->address; //(*asm_parsed)[index].address;
         exe.functions.push_back(gc);
       }
     }
@@ -1199,19 +1251,21 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
   int data_size = 0;
   int last_one = -1;
   int nb_data = 0;
-  for (int i = 0; i < asm_parsed->size(); i++)
+  int i=0;
+   for ( list<result_parse_line>::iterator  it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::data || (*asm_parsed)[i].op == opCodeType::number)
+    if ((*it).op == opCodeType::data || (*it).op == opCodeType::number)
     {
       nb_data++;
       last_one = i;
     }
+    i++;
   }
   if (last_one >= 0)
   {
-    data_size = (*asm_parsed)[last_one].size + (*asm_parsed)[last_one].address;
+    data_size = getInstrAtPos(last_one)->size+getInstrAtPos(last_one)->address;//(*asm_parsed)[last_one].size + (*asm_parsed)[last_one].address;
   }
-  uint32_t intr_size = (*asm_parsed)[(*asm_parsed).size() - 1].address + (*asm_parsed)[(*asm_parsed).size() - 1].size;
+  uint32_t intr_size = getInstrAtPos((*asm_parsed).size() - 1)->size+getInstrAtPos((*asm_parsed).size() - 1)->address;//(*asm_parsed)[(*asm_parsed).size() - 1].address + (*asm_parsed)[(*asm_parsed).size() - 1].size;
 
 #ifdef __CONSOLE_ESP32
   string d = string_format("Creation of an %d bytes binary and %d bytes data, nb data_label %d", intr_size, data_size, nb_data);
@@ -1238,12 +1292,12 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
 
   uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 8) * 8 + 8, MALLOC_CAP_32BIT);
   int h = 0;
-  for (int i = 0; i < (*asm_parsed).size(); i++)
+ for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    if ((*asm_parsed)[i].op == opCodeType::data || (*asm_parsed)[i].op == opCodeType::number)
+    if ( (*it).op == opCodeType::data || ((*it).op == opCodeType::number))
     {
       // Serial.printf("store data %d at %d\r\n",i,(*asm_parsed)[i].address);
-      memcpy(data + (*asm_parsed)[i].address, (*asm_parsed)[i].name.c_str(), (*asm_parsed)[i].size);
+      memcpy(data + (*it).address, (*it).name.c_str(), (*it).size);
     }
     else
     {
@@ -1257,7 +1311,7 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
       {
          // Serial.printf("store instr %d at %d \r\n",i,(*asm_parsed)[i].address);
         // printf("address %d new address%d size %d\r\n",(*asm_parsed)[i].address,(*asm_parsed)[i].address,(*asm_parsed)[i].size);
-        memcpy(val_tmp + (*asm_parsed)[i].address, &(*asm_parsed)[i].bincode, (*asm_parsed)[i].size);
+        memcpy(val_tmp + (*it).address, &(*it).bincode, (*it).size);
         // (*asm_parsed)[i].address=(*asm_parsed)[i].address-data_size+nb_data*4;
       }
     }
@@ -1283,7 +1337,7 @@ executable createBinary(vector<result_parse_line> *asm_parsed)
 }
 
 
-
+/*
 executable createExectutable(vector<string> *lines, bool display)
 {
 //vector<result_parse_line> asm_parsed;
@@ -1331,6 +1385,7 @@ executable createExectutable(vector<string> *lines, bool display)
     return exec;
   }
 }
+*/
 
 executable createExectutable(list<string> *lines, bool display)
 {
@@ -1388,6 +1443,7 @@ executable createExectutable(list<string> *lines, bool display)
   _asm_parsed.clear();
 }
 
+/*
 executable createExectutable(string script, bool display)
 {
  /// vector<result_parse_line> asm_parsed;
@@ -1439,6 +1495,7 @@ executable createExectutable(string script)
 {
   return createExectutable(script, false);
 }
+*/
 void executeBinaryAsm(uint32_t *j, uint32_t *c)
 {
 #ifdef __CONSOLE_ESP32

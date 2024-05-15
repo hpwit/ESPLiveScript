@@ -2,8 +2,8 @@
 #pragma once
 #ifndef __FUNCTION_LIB
 #define __FUNCTION_LIB
-string division="";
-//string division="\
+//string division="";
+string division="\
 __ASM__ float __div(float a,float b)\n\
 { \n\
 \"entry a1,16\" \n\

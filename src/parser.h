@@ -415,7 +415,7 @@ public:
 
         Error.error = 1;
         next();
-        Error.error_message = "impossible to find";
+        Error.error_message = string_format(" impossible to find %s", linepos().c_str());
 
         return;
     }
@@ -604,11 +604,11 @@ public:
             return;
         }
 
-       if( nb_sav_args.back()!=nb_sav_args.back())// if (sav_nb_arg != nb_args.back())
+       if( nb_sav_args.back()!=nb_args.back())// if (sav_nb_arg != nb_args.back())
         {
             Error.error = 1;
                                                                                 //sav_nb_args
-            Error.error_message = string_format("Expected %d arguments got %d %s", nb_sav_args.back(), nb_sav_args.back(), linepos().c_str());
+            Error.error_message = string_format("Expected %d arguments got %d %s", nb_sav_args.back(), nb_args.back(), linepos().c_str());
             return;
         }
         nb_args.pop_back();
