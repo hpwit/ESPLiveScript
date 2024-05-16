@@ -605,6 +605,7 @@ NodeToken *current_node;
 NodeToken *search_result;
 
 list<NodeToken *> sav_token;
+list<token*> sav_t;
 void copyNodeToken(NodeToken from, NodeToken *to)
 {
     to->_token = from._token;

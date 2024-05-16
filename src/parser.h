@@ -89,6 +89,7 @@ public:
         clearNodeToken(&program);
         list_of_token.clear();
         nb_args.clear();
+       
     }
     void cleanint()
     {
@@ -106,6 +107,8 @@ public:
         _node_token_stack.clear();
         _other_tokens.clear();
         _types.clear();
+         sav_t.clear();
+         sav_token.clear();
     }
 
     void parseCreateArguments()
@@ -244,8 +247,8 @@ public:
         // resParse result;
         Error.error = 0;
         // printf("entering factor line:%d pos:%d\n",current()->line,current()->pos);
-        token *_f = current();
-        if (_f->type == TokenEndOfFile)
+        //token *_f = current();
+        if (current()->type == TokenEndOfFile)
         {
 
             next();
@@ -255,20 +258,22 @@ public:
         else if (Match(TokenNumber))
         {
 
+// NodeNumber g = NodeNumber(current());
+ current_node->addChild( NodeNumber(current()));
             next();
-            NodeNumber g = NodeNumber(_f);
+           
             Error.error = 0;
             // result._nd = g;
             // printf("exit factor\n");
-            current_node->addChild(g);
+            
             return;
         }
 
         else if (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand))
         {
             // token *t = current();
-            NodeUnitary g = NodeUnitary();
-            current_node = current_node->addChild(g);
+           // NodeUnitary g = NodeUnitary();
+            current_node = current_node->addChild(NodeUnitary());
             current_node->addChild(NodeOperator(current()));
             next();
 
@@ -356,13 +361,14 @@ public:
         else if (Match(TokenKeyword) && MatchKeyword(KeywordVarType) && Match(TokenOpenParenthesis, 1))
         {
             // on tente CRGB()
-            token *typeVar = current();
-            NodeNumber num = NodeNumber(typeVar);
-            current_node = current_node->addChild(num);
+           // token *typeVar = current();
+            sav_t.push_back(current());
+           // NodeNumber num = NodeNumber( current());
+            current_node = current_node->addChild(NodeNumber( current()));
             next();
             if (Match(TokenOpenParenthesis))
             {
-                for (int i = 0; i < typeVar->_vartype->size; i++)
+                for (int i = 0; i < sav_t.back()->_vartype->size; i++)
                 {
                     next();
                     parseExpr();
@@ -372,7 +378,7 @@ public:
                         return;
                     }
                     // num.addChild(res._nd);
-                    if (i == typeVar->_vartype->size - 1)
+                    if (i == sav_t.back()->_vartype->size - 1)
                     {
                         if (!Match(TokenCloseParenthesis))
                         {
@@ -401,6 +407,7 @@ public:
                 Error.error = 0;
 
                 // result._nd=num;
+                sav_t.pop_back();
                 return;
             }
             else
@@ -432,19 +439,20 @@ public:
         }
         while (Match(TokenStar) || Match(TokenSlash) || Match(TokenModulo))
         {
-            token *op = current();
-
+            //token *op = current();
+                sav_t.push_back(current());
             next();
-            NodeBinOperator nodeopt;
-
-            NodeToken d = current_node->children.back();
+            //NodeBinOperator nodeopt;
+_node_token_stack.push_back(current_node->children.back());
+           // NodeToken d = current_node->children.back();
             current_node->children.pop_back();
-            current_node = current_node->addChild(nodeopt);
-            current_node->addChild(d);
-
+            current_node = current_node->addChild(NodeBinOperator());
+            current_node->addChild(_node_token_stack.back());
+_node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
-            NodeOperator opt = NodeOperator(op);
-            current_node->addChild(opt);
+           // NodeOperator opt = NodeOperator(op);
+            current_node->addChild(NodeOperator(sav_t.back()));
+            sav_t.pop_back();
             parseFactor();
             if (Error.error == 1)
             {
@@ -476,19 +484,25 @@ public:
         while (Match(TokenAddition) || Match(TokenSubstraction))
         {
 
-            token *op = current();
-
+           // token *op = current();
+ sav_t.push_back(current());
             next();
-            NodeBinOperator nodeopt;
-
+           // NodeBinOperator nodeopt;
+/*
             NodeToken d = current_node->children.back();
             current_node->children.pop_back();
-            current_node = current_node->addChild(nodeopt);
+            current_node = current_node->addChild(NodeBinOperator());
             current_node->addChild(d);
-
+*/
+_node_token_stack.push_back(current_node->children.back());
+           // NodeToken d = current_node->children.back();
+            current_node->children.pop_back();
+            current_node = current_node->addChild(NodeBinOperator());
+            current_node->addChild(_node_token_stack.back());
+_node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
-            NodeOperator opt = NodeOperator(op);
-            current_node->addChild(opt);
+            current_node->addChild(NodeOperator(sav_t.back()));
+            sav_t.pop_back();
             parseTerm();
             if (Error.error == 1)
             {
@@ -570,8 +584,8 @@ public:
        // NodeToken *t = current_cntx->findFunction(current());
     
       main_cntx.findFunction(current());
-       NodeToken *t =search_result;
-        if (t == NULL)
+       //NodeToken *t =search_result;
+        if (search_result == NULL)
         {
             Error.error = 1;
             Error.error_message = string_format("function %s not found %s", current()->text.c_str(), linepos().c_str());
@@ -579,11 +593,11 @@ public:
         }
         next();
         next();
-        if (t->_nodetype == defExtFunctionNode)
+        if (search_result->_nodetype == defExtFunctionNode)
         {
              //Serial.printf("serial2\r\n");
            // NodeExtCallFunction function = NodeExtCallFunction(t);
-            current_node = current_node->addChild(NodeExtCallFunction(t));
+            current_node = current_node->addChild(NodeExtCallFunction(search_result));
            // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
            nb_sav_args.push_back(current_node->_link->getChildAtPos(1)->children.size());
              //Serial.printf("serial3\r\n");
@@ -592,7 +606,7 @@ public:
         {
              //Serial.printf("serial2\r\n");
             //NodeCallFunction function = NodeCallFunction(t);
-            current_node = current_node->addChild(NodeCallFunction(t));
+            current_node = current_node->addChild(NodeCallFunction(search_result));
             //sav_nb_arg = function._link->getChildAtPos(1)->children.size();
              nb_sav_args.push_back(current_node->_link->getChildAtPos(1)->children.size());
              //Serial.printf("serial3\r\n");
