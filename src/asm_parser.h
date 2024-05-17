@@ -545,7 +545,10 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 2, op_mov_n, 2, bin_mov_n);
   }
-
+ if (sp.opcde.compare("neg") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_neg, 3, bin_neg);
+  }
   if (sp.opcde.compare("movi") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_movi, 3, bin_movi);
@@ -1499,7 +1502,7 @@ executable createExectutable(string script)
 void executeBinaryAsm(uint32_t *j, uint32_t *c)
 {
 #ifdef __CONSOLE_ESP32
-//  LedOS.pushToConsole("Executing asm code ...");
+// LedOS.pushToConsole("Executing asm code ...",true);
 #else
  // printf("Executing asm code ...\r\n");
 #endif
@@ -1509,7 +1512,7 @@ void executeBinaryAsm(uint32_t *j, uint32_t *c)
                : : "r"(j), "r"(c)
                :);
 #ifdef __CONSOLE_ESP32
- // LedOS.pushToConsole("Execution Done.");
+ //LedOS.pushToConsole("Execution Done.",true);
 #else
   //printf("Execution Done.\n");
 #endif

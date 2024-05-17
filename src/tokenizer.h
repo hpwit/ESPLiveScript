@@ -270,6 +270,7 @@ enum tokenType
     TokenLineComment,
     TokenStartBlockComment,
     TokenEndBlockComment,
+    TokenNegation,
     
 };
 
@@ -312,6 +313,7 @@ string tokenNames[] = {
     "TokenLineComment",
     "TokenStartBlockComment",
     "TokenEndBlockComment",
+    "TokenNegation"
 };
 
 

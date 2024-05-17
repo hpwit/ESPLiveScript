@@ -124,7 +124,9 @@ enum asmInstruction
     adds,
     subs,
     quous,
-    muls
+    muls,
+    neg,
+    negs
 
 
 
@@ -149,7 +151,9 @@ string asmInstructionsName[] =
     "add.s",
     "sub.s",
     "quou",
-    "mul.s"
+    "mul.s",
+    "neg",
+    "neg.s"
         
 };
 
@@ -192,8 +196,10 @@ operandeType op_adds[3] = {operandeType::floatregisters, operandeType::floatregi
 operandeType *op_quous = op_adds;
 operandeType *op_subs = op_adds;
 operandeType *op_muls = op_adds;
+operandeType *op_neg = op_mov;
+operandeType op_nexp01s[2] = {operandeType::floatregisters, operandeType::floatregisters};
 
-
+operandeType *op_negs=  op_nexp01s; 
 operandeType *asmInstructionOperandes[] =
     {
         op_s8i,
@@ -212,7 +218,9 @@ operandeType *asmInstructionOperandes[] =
         op_adds,
         op_subs,
         op_quou,
-        op_muls
+        op_muls,
+        op_neg,
+        op_negs,
 };
 
 string getRegType(asmInstruction instr,int pos)

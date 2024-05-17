@@ -274,7 +274,8 @@ public:
             // token *t = current();
            // NodeUnitary g = NodeUnitary();
             current_node = current_node->addChild(NodeUnitary());
-            current_node->addChild(NodeOperator(current()));
+            sav_t.push_back(current());
+           
             next();
 
             parseFactor();
@@ -283,6 +284,9 @@ public:
                 return;
             }
             // NodeUnitary g = NodeUnitary(NodeOperator(t), res._nd);
+ current_node->addChild(NodeOperator( sav_t.back()));
+ sav_t.pop_back();
+ current_node=current_node->parent;
             Error.error = 0;
             return;
         }
@@ -551,9 +555,9 @@ _node_token_stack.pop_back();
         while (Match(TokenComma))
         {
             next();
-            int sav = nb_args.back();
+            __sav_arg = nb_args.back();
             nb_args.pop_back();
-            nb_args.push_back(sav + 1);
+            nb_args.push_back(__sav_arg + 1);
            // nb_argument++;
             parseExpr();
             if (Error.error)
@@ -818,20 +822,22 @@ _node_token_stack.pop_back();
         else if (MatchKeyword(KeywordElse) && Match(TokenKeyword))
         {
             // on tente le for(){}
-            token *fort = current();
-            Context cntx;
-            cntx.name = current()->text;
+            //token *fort = current();
+            //Context cntx;
+            //cntx.name = current()->text;
             // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
-            current_cntx = (*(current_cntx)).addChild(cntx);
+           // current_cntx = (*(current_cntx)).addChild(cntx);
+           current_cntx =  current_cntx->addChild(Context(current()->text));
             //current_cntx = k;
             // string target =string_format("label_%d%s",for_if_num,k->name.c_str());
             targetList.push(string_format("label_%d%s", for_if_num, current_cntx->name.c_str()));
             //=target;
             for_if_num++;
 
-            NodeElse ndf = NodeElse(fort);
-            ndf.target = targetList.pop();
-            current_node = current_node->addChild(ndf);
+            //NodeElse ndf = NodeElse(fort);
+           // ndf.target = targetList.pop();
+           // current_node = current_node->addChild(ndf);
+           current_node = current_node->addChild(NodeElse(current(),targetList.pop()));
             next();
 
             parseBlockStatement();
@@ -855,29 +861,32 @@ _node_token_stack.pop_back();
         else if (MatchKeyword(KeywordWhile) && Match(TokenKeyword))
         {
             // on tente le for(){}
-            token *fort = current();
-            Context cntx;
-            cntx.name = current()->text;
+            sav_t.push_back(current());
+            //Context cntx;
+            //cntx.name = current()->text;
             // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
-            Context *k = (*(current_cntx)).addChild(cntx);
-            current_cntx = k;
-            string target = string_format("label_%d%s", for_if_num, k->name.c_str());
+            //Context *k = (*(current_cntx)).addChild(cntx);
+           // current_cntx = (*(current_cntx)).addChild(cntx);;
+           current_cntx =  current_cntx->addChild(Context(current()->text));
+            targetList.push (string_format("label_%d%s", for_if_num, current_cntx->name.c_str()));
             //=target;
             for_if_num++;
             next();
             if (Match(TokenOpenParenthesis))
             {
-                NodeWhile ndf = NodeWhile(fort);
-                ndf.target = target;
-                current_node = current_node->addChild(ndf);
+                //NodeWhile ndf = NodeWhile(fort);
+                //ndf.target = target;
+                //current_node = current_node->addChild(ndf);
+current_node = current_node->addChild(NodeWhile(sav_t.back(),targetList.get()));
                 next();
 
                 // printf(" *************** on parse comp/n");
-                parseComparaison(target);
+                parseComparaison(targetList.get());
                 if (Error.error)
                 {
                     return;
                 }
+                targetList.pop();
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
 
@@ -896,6 +905,7 @@ _node_token_stack.pop_back();
                 // next();
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
+                sav_t.pop_back();
                 //  current_node=current_node->parent;
                 return;
             }
@@ -912,11 +922,11 @@ _node_token_stack.pop_back();
         {
             // on tente le for(){}
             // token *fort=current();
-            Context cntx;
-            cntx.name = current()->text;
+            //Context cntx;
+            //cntx.name = current()->text;
             // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
-            Context *k = (*(current_cntx)).addChild(cntx);
-            current_cntx = k;
+            //Context *k = (*(current_cntx)).addChild(cntx);
+            current_cntx =  current_cntx->addChild(Context(current()->text));
             // string target =string_format("label_%d%s",for_if_num,k->name.c_str());
             targetList.push(string_format("label_%d%s", for_if_num, current_cntx->name.c_str()));
             //=target;
@@ -924,10 +934,12 @@ _node_token_stack.pop_back();
             // next();
             if (Match(TokenOpenParenthesis, 1))
             {
-                NodeIf ndf = NodeIf(current());
-                ndf.target = targetList.get();
+                //NodeIf ndf = NodeIf(current());
+                //ndf.target = targetList.get();
+                
+                //current_node = current_node->addChild(ndf);
+                current_node = current_node->addChild(NodeIf(current(),targetList.get()));
                 next();
-                current_node = current_node->addChild(ndf);
                 next();
 
                 // printf(" *************** on parse comp/n");
@@ -970,10 +982,11 @@ _node_token_stack.pop_back();
         {
             // on tente le for(){}
             // token *fort=current();
-            Context cntx;
-            cntx.name = current()->text;
+           // Context cntx;
+            //cntx.name = current()->text;
             // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
-            current_cntx = current_cntx->addChild(cntx);
+            //current_cntx = current_cntx->addChild(cntx);
+            current_cntx =  current_cntx->addChild(Context(current()->text));
             // current_cntx = k;
             // string target =string_format("label_%d%s",for_if_num,current_cntx->name.c_str());
             targetList.push(string_format("label_%d%s", for_if_num, current_cntx->name.c_str()));
@@ -1054,19 +1067,20 @@ _node_token_stack.pop_back();
 
                 return;
             }
-            NodeToken nd = nodeTokenList.pop();
-            NodeToken f = nodeTokenList.pop();
-            auto var = createNodeLocalVariableForCreation(&nd, &f);
+           // NodeToken nd = nodeTokenList.pop();
+           // NodeToken f = nodeTokenList.pop();
+           // auto var = createNodeLocalVariableForCreation(&nd, &f);
+            nodeTokenList.push(createNodeLocalVariableForCreation(nodeTokenList.pop(), nodeTokenList.pop()) );
             // printf("111&&&&&&&dddddddddd&&&&qssdqsdqsd& %s\n", nodeTypeNames[var._nodetype].c_str());
-            string var_name = nd._token->text;
+           // string var_name = nd._token->text;
             // pritnf()
-            current_cntx->addVariable(var);
+            current_cntx->addVariable(nodeTokenList.get());
 
             if (Match(TokenSemicolon))
             {
                 Error.error = 0;
                 // result._nd = var;
-                current_node->addChild(var);
+                current_node->addChild(nodeTokenList.pop());
                 // current_node = current_node->parent;
                 next();
                 return;
@@ -1075,13 +1089,14 @@ _node_token_stack.pop_back();
             if (Match(TokenEqual))
             {
                 //  NodeStatement ndsmt;
-                current_node->addChild(var);
-                NodeAssignement nd;
-                current_node = current_node->addChild(nd);
+                current_node->addChild(nodeTokenList.get());
+               // NodeAssignement nd;
+                current_node = current_node->addChild(NodeAssignement());
                 next();
-                auto left = createNodeLocalVariableForStore(var);
+               // auto left = createNodeLocalVariableForStore(var);
                 // copyPrty(type._nd, &var);
-                current_node->addChild(left);
+                //current_node->addChild(left);
+                current_node->addChild(createNodeLocalVariableForStore(nodeTokenList.pop()));
                 parseExpr();
 
                 if (Error.error)
@@ -1128,12 +1143,14 @@ _node_token_stack.pop_back();
     {
         // resParse result;
 
-        NodeBlockStatement nbStmnt;
-        Context cntx;
-        cntx.name = string_format("%d", block_statement_num);
+        //NodeBlockStatement nbStmnt;
+       // Context cntx;
+        //cntx.name = string_format("%d", block_statement_num);
+//current_cntx = current_cntx->addChild(cntx);
+         current_cntx =  current_cntx->addChild(Context(string_format("%d", block_statement_num)));
         block_statement_num++;
-        current_cntx = current_cntx->addChild(cntx);
-        current_node = current_node->addChild(nbStmnt);
+        
+        current_node = current_node->addChild(NodeBlockStatement());
         next();
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {
@@ -1554,7 +1571,7 @@ static void _run_task(void *pvParameters)
     {
         executeBinary("main", _fg->exe);
     }
-    LedOS.pushToConsole("Execution done.");
+    LedOS.pushToConsole("Execution done.",true,true);
     __run_handle = NULL;
     vTaskDelete(NULL);
 }
@@ -1586,11 +1603,11 @@ void kill(Console *cons, vector<string> args)
         if (p.postkill != NULL)
             p.postkill();
         // delay(10)
-        cons->pushToConsole("Code stopped.");
+        cons->pushToConsole("Code stopped.",true);
     }
     else
     {
-        cons->pushToConsole("Nothing is currently running.");
+        cons->pushToConsole("Nothing is currently running.",true);
     }
 }
 void run(Console *cons, vector<string> args)
@@ -1624,12 +1641,12 @@ void run(Console *cons, vector<string> args)
         // xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
 
         // delay(10);
-        cons->pushToConsole("Execution on going CTRL + k to stop");
+        cons->pushToConsole("Execution on going CTRL + k to stop",true);
         // //Serial.printf(config.ESC_RESET);
     }
     else
     {
-        cons->pushToConsole("Nothing to execute.");
+        cons->pushToConsole("Nothing to execute.",true);
     }
 }
 void kill_cEsc(Console *cons)
@@ -1674,12 +1691,9 @@ void parseasm(Console *cons, vector<string> args)
         else
         {
             cons->pushToConsole("***********START RUN*********");
+            cons->pushToConsole("Execution asm ...",true);
             executeBinary("main", executecmd);
-            if (cons->cmode == keyword)
-            {
-                _push(config.ENDLINE);
-                _push(cons->prompt(cons).c_str());
-            }
+          cons->pushToConsole("Execution done.",true,true);
         }
     }
     else
@@ -1739,7 +1753,7 @@ void parse_c(Console *cons, vector<string> args)
         }
         p.clean();
         p.clean2();
-        cons->pushToConsole(Error.error_message.c_str());
+        cons->pushToConsole(Error.error_message.c_str(),true);
     }
     else
     {
@@ -1777,6 +1791,7 @@ void parse_c(Console *cons, vector<string> args)
                 d.push_back("main");
                 cons->pushToConsole("***********START RUN *********");
                 run(cons, d);
+                
                 if (cons->cmode == keyword)
                 {
                     _push(config.ENDLINE);
@@ -1785,20 +1800,17 @@ void parse_c(Console *cons, vector<string> args)
             }
             else
             {
-                cons->pushToConsole("***********START RUN*********");
+                cons->pushToConsole("Start program",true);
                 executeBinary("main", executecmd);
-                if (cons->cmode == keyword)
-                {
-                    _push(config.ENDLINE);
-                    _push(cons->prompt(cons).c_str());
-                }
+                cons->pushToConsole("Execution done.",true,true);
+              
             }
         }
         else
         {
             exeExist = false;
             //Serial.printf(termColor.Red);
-            cons->pushToConsole(executecmd.error.error_message.c_str());
+            cons->pushToConsole(executecmd.error.error_message.c_str(),true);
             //Serial.printf(config.ESC_RESET);
         }
     }
@@ -1827,12 +1839,12 @@ public:
     __INIT_PARSER()
     {
         __run_handle = NULL;
-        LedOS.addKeywordCommand("compile", parse_c);
-        LedOS.addKeywordCommand("run", run);
-        LedOS.addKeywordCommand("kill", kill);
-        LedOS.addKeywordCommand("parseasm", parseasm);
-        LedOS.addEscCommand(18, parsec_cEsc);
-        LedOS.addEscCommand(11, kill_cEsc);
+        LedOS.addKeywordCommand("compile", parse_c,"Compile and run a program add '&' for run on the second core");
+        LedOS.addKeywordCommand("run", run,"Run an already compiled program (always second Core)");
+        LedOS.addKeywordCommand("kill", kill,"Stop a running program");
+        LedOS.addKeywordCommand("parseasm", parseasm,"Parse assembly program");
+        LedOS.addEscCommand(18, parsec_cEsc,"Compile and execute a program (always second Core)");
+        LedOS.addEscCommand(11, kill_cEsc,"Stop a running program");
         addExternal("__feed", externalType::function, (void *)feedTheDog);
         LedOS.script.clear();
         LedOS.script.push_back("stack:");

@@ -17,6 +17,10 @@ uint32_t bin_mov(uint32_t *values)
     return ((values[0] << 12) & 0xF000) + ((values[1] << 8) & 0xF00) + ((values[1] << 4) & 0xF0) + 0x200000;
 }
 
+uint32_t bin_neg(uint32_t *values)
+{
+    return ((values[0] << 12) & 0xF000) + ((values[1] << 4) & 0xF0)  + 0x600000;
+}
 
 uint32_t bin_l32i(uint32_t *values)
 {
@@ -336,13 +340,12 @@ uint32_t bin_maddns(uint32_t *values)
     return 0x0 + 0x6A0000+ (((values[0] << 12) & 0xF000)) + (((values[1] << 8) & 0xF00)) + + (((values[2] << 4) & 0xF0)) ;
 }
 
-operandeType op_nexp01s[2] = {operandeType::floatregisters, operandeType::floatregisters};
 uint32_t bin_nexp01s(uint32_t *values)
 {
     return (((values[0] << 12) & 0xF000)) + (((values[1] << 8) & 0xF00)) +0xB0+0xfa0000 ;
 }
 
-operandeType *op_negs=  op_nexp01s;    //[2] = {operandeType::floatregisters, operandeType::floatregisters};
+  //[2] = {operandeType::floatregisters, operandeType::floatregisters};
 uint32_t bin_negs(uint32_t *values)
 {
     return (((values[0] << 12) & 0xF000)) + (((values[1] << 8) & 0xF00)) +0x60+0xfa0000 ;
