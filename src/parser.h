@@ -86,6 +86,7 @@ public:
     void clean()
     {
         clearContext(&main_cntx);
+         _functions.clear();
         clearNodeToken(&program);
         list_of_token.clear();
         nb_args.clear();
@@ -669,8 +670,493 @@ _node_token_stack.pop_back();
         current_node = current_node->parent;
         return;
     }
+    /*
 
     void parseStatement()
+    {
+        Error.error = 0;
+        // resParse result;
+        // NodeStatement statement;
+       // current_node=current_node->addChild(NodeStatement());
+
+        // on demarre avec la function
+        if (Match(TokenString))
+        {
+            current_node->addChild(NodeString(current()));
+            next();
+            //current_node=current_node->parent; //new
+            return;
+        }
+        else if (Match(TokenKeyword) && MatchKeyword(KeywordReturn))
+        {
+            next();
+            if (Match(TokenSemicolon))
+            {
+                current_node->addChild(NodeReturn());
+                next();
+                //current_node=current_node->parent; //ne
+                return;
+            }
+            else
+            {
+                current_node = current_node->addChild(NodeReturn());
+                // next();
+                parseExpr();
+                if (Error.error)
+                {
+                    return;
+                }
+                if (Match(TokenSemicolon))
+                {
+                    Error.error = 0;
+                    current_node = current_node->parent;
+                   // current_node=current_node->parent;//new
+                    // res._nd = var;
+                    next();
+                    return;
+                }
+                else
+                {
+                    Error.error = 1;
+                    Error.error_message = string_format("d Expected ; %s", linepos().c_str());
+                    return;
+                }
+            }
+        }
+        else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
+        {
+            parseFunctionCall();
+            if (Error.error)
+            {
+                return;
+            }
+            else
+            {
+                if (Match(TokenSemicolon))
+                {
+                    Error.error = 0;
+                    // current_node->addChild(res._nd);
+                    // current_node=current_node->parent;
+                    // result._nd = res._nd;
+                    //current_node=current_node->parent;//new
+                    next();
+                    return;
+                }
+                else
+                {
+                    Error.error = 1;
+                    Error.error_message = string_format("Expected ; %s", linepos().c_str());
+                    next();
+                    return;
+                }
+            }
+        }
+        if (Match(TokenIdentifier) && Match(TokenPlusPlus, 1))
+        {
+            //NodeAssignement d = NodeAssignement();
+            current_node = current_node->addChild(NodeAssignement());
+            getVariable(true);
+            if (Error.error)
+            {
+                return;
+            }
+           // NodeUnitary g = NodeUnitary();
+            current_node = current_node->addChild( NodeUnitary());
+            prev();
+            getVariable(false);
+            if (Error.error)
+            {
+                return;
+            }
+            current_node->addChild(NodeOperator(current()));
+            next();
+            current_node = current_node->parent;
+            current_node = current_node->parent;
+            if (!Match(TokenSemicolon) && !Match(TokenCloseParenthesis))
+            {
+                Error.error = 1;
+                Error.error_message = string_format("Expected ; %s", linepos().c_str());
+                next();
+                return;
+            }
+            Error.error = 0;
+            next();
+            //current_node=current_node->parent; //new
+            return;
+        }
+        else if (Match(TokenIdentifier))
+        {
+            //NodeAssignement nd;
+            current_node = current_node->addChild(NodeAssignement());
+            getVariable(true);
+            if (Error.error)
+            {
+                return;
+            }
+            if (Match(TokenEqual))
+            {
+                next();
+                parseExpr();
+                if (Error.error)
+                {
+                    return;
+                }
+
+                if (!Match(TokenSemicolon)) //&& !Match(TokenCloseParenthesis))
+                {
+                    Error.error = 1;
+                    Error.error_message = string_format("Expected ici ; %s", linepos().c_str());
+                    // next();
+                    return;
+                }
+                // current_node->addChild(left._nd);
+                // current_node->addChild(right._nd);
+                Error.error = 0;
+                // result._nd = nd;
+                // current_node=current_node->parent;
+                current_node = current_node->parent;
+                next();
+               // current_node=current_node->parent;// new
+                return;
+            }
+            else
+            {
+                Error.error = 1;
+                Error.error_message = string_format("Expected = %s", linepos().c_str());
+                return;
+            }
+        }
+
+        else if (MatchKeyword(KeywordElse) && Match(TokenKeyword))
+        {
+            // on tente le for(){}
+            //token *fort = current();
+            //Context cntx;
+            //cntx.name = current()->text;
+            // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
+           // current_cntx = (*(current_cntx)).addChild(cntx);
+           current_cntx =  current_cntx->addChild(Context(current()->text));
+            //current_cntx = k;
+            // string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+            targetList.push(string_format("label_%d%s", for_if_num, current_cntx->name.c_str()));
+            //=target;
+            for_if_num++;
+
+            //NodeElse ndf = NodeElse(fort);
+           // ndf.target = targetList.pop();
+           // current_node = current_node->addChild(ndf);
+           current_node = current_node->addChild(NodeElse(current(),targetList.pop()));
+            next();
+
+            parseBlockStatement();
+            if (Error.error)
+            {
+                return;
+            }
+
+            // current_node->target=target;
+
+            // resParse result;
+
+            Error.error = 0;
+            // result._nd = ndf;
+            // next();
+            current_cntx = current_cntx->parent;
+            current_node = current_node->parent;
+            //  current_node=current_node->parent;
+            //current_node=current_node->parent;//new
+            return;
+        }
+        else if (MatchKeyword(KeywordWhile) && Match(TokenKeyword))
+        {
+            // on tente le for(){}
+            sav_t.push_back(current());
+            //Context cntx;
+            //cntx.name = current()->text;
+            // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
+            //Context *k = (*(current_cntx)).addChild(cntx);
+           // current_cntx = (*(current_cntx)).addChild(cntx);;
+           current_cntx =  current_cntx->addChild(Context(current()->text));
+            targetList.push (string_format("label_%d%s", for_if_num, current_cntx->name.c_str()));
+            //=target;
+            for_if_num++;
+            next();
+            if (Match(TokenOpenParenthesis))
+            {
+                //NodeWhile ndf = NodeWhile(fort);
+                //ndf.target = target;
+                //current_node = current_node->addChild(ndf);
+current_node = current_node->addChild(NodeWhile(sav_t.back(),targetList.get()));
+                next();
+
+                // printf(" *************** on parse comp/n");
+                parseComparaison(targetList.get());
+                if (Error.error)
+                {
+                    return;
+                }
+                targetList.pop();
+                ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
+                // printf(" *************** on parse inc/n");
+
+                parseBlockStatement();
+                if (Error.error)
+                {
+                    return;
+                }
+
+                // current_node->target=target;
+
+                // resParse result;
+
+                Error.error = 0;
+                // result._nd = ndf;
+                // next();
+                current_cntx = current_cntx->parent;
+                current_node = current_node->parent;
+                sav_t.pop_back();
+                //  current_node=current_node->parent;
+               // current_node=current_node->parent; //new
+                return;
+            }
+            else
+            {
+                // resParse res;
+                Error.error = 1;
+                Error.error_message = string_format("expecting ( %s", linepos().c_str());
+                next();
+                return;
+            }
+        }
+        else if (MatchKeyword(KeywordIf) && Match(TokenKeyword))
+        {
+            // on tente le for(){}
+            // token *fort=current();
+            //Context cntx;
+            //cntx.name = current()->text;
+            // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
+            //Context *k = (*(current_cntx)).addChild(cntx);
+            current_cntx =  current_cntx->addChild(Context(current()->text));
+            // string target =string_format("label_%d%s",for_if_num,k->name.c_str());
+            targetList.push(string_format("label_%d%s", for_if_num, current_cntx->name.c_str()));
+            //=target;
+            for_if_num++;
+            // next();
+            if (Match(TokenOpenParenthesis, 1))
+            {
+                //NodeIf ndf = NodeIf(current());
+                //ndf.target = targetList.get();
+                
+                //current_node = current_node->addChild(ndf);
+                current_node = current_node->addChild(NodeIf(current(),targetList.get()));
+                next();
+                next();
+
+                // printf(" *************** on parse comp/n");
+                parseComparaison(targetList.pop());
+                if (Error.error)
+                {
+                    return;
+                }
+                ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
+                // printf(" *************** on parse inc/n");
+
+                parseBlockStatement();
+                if (Error.error)
+                {
+                    return;
+                }
+
+                // current_node->target=target;
+
+                // resParse result;
+
+                Error.error = 0;
+                // result._nd = ndf;
+                // next();
+                current_cntx = current_cntx->parent;
+                current_node = current_node->parent;
+                //  current_node=current_node->parent;
+               // current_node=current_node->parent;//new
+                return;
+            }
+            else
+            {
+                // resParse res;
+                Error.error = 1;
+                Error.error_message = string_format("expecting ( %s", linepos().c_str());
+                next();
+                return;
+            }
+        }
+        else if (MatchKeyword(KeywordFor) && Match(TokenKeyword))
+        {
+            // on tente le for(){}
+            // token *fort=current();
+           // Context cntx;
+            //cntx.name = current()->text;
+            // //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
+            //current_cntx = current_cntx->addChild(cntx);
+            current_cntx =  current_cntx->addChild(Context(current()->text));
+            // current_cntx = k;
+            // string target =string_format("label_%d%s",for_if_num,current_cntx->name.c_str());
+            targetList.push(string_format("label_%d%s", for_if_num, current_cntx->name.c_str()));
+            //=target;
+            for_if_num++;
+            // next();
+            if (Match(TokenOpenParenthesis, 1))
+            {
+               // NodeFor ndf = NodeFor(current());
+                //ndf.target = targetList.get();
+                next();
+               // current_node = current_node->addChild(ndf);
+               current_node = current_node->addChild(NodeFor(current(),targetList.get()));
+                next();
+                current_node = current_node->addChild(NodeStatement());
+                parseStatement();
+                if (Error.error)
+                {
+                    return;
+                }
+                current_node = current_node->parent;
+                // printf(" *************** on parse comp/n");
+                parseComparaison(targetList.pop());
+                if (Error.error)
+                {
+                    return;
+                }
+                ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
+                // printf(" *************** on parse inc/n");
+                parseStatement();
+                if (Error.error)
+                {
+                    return;
+                }
+
+                parseBlockStatement();
+                if (Error.error)
+                {
+                    return;
+                }
+
+                // current_node->target=target;
+
+                // resParse result;
+
+                Error.error = 0;
+                // result._nd = ndf;
+                // next();
+                current_cntx = current_cntx->parent;
+                current_node = current_node->parent;
+                //  current_node=current_node->parent;
+               // current_node=current_node->parent;//new
+                return;
+            }
+            else
+            {
+                // resParse res;
+                Error.error = 1;
+                Error.error_message = string_format("expecting ( %s", linepos().c_str());
+                next();
+                return;
+            }
+        }
+
+        else if (Match(TokenKeyword) && MatchKeyword(KeywordVarType))
+        {
+            // printf("trying to create %s\n", current()->text.c_str());
+            parseType();
+            if (Error.error)
+            {
+                Error.error = 1;
+
+                return;
+            }
+
+            parseVariableForCreation();
+            if (Error.error)
+            {
+
+                return;
+            }
+           // NodeToken nd = nodeTokenList.pop();
+           // NodeToken f = nodeTokenList.pop();
+           // auto var = createNodeLocalVariableForCreation(&nd, &f);
+            nodeTokenList.push(createNodeLocalVariableForCreation(nodeTokenList.pop(), nodeTokenList.pop()) );
+            // printf("111&&&&&&&dddddddddd&&&&qssdqsdqsd& %s\n", nodeTypeNames[var._nodetype].c_str());
+           // string var_name = nd._token->text;
+            // pritnf()
+            current_cntx->addVariable(nodeTokenList.get());
+
+            if (Match(TokenSemicolon))
+            {
+                Error.error = 0;
+                // result._nd = var;
+                current_node->addChild(nodeTokenList.pop());
+                // current_node = current_node->parent;
+               // current_node=current_node->parent; //new
+                next();
+                return;
+            }
+
+            if (Match(TokenEqual))
+            {
+                //  NodeStatement ndsmt;
+                current_node->addChild(nodeTokenList.get());
+               // NodeAssignement nd;
+                current_node = current_node->addChild(NodeAssignement());
+                next();
+               // auto left = createNodeLocalVariableForStore(var);
+                // copyPrty(type._nd, &var);
+                //current_node->addChild(left);
+                current_node->addChild(createNodeLocalVariableForStore(nodeTokenList.pop()));
+                parseExpr();
+
+                if (Error.error)
+                {
+
+                    return;
+                }
+
+                if (!Match(TokenSemicolon))
+                {
+                    Error.error = 1;
+                    Error.error_message = string_format("Expected ; %s", linepos().c_str());
+                    next();
+                    return;
+                }
+                // nd.addChild(left);
+                // nd.addChild(right._nd);
+                // ndsmt.addChild(nd);
+                Error.error = 0;
+                // result._nd = ndsmt;
+                // current_node->addChild(ndsmt);
+                current_node = current_node->parent;
+
+                //current_node=current_node->parent;//new
+                next();
+                return;
+            }
+            else
+            {
+                Error.error = 1;
+                Error.error_message = string_format(" expecting ;  ou = %s", linepos().c_str());
+                return;
+            }
+
+            return;
+        }
+        else
+        {
+            Error.error = 1;
+            Error.error_message = string_format(" Unexpected %s at %s", current()->text.c_str(), linepos().c_str());
+            return;
+        }
+    }
+
+    */
+
+   void parseStatement()
     {
         Error.error = 0;
         // resParse result;
@@ -1138,7 +1624,7 @@ current_node = current_node->addChild(NodeWhile(sav_t.back(),targetList.get()));
             return;
         }
     }
-
+    
     void parseBlockStatement()
     {
         // resParse result;
@@ -1636,7 +2122,7 @@ void run(Console *cons, vector<string> args)
         df.args = args;
         df.exe = executecmd;
         // executeBinary("main",executecmd);
-        xTaskCreateUniversal(_run_task, "_run_task", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&__run_handle, 0);
+        xTaskCreateUniversal(_run_task, "_run_task", 4096*2, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&__run_handle, 0);
 
         // xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
 
@@ -1730,17 +2216,34 @@ void parse_c(Console *cons, vector<string> args)
 
     string rt = "";
     rt=rt+division;
+   /*
     for (string s : cons->script)
 
     {
         rt = rt + s + "\n";
-    }
+    }*/
+
     rt = rt + '\0';
-    //cons->script.clear();
-    Script sc(rt);
-    rt.clear();
+       Script sc(&rt);
+   
     _tks.init();
     tokenizer(&sc);
+    list_of_token.pop_back();
+    
+    _token_line=1;
+    rt.clear();
+ for (string s : cons->script)
+ {
+    //string g=s+'\0';
+     Script sc(&s);
+     _tks.init();
+    tokenizer(&sc,false);
+    _token_line++;
+ }
+ //cons->script.clear();
+ token t;
+    t.type = TokenEndOfFile;
+    list_of_token.push_back(t);
     cons->pushToConsole("***********TOKENISATION DONE***********");
 
     p.parse();
