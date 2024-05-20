@@ -176,7 +176,8 @@ enum KeywordType
     KeywordReturn,
     KeywordImport,
     KeywordFrom,
-    KeywordASM
+    KeywordASM,
+    KeywordDefine,
 };
 
 
@@ -200,10 +201,12 @@ KeywordType __keywordTypes[] =
         KeywordReturn,
         KeywordImport,
         KeywordFrom,
-        KeywordASM
+        KeywordASM,
+        KeywordDefine,
 };
 string keywordTypeNames[] =
     {
+        "KeywordVarType",
         "KeywordVarType",
         "KeywordVarType",
         "KeywordVarType",
@@ -221,14 +224,15 @@ string keywordTypeNames[] =
         "KeywordReturn",
         "KeywordImport",
         "KeywordFrom",
-        "KeywordASM"
+        "KeywordASM",
+        "KeywordDefine"
         
 
 };
 
-#define nb_keywords 19
+#define nb_keywords 20
 #define nb_typeVariables 9
-string keyword_array[nb_keywords] = {"none","uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "external", "for", "if", "then", "else", "while", "return","import","from","__ASM__"};
+string keyword_array[nb_keywords] = {"none","uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "external", "for", "if", "then", "else", "while", "return","import","from","__ASM__","define"};
 
 enum tokenType
 {
@@ -316,6 +320,26 @@ string tokenNames[] = {
     "TokenNegation"
 };
 
+typedef struct 
+{
+    string name;
+    string content;
+} _define;
+
+list<_define> define_list;
+ 
+ string getDefine(string name)
+ {
+   for (list<_define>::iterator it = define_list.begin(); it != define_list.end(); ++it)
+    {
+        if((*it).name.compare(name)==0)
+        {
+           // printf("one rrent %s\n",(*it).content.c_str());
+            return (*it).content;
+        }
+    }
+    return "";
+}
 
 
 #ifdef __CONSOLE_ESP32
@@ -372,6 +396,7 @@ const char * KeywordTypeFormat[] =
     termColor.Magenta , // KeyWordReturn
     termColor.LMagenta , // KeyWordImport
     termColor.LMagenta , // KeyWordFrom
+    termColor.LMagenta , // KeyWordASM
     termColor.LMagenta , // KeyWordASM
         };
 
@@ -584,6 +609,12 @@ public:
             return EOF_TEXT;
         }
     }
+    void insert(string toInsert)
+    {
+        position=position+1;
+        script->insert(position,toInsert.c_str());
+       // printf("%s\n",script->c_str());
+    }
 
 private:
     string *script;
@@ -723,7 +754,7 @@ private:
 Tokens _tks;
 
 int _token_line;
-
+list<token>::iterator _index_token;
 void tokenizer(Script *script,bool update)
 {
 
@@ -734,6 +765,8 @@ void tokenizer(Script *script,bool update)
     {
         list_of_token.clear();
         _token_line=1;
+        _index_token=list_of_token.end();
+        define_list.clear();
     }
 
     while (script->nextChar() != EOF_TEXT)
@@ -753,7 +786,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "==";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
             else
@@ -765,7 +798,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 t.text = "=";
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
         }
@@ -780,7 +813,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "<=";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
             else
@@ -792,7 +825,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 t.text = "<";
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
         }
@@ -807,7 +840,7 @@ void tokenizer(Script *script,bool update)
                 t.text = ">=";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
             else
@@ -819,7 +852,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 t.text = ">";
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
         }
@@ -834,7 +867,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "!=";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
             else
@@ -846,7 +879,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 t.text = "!";
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
         }
@@ -861,7 +894,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "++";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
             else
@@ -873,7 +906,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "+";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
         }
@@ -904,14 +937,58 @@ void tokenizer(Script *script,bool update)
                 {
                     t.type = TokenExternal;
                 }
+
+                
             }
             else
             {
                 t.type = TokenIdentifier;
+                if(list_of_token.size()>0)
+                {
+                    token prev=list_of_token.back();
+                    if(prev._keyword==KeywordImport && !_for_display)
+                    {
+                        if(findLibFunction(v)>-1)
+                        {
+                            list_of_token.pop_back();
+                            add_on.push_back(findLibFunction(v));
+                            continue;
+                        }
+                        
+                    }
+                    else if(prev._keyword == KeywordDefine && !_for_display)
+                    {
+                            list_of_token.pop_back();
+                            _define newdef;
+                            newdef.name=v;
+                            newdef.content="";
+                            char c2;
+                            c2 = script->nextChar();
+                           // c2 = script->nextChar();
+                             while(c2!='\n' and c2!=EOF_TEXT)
+                            {
+                                newdef.content=newdef.content+c2;
+                                c2 = script->nextChar();
+                            }
+                            //printf("ona joute %s\n",newdef.content.c_str());
+                            define_list.push_back(newdef);
+                            continue;
+                            
+                    }
+                }
+                if(!_for_display) //on ne remplace pas lorsque l'on display
+                {
+                    if(getDefine(v)!="")
+                    {
+                        script->insert(getDefine(v));
+                        continue;
+                    }
+                }
             }
             pos = newpos - 1;
             t.text = v;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
+
             continue;
         }
 
@@ -931,7 +1008,7 @@ void tokenizer(Script *script,bool update)
             //  t._vartype=NULL;
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             pos = newpos - 1;
             continue;
         }
@@ -943,7 +1020,7 @@ void tokenizer(Script *script,bool update)
             t.text = ";";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '\t')
@@ -955,7 +1032,7 @@ void tokenizer(Script *script,bool update)
             t.line = _token_line;
             t.pos = pos;
               if (_for_display)
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '&')
@@ -966,7 +1043,7 @@ void tokenizer(Script *script,bool update)
             t.text = "&";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }        
         if (c == '#')
@@ -977,7 +1054,7 @@ void tokenizer(Script *script,bool update)
             t.text = "#";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         } 
         if (c == '(')
@@ -988,7 +1065,7 @@ void tokenizer(Script *script,bool update)
             t.text = "(";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '%')
@@ -999,7 +1076,7 @@ void tokenizer(Script *script,bool update)
             t.text = "%";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == ')')
@@ -1010,7 +1087,7 @@ void tokenizer(Script *script,bool update)
             t.text = ")";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '{')
@@ -1021,7 +1098,7 @@ void tokenizer(Script *script,bool update)
             t.text = "{";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '}')
@@ -1032,7 +1109,7 @@ void tokenizer(Script *script,bool update)
             t.text = "}";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '[')
@@ -1043,7 +1120,7 @@ void tokenizer(Script *script,bool update)
             t.text = "[";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == ']')
@@ -1054,7 +1131,7 @@ void tokenizer(Script *script,bool update)
             t.text = "]";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '/')
@@ -1077,7 +1154,7 @@ void tokenizer(Script *script,bool update)
                 t.pos = pos;
                 //_token_line++;
                 if (_for_display)
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
             else if(c2 == '*')
@@ -1098,7 +1175,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 if (_for_display)
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             
             }
@@ -1111,7 +1188,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "/";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
                 continue;
             }
         }
@@ -1123,7 +1200,7 @@ void tokenizer(Script *script,bool update)
             t.text = "-";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == ' ')
@@ -1143,7 +1220,7 @@ void tokenizer(Script *script,bool update)
             t.type = TokenSpace;
             // t.text = " ";
             if (_for_display)
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '"')
@@ -1167,7 +1244,7 @@ void tokenizer(Script *script,bool update)
             v+=c;
             t.type = TokenString;
             t.text = v;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '\n')
@@ -1180,7 +1257,7 @@ void tokenizer(Script *script,bool update)
             _token_line++;
             pos = 0;
             if (_for_display)
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
             continue;
         }
          if (c == '?')
@@ -1193,7 +1270,7 @@ void tokenizer(Script *script,bool update)
             //_token_line++;
             //pos = 0;
             if (_for_display)
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '.')
@@ -1206,7 +1283,7 @@ void tokenizer(Script *script,bool update)
             //_token_line++;
             //pos = 0;
             if (_for_display)
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == '\'')
@@ -1219,7 +1296,7 @@ void tokenizer(Script *script,bool update)
            // _token_line++;
            // pos = 0;
             if (_for_display)
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == ':')
@@ -1232,7 +1309,7 @@ void tokenizer(Script *script,bool update)
             //_token_line++;
             //pos = 0;
             if (_for_display)
-                list_of_token.push_back(t);
+                list_of_token.insert(_index_token,t);
             continue;
         }
         /*
@@ -1247,7 +1324,7 @@ void tokenizer(Script *script,bool update)
             // line++;
             // pos=1;
             pos++;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         */
@@ -1259,7 +1336,7 @@ void tokenizer(Script *script,bool update)
             t.text = "*";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         if (c == ',')
@@ -1270,7 +1347,7 @@ void tokenizer(Script *script,bool update)
             t.text = ",";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.push_back(t);
+            list_of_token.insert(_index_token,t);
             continue;
         }
         // printf("Error invalid character |%c|\n", c);
@@ -1282,7 +1359,7 @@ void tokenizer(Script *script,bool update)
     t.pos = pos + 1;
     if(update)
     {
-    list_of_token.push_back(t);
+    list_of_token.insert(_index_token,t);
     }
     // return list_of_token;
 }
@@ -1439,6 +1516,7 @@ _prevbracket--;
 
     _tks.clear();
     //  _parent.clear();
+    
     _for_display = false;
     return res;
 }

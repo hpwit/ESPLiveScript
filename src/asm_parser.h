@@ -533,6 +533,10 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
     return ps;
   }
 
+if (sp.opcde.compare("rsr") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_rsr, 3, bin_rsr);
+  }
   if (sp.opcde.compare("mov") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);

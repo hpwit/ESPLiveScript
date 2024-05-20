@@ -4,7 +4,12 @@
 #include <stdlib.h>
 #include "asm_struct_enum.h"
 
+operandeType op_rsr[2] = {operandeType::registers, operandeType::l0_255};
 
+uint32_t bin_rsr(uint32_t *values)
+{
+    return 0x0 + ((values[0] << 4) & 0xF0) + ((values[1] << 8) & 0xFF00) +0x030000;
+}
 
 uint32_t bin_mov_n(uint32_t *values)
 {

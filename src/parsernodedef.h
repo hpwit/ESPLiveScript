@@ -1,10 +1,11 @@
 
 #pragma once
 #include <string>
+using namespace std;
 #include "string_function.h"
 #include "tokenizer.h"
+//#include "functionlib.h"
 
-using namespace std;
 
 /*
 Helper functions
@@ -301,6 +302,7 @@ StackInt register_numl = StackInt(&_register_numl);
 StackString targetList = StackString(&_target_stack);
 StackVarEnumType globalType = StackVarEnumType(&_types);
 
+
 enum statementType
 {
     statementAssignment,
@@ -364,6 +366,7 @@ enum nodeType
     defAsmFunctionNode,
     stringNode,
     changeTypeNode,
+    importNode,
 
 };
 
@@ -405,7 +408,8 @@ string nodeTypeNames[] =
         "returnNode",
         "defAsmFunctionNode",
         "stringNode",
-        "changeTypeNode"};
+        "changeTypeNode",
+        "importNode",};
 
 typedef struct
 {
@@ -996,6 +1000,36 @@ public:
         _token = nd._token;
         visitNode = _visitNodeWhile;
         target = _target;
+    }
+};
+
+void _visitNodeImport(NodeToken *nd)
+{
+
+
+}
+
+class NodeImport : public NodeToken
+{
+public:
+    NodeImport()
+    {
+        _nodetype = importNode;
+        _token = NULL;
+        visitNode = _visitNodeImport;
+    }
+    NodeImport(NodeToken nd)
+    {
+        _nodetype = importNode;
+        _token = nd._token;
+        visitNode = _visitNodeImport;
+    }
+    NodeImport(NodeToken nd, int _target)
+    {
+        _nodetype = importNode;
+        _token = nd._token;
+        visitNode = _visitNodeImport;
+        _token->pos = _target;
     }
 };
 
@@ -1727,7 +1761,10 @@ void _visitNodeCallFunction(NodeToken *nd)
 
     int start = nd->stack_pos;
     varType *v = nd->_link->getChildAtPos(0)->_token->_vartype;
-    content.addAfter(string_format("l32r a%d,stackr", point_regnum));
+   
+    if(v->size>0)
+    {
+         content.addAfter(string_format("l32r a%d,stackr", point_regnum));
     for (int i = 0; i < v->size; i++)
     {
         // content.addAfter(string_format("mov a15,a10"));
@@ -1738,6 +1775,19 @@ void _visitNodeCallFunction(NodeToken *nd)
         // register_numl--;
         start += v->sizes[i];
         content.sp.push(content.get());
+    }
+    register_numl.decrease();
+    }
+    else
+    {
+           register_numl.clear();
+    register_numl.push(15);
+    register_numl.push(15);
+    register_numl.push(15);
+        register_numr.clear();
+    register_numr.push(15);
+    register_numr.push(15);
+    register_numr.push(15);
     }
 }
 
@@ -2331,6 +2381,13 @@ void _visitNodeBinOperator(NodeToken *nd)
     {
         register_numl.increase();
     }
+    //nex
+        if (nd->getChildAtPos(1)->_token->type == TokenSlash || nd->getChildAtPos(1)->_token->type == TokenStar)
+    {
+        register_numl.pop();
+        register_numl.push(register_numr.get());
+    }
+    //end new
     content.sp.pop();
     content.sp.pop();
     content.sp.push(content.get());
@@ -2814,6 +2871,16 @@ void _visitNodeAssignement(NodeToken *nd)
     content.sp.pop();
     globalType.pop();
     clearNodeToken(nd);//new
+    register_numl.clear();
+    register_numl.push(15);
+    register_numl.push(15);
+    register_numl.push(15);
+        register_numr.clear();
+    register_numr.push(15);
+    register_numr.push(15);
+    register_numr.push(15);
+
+
 }
 
 class NodeAssignement : public NodeToken
