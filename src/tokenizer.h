@@ -63,6 +63,7 @@ struct varType
 
 string varTypeEnumNames[] =
     {
+         #ifdef __TEST_DEBUG
         "__none__",
         "__unit8_t__",
         "__unit16_t__",
@@ -72,6 +73,7 @@ string varTypeEnumNames[] =
         "__void__",
         "__CRGB__",
          "__char__",
+         #endif
         
 
 };
@@ -206,6 +208,7 @@ KeywordType __keywordTypes[] =
 };
 string keywordTypeNames[] =
     {
+        #ifdef __TEST_DEBUG
         "KeywordVarType",
         "KeywordVarType",
         "KeywordVarType",
@@ -225,8 +228,7 @@ string keywordTypeNames[] =
         "KeywordImport",
         "KeywordFrom",
         "KeywordASM",
-        "KeywordDefine"
-        
+#endif        
 
 };
 
@@ -279,6 +281,7 @@ enum tokenType
 };
 
 string tokenNames[] = {
+    #ifdef __TEST_DEBUG
     "TokenNumber",
     "TokenAddition",
     "TokenStar",
@@ -318,6 +321,7 @@ string tokenNames[] = {
     "TokenStartBlockComment",
     "TokenEndBlockComment",
     "TokenNegation"
+    #endif
 };
 
 typedef struct 
