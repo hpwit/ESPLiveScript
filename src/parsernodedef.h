@@ -1503,11 +1503,11 @@ void _visitNodeLocalVariable(NodeToken *nd)
   
     if (nd->children.size() > 0)
   {
-     // globalType.push(__int__);
+     globalType.push(__int__);
       register_numl.duplicate();
       nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
       register_numl.pop();
-     // globalType.pop();
+      globalType.pop();
     }
   varType *v = nd->_token->_vartype;
   int start = nd->stack_pos;
@@ -1526,11 +1526,11 @@ void _visitNodeLocalVariable(NodeToken *nd)
       int start = nd->stack_pos;
       // printf("kzlekmze\n");
       // content.addAfter(string_format("l32r a%d,stack", point_regnum));
-      content.addAfter(string_format("addi a%d,a1,%d", regnum, start));
-      content.addAfter(string_format("l32i a%d,a%d,0",regnum, regnum));
+      content.addAfter(string_format("addi a%d,a1,%d", point_regnum, start));
+      content.addAfter(string_format("l32i a%d,a%d,0",point_regnum, regnum));
       if(nd->children.size()==0)
       {
-       content.addAfter(string_format("mov a%d,a%d", register_numl.get(), regnum));
+       content.addAfter(string_format("mov a%d,a%d", register_numl.get(), point_regnum));
       content.sp.push(content.get());
       }
       else
@@ -1538,13 +1538,14 @@ void _visitNodeLocalVariable(NodeToken *nd)
         start=0;
       for (int i = 0; i < v->total_size; i++)
       {
-          content.addAfter(string_format("add a%d,a%d,a%d", regnum, regnum, register_numl.get()));
+          content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
         }
+        content.sp.push(content.get());
               for (int i = 0; i < v->size; i++)
       {
           // content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), regnum, start));
           asmInstruction asmInstr = v->load[i];
-          content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), regnum, start));
+          content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), point_regnum, start));
           translateType(globalType.get(), v->_varType, register_numl.get());
           // register_numl--;
           start += v->sizes[i];
