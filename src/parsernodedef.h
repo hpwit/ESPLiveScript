@@ -1500,18 +1500,20 @@ void _visitNodeLocalVariable(NodeToken *nd)
   //{
   //  number = nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0), register_numl, register_numr);
   // }
-  /*
+  
     if (nd->children.size() > 0)
   {
-      globalType.push(__int__);
+     // globalType.push(__int__);
       register_numl.duplicate();
       nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
       register_numl.pop();
-      globalType.pop();
-    }*/
+     // globalType.pop();
+    }
   varType *v = nd->_token->_vartype;
   int start = nd->stack_pos;
   uint8_t regnum = 1;
+    if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
+      point_regnum++;
   uint8_t save_reg;
   // point_regnum++;
   if (nd->isPointer)
@@ -1524,11 +1526,35 @@ void _visitNodeLocalVariable(NodeToken *nd)
       int start = nd->stack_pos;
       // printf("kzlekmze\n");
       // content.addAfter(string_format("l32r a%d,stack", point_regnum));
-      content.addAfter(string_format("addi a%d,a1,%d", register_numl.get(), start));
-      content.addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), register_numl.get()));
-      save_reg=register_numl.get();
-       register_numl.decrease();
-       
+      content.addAfter(string_format("addi a%d,a1,%d", regnum, start));
+      content.addAfter(string_format("l32i a%d,a%d,0",regnum, regnum));
+      if(nd->children.size()==0)
+      {
+       content.addAfter(string_format("mov a%d,a%d", register_numl.get(), regnum));
+      content.sp.push(content.get());
+      }
+      else
+      {
+        start=0;
+      for (int i = 0; i < v->total_size; i++)
+      {
+          content.addAfter(string_format("add a%d,a%d,a%d", regnum, regnum, register_numl.get()));
+        }
+              for (int i = 0; i < v->size; i++)
+      {
+          // content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), regnum, start));
+          asmInstruction asmInstr = v->load[i];
+          content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), regnum, start));
+          translateType(globalType.get(), v->_varType, register_numl.get());
+          // register_numl--;
+          start += v->sizes[i];
+          content.sp.push(content.get());
+        }
+      }
+      if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
+      point_regnum--;
+                 register_numl.pop();
+  register_numl.decrease();
     }
   else
     {
@@ -1542,6 +1568,10 @@ void _visitNodeLocalVariable(NodeToken *nd)
           start += v->sizes[i];
           content.sp.push(content.get());
         }
+          register_numl.pop();
+  register_numl.decrease();
+   
+  return;
     }
   // if(v->size==1)
   //   content.sp.pop();
@@ -1549,41 +1579,7 @@ void _visitNodeLocalVariable(NodeToken *nd)
   //  content.sp.push(content.get());
   // content.sp.swap();
   // content.putIteratorAtPos(content.sp.get());
-  content.sp.displaystack("PILE");
   
-  if (nd->children.size() > 0)
-  {
-      register_numl.duplicate();
-      nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
-      register_numl.pop();
-    }
-  if (nd->isPointer && nd->children.size() > 0)
-  {
-    start=0;
-      for (int i = 0; i < v->total_size; i++)
-      {
-          content.addAfter(string_format("add a%d,a%d,a%d", save_reg, save_reg, register_numl.get()));
-        }
-              for (int i = 0; i < v->size; i++)
-      {
-          // content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), regnum, start));
-          asmInstruction asmInstr = v->load[i];
-          content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), save_reg, getRegType(asmInstr, 1).c_str(), save_reg, start));
-          translateType(globalType.get(), v->_varType, register_numl.get());
-          // register_numl--;
-          start += v->sizes[i];
-          content.sp.push(content.get());
-        }
-    }
-  // point_regnum--;
-  // content.end();
-  // content.sp.pop();
-  
-  register_numl.pop();
-  register_numl.decrease();
-  if(nd->isPointer)
-  register_numl.decrease();
-  return;
 }
 
 class NodeLocalVariable : public NodeToken
