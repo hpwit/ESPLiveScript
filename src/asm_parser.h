@@ -658,8 +658,16 @@ if (sp.opcde.compare("rsr") == 0)
         ps1->align = true;
         ps.error.error = 0;
         ps.size = value;
-        ps.name = suite;
-        // sf.clear();
+        vector<string> sf=split(suite," ");
+        ps.name="";
+        for(int i=0;i<sf.size();i++)
+        {
+          char  __num = 0;
+                    sscanf(sf[i].c_str(), "%x", &__num);
+                    //printf("%s \r\n",sf[i].c_str());
+        ps.name = ps.name+__num;
+        }
+         sf.clear();
         return ps;
       }
       else{

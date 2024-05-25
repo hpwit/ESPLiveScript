@@ -33,9 +33,9 @@ std::string string_format(const std::string &format, Args... args)
 enum varTypeEnum
 {
     __none__,
-    __unit8_t__,
-    __unit16_t__,
-    __unit32_t__,
+    __uint8_t__,
+    __uint16_t__,
+    __uint32_t__,
     __int__,
     __float__,
     __void__,
@@ -80,7 +80,7 @@ varType _varTypes[] =
         {
             ._varType = __none__,
         },
-        {._varType = __unit8_t__,
+        {._varType = __uint8_t__,
          ._varSize = 1,
          .load = {l8ui},
          .store = {s8i},
@@ -89,7 +89,7 @@ varType _varTypes[] =
          .size = 1,
          .total_size = 1},
         {
-            ._varType = __unit16_t__,
+            ._varType = __uint16_t__,
             ._varSize = 2,
             .load = {l16ui},
             .store = {s16i},
@@ -99,7 +99,7 @@ varType _varTypes[] =
             .total_size = 2,
         },
         {
-            ._varType = __unit32_t__,
+            ._varType = __uint32_t__,
             ._varSize = 4,
             .load = {l32i},
             .store = {s32i},
@@ -471,7 +471,7 @@ token transNumber(string str)
     }
     // t.uint_value = res;
     t.type = TokenNumber;
-    t._vartype = &_varTypes[(int)__unit16_t__];
+    t._vartype = &_varTypes[(int)__uint16_t__];
     t.text = str;
 
     return t;

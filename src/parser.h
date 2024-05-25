@@ -1529,7 +1529,7 @@ public:
             if (Match(TokenNumber))
             {
                 token *num = current();
-                if (num->_vartype->_varType == __unit16_t__)
+                if (num->_vartype->_varType == __uint16_t__)
                 {
                     next();
                     if (Match(TokenCloseBracket))
@@ -1671,7 +1671,7 @@ public:
                             NodeDefExtGlobalVariable var = NodeDefExtGlobalVariable(nd);
                             NodeToken t = nodeTokenList.pop();
                             copyPrty(&t, &var);
-                            program.addChild(var);
+                            current_node= program.addChild(var);
                             current_cntx->addVariable(var);
                             isExternal = false;
                         }
@@ -1680,13 +1680,53 @@ public:
                             NodeDefGlobalVariable var = NodeDefGlobalVariable(nd);
                             NodeToken t = nodeTokenList.pop();
                             copyPrty(&t, &var);
-                            program.addChild(var);
+                            current_node= program.addChild(var);
                             current_cntx->addVariable(var);
                         }
                         if (Match(TokenSemicolon))
                         {
-
+                            current_node=current_node->parent;
                             next();
+                        }
+                        else if( Match(TokenEqual) &&  Match(TokenOpenCurlyBracket,1))
+                        {
+                                next();
+                                next();
+                                parseFactor();
+                                        if (Error.error)
+            {
+                return;
+            }
+                                while(Match(TokenComma))
+                                {
+                                    next();
+                                    parseFactor();
+                                            if (Error.error)
+            {
+                return;
+            }
+                                }
+                                     if (!Match(TokenCloseCurlyBracket))
+        {
+
+            Error.error = 1;
+            Error.error_message = string_format("Expected ) %s", linepos().c_str());
+            next();
+            return;
+        }
+        next();
+                                       if (!Match(TokenSemicolon))
+        {
+
+            Error.error = 1;
+            Error.error_message = string_format("Expected ; %s", linepos().c_str());
+            next();
+            return;
+        }
+                            next();
+                            Error.error=0;
+
+                                current_node=current_node->parent;
                         }
                         else
                         {
