@@ -6,9 +6,8 @@
 
 #pragma once
 using namespace std;
-//#include "asm_parser.h"
+// #include "asm_parser.h"
 #include "asm_struct_enum.h"
-
 
 #define EOF_TEXT 0
 
@@ -43,7 +42,6 @@ enum varTypeEnum
     __CRGB__,
     __char__,
 
-
 };
 
 struct varType
@@ -63,7 +61,7 @@ struct varType
 
 string varTypeEnumNames[] =
     {
-         #ifdef __TEST_DEBUG
+#ifdef __TEST_DEBUG
         "__none__",
         "__unit8_t__",
         "__unit16_t__",
@@ -72,13 +70,10 @@ string varTypeEnumNames[] =
         "__float__",
         "__void__",
         "__CRGB__",
-         "__char__",
-         #endif
-        
+        "__char__",
+#endif
 
 };
-
-
 
 varType _varTypes[] =
     {
@@ -153,7 +148,7 @@ varType _varTypes[] =
             .size = 3,
             .total_size = 3,
         },
-                {
+        {
             ._varType = __char__,
             ._varSize = 1,
             .load = {l8ui},
@@ -182,7 +177,6 @@ enum KeywordType
     KeywordDefine,
 };
 
-
 KeywordType __keywordTypes[] =
     {
         KeywordVarType,
@@ -208,7 +202,7 @@ KeywordType __keywordTypes[] =
 };
 string keywordTypeNames[] =
     {
-        #ifdef __TEST_DEBUG
+#ifdef __TEST_DEBUG
         "KeywordVarType",
         "KeywordVarType",
         "KeywordVarType",
@@ -228,14 +222,14 @@ string keywordTypeNames[] =
         "KeywordImport",
         "KeywordFrom",
         "KeywordASM",
-#endif        
+#endif
 
 };
 
 #define nb_keywords 20
 #define nb_typeVariables 9
-string keyword_array[nb_keywords] = {"none","uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB","char", "external", "for", "if", "then", "else", "while", "return","import","from","__ASM__","define"};
-
+string keyword_array[nb_keywords] = {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "char", "external", "for", "if", "then", "else", "while", "return", "import", "from", "__ASM__", "define"};
+bool __isBlockComment = false;
 enum tokenType
 {
     TokenNumber,
@@ -277,11 +271,11 @@ enum tokenType
     TokenStartBlockComment,
     TokenEndBlockComment,
     TokenNegation,
-    
+
 };
 
 string tokenNames[] = {
-    #ifdef __TEST_DEBUG
+#ifdef __TEST_DEBUG
     "TokenNumber",
     "TokenAddition",
     "TokenStar",
@@ -321,88 +315,87 @@ string tokenNames[] = {
     "TokenStartBlockComment",
     "TokenEndBlockComment",
     "TokenNegation"
-    #endif
+#endif
 };
 
-typedef struct 
+typedef struct
 {
     string name;
     string content;
 } _define;
 
 list<_define> define_list;
- 
- string getDefine(string name)
- {
-   for (list<_define>::iterator it = define_list.begin(); it != define_list.end(); ++it)
+
+string getDefine(string name)
+{
+    for (list<_define>::iterator it = define_list.begin(); it != define_list.end(); ++it)
     {
-        if((*it).name.compare(name)==0)
+        if ((*it).name.compare(name) == 0)
         {
-           // printf("one rrent %s\n",(*it).content.c_str());
+            // printf("one rrent %s\n",(*it).content.c_str());
             return (*it).content;
         }
     }
     return "";
 }
 
-
 #ifdef __CONSOLE_ESP32
 const char *tokenFormat[] = {
     termColor.Yellow,   // TokenNumber,
-    termColor.BWhite,    // TokenAddition,
-    termColor.BWhite,    // TokenStar,
-    termColor.BWhite,    // TokenSubstraction,
-    termColor.BWhite,    // TokenOpenParenthesis,
-    termColor.BWhite,    //  TokenCloseParenthesis,
-    termColor.BWhite,    // TokenOpenBracket,
-    termColor.BWhite,    // TokenCloseBracket,
-    termColor.LMagenta,    //  TokenOpenCurlyBracket,
-    termColor.LMagenta,    //  TokenCloseCurlyBracket,
-    termColor.BWhite,    //  TokenEqual,
-    termColor.BWhite,    //  TokenDoubleEqual,
+    termColor.BWhite,   // TokenAddition,
+    termColor.BWhite,   // TokenStar,
+    termColor.BWhite,   // TokenSubstraction,
+    termColor.BWhite,   // TokenOpenParenthesis,
+    termColor.BWhite,   //  TokenCloseParenthesis,
+    termColor.BWhite,   // TokenOpenBracket,
+    termColor.BWhite,   // TokenCloseBracket,
+    termColor.LMagenta, //  TokenOpenCurlyBracket,
+    termColor.LMagenta, //  TokenCloseCurlyBracket,
+    termColor.BWhite,   //  TokenEqual,
+    termColor.BWhite,   //  TokenDoubleEqual,
     termColor.Cyan,     //  TokenIdentifier,
-    termColor.BWhite,    //  TokenSemicolon,
-    termColor.BWhite,    // TokenUnknown,
-    termColor.BWhite,    //  TokenSpace,
-    termColor.BWhite,    //  TokenNewline,
-    termColor.BWhite,    // TokenEndOfFile,
-    termColor.BWhite,    // TokenSlash,
+    termColor.BWhite,   //  TokenSemicolon,
+    termColor.BWhite,   // TokenUnknown,
+    termColor.BWhite,   //  TokenSpace,
+    termColor.BWhite,   //  TokenNewline,
+    termColor.BWhite,   // TokenEndOfFile,
+    termColor.BWhite,   // TokenSlash,
     termColor.Magenta,  //   TokenKeyword,
     termColor.Orange,   // TokenString,
     termColor.LMagenta, //   TokenExternal,
-    termColor.BWhite,    //  TokenComma,
-    termColor.BWhite,    //   TokenLessThan,
-    termColor.BWhite,    // TokenPlusPlus,
-    termColor.BWhite,    // TokenMinusMinus,
-    termColor.BWhite,    // TokenModulo,
-    termColor.BWhite,    // TokenLessOrEqualThan,
-    termColor.BWhite,    // TokenMoreThan,
-    termColor.BWhite,    // TokenMoreOrEqualThan,
-    termColor.BWhite,    // TokenNotEqual,
-    termColor.BWhite,    // TokenNot,
-    termColor.Yellow,  // TokenFunction
-    termColor.BWhite,  //TokenUppersand
-    termColor.BWhite,  //TokenDiese
-    termColor.Grey, //TokenLineComment
-    termColor.Grey, //  TokenStartBlockComment
-    termColor.Grey,  //TokenEndBlockComment
+    termColor.BWhite,   //  TokenComma,
+    termColor.BWhite,   //   TokenLessThan,
+    termColor.BWhite,   // TokenPlusPlus,
+    termColor.BWhite,   // TokenMinusMinus,
+    termColor.BWhite,   // TokenModulo,
+    termColor.BWhite,   // TokenLessOrEqualThan,
+    termColor.BWhite,   // TokenMoreThan,
+    termColor.BWhite,   // TokenMoreOrEqualThan,
+    termColor.BWhite,   // TokenNotEqual,
+    termColor.BWhite,   // TokenNot,
+    termColor.Yellow,   // TokenFunction
+    termColor.BWhite,   // TokenUppersand
+    termColor.BWhite,   // TokenDiese
+    termColor.Grey,     // TokenLineComment
+    termColor.Grey,     //  TokenStartBlockComment
+    termColor.Grey,     // TokenEndBlockComment
 };
 
-const char * KeywordTypeFormat[] =
+const char *KeywordTypeFormat[] =
     {
-    termColor.Green , //KeywordVarType,
-    termColor.Green , // KeywordExternalVar,
-    termColor.Magenta , // KeywordFor,
-    termColor.Magenta , // KeywordIf,
-    termColor.Magenta , // KeywordThen,
-    termColor.Magenta , // KeywordElse,
-    termColor.Magenta , // KeywordWhile,
-    termColor.Magenta , // KeyWordReturn
-    termColor.LMagenta , // KeyWordImport
-    termColor.LMagenta , // KeyWordFrom
-    termColor.LMagenta , // KeyWordASM
-    termColor.LMagenta , // KeyWordASM
-        };
+        termColor.Green,    // KeywordVarType,
+        termColor.Green,    // KeywordExternalVar,
+        termColor.Magenta,  // KeywordFor,
+        termColor.Magenta,  // KeywordIf,
+        termColor.Magenta,  // KeywordThen,
+        termColor.Magenta,  // KeywordElse,
+        termColor.Magenta,  // KeywordWhile,
+        termColor.Magenta,  // KeyWordReturn
+        termColor.LMagenta, // KeyWordImport
+        termColor.LMagenta, // KeyWordFrom
+        termColor.LMagenta, // KeyWordASM
+        termColor.LMagenta, // KeyWordASM
+};
 
 #endif
 typedef struct
@@ -615,9 +608,9 @@ public:
     }
     void insert(string toInsert)
     {
-        position=position+1;
-        script->insert(position,toInsert.c_str());
-       // printf("%s\n",script->c_str());
+        position = position + 1;
+        script->insert(position, toInsert.c_str());
+        // printf("%s\n",script->c_str());
     }
 
 private:
@@ -759,18 +752,19 @@ Tokens _tks;
 
 int _token_line;
 list<token>::iterator _index_token;
-void tokenizer(Script *script,bool update)
+void tokenizer(Script *script, bool update)
 {
 
     // list<token> list_of_token;
-    //int line = 1;
+    // int line = 1;
     int pos = 0;
-    if(update)
+    if (update)
     {
         list_of_token.clear();
-        _token_line=1;
-        _index_token=list_of_token.end();
+        _token_line = 1;
+        _index_token = list_of_token.end();
         define_list.clear();
+        __isBlockComment = false;
     }
 
     while (script->nextChar() != EOF_TEXT)
@@ -790,7 +784,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "==";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
             else
@@ -802,7 +796,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 t.text = "=";
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
         }
@@ -817,7 +811,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "<=";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
             else
@@ -829,7 +823,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 t.text = "<";
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
         }
@@ -844,7 +838,7 @@ void tokenizer(Script *script,bool update)
                 t.text = ">=";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
             else
@@ -856,7 +850,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 t.text = ">";
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
         }
@@ -871,7 +865,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "!=";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
             else
@@ -883,7 +877,7 @@ void tokenizer(Script *script,bool update)
                 t.line = _token_line;
                 t.pos = pos;
                 t.text = "!";
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
         }
@@ -898,7 +892,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "++";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
             else
@@ -910,7 +904,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "+";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
         }
@@ -941,48 +935,44 @@ void tokenizer(Script *script,bool update)
                 {
                     t.type = TokenExternal;
                 }
-
-                
             }
             else
             {
                 t.type = TokenIdentifier;
-                if(list_of_token.size()>0)
+                if (list_of_token.size() > 0)
                 {
-                    token prev=list_of_token.back();
-                    if(prev._keyword==KeywordImport && !_for_display)
+                    token prev = list_of_token.back();
+                    if (prev._keyword == KeywordImport && !_for_display)
                     {
-                        if(findLibFunction(v)>-1)
+                        if (findLibFunction(v) > -1)
                         {
                             list_of_token.pop_back();
                             add_on.push_back(findLibFunction(v));
                             continue;
                         }
-                        
                     }
-                    else if(prev._keyword == KeywordDefine && !_for_display)
+                    else if (prev._keyword == KeywordDefine && !_for_display)
                     {
-                            list_of_token.pop_back();
-                            _define newdef;
-                            newdef.name=v;
-                            newdef.content="";
-                            char c2;
+                        list_of_token.pop_back();
+                        _define newdef;
+                        newdef.name = v;
+                        newdef.content = "";
+                        char c2;
+                        c2 = script->nextChar();
+                        // c2 = script->nextChar();
+                        while (c2 != '\n' and c2 != EOF_TEXT)
+                        {
+                            newdef.content = newdef.content + c2;
                             c2 = script->nextChar();
-                           // c2 = script->nextChar();
-                             while(c2!='\n' and c2!=EOF_TEXT)
-                            {
-                                newdef.content=newdef.content+c2;
-                                c2 = script->nextChar();
-                            }
-                            //printf("ona joute %s\n",newdef.content.c_str());
-                            define_list.push_back(newdef);
-                            continue;
-                            
+                        }
+                        // printf("ona joute %s\n",newdef.content.c_str());
+                        define_list.push_back(newdef);
+                        continue;
                     }
                 }
-                if(!_for_display) //on ne remplace pas lorsque l'on display
+                if (!_for_display) // on ne remplace pas lorsque l'on display
                 {
-                    if(getDefine(v)!="")
+                    if (getDefine(v) != "")
                     {
                         script->insert(getDefine(v));
                         continue;
@@ -991,7 +981,7 @@ void tokenizer(Script *script,bool update)
             }
             pos = newpos - 1;
             t.text = v;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
 
             continue;
         }
@@ -1012,7 +1002,7 @@ void tokenizer(Script *script,bool update)
             //  t._vartype=NULL;
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             pos = newpos - 1;
             continue;
         }
@@ -1024,7 +1014,7 @@ void tokenizer(Script *script,bool update)
             t.text = ";";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '\t')
@@ -1035,8 +1025,8 @@ void tokenizer(Script *script,bool update)
             t.text = "\t";
             t.line = _token_line;
             t.pos = pos;
-              if (_for_display)
-            list_of_token.insert(_index_token,t);
+            if (_for_display)
+                list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '&')
@@ -1047,9 +1037,9 @@ void tokenizer(Script *script,bool update)
             t.text = "&";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
-        }        
+        }
         if (c == '#')
         {
             token t;
@@ -1058,9 +1048,9 @@ void tokenizer(Script *script,bool update)
             t.text = "#";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
-        } 
+        }
         if (c == '(')
         {
             token t;
@@ -1069,7 +1059,7 @@ void tokenizer(Script *script,bool update)
             t.text = "(";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '%')
@@ -1080,7 +1070,7 @@ void tokenizer(Script *script,bool update)
             t.text = "%";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == ')')
@@ -1091,7 +1081,7 @@ void tokenizer(Script *script,bool update)
             t.text = ")";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '{')
@@ -1102,7 +1092,7 @@ void tokenizer(Script *script,bool update)
             t.text = "{";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '}')
@@ -1113,7 +1103,7 @@ void tokenizer(Script *script,bool update)
             t.text = "}";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '[')
@@ -1124,7 +1114,7 @@ void tokenizer(Script *script,bool update)
             t.text = "[";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == ']')
@@ -1135,7 +1125,7 @@ void tokenizer(Script *script,bool update)
             t.text = "]";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '/')
@@ -1146,42 +1136,42 @@ void tokenizer(Script *script,bool update)
                 token t;
                 t._vartype = NULL;
                 t.type = TokenLineComment;
-                
+
                 t.text = "//";
                 c2 = script->nextChar();
-                while(c2!='\n' and c2!=EOF_TEXT)
+                while (c2 != '\n' and c2 != EOF_TEXT)
                 {
-                    t.text=t.text+c2;
+                    t.text = t.text + c2;
                     c2 = script->nextChar();
                 }
                 t.line = _token_line;
                 t.pos = pos;
                 //_token_line++;
                 if (_for_display)
-                list_of_token.insert(_index_token,t);
+                    list_of_token.insert(_index_token, t);
                 continue;
             }
-            else if(c2 == '*')
+            else if (c2 == '*')
             {
                 token t;
                 t._vartype = NULL;
                 t.type = TokenLineComment;
-                
+
                 t.text = "/*";
                 c = script->nextChar();
-                c2=script->nextChar();
-                while((c!='*' or c2!='/') and c2!=EOF_TEXT and c!=EOF_TEXT) //stop when (c=* and c2=/) or c=0 or c2=0 
+                c2 = script->nextChar();
+                while ((c != '*' or c2 != '/') and c2 != EOF_TEXT and c != EOF_TEXT) // stop when (c=* and c2=/) or c=0 or c2=0
                 {
-                    t.text=t.text+c;
-                    c=c2;
+                    if (_for_display)
+                        t.text = t.text + c;
+                    c = c2;
                     c2 = script->nextChar();
                 }
                 t.line = _token_line;
                 t.pos = pos;
                 if (_for_display)
-                list_of_token.insert(_index_token,t);
+                    list_of_token.insert(_index_token, t);
                 continue;
-            
             }
             else
             {
@@ -1192,7 +1182,7 @@ void tokenizer(Script *script,bool update)
                 t.text = "/";
                 t.line = _token_line;
                 t.pos = pos;
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
                 continue;
             }
         }
@@ -1204,7 +1194,7 @@ void tokenizer(Script *script,bool update)
             t.text = "-";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == ' ')
@@ -1224,20 +1214,20 @@ void tokenizer(Script *script,bool update)
             t.type = TokenSpace;
             // t.text = " ";
             if (_for_display)
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '"')
         {
-            string v="";
+            string v = "";
             token t;
             t._vartype = NULL;
             t.line = _token_line;
             t.pos = pos;
-            v+=c;
+            v += c;
             c = script->nextChar();
             pos++;
-            while (c != '"' && c!=EOF_TEXT )
+            while (c != '"' && c != EOF_TEXT)
             {
                 v += c;
                 c = script->nextChar();
@@ -1245,10 +1235,10 @@ void tokenizer(Script *script,bool update)
             }
             // script->previousChar(); //on revient un caractere en arriere
             // pos--;
-            v+=c;
+            v += c;
             t.type = TokenString;
             t.text = v;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '\n')
@@ -1261,10 +1251,10 @@ void tokenizer(Script *script,bool update)
             _token_line++;
             pos = 0;
             if (_for_display)
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
             continue;
         }
-         if (c == '?')
+        if (c == '?')
         {
             token t;
             t.type = TokenUnknown;
@@ -1272,9 +1262,9 @@ void tokenizer(Script *script,bool update)
             t.line = _token_line;
             t.pos = pos;
             //_token_line++;
-            //pos = 0;
+            // pos = 0;
             if (_for_display)
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '.')
@@ -1285,9 +1275,9 @@ void tokenizer(Script *script,bool update)
             t.line = _token_line;
             t.pos = pos;
             //_token_line++;
-            //pos = 0;
+            // pos = 0;
             if (_for_display)
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == '\'')
@@ -1297,10 +1287,10 @@ void tokenizer(Script *script,bool update)
             t.text = ".";
             t.line = _token_line;
             t.pos = pos;
-           // _token_line++;
-           // pos = 0;
+            // _token_line++;
+            // pos = 0;
             if (_for_display)
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == ':')
@@ -1311,27 +1301,11 @@ void tokenizer(Script *script,bool update)
             t.line = _token_line;
             t.pos = pos;
             //_token_line++;
-            //pos = 0;
+            // pos = 0;
             if (_for_display)
-                list_of_token.insert(_index_token,t);
+                list_of_token.insert(_index_token, t);
             continue;
         }
-        /*
-        if (c == ';')
-        {
-            token t;
-            t._vartype = NULL;
-            t.type = TokenNewline;
-            t.text = "";
-            t.line = line;
-            t.pos = pos;
-            // line++;
-            // pos=1;
-            pos++;
-            list_of_token.insert(_index_token,t);
-            continue;
-        }
-        */
         if (c == '*')
         {
             token t;
@@ -1340,7 +1314,7 @@ void tokenizer(Script *script,bool update)
             t.text = "*";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         if (c == ',')
@@ -1351,7 +1325,7 @@ void tokenizer(Script *script,bool update)
             t.text = ",";
             t.line = _token_line;
             t.pos = pos;
-            list_of_token.insert(_index_token,t);
+            list_of_token.insert(_index_token, t);
             continue;
         }
         // printf("Error invalid character |%c|\n", c);
@@ -1361,15 +1335,15 @@ void tokenizer(Script *script,bool update)
     t.text = "";
     t.line = _token_line;
     t.pos = pos + 1;
-    if(update)
+    if (update)
     {
-    list_of_token.insert(_index_token,t);
+        list_of_token.insert(_index_token, t);
     }
     // return list_of_token;
 }
 void tokenizer(Script *script)
 {
-    tokenizer(script,true);
+    tokenizer(script, true);
 }
 #ifdef __CONSOLE_ESP32
 list<const char *> _parenthesis;
@@ -1381,7 +1355,7 @@ int _prevbracket;
 #define _NB_COLORS 3
 const char *_colors[_NB_COLORS] =
     {
-        
+
         termColor.Magenta,
         termColor.LBlue,
         termColor.Yellow,
@@ -1390,19 +1364,19 @@ const char *_colors[_NB_COLORS] =
 
 void formatInit()
 {
-     _parenthesis.clear();
-     _curlybracket.clear();
-_bracket.clear();
- _prevparenthesis=0;
-_prevcurlybracket=0;
-_prevbracket=0;
+    _parenthesis.clear();
+    _curlybracket.clear();
+    _bracket.clear();
+    _prevparenthesis = 0;
+    _prevcurlybracket = 0;
+    _prevbracket = 0;
 }
 
 void formatNewLine()
 {
-     _prevparenthesis=0;
-_prevcurlybracket=0;
-_prevbracket=0;
+    _prevparenthesis = 0;
+    _prevcurlybracket = 0;
+    _prevbracket = 0;
 }
 
 string formatLine(string str)
@@ -1414,54 +1388,54 @@ string formatLine(string str)
     tokenizer(&s);
     _tks.init();
     string res = "";
-for(int i=0;i<_prevparenthesis;i++)
-{
-_parenthesis.pop_back();
-}
-for(int i=0;i<_prevbracket;i++)
-{
-_bracket.pop_back();
-}
-for(int i=0;i<_prevcurlybracket;i++)
-{
-_curlybracket.pop_back();
-}
- _prevparenthesis=0;
-_prevcurlybracket=0;
-_prevbracket=0;
+    for (int i = 0; i < _prevparenthesis; i++)
+    {
+        _parenthesis.pop_back();
+    }
+    for (int i = 0; i < _prevbracket; i++)
+    {
+        _bracket.pop_back();
+    }
+    for (int i = 0; i < _prevcurlybracket; i++)
+    {
+        _curlybracket.pop_back();
+    }
+    _prevparenthesis = 0;
+    _prevcurlybracket = 0;
+    _prevbracket = 0;
 
     for (int i = 0; i < _tks.size(); i++)
     {
         token tk = *_tks.current();
         //    Serial.printf("token %s\r\n",tk.text.c_str());
-       /* if (tk.type == TokenOpenCurlyBracket)
-        {
+        /* if (tk.type == TokenOpenCurlyBracket)
+         {
 
-            // char *color= (char *)_colors[_curlybracket.size()%_NB_COLORS];
-            res = res + string_format("%s%s", _colors[_curlybracket.size() % _NB_COLORS], tk.text.c_str());
-            _curlybracket.push_back(_colors[_curlybracket.size() % _NB_COLORS]);
-            _prevcurlybracket++;
-        }
-        else if (tk.type == TokenCloseCurlyBracket)
-        {
+             // char *color= (char *)_colors[_curlybracket.size()%_NB_COLORS];
+             res = res + string_format("%s%s", _colors[_curlybracket.size() % _NB_COLORS], tk.text.c_str());
+             _curlybracket.push_back(_colors[_curlybracket.size() % _NB_COLORS]);
+             _prevcurlybracket++;
+         }
+         else if (tk.type == TokenCloseCurlyBracket)
+         {
 
-            if (_curlybracket.size() == 0)
-            {
-                res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
-            }
-            else
-            {
-                // char * color=_curlybracket.back();
-                _prevcurlybracket--;
-                res = res + string_format("%s%s", _curlybracket.back(), tk.text.c_str());
-                _curlybracket.pop_back();
-            }
-        }*/
-         if (tk.type == TokenOpenParenthesis)
+             if (_curlybracket.size() == 0)
+             {
+                 res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
+             }
+             else
+             {
+                 // char * color=_curlybracket.back();
+                 _prevcurlybracket--;
+                 res = res + string_format("%s%s", _curlybracket.back(), tk.text.c_str());
+                 _curlybracket.pop_back();
+             }
+         }*/
+        if (tk.type == TokenOpenParenthesis)
         {
-_prevparenthesis++;
-            res = res + string_format("%s%s", _colors[(_parenthesis.size()+2) % _NB_COLORS], tk.text.c_str());
-            _parenthesis.push_back(_colors[(_parenthesis.size()+2) % _NB_COLORS]);
+            _prevparenthesis++;
+            res = res + string_format("%s%s", _colors[(_parenthesis.size() + 2) % _NB_COLORS], tk.text.c_str());
+            _parenthesis.push_back(_colors[(_parenthesis.size() + 2) % _NB_COLORS]);
         }
         else if (tk.type == TokenCloseParenthesis)
         {
@@ -1472,14 +1446,14 @@ _prevparenthesis++;
             }
             else
             {
-_prevparenthesis--;
+                _prevparenthesis--;
                 res = res + string_format("%s%s", _parenthesis.back(), tk.text.c_str());
                 _parenthesis.pop_back();
             }
         }
         else if (tk.type == TokenOpenBracket)
         {
-_prevbracket++;
+            _prevbracket++;
             res = res + string_format("%s%s", _colors[_bracket.size() % _NB_COLORS], tk.text.c_str());
             _bracket.push_back(_colors[_bracket.size() % _NB_COLORS]);
         }
@@ -1492,7 +1466,7 @@ _prevbracket++;
             }
             else
             {
-_prevbracket--;
+                _prevbracket--;
                 res = res + string_format("%s%s", _bracket.back(), tk.text.c_str());
                 _bracket.pop_back();
             }
@@ -1520,16 +1494,16 @@ _prevbracket--;
 
     _tks.clear();
     //  _parent.clear();
-    
+
     _for_display = false;
     return res;
 }
 class __INIT_TOKEN
 {
-    public:
+public:
     __INIT_TOKEN()
     {
-        LedOS.addHightLightinf("sc", formatLine,formatInit,formatNewLine);
+        LedOS.addHightLightinf("sc", formatLine, formatInit, formatNewLine);
     }
 };
 __INIT_TOKEN _init_token;
