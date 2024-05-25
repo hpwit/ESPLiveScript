@@ -3,18 +3,22 @@ using namespace std;
 using namespace std;
 
 #include <string>
-void pushToConsole(string str,bool force)
+void pushToConsole(string str, bool force)
 {
-    #ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole(str, force);
+#ifdef __CONSOLE_ESP32
+    LedOS.pushToConsole(str, force);
 #else
-            Serial.printf("%s\r\n",str.c_str());
+#ifndef __TEST_DEBUG
+    Serial.printf("%s\r\n", str.c_str());
+    #else
+    printf("%s\r\n", str.c_str());
+    #endif
 #endif
 }
 
 void pushToConsole(string str)
 {
-    pushToConsole(str,false);
+    pushToConsole(str, false);
 }
 // #include "tokenizer.h"
 #include "functionlib.h"
@@ -27,8 +31,9 @@ void pushToConsole(string str)
 #endif
 
 #include "parsernodedef.h"
+#ifndef __TEST_DEBUG
 #include "execute.h"
-
+#endif
 
 class Parser
 {
@@ -111,21 +116,21 @@ public:
             }
             clean();
             clean2();
-           pushToConsole(Error.error_message.c_str(), true);
-           return false;
+            pushToConsole(Error.error_message.c_str(), true);
+            return false;
         }
         else
         {
             // prettyPrint(program, "");
-           pushToConsole("***********PARSING DONE*********");
+            pushToConsole("***********PARSING DONE*********");
 
             program.visitNode(&program);
 
-           pushToConsole("***********COMPILING DONE*********");
+            pushToConsole("***********COMPILING DONE*********");
             // p.cleanint();
             clean();
 
-          pushToConsole("***********AFTER CLEAN*********");
+            pushToConsole("***********AFTER CLEAN*********");
             // printf("%d\n",_content.size());
             int s = _header.size();
             for (int i = 0; i < s; i++)
@@ -134,24 +139,28 @@ public:
                 _content.push_front(_header.back());
                 _header.pop_back();
             }
-           pushToConsole("***********CREATE EXECUTABLE*********");
+            
+#ifndef __TEST_DEBUG
+            pushToConsole("***********CREATE EXECUTABLE*********");
             executecmd = createExectutable(&_content, __parser_debug);
             // strcompile = "";
             clean2();
-               if (executecmd.error.error == 0)
-    {
+            if (executecmd.error.error == 0)
+            {
 
-        exeExist = true;
-        
-    }
-    else
-    {
-        exeExist = false;
-        // Serial.printf(termColor.Red);
-    
-       pushToConsole(executecmd.error.error_message.c_str(), true);
-    }
+                exeExist = true;
+            }
+            else
+            {
+                exeExist = false;
+                // Serial.printf(termColor.Red);
+
+                pushToConsole(executecmd.error.error_message.c_str(), true);
+            }
             return exeExist;
+#else
+            return false;
+#endif
         }
     }
     bool parse_c(list<string> *_script)
@@ -183,7 +192,7 @@ public:
             _tks.init();
             tokenizer(&sc, false);
         }
-        //LedOS.script.clear();
+        // LedOS.script.clear();
         token t;
         t.type = TokenEndOfFile;
         list_of_token.push_back(t);
@@ -216,7 +225,7 @@ public:
             _tks.init();
             tokenizer(&sc, false);
         }
-        //LedOS.script.clear();
+        // LedOS.script.clear();
         token t;
         t.type = TokenEndOfFile;
         list_of_token.push_back(t);
@@ -1767,7 +1776,7 @@ static void _run_task(void *pvParameters)
     vTaskDelete(NULL);
 }*/
 Parser p = Parser();
-//Executable consExecutable = Executable();
+// Executable consExecutable = Executable();
 
 void kill(Console *cons, vector<string> args)
 {
@@ -1778,14 +1787,14 @@ void kill(Console *cons, vector<string> args)
     }
     else
     {
-       LedOS.pushToConsole("Nothing is currently running.", true);
+        LedOS.pushToConsole("Nothing is currently running.", true);
     }
 }
 void run(Console *cons, vector<string> args)
 {
     if (__run_handle != NULL)
     {
-       LedOS.pushToConsole("Something Already running kill it first ...");
+        LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
     }
     else
@@ -1827,11 +1836,11 @@ void run(Console *cons, vector<string> args)
 }
 void kill_cEsc(Console *cons)
 {
-   LedOS.displayf = false;
+    LedOS.displayf = false;
     vector<string> f;
     if (cons->cmode == edit)
     {
-       LedOS.storeCurrentLine();
+        LedOS.storeCurrentLine();
     }
     kill(cons, f);
     if (cons->cmode == keyword)
@@ -1856,7 +1865,7 @@ void parseasm(Console *cons, vector<string> args)
         {
             vector<string> d;
             d.push_back("main");
-           LedOS.pushToConsole("***********START RUN *********");
+            LedOS.pushToConsole("***********START RUN *********");
             run(cons, d);
             if (cons->cmode == keyword)
             {
@@ -1866,17 +1875,17 @@ void parseasm(Console *cons, vector<string> args)
         }
         else
         {
-           LedOS.pushToConsole("***********START RUN*********");
-           LedOS.pushToConsole("Execution asm ...", true);
+            LedOS.pushToConsole("***********START RUN*********");
+            LedOS.pushToConsole("Execution asm ...", true);
             executeBinary("main", executecmd);
-           LedOS.pushToConsole("Execution done.", true, true);
+            LedOS.pushToConsole("Execution done.", true, true);
         }
     }
     else
     {
         exeExist = false;
         // Serial.printf(termColor.Red);
-       LedOS.pushToConsole(executecmd.error.error_message.c_str());
+        LedOS.pushToConsole(executecmd.error.error_message.c_str());
         // Serial.printf(config.ESC_RESET);
     }
 }
@@ -1884,13 +1893,13 @@ void parse_c(Console *cons, vector<string> args)
 {
     if (__run_handle != NULL)
     {
-       LedOS.pushToConsole("Something Already running kill it first ...");
+        LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
     }
     bool othercore = false;
-    
+
     SCExecutable.free();
-   LedOS.pushToConsole("Compiling ...", true);
+    LedOS.pushToConsole("Compiling ...", true);
     if (args.size() > 0)
     {
         if (args[0].compare("&") != 0)
@@ -1971,7 +1980,7 @@ void parse_c(Console *cons, vector<string> args)
             p.clean2();
             // //Serial.printf(config.ESC_RESET);
     */
-    if ( p.parse_c(&cons->script))
+    if (p.parse_c(&cons->script))
     {
 
         exeExist = true;
@@ -1979,7 +1988,7 @@ void parse_c(Console *cons, vector<string> args)
         {
             vector<string> d;
             d.push_back("main");
-           LedOS.pushToConsole("***********START RUN *********");
+            LedOS.pushToConsole("***********START RUN *********");
             run(cons, d);
 
             if (cons->cmode == keyword)
@@ -1990,25 +1999,24 @@ void parse_c(Console *cons, vector<string> args)
         }
         else
         {
-           LedOS.pushToConsole("Start program", true);
-           SCExecutable.execute("main");
-           // executeBinary("main", executecmd);
-           LedOS.pushToConsole("Execution done.", true);
+            LedOS.pushToConsole("Start program", true);
+            SCExecutable.execute("main");
+            // executeBinary("main", executecmd);
+            LedOS.pushToConsole("Execution done.", true);
         }
     }
-  
+
     __parser_debug = false;
 }
 
-
 void parsec_cEsc(Console *cons)
 {
-   LedOS.displayf = false;
+    LedOS.displayf = false;
     vector<string> f;
     f.push_back("&");
     if (cons->cmode == edit)
     {
-       LedOS.storeCurrentLine();
+        LedOS.storeCurrentLine();
     }
     parse_c(cons, f);
     if (cons->cmode == keyword)
