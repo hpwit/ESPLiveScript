@@ -57,10 +57,66 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 \"retw.n\" \n\
 }";
 
+string _copycode="\
+__ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
+{ \n\
+   \"entry a1,80\"\n\
+   \"l32r a4,stack\" \n\
+   \"l32i a5,a4,0\" \n\
+   \"l32i a6,a4,4\" \n\
+   \"l16ui a7,a4,8\" \n\
+   \"loop:\" \n\
+   \"l8ui a8,a6,0\" \n\
+   \"s8i a8,a5,0\" \n\
+   \"addi a6,a6,1\" \n\
+   \"addi a5,a5,1\" \n\
+   \"addi a7,a7,-1\" \n\
+   \"bnez a7,loop\" \n\
+   \"retw.n\" \n\
+}";
+string _memset="\
+__ASM__ void memset(uint8_t *obj,uint8_t val, uint16_t size )\n\
+{\n\
+   \"entry a1,80\" \n\
+   \"l32r a4,stack\" \n\
+   \"l32i a5,a4,0\" \n\
+   \"l8ui a6,a4,4\" \n\
+   \"l16ui a7,a4,6\" \n\
+   \"loop_memset:\" \n\
+   \"s8i a6,a5,0\" \n\
+   \"addi a5,a5,1\" \n\
+   \"addi a7,a7,-1\" \n\
+   \"bnez a7,loop_memset\" \n\
+   \"retw.n\" \n\
+}";
 
-int stdlib_size=1;
-string stdlib[]={"rand"};
- string * _stdlib[]={&_rand};
+string _fill="\
+__ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_iteration) \n\
+{\n\
+   \"entry a1,80\" \n\
+   \"l32r a4,stack\" \n\
+   \"l32i a5,a4,0\" \n\
+   \"l32i a6,a4,4\" \n\
+   \"l8ui a7,a4,8\" \n\
+   \"l16ui a8,a4,10\" \n\
+   \"fill_loop_main_fill:\" \n\
+   \"mov a9,a7\" \n\
+   \"mov a10,a6\" \n\
+   \"fill_loop_main_second:\" \n\
+   \"l8ui a11,a10,0\" \n\
+   \"s8i a11,a5,0\" \n\
+   \"addi a5,a5,1\" \n\
+   \"addi a10,a10,1\" \n\
+   \"addi a9,a9,-1\" \n\
+   \"bnez a9, fill_loop_main_second\" \n\
+   \"addi a8,a8,-1\" \n\
+   \"bnez a8,fill_loop_main_fill\" \n\
+   \"retw.n\" \n\
+}";
+
+int stdlib_size=4;
+string stdlib[]={"rand","copy","memset","fill"};
+ string * _stdlib[]={&_rand,&_copycode,&_memset,&_fill};
 
 
 int findLibFunction(string name)
