@@ -1545,7 +1545,7 @@ void _visitNodeLocalVariable(NodeToken *nd)
                 // content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), regnum, start));
                 asmInstruction asmInstr = v->load[i];
                 content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), point_regnum, start));
-                // content.addAfter("hh3");
+                 //content.addAfter("hh3");
                 translateType(globalType.get(), v->_varType, register_numl.get());
                 // register_numl--;
                 start += v->sizes[i];
@@ -1564,7 +1564,7 @@ void _visitNodeLocalVariable(NodeToken *nd)
             // content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), regnum, start));
             asmInstruction asmInstr = v->load[i];
             content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), regnum, start));
-            // content.addAfter("hh6");
+            //content.addAfter("hh6");
             translateType(globalType.get(), v->_varType, register_numl.get());
             // register_numl--;
             start += v->sizes[i];
@@ -2363,14 +2363,14 @@ void _visitNodeOperator(NodeToken *nd)
     asmInstruction asmInstr;
     if (nd->parent->getChildAtPos(0)->isPointer and nd->parent->getChildAtPos(0)->children.size() < 1)
     {
-        globalType.push(__int__);
+       globalType.push(__int__);
         ff = false;
     }
     if (nd->parent->children.size() >= 3)
         translateType(globalType.get(), r, register_numr.get());
     if ((!nd->parent->getChildAtPos(0)->isPointer or nd->parent->getChildAtPos(0)->children.size() > 0) and nd->_token->type != TokenStarStar)
     {
-        // content.addAfter("hh1");
+        //content.addAfter("hh1");
         translateType(globalType.get(), l, register_numl.get());
     }
     switch (nd->_token->type)
