@@ -271,6 +271,7 @@ enum tokenType
     TokenStartBlockComment,
     TokenEndBlockComment,
     TokenNegation,
+    TokenStarStar
 
 };
 
@@ -314,7 +315,8 @@ string tokenNames[] = {
     "TokenLineComment",
     "TokenStartBlockComment",
     "TokenEndBlockComment",
-    "TokenNegation"
+    "TokenNegation",
+    "TokenStarStar"
 #endif
 };
 
@@ -432,7 +434,7 @@ token transNumber(string str)
     // t.float_value=0;
     // t.int_value=0;
     if (str.find(".") != string::npos)
-    {
+    {/*
         // try convert
         float f;
         f = 0;
@@ -457,19 +459,20 @@ token transNumber(string str)
                 }
             }
         }
-        // t.float_value = f;
+        // t.float_value = f;*/
         t.type = TokenNumber;
         t._vartype = &_varTypes[(int)__float__];
         t.text = str;
         return t;
     }
     // on traite un integer
+    /*
     uint16_t res;
     for (int i = 0; i < str.size(); i++)
     {
         res = 10 * res + (str[i] - 48);
     }
-    // t.uint_value = res;
+    // t.uint_value = res;*/
     t.type = TokenNumber;
     t._vartype = &_varTypes[(int)__uint16_t__];
     t.text = str;
@@ -547,6 +550,14 @@ bool isIn0_9_x_b(unsigned char c)
         return true;
     }
     if (c == 'x')
+    {
+        return true;
+    }
+    if(c>='A' && c<='F')
+    {
+        return true;
+    }
+    if(c>='a' && c<='f')
     {
         return true;
     }

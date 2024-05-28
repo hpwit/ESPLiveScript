@@ -418,7 +418,7 @@ public:
             return;
         }
 
-        else if (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand))
+        else if (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand)|| Match(TokenStar))
         {
             // token *t = current();
             // NodeUnitary g = NodeUnitary();
@@ -427,7 +427,7 @@ public:
 
             next();
 
-            parseFactor();
+            parseExpr();
             if (Error.error == 1)
             {
                 return;
@@ -924,6 +924,11 @@ public:
             Error.error = 0;
             next();
             return;
+        }
+        else if(Match(TokenStar))
+        {
+            printf("*******jkljlkj*******\n");
+            next();
         }
         else if (Match(TokenIdentifier))
         {
