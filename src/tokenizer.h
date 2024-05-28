@@ -434,6 +434,7 @@ token transNumber(string str)
     if (str.find(".") != string::npos)
     {
         // try convert
+        /*
         float f;
         f = 0;
         float div = 10;
@@ -456,7 +457,7 @@ token transNumber(string str)
                     f = 10 * f + (str[i] - 48);
                 }
             }
-        }
+        }*/
         // t.float_value = f;
         t.type = TokenNumber;
         t._vartype = &_varTypes[(int)__float__];
@@ -464,11 +465,12 @@ token transNumber(string str)
         return t;
     }
     // on traite un integer
+    /*
     uint16_t res;
     for (int i = 0; i < str.size(); i++)
     {
         res = 10 * res + (str[i] - 48);
-    }
+    }*/
     // t.uint_value = res;
     t.type = TokenNumber;
     t._vartype = &_varTypes[(int)__uint16_t__];
@@ -543,6 +545,14 @@ bool isIn0_9_x_b(unsigned char c)
         return true;
     }
     if (c == 'b')
+    {
+        return true;
+    }
+    if(c>='A'  && c<='F')
+    {
+        return true;
+    }
+    if(c>='a'  && c<='f')
     {
         return true;
     }

@@ -2710,9 +2710,16 @@ void _visitNodeNumber(NodeToken *nd)
         }
         else
         {
-            int __num = 0;
+            uint32_t __num = 0;
+            if(nd->_token->text.find("x")!=string::npos)
+            {
+            sscanf(nd->_token->text.c_str(), "%x", &__num);
+            }
+            else
+            {
             sscanf(nd->_token->text.c_str(), "%d", &__num);
-            if (__num >= 2048 or __num < -2046)
+            }
+            if (__num >= 2048)
             {
                 header.addAfter(string_format("%s_%d:", "local_var", local_var_num));
                 string val = ".bytes 4";
