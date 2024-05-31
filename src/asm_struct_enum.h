@@ -222,17 +222,26 @@ operandeType *asmInstructionOperandes[] =
         op_neg,
         op_negs,
 };
+operandeType * __l;
+ operandeType __op;
+
 
 string getRegType(asmInstruction instr,int pos)
 {
-  operandeType *l=asmInstructionOperandes[instr];
-  operandeType op=l[pos];
+  if(instr>=19)
+  {
+    printf("to hight\r\n");
+    return " ";
+  }
+
+  __l=asmInstructionOperandes[instr];
+  __op=__l[pos];
   
-    if(op==operandeType::registers)
+    if(__op==operandeType::registers)
     {
     return "a";
     }
-    else if(op==operandeType::floatregisters)
+    else if(__op==operandeType::floatregisters)
     {
      
     return "f";

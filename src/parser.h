@@ -44,7 +44,7 @@ public:
 
     string linepos()
     {
-        string f = string_format(" at line:%d pos:%d", current()->line, current()->pos);
+        string f = string_format(" at line:%d", current()->line);//, current()->pos);
         return f;
     }
     int size()
@@ -167,7 +167,7 @@ public:
     {
         clean();
         clean2();
-
+__MEM();
         Script sc(&division);
 
         _tks.init();
@@ -196,6 +196,8 @@ public:
         token t;
         t.type = TokenEndOfFile;
         list_of_token.push_back(t);
+       // printf("nb token:%d\r\n",list_of_token.size());
+__MEM();
         return parse_create();
     }
     bool parse_c(string *_script)
@@ -598,7 +600,8 @@ public:
             // NodeBinOperator nodeopt;
             _node_token_stack.push_back(current_node->children.back());
             // NodeToken d = current_node->children.back();
-            current_node->children.pop_back();
+           current_node->children.pop_back();
+           //current_node->children.erase( --current_node->children.end());
             current_node = current_node->addChild(NodeBinOperator());
             current_node->addChild(_node_token_stack.back());
             _node_token_stack.pop_back();
@@ -821,6 +824,7 @@ public:
     void parseStatement()
     {
         Error.error = 0;
+       // asPointer =false;
         // resParse result;
         // NodeStatement statement;
         // current_node=current_node->addChild(statement);
@@ -925,11 +929,19 @@ public:
             next();
             return;
         }
+        else if(Match(TokenStar) && Match(TokenIdentifier,1))
+        {
+            _asPointer =true;
+            printf("qsldkqsld\n");
+            next();
+        }
         else if (Match(TokenIdentifier))
         {
             // NodeAssignement nd;
             current_node = current_node->addChild(NodeAssignement());
             getVariable(true);
+
+            _asPointer =false;
             if (Error.error)
             {
                 return;
@@ -1298,7 +1310,7 @@ public:
         current_cntx = current_cntx->addChild(Context(string_format("%d", block_statement_num)));
         block_statement_num++;
 
-        current_node = current_node->addChild(NodeBlockStatement());
+        current_node = current_node->addChild(NodeBlockStatement(current()));
         next();
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {

@@ -71,7 +71,11 @@ public:
     {
         if (__run_handle != NULL)
         {
-
+#ifdef __CONSOLE_ESP32
+            LedOS.pushToConsole("Stopping the program ...",true);
+#else
+            Serial.printf("Stopping the program...\r\n");
+#endif
             if (prekill != NULL)
                 prekill();
             delay(20);
@@ -81,6 +85,11 @@ public:
             delay(10);
             if (postkill != NULL)
                 postkill();
+                #ifdef __CONSOLE_ESP32
+            LedOS.pushToConsole("Program stopped.",true);
+#else
+            Serial.printf("Program stopped.\r\n");
+#endif
         }
     }
 
