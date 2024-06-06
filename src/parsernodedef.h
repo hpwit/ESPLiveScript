@@ -8,11 +8,31 @@ using namespace std;
 #include "string_function.h"
 
 #include "tokenizer.h"
+
+string _numToBytes(uint32_t __num)
+{
+                string val = ".bytes 4";
+                uint8_t c = __num & 0xff;
+                val = val +" "+string_format("%02x", c);
+                // val=val+'A';
+                __num = __num / 256;
+                c = __num & 0xff;
+                val = val +" "+string_format("%02x", c);
+                // val=val+'A';
+                __num = __num / 256;
+                c = __num & 0xff;
+                val = val +" "+string_format("%02x", c);
+                // val=val+'A';
+                __num = __num / 256;
+                c = __num & 0xff;
+                val = val +" "+string_format("%02x", c);
+return val;
+        }
 void __MEM()
 {   
     #ifndef __TEST_DEBUG
     esp_get_free_heap_size(); //in order to do garbage collection ???
-  // printf("size: %u \r\n",esp_get_free_heap_size());
+   //printf("size: %u \r\n",esp_get_free_heap_size());
     #endif;
 }
 // #include "functionlib.h"
@@ -65,6 +85,7 @@ bool isExternal = false;
 bool isPointer = true;
 
 bool isASM = false;
+bool safeMode=false;
 
 list<int> _register_numl;
 
@@ -932,6 +953,8 @@ void _visitNodeProgramNode(NodeToken *nd)
     header.addAfter(".bytes 60");
     header.addAfter("stackr:");
     header.addAfter(".bytes 60");
+    //header.addAfter("__basetime:");
+    //header.addAfter(".bytes 4");
     register_numr.clear();
     register_numl.clear();
     register_numl.push(15);
@@ -1310,6 +1333,20 @@ void _visitNodeStoreExtGlobalVariable(NodeToken *nd)
             translateType(__int__, nd->getChildAtPos(0)->_token->_varType, register_numl.get());
         }
     }
+
+    if(safeMode)
+    {
+        content.addAfter(string_format("l32r a%d,_size_main_%s",regnum,nd->_token->text.c_str()));
+      content.addAfter(string_format("l32i a%d,a%d,0",regnum,regnum));
+     content.addAfter(string_format("bge a%d,a%d,__test_safe_%d",regnum,register_numl.get(),for_if_num));
+       content.addAfter(string_format("movi a10,%d",nd->_token->line));
+       content.addAfter(string_format("mov a11,a%d",regnum));
+       content.addAfter(string_format("mov a12,a%d",register_numl.get()));
+        content.addAfter("callExt a8,error");
+        content.addAfter("retw.n");
+        content.addAfter(string_format("__test_safe_%d:",for_if_num));
+        for_if_num++;
+    }
     content.addAfter(string_format("movExt a%d,%s",
                                    point_regnum, nd->_token->text.c_str()));
     if (nd->isPointer)
@@ -1504,6 +1541,20 @@ void _visitNodeStoreGlobalVariable(NodeToken *nd)
         nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
         register_numl.pop();
         globalType.pop();
+    }
+
+    if(safeMode)
+    {
+        content.addAfter(string_format("l32r a%d,_size_%s",point_regnum,nd->_token->text.c_str()));
+      content.addAfter(string_format("l32i a%d,a%d,0",point_regnum,point_regnum));
+     content.addAfter(string_format("bge a%d,a%d,__test_safe_%d",point_regnum,register_numl.get(),for_if_num));
+       content.addAfter(string_format("movi a10,%d",nd->_token->line));
+       content.addAfter(string_format("mov a11,a%d",point_regnum));
+       content.addAfter(string_format("mov a12,a%d",register_numl.get()));
+        content.addAfter("callExt a8,error");
+        content.addAfter("retw.n");
+        content.addAfter(string_format("__test_safe_%d:",for_if_num));
+        for_if_num++;
     }
     content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->_token->text.c_str()));
     if (nd->isPointer && nd->children.size() > 0)
@@ -1808,6 +1859,18 @@ public:
     }
 };
 
+void  _visitNodeDefExtGlobalVariable(NodeToken *nd)
+{
+if(safeMode)
+{
+    if(nd->isPointer)
+    {
+        header.addAfter(string_format("_size_%s:",nd->_token->text.c_str()));
+        header.addAfter(_numToBytes(nd->_total_size/nd->_token->_vartype->total_size).c_str());
+    }
+}
+}
+
 class NodeDefExtGlobalVariable : public NodeToken
 
 {
@@ -1817,7 +1880,7 @@ public:
     {
         _nodetype = defExtGlobalVariableNode;
         _token = NULL;
-        // visitNode = visitNodeDefExtGlobalVariable;
+        visitNode = _visitNodeDefExtGlobalVariable;
     }
     NodeDefExtGlobalVariable(NodeToken nd)
     {
@@ -1825,7 +1888,7 @@ public:
         _token = nd._token;
         isPointer = nd.isPointer;
         _total_size = nd._total_size;
-        // visitNode = visitNodeDefExtGlobalVariable;
+         visitNode = _visitNodeDefExtGlobalVariable;
     }
 };
 string _data_sav;
@@ -1834,6 +1897,14 @@ void _visitNodeDefGlobalVariable(NodeToken *nd)
     ////printf("in visitNodeDefGlobalVariable\n");
     string f = "";
     string h = "";
+    if(safeMode)
+{
+    if(nd->isPointer)
+    {
+        header.addAfter(string_format("_size_%s:",nd->_token->text.c_str()));
+        header.addAfter(_numToBytes(nd->_total_size/nd->_token->_vartype->total_size).c_str());
+    }
+}
     header.addAfter(string_format("%s:", nd->_token->text.c_str()));
     if (nd->children.size() == 0)
     {
@@ -2485,6 +2556,18 @@ void _visitNodeOperator(NodeToken *nd)
         content.addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get()));
         // return;
         break;
+    case TokenShiftLeft:
+            //content.addAfter("movi a8,32");
+             //content.addAfter(string_format("sub a%d,a8,a%d",register_numr.get(),register_numr.get()).c_str());
+            content.addAfter(string_format("ssl a%d",register_numr.get()).c_str());
+            content.addAfter(string_format("sll a%d,a%d",register_numl.get(),register_numl.get()).c_str());
+    break;
+     case TokenShiftRight:
+           // content.addAfter("movi a8,32");
+            // content.addAfter(string_format("sub a%d,a8,a%d",register_numr.get(),register_numr.get()).c_str());
+            content.addAfter(string_format("wsr a%d,3",register_numr.get()).c_str());
+            content.addAfter(string_format("srl a%d,a%d",register_numl.get(),register_numl.get()).c_str());
+    break;
     case TokenSubstraction:
         if (ff)
         {

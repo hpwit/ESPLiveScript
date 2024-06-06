@@ -175,6 +175,9 @@ enum KeywordType
     KeywordFrom,
     KeywordASM,
     KeywordDefine,
+    KeywordSafeMode,
+        KeywordHeader,
+        KeywordContent
 };
 
 KeywordType __keywordTypes[] =
@@ -199,6 +202,9 @@ KeywordType __keywordTypes[] =
         KeywordFrom,
         KeywordASM,
         KeywordDefine,
+        KeywordSafeMode,
+        KeywordHeader,
+        KeywordContent
 };
 string keywordTypeNames[] =
     {
@@ -222,13 +228,17 @@ string keywordTypeNames[] =
         "KeywordImport",
         "KeywordFrom",
         "KeywordASM",
+        "KeywordDefine",
+        "KeywordSafeMode",
+        "KeywordHeader",
+        "KeywordContent",
 #endif
 
 };
 
-#define nb_keywords 20
+#define nb_keywords 23
 #define nb_typeVariables 9
-string keyword_array[nb_keywords] = {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "char", "external", "for", "if", "then", "else", "while", "return", "import", "from", "__ASM__", "define"};
+string keyword_array[nb_keywords] = {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "char", "external", "for", "if", "then", "else", "while", "return", "import", "from", "__ASM__", "define","safe_mode","_header_","_content_"};
 bool __isBlockComment = false;
 enum tokenType
 {
@@ -271,6 +281,8 @@ enum tokenType
     TokenStartBlockComment,
     TokenEndBlockComment,
     TokenNegation,
+    TokenShiftLeft,
+    TokenShiftRight
 
 };
 
@@ -314,7 +326,9 @@ string tokenNames[] = {
     "TokenLineComment",
     "TokenStartBlockComment",
     "TokenEndBlockComment",
-    "TokenNegation"
+    "TokenNegation",
+    "TokenShiftLeft",
+    "TokenShiftRight"
 #endif
 };
 
@@ -379,6 +393,9 @@ const char *tokenFormat[] = {
     termColor.Grey,     // TokenLineComment
     termColor.Grey,     //  TokenStartBlockComment
     termColor.Grey,     // TokenEndBlockComment
+    termColor.BWhite,   //TokenNegation
+    termColor.BWhite,   //TokenShiftLeft
+    termColor.BWhite,   //TokenShiftRight
 };
 
 const char *KeywordTypeFormat[] =
@@ -394,8 +411,11 @@ const char *KeywordTypeFormat[] =
         termColor.LMagenta, // KeyWordImport
         termColor.LMagenta, // KeyWordFrom
         termColor.LMagenta, // KeyWordASM
-        termColor.LMagenta, // KeyWordASM
-};
+        termColor.LMagenta, // KeyWordefine
+        termColor.BCyan, //KeywordsafeMmode
+        termColor.BCyan, //KeywordHeader
+        termColor.BCyan, //KeywordContent
+        };
 
 #endif
 typedef struct
@@ -828,6 +848,18 @@ void tokenizer(Script *script, bool update)
                 list_of_token.insert(_index_token, t);
                 continue;
             }
+            else if(c2=='<')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenShiftLeft;
+                if (_for_display)
+                t.text = "<<";
+                t.line = _token_line;
+                //t.pos = pos;
+                list_of_token.insert(_index_token, t);
+                continue;
+            }
             else
             {
                 script->previousChar();
@@ -852,6 +884,18 @@ void tokenizer(Script *script, bool update)
                 t.type = TokenMoreOrEqualThan;
                 if (_for_display)
                 t.text = ">=";
+                t.line = _token_line;
+                //t.pos = pos;
+                list_of_token.insert(_index_token, t);
+                continue;
+            }
+            else if (c2 == '>')
+            {
+                token t;
+                t._vartype = NULL;
+                t.type = TokenShiftRight;
+                if (_for_display)
+                t.text = ">>";
                 t.line = _token_line;
                 //t.pos = pos;
                 list_of_token.insert(_index_token, t);

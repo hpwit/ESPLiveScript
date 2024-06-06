@@ -90,6 +90,14 @@ __ASM__ void memset(uint8_t *obj,uint8_t val, uint16_t size )\n\
    \"retw.n\" \n\
 }";
 
+string _millis="\
+__ASM__ uint32_t millis()\n\
+{\n\
+\"rsr a14,234\" \n\
+\"l32r a13,__base_millis\"\n\
+}\n\
+";
+
 string _fill="\
 __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_iteration) \n\
 {\n\
@@ -114,10 +122,11 @@ __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_itera
    \"retw.n\" \n\
 }";
 
+string empty_header="";
 int stdlib_size=4;
 string stdlib[]={"rand","copy","memset","fill"};
  string * _stdlib[]={&_rand,&_copycode,&_memset,&_fill};
-
+string * _stdlib_header[]={&empty_header,&empty_header,&empty_header,&empty_header};
 
 int findLibFunction(string name)
 {

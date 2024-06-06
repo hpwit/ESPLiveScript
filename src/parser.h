@@ -27,7 +27,7 @@ void pushToConsole(string str)
 #ifndef __TEST_DEBUG
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
-#include "soc/rtc_wdt.h"
+//#include "soc/rtc_wdt.h"
 #endif
 
 #include "parsernodedef.h"
@@ -99,6 +99,7 @@ public:
         nb_argument = 0;
         _tks.init();
         current_cntx = &main_cntx;
+        safeMode=false;
 
         parseProgram();
         buildParents(&program);
@@ -196,8 +197,12 @@ __MEM();
         token t;
         t.type = TokenEndOfFile;
         list_of_token.push_back(t);
+        #ifdef __CONSOLE_ESP32
+           // _script->clear();
+        #endif
        // printf("nb token:%d\r\n",list_of_token.size());
 __MEM();
+
         return parse_create();
     }
     bool parse_c(string *_script)
@@ -637,7 +642,7 @@ __MEM();
         {
             return;
         }
-        while (Match(TokenAddition) || Match(TokenSubstraction))
+        while (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenShiftLeft) || Match(TokenShiftRight))
         {
 
             // token *op = current();
@@ -932,7 +937,7 @@ __MEM();
         else if(Match(TokenStar) && Match(TokenIdentifier,1))
         {
             _asPointer =true;
-            printf("qsldkqsld\n");
+            //printf("qsldkqsld\n");
             next();
         }
         else if (Match(TokenIdentifier))
@@ -1599,7 +1604,12 @@ __MEM();
         Error.error = 0;
         while (Match(TokenEndOfFile) == false)
         {
-            if (Match(TokenKeyword) && MatchKeyword(KeywordImport))
+            if(Match(TokenKeyword) && MatchKeyword(KeywordSafeMode))
+            {
+                safeMode=true;
+                next();
+            }
+            else if (Match(TokenKeyword) && MatchKeyword(KeywordImport))
             {
                 next();
                 if (Match(TokenIdentifier))
@@ -1904,7 +1914,7 @@ void kill_cEsc(Console *cons)
 void parseasm(Console *cons, vector<string> args)
 {
     bool othercore = false;
-    executecmd = createExectutable(&cons->script, false);
+    executecmd = createExectutable(&cons->script, true);
     // strcompile = "";
     p.clean2();
     // //Serial.printf(config.ESC_RESET);

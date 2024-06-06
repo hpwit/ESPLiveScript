@@ -537,9 +537,25 @@ if (sp.opcde.compare("rsr") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_rsr, 3, bin_rsr);
   }
+  if (sp.opcde.compare("wsr") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_rsr, 3, bin_wsr);
+  }
   if (sp.opcde.compare("mov") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);
+  }
+  if (sp.opcde.compare("sll") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_mov, 3, bin_sll);
+  }
+   if (sp.opcde.compare("ssl") == 0)
+  {
+    return parseOperandes(sp.operandes, 1, op_ssl, 3, bin_ssl);
+  }
+    if (sp.opcde.compare("srl") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_mov, 3, bin_srl);
   }
   if (sp.opcde.compare("mull") == 0)
   {
@@ -1304,8 +1320,9 @@ executable createBinary(list<result_parse_line> *asm_parsed)
   {
     data=NULL;
   }
-
-  uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 8) * 8 + 8, MALLOC_CAP_32BIT);
+//MALLOC_CAP_32BIT ||
+ // uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 8) * 8 + 8,  MALLOC_CAP_EXEC );
+ uint32_t *exec = (uint32_t *)heap_caps_malloc( (intr_size / 8) * 8 + 8,  MALLOC_CAP_EXEC );
   int h = 0;
  for ( list<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {

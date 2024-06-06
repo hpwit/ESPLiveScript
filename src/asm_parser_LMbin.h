@@ -11,12 +11,30 @@ uint32_t bin_rsr(uint32_t *values)
     return 0x0 + ((values[0] << 4) & 0xF0) + ((values[1] << 8) & 0xFF00) +0x030000;
 }
 
+uint32_t bin_wsr(uint32_t *values)
+{
+    return 0x0 + ((values[0] << 4) & 0xF0) + ((values[1] << 8) & 0xFF00) +0x130000;
+}
+
 uint32_t bin_mov_n(uint32_t *values)
 {
     return 0xd + ((values[0] << 4) & 0xF0) + ((values[1] << 8) & 0xF00);
 }
 
+uint32_t bin_sll(uint32_t *values)
+{
+    return ((values[0] << 12) & 0xF000) + ((values[1] << 8) & 0xF00) + 0xa10000;
+}
+operandeType op_ssl[1]={operandeType::registers};
+uint32_t bin_ssl(uint32_t *values)
+{
+    return  ((values[0] << 8) & 0xF00) +0x401000;
+}
 
+uint32_t bin_srl(uint32_t *values)
+{
+    return ((values[0] << 12) & 0xF000) + ((values[1] << 4) & 0xF0) + 0x910000;
+}
 uint32_t bin_mov(uint32_t *values)
 {
     return ((values[0] << 12) & 0xF000) + ((values[1] << 8) & 0xF00) + ((values[1] << 4) & 0xF0) + 0x200000;
