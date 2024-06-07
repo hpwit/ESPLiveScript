@@ -532,6 +532,13 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
     ps.calculateOfssetJump = jump_call8;
     return ps;
   }
+    if (sp.opcde.compare("call12") == 0)
+  {
+    result_parse_line ps = parseOperandes(sp.operandes, 1, op_call8, 3, bin_call12);
+    ps.op = opCodeType::jump_32aligned;
+    ps.calculateOfssetJump = jump_call8;
+    return ps;
+  }
 
 if (sp.opcde.compare("rsr") == 0)
   {

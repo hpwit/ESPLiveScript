@@ -79,6 +79,7 @@ public:
     {
         return _tks.Match(tt, index);
     }
+    /*
     bool MatchKeyword(KeywordType t)
     {
         return _tks.MatchKeyword(t);
@@ -87,7 +88,7 @@ public:
     {
         return _tks.MatchKeyword(t, offset);
     }
-
+*/
     void parse()
     {
         root._nodetype = programNode;
@@ -404,13 +405,20 @@ __MEM();
         Error.error = 0;
         // printf("entering factor line:%d pos:%d\n",current()->line,current()->pos);
         // token *_f = current();
+        if(Match(TokenStar) && Match(TokenIdentifier,1))
+        {
+            _asPointer =true;
+            //printf("qsldkqsld\n");
+            next();
+           // return;
+        }
         if (current()->type == TokenEndOfFile)
         {
 
             next();
             return;
         }
-
+       
         else if (Match(TokenNumber))
         {
 
@@ -447,7 +455,7 @@ __MEM();
             return;
         }
 
-        else if (Match(TokenOpenParenthesis) && Match(TokenKeyword, 1) && MatchKeyword(KeywordVarType, 1) && Match(TokenCloseParenthesis, 2) && Match(TokenOpenParenthesis, 3))
+        else if (Match(TokenOpenParenthesis) && Match(TokenKeywordVarType, 1)  && Match(TokenCloseParenthesis, 2) && Match(TokenOpenParenthesis, 3))
         {
             // on a (float) ....;
             next();
@@ -518,7 +526,7 @@ __MEM();
             return;
         }
 
-        else if (Match(TokenKeyword) && MatchKeyword(KeywordVarType) && Match(TokenOpenParenthesis, 1))
+        else if ( Match(TokenKeywordVarType) && Match(TokenOpenParenthesis, 1))
         {
             // on tente CRGB()
             // token *typeVar = current();
@@ -597,7 +605,7 @@ __MEM();
         {
             return;
         }
-        while (Match(TokenStar) || Match(TokenSlash) || Match(TokenModulo))
+        while (Match(TokenStar) || Match(TokenSlash) || Match(TokenModulo) || Match(TokenKeywordOr) || Match(TokenKeywordAnd)|| Match(TokenPower))
         {
             // token *op = current();
             sav_t.push_back(current());
@@ -841,7 +849,7 @@ __MEM();
             next();
             return;
         }
-        else if (Match(TokenKeyword) && MatchKeyword(KeywordReturn))
+        else if (Match(TokenKeywordReturn))
         {
             next();
             if (Match(TokenSemicolon))
@@ -984,7 +992,7 @@ __MEM();
             }
         }
 
-        else if (MatchKeyword(KeywordElse) && Match(TokenKeyword))
+        else if ( Match(TokenKeywordElse))
         {
             // on tente le for(){}
             // token *fort = current();
@@ -1023,7 +1031,7 @@ __MEM();
             //  current_node=current_node->parent;
             return;
         }
-        else if (MatchKeyword(KeywordWhile) && Match(TokenKeyword))
+        else if (Match(TokenKeywordWhile))
         {
             // on tente le for(){}
             sav_t.push_back(current());
@@ -1083,7 +1091,7 @@ __MEM();
                 return;
             }
         }
-        else if (MatchKeyword(KeywordIf) && Match(TokenKeyword))
+        else if ( Match(TokenKeywordIf))
         {
             // on tente le for(){}
             // token *fort=current();
@@ -1143,7 +1151,7 @@ __MEM();
                 return;
             }
         }
-        else if (MatchKeyword(KeywordFor) && Match(TokenKeyword))
+        else if (Match(TokenKeywordFor))
         {
             // on tente le for(){}
             // token *fort=current();
@@ -1215,7 +1223,7 @@ __MEM();
             }
         }
 
-        else if (Match(TokenKeyword) && MatchKeyword(KeywordVarType))
+        else if (Match(TokenKeywordVarType) )
         {
             // printf("trying to create %s\n", current()->text.c_str());
             parseType();
@@ -1491,13 +1499,13 @@ __MEM();
             isExternal = true;
             next();
         }
-        else if (Match(TokenKeyword) && MatchKeyword(KeywordASM))
+        else if (Match(TokenKeywordASM) )
         {
             isASM = true;
             next();
         }
 
-        if (Match(TokenKeyword) && MatchKeyword(KeywordVarType))
+        if (Match(TokenKeywordVarType))
         {
             _nd._nodetype = typeNode;
             _nd._token = current();
@@ -1604,19 +1612,19 @@ __MEM();
         Error.error = 0;
         while (Match(TokenEndOfFile) == false)
         {
-            if(Match(TokenKeyword) && MatchKeyword(KeywordSafeMode))
+            if(Match(TokenKeywordSafeMode) )
             {
                 safeMode=true;
                 next();
             }
-            else if (Match(TokenKeyword) && MatchKeyword(KeywordImport))
+            else if (Match(TokenKeywordImport) )
             {
                 next();
                 if (Match(TokenIdentifier))
                 {
                     sav_t.push_back(current());
                     next();
-                    if (Match(TokenKeyword) && MatchKeyword(KeywordFrom))
+                    if (Match(TokenKeywordFrom))
                     {
                         if (Match(TokenIdentifier))
                         {
@@ -1859,42 +1867,10 @@ void run(Console *cons, vector<string> args)
         LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
     }
-    else
-    {
+   
         SCExecutable._run(args, true);
-    }
-    /*
-        if(p.run())
-        {
-    LedOS.pushToConsole("Execution on going CTRL + k to stop");
-        }
-        else
-        {
-   LedOS.pushToConsole("Nothing to execute.");
-        }
-        */
-    /*
- if (exeExist == true)
- {
-     // _push(termColor.Cyan);
-     // //Serial.printf(config.ENDLINE);
-     // Serial.print("Executing ...\r\n");
-     _exe_args df;
-     df.args = args;
-     df.exe = executecmd;
-     // executeBinary("main",executecmd);
-     xTaskCreateUniversal(_run_task, "_run_task", 4096 * 2, &df, 3, (TaskHandle_t *)&__run_handle, 0);
-
-     // xTaskCreate(_udp_task_subrarnet, "_udp_task_subrarnet", 4096, &df, CONFIG_ARDUINO_UDP_TASK_PRIORITY, (TaskHandle_t *)&_udp_task_handle);
-
-     // delay(10);
-    LedOS.pushToConsole("Execution on going CTRL + k to stop", true);
-     // //Serial.printf(config.ESC_RESET);
- }
- else
- {
-    LedOS.pushToConsole("Nothing to execute.", true);
- }*/
+    
+    
 }
 void kill_cEsc(Console *cons)
 {
@@ -1969,79 +1945,7 @@ void parse_c(Console *cons, vector<string> args)
         if (args[args.size() - 1].compare("&") == 0)
             othercore = true;
     }
-    /*
-        p.clean();
-        p.clean2();
-
-        Script sc(&division);
-
-        _tks.init();
-        tokenizer(&sc);
-        list_of_token.pop_back();
-
-
-        _token_line = 1;
-
-        for (string s :LedOS.script)
-        {
-            // string g=s+'\0';
-            Script sc(&s);
-            _tks.init();
-            tokenizer(&sc, false);
-            _token_line++;
-        }
-         _index_token=list_of_token.begin();
-        for(int i:add_on)
-        {
-
-            Script sc(_stdlib[i]);
-            _tks.init();
-            tokenizer(&sc, false);
-        }
-        //LedOS.script.clear();
-        token t;
-        t.type = TokenEndOfFile;
-        list_of_token.push_back(t);
-       LedOS.pushToConsole("***********TOKENISATION DONE***********");
-
-        p.parse();
-        if (Error.error)
-        {
-
-            while (p.Match(TokenEndOfFile) == false)
-            {
-                p.next();
-            }
-            p.clean();
-            p.clean2();
-           LedOS.pushToConsole(Error.error_message.c_str(), true);
-        }
-        else
-        {
-            // prettyPrint(program, "");
-           LedOS.pushToConsole("***********PARSING DONE*********");
-
-            program.visitNode(&program);
-
-           LedOS.pushToConsole("***********COMPILING DONE*********");
-            // p.cleanint();
-            p.clean();
-
-           LedOS.pushToConsole("***********AFTER CLEAN*********");
-            // printf("%d\n",_content.size());
-            int s = _header.size();
-            for (int i = 0; i < s; i++)
-            {
-
-                _content.push_front(_header.back());
-                _header.pop_back();
-            }
-           LedOS.pushToConsole("***********CREATE EXECUTABLE*********");
-            executecmd = createExectutable(&_content, __parser_debug);
-            // strcompile = "";
-            p.clean2();
-            // //Serial.printf(config.ESC_RESET);
-    */
+   
     if (p.parse_c(&cons->script))
     {
 

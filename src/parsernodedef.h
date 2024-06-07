@@ -2618,6 +2618,35 @@ void _visitNodeOperator(NodeToken *nd)
         content.addAfter(string_format("remu a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
         //  return;
         break;
+    case TokenPower:
+    {
+        //comment supprimer ce qu'il y a avant
+       int __num= 0;
+       if(nd->parent->getChildAtPos(2)->_nodetype ==numberNode)
+       {
+
+
+        sscanf(nd->parent->getChildAtPos(2)->_token->text.c_str(), "%d", &__num);
+
+        if(ff)
+        {
+           content.addAfter(string_format("mov.s f10,f%d",register_numl.get()));
+            asmInstr = muls;
+        }
+        else
+        {
+             content.addAfter(string_format("movi a10,a%d",register_numl.get()));
+             asmInstr = mull;
+        }
+        for(int k=1;k<__num;k++)
+        {
+          content.addAfter(string_format("%s %s%d,%s%d,%s10", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(),  getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str()));
+
+        }
+
+       }
+    }
+    break;
     case TokenNegation:
         if (ff)
         {
@@ -2714,8 +2743,16 @@ void _visitNodeBinOperator(NodeToken *nd)
     register_numl.displaystack();
     register_numl.duplicate();
     // register_numr.duplicate();
+    if(nd->getChildAtPos(1)->_token->type != TokenPower)
+    {
     if (nd->getChildAtPos(2)->visitNode != NULL)
         nd->getChildAtPos(2)->visitNode(nd->getChildAtPos(2));
+    }
+    else
+    {
+        content.addAfter("");
+        content.sp.push(content.get());
+    }
     // register_numr.pop();
     register_numl.swap();
     register_numr.push(register_numl.pop());

@@ -406,6 +406,10 @@ uint32_t bin_call8(uint32_t *values)
 {
     return 0x25;
 }
+uint32_t bin_call12(uint32_t *values)
+{
+    return 0x35;
+}
 uint32_t jump_call8(uint32_t value, uint32_t current_address, uint32_t destination_address)
 {
     if ((((destination_address) / 4) * 4) != destination_address)
