@@ -1410,7 +1410,7 @@ void _visitNodeGlobalVariable(NodeToken *nd)
     varType *v = nd->_token->_vartype;
     int start = nd->stack_pos;
     uint8_t regnum = 1;
-    if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
+    if (nd->asPointer or (nd->isPointer))// && nd->children.size() == 0))
         point_regnum++;
     if (nd->isPointer)
     {
@@ -1460,7 +1460,7 @@ void _visitNodeGlobalVariable(NodeToken *nd)
     //    res.register_numl=register_numl;
     // res.register_numr=register_numr;
     register_numl.decrease();
-    if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
+    if (nd->asPointer or (nd->isPointer))// && nd->children.size() == 0))
         point_regnum--;
     return;
 }
@@ -1500,7 +1500,7 @@ void _visitNodeStoreGlobalVariable(NodeToken *nd)
     varType *v = nd->_token->_vartype;
     int start = nd->stack_pos;
     uint8_t regnum = 1;
-    if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
+    if (nd->asPointer or (nd->isPointer))// && nd->children.size() == 0))
         point_regnum++;
     if (nd->isPointer)
     {
@@ -1569,7 +1569,7 @@ void _visitNodeStoreGlobalVariable(NodeToken *nd)
     content.sp.pop();
     //  point_regnum++;
     register_numl.pop();
-    if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
+    if (nd->asPointer or (nd->isPointer))// && nd->children.size() == 0))
         point_regnum--;
     // point_regnum--;
     //    res.register_numl=register_numl;
@@ -2934,7 +2934,7 @@ void _visitNodeNumber(NodeToken *nd)
             content.addAfter(string_format("l32r a%d,%s_%d", point_regnum, "local_var", local_var_num));
             content.addAfter(string_format("lsi f%d,a%d,0", register_numl.get(), point_regnum));
             content.sp.push(content.get());
-            // point_regnum--;
+            point_regnum--;
             local_var_num++;
             register_numl.decrease();
         }
@@ -2973,7 +2973,7 @@ void _visitNodeNumber(NodeToken *nd)
                 content.addAfter(string_format("l32r a%d,%s_%d", point_regnum, "local_var", local_var_num));
                 content.addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), point_regnum));
                 content.sp.push(content.get());
-                // point_regnum--;
+                point_regnum--;
                 local_var_num++;
                 register_numl.decrease();
             }
