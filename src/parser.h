@@ -10,9 +10,9 @@ void pushToConsole(string str, bool force)
 #else
 #ifndef __TEST_DEBUG
     Serial.printf("%s\r\n", str.c_str());
-    #else
+#else
     printf("%s\r\n", str.c_str());
-    #endif
+#endif
 #endif
 }
 
@@ -27,7 +27,7 @@ void pushToConsole(string str)
 #ifndef __TEST_DEBUG
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
-//#include "soc/rtc_wdt.h"
+// #include "soc/rtc_wdt.h"
 #endif
 
 #include "parsernodedef.h"
@@ -44,7 +44,7 @@ public:
 
     string linepos()
     {
-        string f = string_format(" at line:%d", current()->line);//, current()->pos);
+        string f = string_format(" at line:%d", current()->line); //, current()->pos);
         return f;
     }
     int size()
@@ -100,7 +100,7 @@ public:
         nb_argument = 0;
         _tks.init();
         current_cntx = &main_cntx;
-        safeMode=false;
+        safeMode = false;
 
         parseProgram();
         buildParents(&program);
@@ -141,7 +141,7 @@ public:
                 _content.push_front(_header.back());
                 _header.pop_back();
             }
-            
+
 #ifndef __TEST_DEBUG
             pushToConsole("***********CREATE EXECUTABLE*********");
             executecmd = createExectutable(&_content, __parser_debug);
@@ -169,7 +169,7 @@ public:
     {
         clean();
         clean2();
-__MEM();
+        __MEM();
         Script sc(&division);
 
         _tks.init();
@@ -198,11 +198,11 @@ __MEM();
         token t;
         t.type = TokenEndOfFile;
         list_of_token.push_back(t);
-        #ifdef __CONSOLE_ESP32
-           // _script->clear();
-        #endif
-       // printf("nb token:%d\r\n",list_of_token.size());
-__MEM();
+#ifdef __CONSOLE_ESP32
+        // _script->clear();
+#endif
+        // printf("nb token:%d\r\n",list_of_token.size());
+        __MEM();
 
         return parse_create();
     }
@@ -405,12 +405,12 @@ __MEM();
         Error.error = 0;
         // printf("entering factor line:%d pos:%d\n",current()->line,current()->pos);
         // token *_f = current();
-        if(Match(TokenStar) && Match(TokenIdentifier,1))
+        if (Match(TokenStar) && Match(TokenIdentifier, 1))
         {
-            _asPointer =true;
-            //printf("qsldkqsld\n");
+            _asPointer = true;
+            // printf("qsldkqsld\n");
             next();
-           // return;
+            // return;
         }
         if (current()->type == TokenEndOfFile)
         {
@@ -418,7 +418,7 @@ __MEM();
             next();
             return;
         }
-       
+
         else if (Match(TokenNumber))
         {
 
@@ -433,7 +433,7 @@ __MEM();
             return;
         }
 
-        else if (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand))
+        else if (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand) || Match(TokenKeywordFabs) || Match(TokenKeywordAbs))
         {
             // token *t = current();
             // NodeUnitary g = NodeUnitary();
@@ -455,7 +455,7 @@ __MEM();
             return;
         }
 
-        else if (Match(TokenOpenParenthesis) && Match(TokenKeywordVarType, 1)  && Match(TokenCloseParenthesis, 2) && Match(TokenOpenParenthesis, 3))
+        else if (Match(TokenOpenParenthesis) && Match(TokenKeywordVarType, 1) && Match(TokenCloseParenthesis, 2) && Match(TokenOpenParenthesis, 3))
         {
             // on a (float) ....;
             next();
@@ -526,7 +526,7 @@ __MEM();
             return;
         }
 
-        else if ( Match(TokenKeywordVarType) && Match(TokenOpenParenthesis, 1))
+        else if (Match(TokenKeywordVarType) && Match(TokenOpenParenthesis, 1))
         {
             // on tente CRGB()
             // token *typeVar = current();
@@ -582,16 +582,20 @@ __MEM();
             {
                 // resParse res;
                 Error.error = 1;
-                Error.error_message = string_format(" ecpected ( %s", linepos().c_str());
+                Error.error_message = string_format(" expected ( %s", linepos().c_str());
                 next();
                 return;
             }
         }
-
+        else if (Match(TokenString))
+        {
+            current_node->addChild(NodeString(current()));
+            next();
+            return;
+        }
         Error.error = 1;
+        Error.error_message = string_format(" impossible to find Token %s", linepos().c_str());
         next();
-        Error.error_message = string_format(" impossible to find %s", linepos().c_str());
-
         return;
     }
 
@@ -605,7 +609,7 @@ __MEM();
         {
             return;
         }
-        while (Match(TokenStar) || Match(TokenSlash) || Match(TokenModulo) || Match(TokenKeywordOr) || Match(TokenKeywordAnd)|| Match(TokenPower))
+        while (Match(TokenStar) || Match(TokenSlash) || Match(TokenModulo) || Match(TokenKeywordOr) || Match(TokenKeywordAnd) || Match(TokenPower))
         {
             // token *op = current();
             sav_t.push_back(current());
@@ -613,8 +617,8 @@ __MEM();
             // NodeBinOperator nodeopt;
             _node_token_stack.push_back(current_node->children.back());
             // NodeToken d = current_node->children.back();
-           current_node->children.pop_back();
-           //current_node->children.erase( --current_node->children.end());
+            current_node->children.pop_back();
+            // current_node->children.erase( --current_node->children.end());
             current_node = current_node->addChild(NodeBinOperator());
             current_node->addChild(_node_token_stack.back());
             _node_token_stack.pop_back();
@@ -837,7 +841,7 @@ __MEM();
     void parseStatement()
     {
         Error.error = 0;
-       // asPointer =false;
+        // asPointer =false;
         // resParse result;
         // NodeStatement statement;
         // current_node=current_node->addChild(statement);
@@ -848,6 +852,52 @@ __MEM();
             current_node->addChild(NodeString(current()));
             next();
             return;
+        }
+        else if(Match(TokenKeywordBreak))
+        {
+            string c=findForWhile();
+            if(c.compare("__")==0)
+            {
+                Error.error = 1;
+                Error.error_message = string_format("nor For ar while found for break %s", linepos().c_str());
+                return;  
+            }
+            next();
+            if (Match(TokenSemicolon))
+            {
+                current_node->addChild(NodeBreak(c));
+                next();
+                return;
+            }
+            else
+            {
+                Error.error = 1;
+                Error.error_message = string_format("d Expected ; %s", linepos().c_str());
+                return;             
+            }
+        }
+        else if(Match(TokenKeywordContinue))
+        {
+            string c=findForWhile();
+            if(c.compare("__")==0)
+            {
+                Error.error = 1;
+                Error.error_message = string_format("nor For ar while found for continue %s", linepos().c_str());
+                return;  
+            }
+            next();
+            if (Match(TokenSemicolon))
+            {
+                current_node->addChild(NodeContinue(c));
+                next();
+                return;
+            }
+            else
+            {
+                Error.error = 1;
+                Error.error_message = string_format("d Expected ; %s", linepos().c_str());
+                return;             
+            }
         }
         else if (Match(TokenKeywordReturn))
         {
@@ -942,10 +992,10 @@ __MEM();
             next();
             return;
         }
-        else if(Match(TokenStar) && Match(TokenIdentifier,1))
+        else if (Match(TokenStar) && Match(TokenIdentifier, 1))
         {
-            _asPointer =true;
-            //printf("qsldkqsld\n");
+            _asPointer = true;
+            // printf("qsldkqsld\n");
             next();
         }
         else if (Match(TokenIdentifier))
@@ -954,7 +1004,7 @@ __MEM();
             current_node = current_node->addChild(NodeAssignement());
             getVariable(true);
 
-            _asPointer =false;
+            _asPointer = false;
             if (Error.error)
             {
                 return;
@@ -992,7 +1042,7 @@ __MEM();
             }
         }
 
-        else if ( Match(TokenKeywordElse))
+        else if (Match(TokenKeywordElse))
         {
             // on tente le for(){}
             // token *fort = current();
@@ -1091,7 +1141,7 @@ __MEM();
                 return;
             }
         }
-        else if ( Match(TokenKeywordIf))
+        else if (Match(TokenKeywordIf))
         {
             // on tente le for(){}
             // token *fort=current();
@@ -1223,7 +1273,7 @@ __MEM();
             }
         }
 
-        else if (Match(TokenKeywordVarType) )
+        else if (Match(TokenKeywordVarType))
         {
             // printf("trying to create %s\n", current()->text.c_str());
             parseType();
@@ -1499,7 +1549,7 @@ __MEM();
             isExternal = true;
             next();
         }
-        else if (Match(TokenKeywordASM) )
+        else if (Match(TokenKeywordASM))
         {
             isASM = true;
             next();
@@ -1586,6 +1636,24 @@ __MEM();
                     return;
                 }
             }
+            else if(Match(TokenCloseBracket))
+            {
+                 var.isPointer = true;
+                        var._nodetype = defGlobalVariableNode; // we can't have arrays in the stack
+                       // var._total_size = stringToInt(num->text);
+                        next();
+                        // resParse result;
+                        Error.error = 0;
+                        nodeTokenList.push(var);
+                        return;
+            }
+            else
+            {
+                    Error.error = 1;
+                    Error.error_message = string_format("expecting an integer %s or ]", linepos().c_str());
+                    next();
+                    return;
+            }
         }
         else
         {
@@ -1612,12 +1680,12 @@ __MEM();
         Error.error = 0;
         while (Match(TokenEndOfFile) == false)
         {
-            if(Match(TokenKeywordSafeMode) )
+            if (Match(TokenKeywordSafeMode))
             {
-                safeMode=true;
+                safeMode = true;
                 next();
             }
-            else if (Match(TokenKeywordImport) )
+            else if (Match(TokenKeywordImport))
             {
                 next();
                 if (Match(TokenIdentifier))
@@ -1701,7 +1769,7 @@ __MEM();
                             NodeDefExtGlobalVariable var = NodeDefExtGlobalVariable(nd);
                             NodeToken t = nodeTokenList.pop();
                             copyPrty(&t, &var);
-                            current_node= program.addChild(var);
+                            current_node = program.addChild(var);
                             current_cntx->addVariable(var);
                             isExternal = false;
                         }
@@ -1710,53 +1778,71 @@ __MEM();
                             NodeDefGlobalVariable var = NodeDefGlobalVariable(nd);
                             NodeToken t = nodeTokenList.pop();
                             copyPrty(&t, &var);
-                            current_node= program.addChild(var);
+                            current_node = program.addChild(var);
                             current_cntx->addVariable(var);
                         }
                         if (Match(TokenSemicolon))
                         {
-                            current_node=current_node->parent;
+                            current_node = current_node->parent;
                             next();
                         }
-                        else if( Match(TokenEqual) &&  Match(TokenOpenCurlyBracket,1))
+                        else if(Match(TokenEqual) && Match(TokenString,1))
                         {
+                            next();
+                            current_node->addChild(NodeString(current()));
+                            next();
+                             if (!Match(TokenSemicolon))
+                            {
+
+                                Error.error = 1;
+                                Error.error_message = string_format("Expected ; %s", linepos().c_str());
                                 next();
+                                return;
+                            }
+                            next();
+                            Error.error = 0;
+
+                            current_node = current_node->parent;
+                        }
+                        else if (Match(TokenEqual) && Match(TokenOpenCurlyBracket, 1))
+                        {
+                            next();
+                            next();
+                            parseFactor();
+                            if (Error.error)
+                            {
+                                return;
+                            }
+                            while (Match(TokenComma))
+                            {
                                 next();
                                 parseFactor();
-                                        if (Error.error)
-            {
-                return;
-            }
-                                while(Match(TokenComma))
+                                if (Error.error)
                                 {
-                                    next();
-                                    parseFactor();
-                                            if (Error.error)
-            {
-                return;
-            }
+                                    return;
                                 }
-                                     if (!Match(TokenCloseCurlyBracket))
-        {
+                            }
+                            if (!Match(TokenCloseCurlyBracket))
+                            {
 
-            Error.error = 1;
-            Error.error_message = string_format("Expected ) %s", linepos().c_str());
-            next();
-            return;
-        }
-        next();
-                                       if (!Match(TokenSemicolon))
-        {
-
-            Error.error = 1;
-            Error.error_message = string_format("Expected ; %s", linepos().c_str());
-            next();
-            return;
-        }
+                                Error.error = 1;
+                                Error.error_message = string_format("Expected ) %s", linepos().c_str());
+                                next();
+                                return;
+                            }
                             next();
-                            Error.error=0;
+                            if (!Match(TokenSemicolon))
+                            {
 
-                                current_node=current_node->parent;
+                                Error.error = 1;
+                                Error.error_message = string_format("Expected ; %s", linepos().c_str());
+                                next();
+                                return;
+                            }
+                            next();
+                            Error.error = 0;
+
+                            current_node = current_node->parent;
                         }
                         else
                         {
@@ -1867,10 +1953,8 @@ void run(Console *cons, vector<string> args)
         LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
     }
-   
-        SCExecutable._run(args, true);
-    
-    
+
+    SCExecutable._run(args, true);
 }
 void kill_cEsc(Console *cons)
 {
@@ -1945,7 +2029,7 @@ void parse_c(Console *cons, vector<string> args)
         if (args[args.size() - 1].compare("&") == 0)
             othercore = true;
     }
-   
+
     if (p.parse_c(&cons->script))
     {
 

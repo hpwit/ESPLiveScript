@@ -454,6 +454,10 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
   {
     return parseOperandes(sp.operandes, 3, op_and, 3, bin_and);
   }
+    if (sp.opcde.compare("or") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_and, 3, bin_mov);
+  }
   if (sp.opcde.compare("bnez") == 0)
   {
 
@@ -549,6 +553,10 @@ if (sp.opcde.compare("rsr") == 0)
     return parseOperandes(sp.operandes, 2, op_rsr, 3, bin_wsr);
   }
   if (sp.opcde.compare("mov") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_mov, 3, bin_abs);
+  }
+    if (sp.opcde.compare("abs") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);
   }
@@ -879,6 +887,10 @@ if (sp.opcde.compare("add.s") == 0)
   {
     return parseOperandes(sp.operandes, 3, op_truncs, 3, bin_truncs);
   }
+     if (sp.opcde.compare("round.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_truncs, 3, bin_rounds);
+  }
 
      if (sp.opcde.compare("div0.s") == 0)
   {
@@ -896,6 +908,10 @@ if (sp.opcde.compare("add.s") == 0)
     if (sp.opcde.compare("mov.s") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_movs, 3, bin_movs);
+  }
+      if (sp.opcde.compare("abs.s") == 0)
+  {
+    return parseOperandes(sp.operandes, 2, op_movs, 3, bin_abss);
   }
       if (sp.opcde.compare("maddn.s") == 0)
   {
@@ -1366,8 +1382,9 @@ executable createBinary(list<result_parse_line> *asm_parsed)
   // Serial.printf("%d start function(s) found:\r\n", exe.functions.size());
   for (int i = 0; i < exe.functions.size(); i++)
   {
-    exe.functions[i].address = (uint32_t)(exec + (exe.functions[i].address) / 4);
+   // exe.functions[i].address = (uint32_t)(exec + (exe.functions[i].address) / 4);
     // Serial.printf("%2d: %s\t%x\r\n", i, exe.functions[i].name.c_str(), exe.functions[i].address);
+   exe.functions[i].address = (uint32_t)((exe.functions[i].address) / 4);
   }
   exe.start_program = exec;
   exe.data = data;
@@ -1558,13 +1575,21 @@ void executeBinaryAsm(uint32_t *j, uint32_t *c)
 error_message_struct executeBinary(string function, executable ex)
 {
   error_message_struct res;
+  uint32_t toexecute;
   res.error = 0;
   for (int i = 0; i < ex.functions.size(); i++)
   {
     if (ex.functions[i].name.compare(function) == 0)
     {
       // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
+     
+      //
+      ex.functions[i].address=(uint32_t)(ex.start_program+ex.functions[i].address);
       executeBinaryAsm(&ex.functions[i].address, &ex.links);
+      
+     //printf("address of function %s :%x\n",ex.functions[i].name.c_str(), toexecute);
+    //  executeBinaryAsm(&toexecute, &ex.links);
+
       // freeBinary(ex);
       return res;
     }

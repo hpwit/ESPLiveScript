@@ -203,9 +203,9 @@ string keywordTypeNames[] =
 
 };
 
-#define nb_keywords 26
+#define nb_keywords 30
 #define nb_typeVariables 10
-string keyword_array[nb_keywords] = {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "CRGBW","char", "external", "for", "if", "then", "else", "while", "return", "import", "from", "__ASM__", "define", "safe_mode", "_header_", "_content_","and","or"};
+string keyword_array[nb_keywords] = {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "CRGBW","char", "external", "for", "if", "then", "else", "while", "return", "import", "from", "__ASM__", "define", "safe_mode", "_header_", "_content_","and","or","continue","break","fabs","abs"};
 bool __isBlockComment = false;
 enum tokenType
 {
@@ -267,7 +267,11 @@ enum tokenType
     TokenKeywordContent,
     TokenKeywordAnd,
     TokenKeywordOr,
-    TokenPower
+    TokenPower,
+    TokenKeywordContinue,
+    TokenKeywordBreak,
+    TokenKeywordFabs,
+    TokenKeywordAbs,
 
 };
 
@@ -298,7 +302,11 @@ tokenType __keywordTypes[] =
         TokenKeywordHeader,
         TokenKeywordContent,
         TokenKeywordAnd,
-        TokenKeywordOr
+        TokenKeywordOr,
+        TokenKeywordContinue,
+        TokenKeywordBreak,
+        TokenKeywordFabs,
+        TokenKeywordAbs,
 };
 
 
@@ -362,7 +370,11 @@ string tokenNames[] = {
     "TokenKeywordContent",
     "TokenKeywordAnd",
     "TokenKeywordOr",
-    "TokenPower"
+    "TokenPower",
+    "TokenKeywordContinue",
+    "TokenKeywordBreak"
+    "TokenKeywordFabs",
+    "TokenKeywordAbs",
 
 #endif
 };
@@ -449,6 +461,10 @@ const char *tokenFormat[] = {
     termColor.Magenta,  // Keywordand,
     termColor.Magenta,  // Keywordor,
      termColor.Magenta, //TokenPower
+    termColor.Magenta,  // Keywordcontinue,
+     termColor.Magenta, //Tokenbreak    
+     termColor.BWhite, //Tokenfabs   
+      termColor.BWhite, //Tokenabs     
 };
 /*
 const char *KeywordTypeFormat[] =

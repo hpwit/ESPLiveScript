@@ -39,6 +39,10 @@ uint32_t bin_mov(uint32_t *values)
 {
     return ((values[0] << 12) & 0xF000) + ((values[1] << 8) & 0xF00) + ((values[1] << 4) & 0xF0) + 0x200000;
 }
+uint32_t bin_abs(uint32_t *values)
+{
+    return ((values[0] << 12) & 0xF000) + ((values[1] << 4) & 0xF0) + 0x600100;
+}
 
 uint32_t bin_neg(uint32_t *values)
 {
@@ -333,7 +337,11 @@ uint32_t bin_floats(uint32_t *values)
 operandeType op_floors[3] = {operandeType::registers, operandeType::floatregisters,  operandeType::l0_15};
 uint32_t bin_floors(uint32_t *values)
 {
-    return 0x0 + 0xAA0000+ (((values[0] << 12) & 0xF000)) + (((values[1] << 8) & 0xF00)) + + (((values[2] << 4) & 0xF0)) ;
+    return 0x0 + 0xAA0000+ (((values[0] << 12) & 0xF000)) + (((values[1] << 8) & 0xF00)) +  (((values[2] << 4) & 0xF0)) ;
+}
+uint32_t bin_rounds(uint32_t *values)
+{
+    return 0x0 + 0x8A0000+ (((values[0] << 12) & 0xF000)) + (((values[1] << 8) & 0xF00)) +  (((values[2] << 4) & 0xF0)) ;
 }
 operandeType *op_truncs=op_floors;     //[3] = {operandeType::registers, operandeType::floatregisters,  operandeType::l0_15};
 uint32_t bin_truncs(uint32_t *values)
@@ -400,6 +408,11 @@ uint32_t bin_movs(uint32_t *values)
 {
     return 0x00 + 0xFA0000+ (((values[0] << 12) & 0xF000)) + (((values[1] << 8) & 0xF00))  ;
 }
+uint32_t bin_abss(uint32_t *values)
+{
+    return 0xFA0010+ (((values[0] << 12) & 0xF000)) + (((values[1] << 8) & 0xF00))  ;
+}
+
 
 operandeType op_call8[2] = {operandeType::label};
 uint32_t bin_call8(uint32_t *values)
