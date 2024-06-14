@@ -9,6 +9,8 @@ using namespace std;
 
 #include "tokenizer.h"
 
+#define _STACK_SIZE 32
+
 string _numToBytes(uint32_t __num)
 {
     string val = ".bytes 4";
@@ -86,6 +88,7 @@ bool isPointer = true;
 
 bool isASM = false;
 bool safeMode = false;
+bool saveReg = false;
 
 list<int> _register_numl;
 
@@ -969,6 +972,7 @@ void _visitNodeProgramNode(NodeToken *nd)
 
 {
     // printf("in programl\n");
+    point_regnum=4;
     content.begin();
     header.begin();
     header.addAfter("stack:");
@@ -1571,7 +1575,7 @@ void _visitNodeStoreGlobalVariable(NodeToken *nd)
     if (nd->asPointer or (nd->isPointer)) // && nd->children.size() == 0))
         point_regnum++;
         int savreg_num=point_regnum;
-        point_regnum=7;
+        point_regnum=3;
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
@@ -2115,10 +2119,11 @@ void _visitNodeCallFunction(NodeToken *nd)
     {
         return;
     }
+
     // if(t->getChildAtPos(1)->children.size()<1)
     // return;point_regnum
-    int save = point_regnum;
-    content.addAfterNoDouble(string_format("l32r a%d,stack", point_regnum));
+    int save =9;// point_regnum;
+    content.addAfterNoDouble(string_format("l32r a%d,stack", save)); //point_regnum
     for (int i = 0; i < t->getChildAtPos(1)->children.size(); i++)
     {
         // isPointer = false;
@@ -2128,7 +2133,7 @@ void _visitNodeCallFunction(NodeToken *nd)
             register_numl.duplicate();
             nd->getChildAtPos(0)->getChildAtPos(i)->visitNode(nd->getChildAtPos(0)->getChildAtPos(i));
             register_numl.pop();
-            int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - 16;
+            int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE;
             content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", register_numl.get(), save, start)); // point_regnum
                                                                                                                     // isPointer=false;
         }
@@ -2138,7 +2143,7 @@ void _visitNodeCallFunction(NodeToken *nd)
             register_numl.duplicate();
             nd->getChildAtPos(0)->getChildAtPos(i)->visitNode(nd->getChildAtPos(0)->getChildAtPos(i));
             register_numl.pop();
-            int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - 16 + t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->total_size;
+            int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE + t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->total_size;
             int tot = t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->size - 1;
             for (int j = 0; j < t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->size; j++)
             {
@@ -2167,6 +2172,7 @@ void _visitNodeCallFunction(NodeToken *nd)
         printf("nodeToken %d\r\n", nd->_link->getChildAtPos(0)->_token->type);
         printf("NULL\r\n");
     }
+ 
     if (v->size > 0)
     {
         //   printf("ini size\r\n");
@@ -2314,7 +2320,13 @@ void _visitNodeDefFunction(NodeToken *nd)
 {
     header.addAfter(string_format(".global %s", nd->_token->text.c_str()));
     content.addAfter(string_format("%s:", nd->_token->text.c_str()));
-    content.addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 32)); // ((nd->stack_pos) / 8 + 1) * 8+20)
+    content.addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
+       if(saveReg)
+   {
+    content.addAfter("ssi f15,a1,16");
+     content.addAfter("ssi f14,a1,20");
+      content.addAfter("ssi f13,a1,24");
+   }
     for (int i = 1; i < nd->children.size(); i++)
     {
         if (nd->getChildAtPos(i)->visitNode != NULL)
@@ -2324,6 +2336,13 @@ void _visitNodeDefFunction(NodeToken *nd)
             // h = h + g.header;
         }
     }
+    
+              if(saveReg)
+   {
+    content.addAfter("lsi f15,a1,16");
+     content.addAfter("lsi f14,a1,20");
+      content.addAfter("lsi f13,a1,24");
+   }
     content.addAfter(string_format("retw.n"));
     /*
        for (list<NodeToken>::iterator it = nd->children.begin(); it != nd->children.end(); ++it)
@@ -2461,16 +2480,16 @@ void _visitNodeInputArguments(NodeToken *nd)
 {
      if(nd->children.size()<1)
      return;
-    int sav = point_regnum;
+    int sav = 9;// point_regnum;
 
-    content.addAfterNoDouble(string_format("l32r a%d,stack", point_regnum));
+    content.addAfterNoDouble(string_format("l32r a%d,stack", sav)); //point_regnum
     for (int i = 0; i < nd->children.size(); i++)
     {
         int start = nd->getChildAtPos(i)->stack_pos;
         if (nd->getChildAtPos(i)->isPointer)
         {
             int start = nd->getChildAtPos(i)->stack_pos;
-            content.addAfter(string_format("l32i a15,a%d,%d", sav, start - 16)); // point reg_bnum
+            content.addAfter(string_format("l32i a15,a%d,%d", sav, start - _STACK_SIZE)); // point reg_bnum
             content.addAfter(string_format("s32i a15,a1,%d", start));
         }
         else
@@ -2478,7 +2497,7 @@ void _visitNodeInputArguments(NodeToken *nd)
             for (int j = 0; j < nd->getChildAtPos(i)->_token->_vartype->size; j++)
             {
                 asmInstruction asmInstr = nd->getChildAtPos(i)->_token->_vartype->load[0];
-                content.addAfter(string_format("%s %s15,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), getRegType(asmInstr, 1).c_str(), sav, start - 16)); // point_regnum
+                content.addAfter(string_format("%s %s15,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), getRegType(asmInstr, 1).c_str(), sav, start - _STACK_SIZE)); // point_regnum
                 asmInstr = nd->getChildAtPos(i)->_token->_vartype->store[0];
                 content.addAfter(string_format("%s %s15,%s1,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), getRegType(asmInstr, 1).c_str(), start));
                 start += nd->getChildAtPos(i)->_token->_vartype->sizes[j];
@@ -3002,11 +3021,11 @@ void _visitNodeNumber(NodeToken *nd)
             val = val + " " + string_format("%02x", c);
             // val=val+'A';
             header.addAfter(val);
-            point_regnum++;
-            content.addAfter(string_format("l32r a%d,%s_%d", 9, "local_var", local_var_num));
-            content.addAfter(string_format("lsi f%d,a%d,0", register_numl.get(), 9));
+           // point_regnum++;
+            content.addAfter(string_format("l32r a%d,%s_%d", 8, "local_var", local_var_num));
+            content.addAfter(string_format("lsi f%d,a%d,0", register_numl.get(), 8));
             content.sp.push(content.get());
-            point_regnum--;
+           // point_regnum--;
             local_var_num++;
             register_numl.decrease();
         }
@@ -3041,11 +3060,11 @@ void _visitNodeNumber(NodeToken *nd)
                 val = val + " " + string_format("%02x", c);
                 // val=val+'A';
                 header.addAfter(val);
-                point_regnum++;
-                content.addAfter(string_format("l32r a%d,%s_%d", 9, "local_var", local_var_num));
-                content.addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), 9));
+               // point_regnum++;
+                content.addAfter(string_format("l32r a%d,%s_%d", 8, "local_var", local_var_num));
+                content.addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), 8));
                 content.sp.push(content.get());
-                point_regnum--;
+               // point_regnum--;
                 local_var_num++;
                 register_numl.decrease();
             }
@@ -3612,7 +3631,7 @@ void _visitNodeReturn(NodeToken *nd)
     {
         t = t->parent;
     }
-    content.addAfter(string_format("l32r a%d,stackr", point_regnum)); //point_regnum
+    content.addAfter(string_format("l32r a%d,stackr", 9)); //point_regnum
     for (int i = 0; i < nd->children.size(); i++)
     {
         globalType.push(t->_token->_vartype->_varType);
@@ -3625,10 +3644,16 @@ void _visitNodeReturn(NodeToken *nd)
         {
             start -= t->_token->_vartype->sizes[tot - j];
             asmInstruction asmInstr = t->_token->_vartype->store[tot - j];
-            content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), point_regnum, start)); //point_regnum
+            content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), 9, start)); //point_regnum
         }
         globalType.pop();
     }
+             if(saveReg)
+   {
+    content.addAfter("lsi f15,a1,16");
+     content.addAfter("lsi f14,a1,20");
+      content.addAfter("lsi f13,a1,24");
+   }
     content.addAfter("retw.n");
 }
 

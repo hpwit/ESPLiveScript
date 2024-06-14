@@ -101,7 +101,7 @@ public:
         _tks.init();
         current_cntx = &main_cntx;
         safeMode = false;
-
+        saveReg = false;
         parseProgram();
         buildParents(&program);
     }
@@ -1462,7 +1462,7 @@ public:
         cntx.name = current()->text;
         Context *k = current_cntx->addChild(cntx);
         current_cntx = k;
-        stack_size = 16;
+        stack_size = _STACK_SIZE;
         block_statement_num = 0;
         next();
         next();
@@ -1683,6 +1683,11 @@ public:
             if (Match(TokenKeywordSafeMode))
             {
                 safeMode = true;
+                next();
+            }
+            else if (Match(TokenKeywordSaveReg))
+            {
+                saveReg = true;
                 next();
             }
             else if (Match(TokenKeywordImport))
