@@ -102,6 +102,9 @@ public:
         current_cntx = &main_cntx;
         safeMode = false;
         saveReg = false;
+       _asPointer = false;
+       isPointer = false;
+       isASM = false;   
         parseProgram();
         buildParents(&program);
     }

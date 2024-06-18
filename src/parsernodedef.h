@@ -1405,7 +1405,7 @@ void _visitNodeStoreExtGlobalVariable(NodeToken *nd)
         }
     }
 
-    if (safeMode)
+    if (safeMode && nd->isPointer)
     {
         content.addAfter(string_format("l32r a%d,_size_main_%s", regnum, nd->_token->text.c_str()));
         content.addAfter(string_format("l32i a%d,a%d,0", regnum, regnum));
@@ -1617,7 +1617,7 @@ void _visitNodeStoreGlobalVariable(NodeToken *nd)
         globalType.pop();
     }
 
-    if (safeMode)
+    if (safeMode && nd->isPointer)
     {
         content.addAfter(string_format("l32r a%d,_size_%s", point_regnum, nd->_token->text.c_str()));
         content.addAfter(string_format("l32i a%d,a%d,0", point_regnum, point_regnum));
