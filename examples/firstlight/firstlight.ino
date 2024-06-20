@@ -37,7 +37,7 @@ static void show()
     if (_nb_stat > 10)
         _totfps += fps;
     Serial.printf("current fps:%.2f  average:%.2f min:%.2f max:%.2f\r\n", fps, _totfps / (_nb_stat - 10), _min, _max);
-    time1 = time2;
+    time1 = ESP.getCycleCount();
 
     // SKIPPED: check that both v1 and v2 are int numbers
     // RETURN_VALUE(VALUE_FROM_INT(0), rindex);
