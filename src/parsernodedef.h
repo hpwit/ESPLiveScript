@@ -1739,17 +1739,19 @@ void _visitNodeLocalVariable(NodeToken *nd)
     if (nd->isPointer)
     {
         int start = nd->stack_pos;
-        // printf("kzlekmze\n");
-        // content.addAfter(string_format("l32r a%d,stack", point_regnum));
-        content.addAfter(string_format("addi a%d,a1,%d", point_regnum, start));
-        content.addAfter(string_format("l32i a%d,a%d,0", point_regnum, regnum));
+    
+
+       // content.addAfter(string_format("addi a%d,a1,%d", point_regnum, start));
+       
         if (nd->children.size() == 0)
         {
-            content.addAfter(string_format("mov a%d,a%d", register_numl.get(), point_regnum));
+             content.addAfter(string_format("l32i a%d,a1,%d", register_numl.get(), start));
+            //content.addAfter(string_format("mov a%d,a%d", register_numl.get(), point_regnum));
             content.sp.push(content.get());
         }
         else
         {
+             content.addAfter(string_format("l32i a%d,a1,%d", point_regnum, start));
             start = 0;
             for (int i = 0; i < v->total_size; i++)
             {
@@ -1858,7 +1860,8 @@ void _visitNodeStoreLocalVariable(NodeToken *nd)
     }
     else
     {
-        content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", numl, regnum, start));
+        content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", numl, regnum,0)); //start
+     //content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", numl, 1,nd->stack_pos));
     }
     if (nd->isPointer)
     {
@@ -1889,7 +1892,8 @@ void _visitNodeStoreLocalVariable(NodeToken *nd)
         }
         else
         {
-            content.addAfter(string_format("addi a%d,a1,%d", point_regnum, nd->stack_pos));
+            //a remettre
+           content.addAfter(string_format("addi a%d,a1,%d", point_regnum, nd->stack_pos));
         }
         content.end();
         content.sp.pop();
@@ -2708,7 +2712,14 @@ void _visitNodeOperator(NodeToken *nd)
         // return;
         break;
     case TokenPlusPlus:
+        if(nd->parent->getChildAtPos(0)->isPointer && nd->parent->getChildAtPos(0)->children.size()==0)
+        {
+                content.addAfter(string_format("addi a%d,a%d,%d", register_numl.get(), register_numl.get(),nd->parent->getChildAtPos(0)->_token->_vartype->total_size));
+        }
+        else
+        {
         content.addAfter(string_format("addi a%d,a%d,1", register_numl.get(), register_numl.get()));
+        }
         // return;
         break;
     case TokenModulo:

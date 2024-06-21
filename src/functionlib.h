@@ -47,10 +47,10 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 \"rsr a14,234\" \n\
 \"mov a13,a14\" \n\
 \"mull a14,a14,a14\" \n\
+\"mull a14,a14,a13\" \n\
 \"mull a14,a14,a14\" \n\
-\"mull a14,a14,a14\" \n\
-\"mull a13,a13,a13\" \n\
 \"add a14,a14,a13\" \n\
+\"addi a14,a13,1\" \n\
 \"remu a15,a14,a15\" \n\
 \"l32r a4,stackr\" \n\
 \"s32i a15,a4,0\" \n\
