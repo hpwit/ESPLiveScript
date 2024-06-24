@@ -35,7 +35,7 @@ void __MEM()
 #ifndef __TEST_DEBUG
     esp_get_free_heap_size(); // in order to do garbage collection ???
     // printf("size: %u \r\n",esp_get_free_heap_size());
-#endif;
+#endif
 }
 // #include "functionlib.h"
 

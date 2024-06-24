@@ -186,20 +186,22 @@ public:
             // string g=s+'\0';
             Script sc(&s);
             _tks.init();
-            tokenizer(&sc, false);
+            tokenizer(&sc, false,false);
             _token_line++;
         }
+        int f=_token_line;
         _index_token = list_of_token.begin();
         for (int i : add_on)
         {
 
             Script sc(_stdlib[i]);
             _tks.init();
-            tokenizer(&sc, false);
+            tokenizer(&sc, false,false);
         }
         // LedOS.script.clear();
         token t;
         t.type = TokenEndOfFile;
+        t.line=f;
         list_of_token.push_back(t);
 #ifdef __CONSOLE_ESP32
         // _script->clear();
@@ -225,7 +227,7 @@ public:
         // string g=s+'\0';
         Script sc2(_script);
         _tks.init();
-        tokenizer(&sc2, false);
+        tokenizer(&sc2, false,true);
         _token_line++;
 
         _index_token = list_of_token.begin();
@@ -234,7 +236,7 @@ public:
 
             Script sc(_stdlib[i]);
             _tks.init();
-            tokenizer(&sc, false);
+            tokenizer(&sc, false,false);
         }
         // LedOS.script.clear();
         token t;
@@ -1360,7 +1362,7 @@ public:
         else
         {
             Error.error = 1;
-            Error.error_message = string_format(" Unexpected %s at %s", current()->text.c_str(), linepos().c_str());
+            Error.error_message = string_format(" Unexpected %s  %s", current()->text.c_str(), linepos().c_str());
             return;
         }
     }

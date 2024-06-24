@@ -856,7 +856,7 @@ public:
 
     int _token_line;
     list<token>::iterator _index_token;
-    void tokenizer(Script *script, bool update)
+    void tokenizer(Script *script, bool update,bool increae_line)
     {
 
         // list<token> list_of_token;
@@ -1106,6 +1106,8 @@ public:
                             }
                             // printf("ona joute %s\n",newdef.content.c_str());
                             define_list.push_back(newdef);
+                            if(increae_line)
+                            _token_line++;
                             continue;
                         }
                     }
@@ -1296,7 +1298,8 @@ public:
                     }
                     t.line = _token_line;
                     // t.pos = pos;
-                    //_token_line++;
+                    if(increae_line)
+                    _token_line++;
                     if (_for_display)
                         list_of_token.insert(_index_token, t);
                     continue;
@@ -1402,6 +1405,7 @@ public:
                     t.text = "\r\n";
                 t.line = _token_line;
                 // t.pos = pos;
+                if(increae_line)
                 _token_line++;
                 pos = 0;
                 if (_for_display)
@@ -1517,7 +1521,7 @@ public:
     }
     void tokenizer(Script *script)
     {
-        tokenizer(script, true);
+        tokenizer(script, true,false);
     }
 #ifdef __CONSOLE_ESP32
     list<const char *> _parenthesis;
