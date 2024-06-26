@@ -1,6 +1,11 @@
 #pragma once
 #ifndef __ASM_EXECUTE
 #define __ASM_EXECUTE
+
+
+#ifndef __RUN_CORE
+#define __RUN_CORE 0
+#endif
 using namespace std;
 static volatile TaskHandle_t __run_handle = NULL;
 executable executecmd;
@@ -110,7 +115,7 @@ public:
             df.args = args;
             df.exe = executecmd;
 
-            xTaskCreateUniversal(_run_task, "_run_task", 4096 * 2, &df, 3, (TaskHandle_t *)&__run_handle, 0);
+            xTaskCreateUniversal(_run_task, "_run_task", 4096 * 2, &df, 3, (TaskHandle_t *)&__run_handle, __RUN_CORE);
 #ifdef __CONSOLE_ESP32
             LedOS.pushToConsole("Execution on going CTRL + k to stop", true);
 #else
