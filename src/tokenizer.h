@@ -203,9 +203,9 @@ string keywordTypeNames[] =
 
 };
 
-#define nb_keywords 31
+#define nb_keywords 32
 #define nb_typeVariables 10
-string keyword_array[nb_keywords] = {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "CRGBW","char", "external", "for", "if", "then", "else", "while", "return", "import", "from", "__ASM__", "define", "safe_mode", "_header_", "_content_","and","or","continue","break","fabs","abs","save_reg"};
+string keyword_array[nb_keywords] = {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "CRGBW","char", "external", "for", "if", "then", "else", "while", "return", "import", "from", "__ASM__", "define", "safe_mode", "_header_", "_content_","and","or","continue","break","fabs","abs","save_reg","save_reg_abs"};
 bool __isBlockComment = false;
 enum tokenType
 {
@@ -273,6 +273,8 @@ enum tokenType
     TokenKeywordFabs,
     TokenKeywordAbs,
     TokenKeywordSaveReg,
+    TokenKeywordSaveRegAbs
+    
 
 };
 
@@ -308,7 +310,8 @@ tokenType __keywordTypes[] =
         TokenKeywordBreak,
         TokenKeywordFabs,
         TokenKeywordAbs,
-        TokenKeywordSaveReg
+        TokenKeywordSaveReg,
+        TokenKeywordSaveRegAbs
 };
 
 
@@ -378,6 +381,7 @@ string tokenNames[] = {
     "TokenKeywordFabs",
     "TokenKeywordAbs",
     "TokenKeywordSaveReg"
+    "TokenKeywordSaveRegAbs"
 
 #endif
 };
@@ -468,7 +472,8 @@ const char *tokenFormat[] = {
      termColor.Magenta, //Tokenbreak    
      termColor.BWhite, //Tokenfabs   
       termColor.BWhite, //Tokenabs  
-      termColor.BCyan,    // Keywordsave_reg   
+      termColor.BCyan,    // Keywordsave_reg  
+       termColor.BCyan,    // Keywordsave_regabs   
 };
 /*
 const char *KeywordTypeFormat[] =

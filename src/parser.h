@@ -102,6 +102,7 @@ public:
         current_cntx = &main_cntx;
         safeMode = false;
         saveReg = false;
+        saveRegAbs = false;
        _asPointer = false;
        isPointer = false;
        isASM = false;   
@@ -1693,6 +1694,11 @@ public:
             else if (Match(TokenKeywordSaveReg))
             {
                 saveReg = true;
+                next();
+            }
+             else if (Match(TokenKeywordSaveRegAbs))
+            {
+                saveRegAbs = true;
                 next();
             }
             else if (Match(TokenKeywordImport))

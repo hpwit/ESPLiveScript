@@ -89,7 +89,7 @@ bool isPointer = true;
 bool isASM = false;
 bool safeMode = false;
 bool saveReg = false;
-
+bool saveRegAbs = false;
 list<int> _register_numl;
 
 list<int> _register_numr;
@@ -2331,6 +2331,12 @@ void _visitNodeDefFunction(NodeToken *nd)
      content.addAfter("ssi f14,a1,20");
       content.addAfter("ssi f13,a1,24");
    }
+          if(saveRegAbs)
+   {
+    content.addAfter("s32i a15,a1,16");
+     content.addAfter("s32i a14,a1,20");
+      content.addAfter("s32i a13,a1,24");
+   }
     for (int i = 1; i < nd->children.size(); i++)
     {
         if (nd->getChildAtPos(i)->visitNode != NULL)
@@ -2346,6 +2352,12 @@ void _visitNodeDefFunction(NodeToken *nd)
     content.addAfter("lsi f15,a1,16");
      content.addAfter("lsi f14,a1,20");
       content.addAfter("lsi f13,a1,24");
+   }
+             if(saveRegAbs)
+   {
+    content.addAfter("l32i a15,a1,16");
+     content.addAfter("l32i a14,a1,20");
+      content.addAfter("l32i a13,a1,24");
    }
     content.addAfter(string_format("retw.n"));
     /*
@@ -3659,11 +3671,18 @@ void _visitNodeReturn(NodeToken *nd)
         }
         globalType.pop();
     }
+    
              if(saveReg)
    {
     content.addAfter("lsi f15,a1,16");
      content.addAfter("lsi f14,a1,20");
       content.addAfter("lsi f13,a1,24");
+   }
+               if(saveRegAbs)
+   {
+    content.addAfter("l32i a15,a1,16");
+     content.addAfter("l32i a14,a1,20");
+      content.addAfter("l32i a13,a1,24");
    }
     content.addAfter("retw.n");
 }

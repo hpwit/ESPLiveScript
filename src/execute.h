@@ -2,9 +2,8 @@
 #ifndef __ASM_EXECUTE
 #define __ASM_EXECUTE
 
-
 #ifndef __RUN_CORE
-#define __RUN_CORE 0
+#define __RUN_CORE 1
 #endif
 using namespace std;
 static volatile TaskHandle_t __run_handle = NULL;
@@ -79,7 +78,7 @@ public:
         if (__run_handle != NULL)
         {
 #ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Stopping the program ...",true);
+            LedOS.pushToConsole("Stopping the program ...", true);
 #else
             Serial.printf("Stopping the program...\r\n");
 #endif
@@ -92,8 +91,8 @@ public:
             delay(10);
             if (postkill != NULL)
                 postkill();
-                #ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Program stopped.",true);
+#ifdef __CONSOLE_ESP32
+            LedOS.pushToConsole("Program stopped.", true);
 #else
             Serial.printf("Program stopped.\r\n");
 #endif
@@ -131,16 +130,24 @@ public:
 #endif
         }
     }
-void free()
-{
-    exeExist = false;
-     freeBinary(&executecmd);
-}
+    void free()
+    {
+        exeExist = false;
+        freeBinary(&executecmd);
+    }
 
-void execute(string prog)
-{
-executeBinary(prog, executecmd);
-}
+    void execute(string prog)
+    {
+        executeBinary(prog, executecmd);
+    }
+
+    void executeAsTask(string prog)
+    {
+        vector<string> args;
+        args.push_back(prog);
+        _run(args,true);
+    }
+
 private:
     void (*prekill)() = NULL;
     void (*postkill)() = NULL;
