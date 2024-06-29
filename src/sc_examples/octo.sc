@@ -2,15 +2,14 @@ import memset
 save_reg
 external CRGB *leds;
 external void show();
-external CRGB hsv(int h,int s,int v);
+external CRGB hsv(uint8_t h,uint8_t s,uint8_t v);
 external uint8_t sin8(uint8_t a);
 external float hypot(float x,float y);
 external float atan2(float x,float y);
 external void resetStat();
 define LED_COLS 32
 define LED_ROWS 32
-//do not forget to udate the line below !!!!it should be LED_COLS * LED_ROWS
-define NUM_LEDS 1024 
+define NUM_LEDS 4096
 define PI 3.14529
 define panel_width 128
 define speed 1
@@ -53,10 +52,9 @@ resetStat();
     for (uint8_t y = 0; y < LED_ROWS; y++) {
       uint8_t angle = rMapAngle[x*LED_ROWS+y];
       uint8_t radius = rMapRadius[x*LED_ROWS+y];
-      int h=sin8(t*4+sin8(t * 4 - radius)+angle*5);
-      //h=sin8(h);
- 
-      leds[y*panel_width+x] = hsv(t + radius, 255, h); //here in know I need to fix a bug in the compiler
+
+      leds[y*panel_width+x] = hsv(t + radius, 255, sin8(t*4+sin8(t * 4 - radius)+angle*5));
+      
     }
   }
   show();
