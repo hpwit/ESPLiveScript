@@ -2247,7 +2247,9 @@ void _visitNodeExtCallFunction(NodeToken *nd)
         return;
     }
     // printf(" %s %d %d\n",nd->_token->text.c_str(),  t->children.size(),t->getChildAtPos(1)->children.size());
-    for (int i = 0; i < t->getChildAtPos(1)->children.size(); i++)
+    //for (int i = 0; i < t->getChildAtPos(1)->children.size(); i++)
+
+    for (int i =  t->getChildAtPos(1)->children.size()-1; i >= 0; i--)
     {
         register_numl.duplicate();
         globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->_varType);
@@ -2275,7 +2277,7 @@ void _visitNodeExtCallFunction(NodeToken *nd)
     if (v->_varType == __float__)
     {
         content.addAfter(string_format("wfr f%d,a10", register_numl.get()));
-        register_numl.decrease();
+        
         content.sp.push(content.get());
     }
     else
@@ -2289,6 +2291,7 @@ void _visitNodeExtCallFunction(NodeToken *nd)
             content.sp.push(content.get());
         }
     }
+    register_numl.decrease();
     return;
 }
 
@@ -3093,7 +3096,7 @@ void _visitNodeNumber(NodeToken *nd)
             }
             else
             {
-                content.addAfter(string_format("movi a%d,%s", register_numl.get(), nd->_token->text.c_str()));
+                content.addAfter(string_format("movi a%d,%d", register_numl.get(), __num)); //nd->_token->text.c_str()));
                 content.sp.push(content.get());
                 register_numl.decrease();
             }

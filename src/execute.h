@@ -3,7 +3,7 @@
 #define __ASM_EXECUTE
 
 #ifndef __RUN_CORE
-#define __RUN_CORE 1
+#define __RUN_CORE 0
 #endif
 using namespace std;
 static volatile TaskHandle_t __run_handle = NULL;
