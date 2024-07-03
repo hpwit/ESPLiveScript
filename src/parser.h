@@ -870,7 +870,7 @@ public:
         // resParse result;
         // NodeStatement statement;
         // current_node=current_node->addChild(statement);
-
+        printf("line:%d mem:\r\n",current()->line);
         // on demarre avec la function
         if (Match(TokenString))
         {
@@ -1549,8 +1549,16 @@ public:
                 // result._nd = function;
                 Error.error = 0;
                 current_cntx = current_cntx->parent;
+                 point_regnum=4;
+                        register_numr.clear();
+    register_numl.clear();
+    register_numl.push(15);
+    register_numr.push(15);
+                 printf("on visit la function\r\n");
                 current_node->visitNode(current_node);
+                printf("on a visité\r\n");
                 current_node = current_node->parent;
+               
                
                 return;
             }
