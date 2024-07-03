@@ -2830,6 +2830,7 @@ public:
 void _visitNodeChangeType(NodeToken *nd)
 {
     // register_numl.duplicate();
+    printf("one chande de type");
     globalType.push(nd->_token->_vartype->_varType);
     for (int i = 0; i < nd->children.size(); i++)
     {
