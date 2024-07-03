@@ -91,6 +91,15 @@ public:
 */
     void parse()
     {
+
+                    point_regnum=4;
+    content.begin();
+    header.begin();
+        register_numr.clear();
+    register_numl.clear();
+    register_numl.push(15);
+    register_numr.push(15);
+
         root._nodetype = programNode;
         point_regnum = 4;
         stack_size = 0;
@@ -112,6 +121,16 @@ public:
 
     bool parse_create()
     {
+    //new
+            point_regnum=4;
+    content.begin();
+    header.begin();
+        register_numr.clear();
+    register_numl.clear();
+    register_numl.push(15);
+    register_numr.push(15);
+//new
+
         parse();
         if (Error.error)
         {
@@ -1530,7 +1549,9 @@ public:
                 // result._nd = function;
                 Error.error = 0;
                 current_cntx = current_cntx->parent;
+                current_node->visitNode(current_node);
                 current_node = current_node->parent;
+               
                 return;
             }
             else
@@ -1541,7 +1562,7 @@ public:
                 return;
             }
         }
-
+ 
         return;
     }
 

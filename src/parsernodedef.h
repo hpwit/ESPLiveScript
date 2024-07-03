@@ -989,8 +989,11 @@ void _visitNodeProgramNode(NodeToken *nd)
     {
         if (nd->getChildAtPos(i)->visitNode != NULL)
         {
+            if (nd->getChildAtPos(i)->_nodetype != defFunctionNode && nd->getChildAtPos(i)->_nodetype != defAsmFunctionNode)
+            {
             nd->getChildAtPos(i)->visitNode(nd->getChildAtPos(i));
-            // NEW
+            
+            }// NEW
 
             if (nd->getChildAtPos(i)->_nodetype == defFunctionNode or nd->getChildAtPos(i)->_nodetype == defAsmFunctionNode)
             {
@@ -2376,7 +2379,8 @@ void _visitNodeDefFunction(NodeToken *nd)
         if (&*it != NULL)
             clearNodeToken(&*it);
     }*/
-    // clearNodeToken(nd);
+   
+    //clearNodeToken(nd);
 }
 
 class NodeDefFunction : public NodeToken
@@ -2565,6 +2569,7 @@ void _visitNodeBlockStatement(NodeToken *nd)
             // h = h + g.header;
         }
     }
+    
     // clearToken(nd);
     clearNodeToken(nd); // new
 }
