@@ -1969,8 +1969,8 @@ void run(Console *cons, vector<string> args)
         LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
     }
-
-    SCExecutable._run(args, true);
+SCExecutable.executeAsTask("main");
+    //SCExecutable._run(args, true);
 }
 void kill_cEsc(Console *cons)
 {

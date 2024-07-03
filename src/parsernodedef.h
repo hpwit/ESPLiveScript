@@ -1377,12 +1377,19 @@ void _visitNodeStoreExtGlobalVariable(NodeToken *nd)
     {
         start += v->sizes[h];
     }
-    for (int i = v->size - 1; i >= 0; i--)
+       if (nd->children.size() > 0 or !nd->isPointer or nd->asPointer)
     {
-        content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[v->store[i]].c_str(), getRegType(v->store[i], 0).c_str(), register_numl.get(), getRegType(v->store[i], 1).c_str(), point_regnum, start));
-        // register_numl--;
-        start -= v->sizes[i];
-        // content.sp.push(content.get());
+        for (int i = v->size - 1; i >= 0; i--)
+        {
+            content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[v->store[i]].c_str(), getRegType(v->store[i], 0).c_str(), register_numl.get(), getRegType(v->store[i], 1).c_str(), point_regnum, start));
+            // register_numl--;
+            start -= v->sizes[i];
+            // content.sp.push(content.get());
+        }
+    }
+    else
+     {
+        content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", register_numl.get(), point_regnum, start));
     }
     // res.f = f;
     // res.header = number.header + h;
@@ -1420,7 +1427,7 @@ void _visitNodeStoreExtGlobalVariable(NodeToken *nd)
     }
     content.addAfter(string_format("movExt a%d,%s",
                                    point_regnum, nd->_token->text.c_str()));
-    if (nd->isPointer)
+    if (nd->isPointer && nd->children.size() > 0)
     {
         // f=f+number.f;
         for (int i = 0; i < v->total_size; i++)

@@ -1555,7 +1555,8 @@ executable createExectutable(string script)
 void executeBinaryAsm(uint32_t *j, uint32_t *c)
 {
 #ifdef __CONSOLE_ESP32
-// LedOS.pushToConsole("Executing asm code ...",true);
+string s=string_format("Executing asm code @%x",j);
+LedOS.pushToConsole(s,false);
 #else
  // printf("Executing asm code ...\r\n");
 #endif
