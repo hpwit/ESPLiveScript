@@ -3405,7 +3405,9 @@ void _visitNodeAssignement(NodeToken *nd)
     register_numl.push(15);
     register_numl.push(15);
     register_numl.push(15);
+    register_numl.push(15);
     register_numr.clear();
+    register_numr.push(15);
     register_numr.push(15);
     register_numr.push(15);
     register_numr.push(15);
