@@ -1550,11 +1550,8 @@ public:
                 Error.error = 0;
                 current_cntx = current_cntx->parent;
                  point_regnum=4;
-                        register_numr.clear();
-    register_numl.clear();
-    register_numl.push(15);
-    register_numr.push(15);
                  printf("on visit la function\r\n");
+                  buildParents(current_node);
                 current_node->visitNode(current_node);
                 printf("on a visité\r\n");
                 current_node = current_node->parent;

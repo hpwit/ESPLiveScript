@@ -2571,7 +2571,7 @@ void _visitNodeBlockStatement(NodeToken *nd)
     }
     
     // clearToken(nd);
-   // clearNodeToken(nd); // new
+    clearNodeToken(nd); // new
 }
 
 class NodeBlockStatement : public NodeToken
