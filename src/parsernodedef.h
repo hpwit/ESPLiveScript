@@ -100,6 +100,7 @@ list<int> _compare;
 
 
 token *__current;
+int __sav_pos;
 class StackVarEnumType
 
 {
@@ -892,6 +893,7 @@ void _deleteToken(token *nds, token *nde)
     else
     {
         it2--;
+       // printf("until line:%d\r\n",(*it2).line);
     }
     list<token>::iterator it = list_of_token.begin();
     while (it != it2 and it != list_of_token.end())
@@ -907,10 +909,14 @@ void _deleteToken(token *nds, token *nde)
         it++;
     }
     // printf("we gave %s\r\n",(*it).text.c_str());
+   // printf("position: %d\r\n",_tks.position);
     for (list<token>::iterator f : __todelete)
     {
         list_of_token.erase(f);
+       __sav_pos--;
     }
+    _tks.position=__sav_pos;
+   // printf("position: %d\r\n",_tks.position);
     __todelete.clear();
     //}
 }
@@ -2381,8 +2387,9 @@ void _visitNodeDefFunction(NodeToken *nd)
         if (&*it != NULL)
             clearNodeToken(&*it);
     }*/
-     _deleteToken(nd->_token, __current);
-    //clearNodeToken(nd);
+  // printf("on  %d delete from %s line:%d to %s line:%d\r\n",_tks.position,  nd->getChildAtPos(2)->_token->text.c_str(),nd->getChildAtPos(2)->_token->line,__current->text.c_str(), __current->line);
+     _deleteToken(nd->getChildAtPos(2)->_token, __current);
+   // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
 }
 
 class NodeDefFunction : public NodeToken

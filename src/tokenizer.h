@@ -850,9 +850,9 @@ public:
         {
             _tokens->clear();
         }
-
+int position;
     private:
-        int position;
+        
         list<token> *_tokens;
         token end_token = {.type = TokenEndOfFile};
     };

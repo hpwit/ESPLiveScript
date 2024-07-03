@@ -1431,7 +1431,7 @@ public:
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
-        // printf("entering function\n");
+        //printf("entering function %s\r\n",current()->text.c_str());
         if (isExternal)
         {
             ext_function = true;
@@ -1553,13 +1553,15 @@ public:
                 Error.error = 0;
                 current_cntx = current_cntx->parent;
                  point_regnum=4;
-                 printf("on visit la function\r\n");
+                 //printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
+                 __sav_pos=_tks.position;
                   buildParents(current_node);
                   __current=current();
                 current_node->visitNode(current_node);
-                printf("on a visité\r\n");
+                //printf("on a visité\r\n");
+
                 current_node = current_node->parent;
-               
+               _tks.position=__sav_pos;
                
                 return;
             }
