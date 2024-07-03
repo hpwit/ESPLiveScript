@@ -870,7 +870,9 @@ public:
         // resParse result;
         // NodeStatement statement;
         // current_node=current_node->addChild(statement);
-        printf("line:%d mem:\r\n",current()->line);
+        #ifndef __TEST_DEBUG
+        printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
+        #endif
         // on demarre avec la function
         if (Match(TokenString))
         {
@@ -1543,6 +1545,7 @@ public:
                 {
                     return;
                 }
+
                 // current_node->addChild(blocsmt._nd);
                 // current_node = current_node->parent;
                 current_node->stack_pos = stack_size;
@@ -1552,6 +1555,7 @@ public:
                  point_regnum=4;
                  printf("on visit la function\r\n");
                   buildParents(current_node);
+                  __current=current();
                 current_node->visitNode(current_node);
                 printf("on a visité\r\n");
                 current_node = current_node->parent;

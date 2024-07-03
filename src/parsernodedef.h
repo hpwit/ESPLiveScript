@@ -98,6 +98,8 @@ list<int> _sp;
 
 list<int> _compare;
 
+
+token *__current;
 class StackVarEnumType
 
 {
@@ -1001,7 +1003,7 @@ void _visitNodeProgramNode(NodeToken *nd)
                 // printf("on clear %s\r\n",nd->getChildAtPos(i)->_token->text.c_str());
                 if (i < nd->children.size() - 1)
                 {
-                    clearToken(nd->getChildAtPos(i)->getChildAtPos(2), nd->getChildAtPos(i + 1));
+                  // clearToken(nd->getChildAtPos(i)->getChildAtPos(2), nd->getChildAtPos(i + 1));
                 }
                 // on fait de la place dans la memoire
                 // clearToken(nd->getChildAtPos(i)->getChildAtPos(2));
@@ -2379,7 +2381,7 @@ void _visitNodeDefFunction(NodeToken *nd)
         if (&*it != NULL)
             clearNodeToken(&*it);
     }*/
-   
+     _deleteToken(nd->_token, __current);
     //clearNodeToken(nd);
 }
 
@@ -2570,7 +2572,7 @@ void _visitNodeBlockStatement(NodeToken *nd)
         }
     }
     
-    // clearToken(nd);
+    //clearToken(nd->getChildAtPos(0),nd->getChildAtPos(nd->children.size()-1));
     clearNodeToken(nd); // new
 }
 
