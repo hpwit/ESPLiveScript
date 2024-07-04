@@ -871,7 +871,7 @@ public:
         // NodeStatement statement;
         // current_node=current_node->addChild(statement);
         #ifndef __TEST_DEBUG
-        printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
+       // printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         #endif
         // on demarre avec la function
         if (Match(TokenString))
