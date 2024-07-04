@@ -2580,7 +2580,9 @@ void _visitNodeBlockStatement(NodeToken *nd)
     }
     
     //clearToken(nd->getChildAtPos(0),nd->getChildAtPos(nd->children.size()-1));
+    printf("meme ava %u\r\n", esp_get_free_heap_size());
     clearNodeToken(nd); // new
+    printf("meme apres %u\r\n",esp_get_free_heap_size());
 }
 
 class NodeBlockStatement : public NodeToken
@@ -2839,7 +2841,7 @@ public:
 void _visitNodeChangeType(NodeToken *nd)
 {
     // register_numl.duplicate();
-    printf("one chande de type");
+   // printf("one chande de type");
     globalType.push(nd->_token->_vartype->_varType);
     for (int i = 0; i < nd->children.size(); i++)
     {
