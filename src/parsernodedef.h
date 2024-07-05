@@ -921,6 +921,94 @@ void _deleteToken(token *nds, token *nde)
     //}
 }
 
+void deleteNotNeededToken(token *nds, token *nde)
+{
+    __todelete.clear();
+    // printf("we delete before :%s to %s\r\n",nds->text.c_str(),nde->text.c_str());
+    bool canerase = false;
+    list<token>::iterator it2 = list_of_token.begin();
+    // for (list<token>::iterator it = list_of_token.begin(); it != list_of_token.end(); ++it)
+    //   {
+while (&(*it2) != nde and it2 != list_of_token.end())
+    {
+
+        it2++;
+    }
+    if (it2 == list_of_token.end())
+    {
+        printf("token not found %s\n\r", nde->text.c_str());
+        return;
+    }
+    else
+    {
+        it2--;
+       // printf("until line:%d\r\n",(*it2).line);
+    }
+    
+    list<token>::iterator it = list_of_token.begin();
+    bool start_delete = false;
+    while (it != it2 and it != list_of_token.end())
+    {
+        //  printf("o \r\n");
+                if (&*it == nds)
+        {
+            // printf("o/r\n");
+            start_delete = true;
+        }
+        if(start_delete)
+        {
+        canerase = false;
+        switch((*it).type)
+        {
+            case TokenOpenParenthesis:
+            canerase = true;
+            break;
+            case TokenCloseParenthesis:
+            canerase = true;
+            break;
+             case TokenOpenBracket:
+            canerase = true;
+            break;        
+               case TokenCloseBracket:
+            canerase = true;
+            break;     
+            case TokenOpenCurlyBracket:
+            canerase = true;
+            break;      
+             case TokenCloseCurlyBracket:
+            canerase = true;
+            break;     
+              case TokenEqual:
+            canerase = true;
+            break;    
+              case TokenComma:
+            canerase = true;
+            break;          
+              case TokenSemicolon:
+            canerase = true;
+            break;               
+                                  
+            default:
+            break;
+        }
+        if (canerase)
+            __todelete.push_back(it);
+        }
+        it++;
+    }
+    // printf("we gave %s\r\n",(*it).text.c_str());
+   // printf("position: %d\r\n",_tks.position);
+    for (list<token>::iterator f : __todelete)
+    {
+        list_of_token.erase(f);
+       __sav_pos--;
+    }
+    _tks.position=__sav_pos;
+   // printf("position: %d\r\n",_tks.position);
+    __todelete.clear();
+    //}
+}
+
 
 string findForWhile()
 {
@@ -2388,8 +2476,12 @@ void _visitNodeDefFunction(NodeToken *nd)
             clearNodeToken(&*it);
     }*/
   // printf("on  %d delete from %s line:%d to %s line:%d\r\n",_tks.position,  nd->getChildAtPos(2)->_token->text.c_str(),nd->getChildAtPos(2)->_token->line,__current->text.c_str(), __current->line);
+     // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
      _deleteToken(nd->getChildAtPos(2)->_token, __current);
+     //  printf("mem toke are %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
    // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
+   _node_token_stack.clear();
+
 }
 
 class NodeDefFunction : public NodeToken
@@ -2431,6 +2523,11 @@ void _visitNodeDefAsmFunction(NodeToken *nd)
             // h = h + g.header;
         }
     // content.addAfter(string_format("retw.n"));
+       // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
+     _deleteToken(nd->getChildAtPos(2)->_token, __current);
+      // printf("mem toke are %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
+   // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
+   _node_token_stack.clear();
 }
 
 class NodeDefAsmFunction : public NodeToken
@@ -2580,9 +2677,9 @@ void _visitNodeBlockStatement(NodeToken *nd)
     }
     
     //clearToken(nd->getChildAtPos(0),nd->getChildAtPos(nd->children.size()-1));
-    printf("meme ava %u\r\n", esp_get_free_heap_size());
+   // printf("meme ava %u\r\n", esp_get_free_heap_size());
     clearNodeToken(nd); // new
-    printf("meme apres %u\r\n",esp_get_free_heap_size());
+    //printf("meme apres %u\r\n",esp_get_free_heap_size());
 }
 
 class NodeBlockStatement : public NodeToken

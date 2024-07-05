@@ -148,13 +148,14 @@ public:
         {
             // prettyPrint(program, "");
             pushToConsole("***********PARSING DONE*********");
-
+//printf("parseing done %u\r\n",esp_get_free_heap_size());
             program.visitNode(&program);
 
             pushToConsole("***********COMPILING DONE*********");
             // p.cleanint();
+          //  printf("compile done %u\r\n",esp_get_free_heap_size());
             clean();
-
+//printf("afer clean done %u\r\n",esp_get_free_heap_size());
             pushToConsole("***********AFTER CLEAN*********");
             // printf("%d\n",_content.size());
             int s = _header.size();
@@ -194,7 +195,7 @@ public:
         clean2();
         __MEM();
         Script sc(&division);
-
+       // printf("start with %u\r\n",esp_get_free_heap_size());
         _tks.init();
         tokenizer(&sc);
         list_of_token.pop_back();
@@ -235,7 +236,7 @@ public:
     {
         clean();
         clean2();
-
+ //printf("start with %u\r\n",esp_get_free_heap_size());
         Script sc(&division);
 
         _tks.init();
@@ -266,11 +267,17 @@ public:
     }
     void clean()
     {
+      //  printf("start clear %u\r\n", esp_get_free_heap_size());
         clearContext(&main_cntx);
+      //  printf("mApres contexte %u\r\n", esp_get_free_heap_size());
         _functions.clear();
+      //  printf("apres dfucntion %u\r\n", esp_get_free_heap_size());
         clearNodeToken(&program);
+       // printf("apres node token %u\r\n", esp_get_free_heap_size());
         list_of_token.clear();
+      //  printf("apres token %u\r\n", esp_get_free_heap_size());
         nb_args.clear();
+      //  printf("apres args %u\r\n", esp_get_free_heap_size());
     }
     void cleanint()
     {
@@ -1405,7 +1412,12 @@ public:
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {
             // printf("on tente aouter un stamt\n");
+             __current=current();
+              
             parseStatement();
+        __sav_pos=_tks.position;
+        deleteNotNeededToken(__current,current());
+        _tks.position=__sav_pos;
             if (Error.error)
             {
                 return;
@@ -1431,7 +1443,7 @@ public:
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
-        //printf("entering function %s\r\n",current()->text.c_str());
+       // printf("entering function %s with %ur\n",current()->text.c_str(),esp_get_free_heap_size());
         if (isExternal)
         {
             ext_function = true;
@@ -1551,13 +1563,16 @@ public:
                 current_node->stack_pos = stack_size;
                 // result._nd = function;
                 Error.error = 0;
+                Context *tobedeted=current_cntx;
                 current_cntx = current_cntx->parent;
+                
                  point_regnum=4;
                  //printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
                  __sav_pos=_tks.position;
                   buildParents(current_node);
                   __current=current();
                 current_node->visitNode(current_node);
+                 clearContext(tobedeted);
                 //printf("on a visité\r\n");
 
                 current_node = current_node->parent;
@@ -1794,7 +1809,11 @@ public:
                 {
                     if (Match(TokenOpenParenthesis, 1))
                     {
+                         __current=current();
                         parseDefFunction(nodeTokenList.get());
+                        __sav_pos=_tks.position;
+        deleteNotNeededToken(__current,current());
+        _tks.position=__sav_pos;
                         if (Error.error)
                         {
                             return;
@@ -1803,6 +1822,7 @@ public:
                     }
                     else
                     {
+                          __current=current();
 
                         parseVariableForCreation();
                         if (Error.error)
@@ -1889,7 +1909,9 @@ public:
                             }
                             next();
                             Error.error = 0;
-
+                        __sav_pos=_tks.position;
+        deleteNotNeededToken(__current,current());
+        _tks.position=__sav_pos;
                             current_node = current_node->parent;
                         }
                         else
