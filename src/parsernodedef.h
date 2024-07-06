@@ -198,6 +198,10 @@ public:
     {
         l->push_back(a);
     }
+    int front()
+    {
+        return l->front();
+    }
     int pop()
     {
         int sav = l->back();
@@ -1085,12 +1089,14 @@ void _visitNodeProgramNode(NodeToken *nd)
     {
         if (nd->getChildAtPos(i)->visitNode != NULL)
         {
+            #ifndef __MEM_PARSER
             if (nd->getChildAtPos(i)->_nodetype != defFunctionNode && nd->getChildAtPos(i)->_nodetype != defAsmFunctionNode)
             {
+                #endif
             nd->getChildAtPos(i)->visitNode(nd->getChildAtPos(i));
-            
+            #ifndef __MEM_PARSER
             }// NEW
-
+        #endif
             if (nd->getChildAtPos(i)->_nodetype == defFunctionNode or nd->getChildAtPos(i)->_nodetype == defAsmFunctionNode)
             {
 
@@ -1492,11 +1498,13 @@ void _visitNodeStoreExtGlobalVariable(NodeToken *nd)
     }
     // res.f = f;
     // res.header = number.header + h;
-    content.sp.push(content.get());
-    content.sp.swap();
-    content.putIteratorAtPos(content.sp.get());
-    content.sp.displaystack("PILE");
-    if (nd->children.size() > 0)
+   // content.sp.push(content.get());
+    //content.sp.swap();
+   // content.putIteratorAtPos(content.sp.get());
+   // content.sp.displaystack("PILE");
+   // content.addAfter(content.sp.l->front(),"");
+   content.putIteratorAtPos(content.sp.l->front());
+    if (nd->children.size() ==1)
     {
         register_numl.duplicate();
         nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
@@ -1509,6 +1517,18 @@ void _visitNodeStoreExtGlobalVariable(NodeToken *nd)
         {
             translateType(__int__, nd->getChildAtPos(0)->_token->_varType, register_numl.get());
         }
+    }
+    else if(nd->children.size() >1)
+    {
+        for(int par=0;par<nd->children.size();par++)
+        {
+                    register_numl.duplicate();
+                    nd->getChildAtPos(par)->visitNode(nd->getChildAtPos(par));
+                    register_numl.pop();
+                     content.addAfter(string_format("mov a%d,a%d", 10+par,register_numl.get()));
+        }
+        content.addAfter(string_format("callExt a%d,map%dD",register_numl.get(),nd->children.size()));
+        content.addAfter(string_format("mov a%d,a10",register_numl.get()));
     }
 
     if (safeMode && nd->isPointer)
@@ -2477,7 +2497,9 @@ void _visitNodeDefFunction(NodeToken *nd)
     }*/
   // printf("on  %d delete from %s line:%d to %s line:%d\r\n",_tks.position,  nd->getChildAtPos(2)->_token->text.c_str(),nd->getChildAtPos(2)->_token->line,__current->text.c_str(), __current->line);
      // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
+     #ifndef __MEM_PARSER
      _deleteToken(nd->getChildAtPos(2)->_token, __current);
+     #endif
      //  printf("mem toke are %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
    // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
    _node_token_stack.clear();
@@ -2524,10 +2546,12 @@ void _visitNodeDefAsmFunction(NodeToken *nd)
         }
     // content.addAfter(string_format("retw.n"));
        // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
+       #ifndef __MEM_PARSER 
      _deleteToken(nd->getChildAtPos(2)->_token, __current);
       // printf("mem toke are %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
    // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
    _node_token_stack.clear();
+   #endif
 }
 
 class NodeDefAsmFunction : public NodeToken
@@ -3474,6 +3498,7 @@ void _visitNodeAssignement(NodeToken *nd)
 {
     // printf("in Assignment Node\n");
     point_regnum = 4;
+    content.sp.l->clear();
     content.sp.push(content.get());
     register_numl.duplicate();
     content.sp.displaystack("PILE");

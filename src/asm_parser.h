@@ -1465,7 +1465,7 @@ executable createExectutable(list<string> *lines, bool display)
 
     if (err.error == 0)
     {
-      printf("tenative creation binaire\r\n");
+     // printf("tenative creation binaire\r\n");
       exec = createBinary(&_asm_parsed);
 
       if (exec.error.error == 0)
