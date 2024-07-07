@@ -1515,7 +1515,7 @@ void _visitNodeStoreExtGlobalVariable(NodeToken *nd)
         }
         else
         {
-            translateType(__int__, nd->getChildAtPos(0)->_token->_varType, register_numl.get());
+           // translateType(__int__, nd->getChildAtPos(0)->_token->_varType, register_numl.get());
         }
     }
     else if(nd->children.size() >1)
@@ -2280,7 +2280,9 @@ void _visitNodeCallFunction(NodeToken *nd)
                 if (nd->getChildAtPos(0)->getChildAtPos(i)->_token->_vartype != NULL)
                     translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_vartype->_varType, register_numl.get());
                 else
-                    translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_varType, register_numl.get());
+                {
+                 //   translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_varType, register_numl.get());
+                }
                 start -= t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->sizes[tot - j];
                 asmInstruction asmInstr = t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->store[tot - j];
                 // content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), point_regnum, start));
@@ -2384,7 +2386,9 @@ void _visitNodeExtCallFunction(NodeToken *nd)
         if (nd->getChildAtPos(0)->getChildAtPos(i)->_token->_vartype != NULL)
             translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_vartype->_varType, register_numl.get());
         else
-            translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_varType, register_numl.get());
+        {
+           // translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_varType, register_numl.get());
+        }
         // translateType(t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->_varType,globalType.get(),register_numl.get());
         if (t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->_varType == __float__)
         {
@@ -2742,7 +2746,7 @@ void _visitNodeOperator(NodeToken *nd)
         }
         else
         {
-            l = nd->parent->getChildAtPos(0)->_token->_varType;
+           // l = nd->parent->getChildAtPos(0)->_token->_varType;
         }
     }
     // printf("kk2 :%d\n",nd->parent->children.size());
@@ -2762,7 +2766,7 @@ void _visitNodeOperator(NodeToken *nd)
             else
             {
                 // printf("kk33\n");
-                r = nd->parent->getChildAtPos(2)->_token->_varType;
+               // r = nd->parent->getChildAtPos(2)->_token->_varType;
             }
         }
     }
@@ -2773,29 +2777,33 @@ void _visitNodeOperator(NodeToken *nd)
         addTokenSup(nd->parent);
         if (globalType.get() == __float__)
         {
-            nd->parent->_token->_varType = __float__;
+           // nd->parent->_token->_varType = __float__;
+            nd->parent->_token->_vartype = &_varTypes[(int)__float__];
         }
         else
         {
-            nd->parent->_token->_varType = __none__;
+            //nd->parent->_token->_varType = __none__;
+            nd->parent->_token->_vartype = &_varTypes[(int)__none__];
         }
     }
     else if (nd->parent->_token->_vartype == NULL)
     {
         if (globalType.get() == __float__)
         {
-            nd->parent->_token->_varType = __float__;
+           // nd->parent->_token->_varType = __float__;
+            nd->parent->_token->_vartype = &_varTypes[(int)__float__];
         }
         else
         {
-            nd->parent->_token->_varType = __none__;
+           // nd->parent->_token->_varType = __none__;
+           nd->parent->_token->_vartype = &_varTypes[(int)__none__];
         }
     }
     // printf("kk4\n");
     if (globalType.get() == __float__)
     {
         ff = true;
-        // nd->parent->_token->_vartype=&_varTypes[__float__];
+         nd->parent->_token->_vartype=&_varTypes[__float__];
     }
     // printf("kk5\n");
     asmInstruction asmInstr;
@@ -2976,7 +2984,9 @@ void _visitNodeChangeType(NodeToken *nd)
             if (nd->getChildAtPos(i)->_token->_vartype != NULL)
                 translateType(globalType.get(), nd->getChildAtPos(i)->_token->_vartype->_varType, register_numl.get());
             else
-                translateType(globalType.get(), nd->getChildAtPos(i)->_token->_varType, register_numl.get());
+            {
+               // translateType(globalType.get(), nd->getChildAtPos(i)->_token->_varType, register_numl.get());
+            }
         }
     }
     // varTypeEnum s = globalType.pop();
@@ -3084,7 +3094,8 @@ void _visitNodeUnitary(NodeToken *nd)
         // printf("node UNitary operator2\n");
         nd->getChildAtPos(0)->asPointer = true;
         addTokenSup(nd);
-        nd->_token->_varType = __none__;
+       // nd->_token->_varType = __none__;
+         nd->_token->_vartype = &_varTypes[(int)__none__];
         nd->isPointer = true;
         if (nd->getChildAtPos(0)->visitNode != NULL)
             nd->getChildAtPos(0)->visitNode(nd->getChildAtPos(0));
@@ -3511,7 +3522,9 @@ void _visitNodeAssignement(NodeToken *nd)
         if (nd->getChildAtPos(1)->_token->_vartype != NULL)
             translateType(globalType.get(), nd->getChildAtPos(1)->_token->_vartype->_varType, register_numl.get());
         else
-            translateType(globalType.get(), nd->getChildAtPos(1)->_token->_varType, register_numl.get());
+        {
+         //   translateType(globalType.get(), nd->getChildAtPos(1)->_token->_varType, register_numl.get());
+        }
         // printf("retour assignemen\n") ;
         // new
         content.sp.pop();
