@@ -91,6 +91,15 @@ public:
 */
     void parse()
     {
+
+        point_regnum = 4;
+        content.begin();
+        header.begin();
+        register_numr.clear();
+        register_numl.clear();
+        register_numl.push(15);
+        register_numr.push(15);
+
         root._nodetype = programNode;
         point_regnum = 4;
         stack_size = 0;
@@ -103,15 +112,25 @@ public:
         safeMode = false;
         saveReg = false;
         saveRegAbs = false;
-       _asPointer = false;
-       isPointer = false;
-       isASM = false;   
+        _asPointer = false;
+        isPointer = false;
+        isASM = false;
         parseProgram();
         buildParents(&program);
     }
 
     bool parse_create()
     {
+        // new
+        point_regnum = 4;
+        content.begin();
+        header.begin();
+        register_numr.clear();
+        register_numl.clear();
+        register_numl.push(15);
+        register_numr.push(15);
+        // new
+
         parse();
         if (Error.error)
         {
@@ -129,13 +148,14 @@ public:
         {
             // prettyPrint(program, "");
             pushToConsole("***********PARSING DONE*********");
-
+            // printf("parseing done %u\r\n",esp_get_free_heap_size());
             program.visitNode(&program);
 
             pushToConsole("***********COMPILING DONE*********");
             // p.cleanint();
+            //  printf("compile done %u\r\n",esp_get_free_heap_size());
             clean();
-
+            // printf("afer clean done %u\r\n",esp_get_free_heap_size());
             pushToConsole("***********AFTER CLEAN*********");
             // printf("%d\n",_content.size());
             int s = _header.size();
@@ -175,7 +195,7 @@ public:
         clean2();
         __MEM();
         Script sc(&division);
-
+        // printf("start with %u\r\n",esp_get_free_heap_size());
         _tks.init();
         tokenizer(&sc);
         list_of_token.pop_back();
@@ -187,22 +207,22 @@ public:
             // string g=s+'\0';
             Script sc(&s);
             _tks.init();
-            tokenizer(&sc, false,false);
+            tokenizer(&sc, false, false);
             _token_line++;
         }
-        int f=_token_line;
+        int f = _token_line;
         _index_token = list_of_token.begin();
         for (int i : add_on)
         {
 
             Script sc(_stdlib[i]);
             _tks.init();
-            tokenizer(&sc, false,false);
+            tokenizer(&sc, false, false);
         }
         // LedOS.script.clear();
         token t;
         t.type = TokenEndOfFile;
-        t.line=f;
+        t.line = f;
         list_of_token.push_back(t);
 #ifdef __CONSOLE_ESP32
         // _script->clear();
@@ -216,7 +236,7 @@ public:
     {
         clean();
         clean2();
-
+        // printf("start with %u\r\n",esp_get_free_heap_size());
         Script sc(&division);
 
         _tks.init();
@@ -228,7 +248,7 @@ public:
         // string g=s+'\0';
         Script sc2(_script);
         _tks.init();
-        tokenizer(&sc2, false,true);
+        tokenizer(&sc2, false, true);
         _token_line++;
 
         _index_token = list_of_token.begin();
@@ -237,7 +257,7 @@ public:
 
             Script sc(_stdlib[i]);
             _tks.init();
-            tokenizer(&sc, false,false);
+            tokenizer(&sc, false, false);
         }
         // LedOS.script.clear();
         token t;
@@ -247,11 +267,17 @@ public:
     }
     void clean()
     {
+        //  printf("start clear %u\r\n", esp_get_free_heap_size());
         clearContext(&main_cntx);
+        //  printf("mApres contexte %u\r\n", esp_get_free_heap_size());
         _functions.clear();
+        //  printf("apres dfucntion %u\r\n", esp_get_free_heap_size());
         clearNodeToken(&program);
+        // printf("apres node token %u\r\n", esp_get_free_heap_size());
         list_of_token.clear();
+        //  printf("apres token %u\r\n", esp_get_free_heap_size());
         nb_args.clear();
+        //  printf("apres args %u\r\n", esp_get_free_heap_size());
     }
     void cleanint()
     {
@@ -384,11 +410,45 @@ public:
                     next();
                     return;
                 }
+                else if (Match(TokenComma))
+                {
+                    while (Match(TokenComma))
+                    {
+                        next();
+
+                        // nb_argument++;
+                        parseExpr();
+                        if (Error.error)
+                        {
+                            return;
+                        }
+                        // arg.addChild(res._nd);
+                    }
+                    if (Match(TokenCloseBracket))
+                    {
+
+                        // var.addChild(expr._nd);
+                        // resParse res;
+                        Error.error = 0;
+                        current_node = current_node->parent;
+                        // res._nd = var;
+                        next();
+                        return;
+                    }
+                    else
+                    {
+
+                        Error.error = 1;
+                        Error.error_message = string_format("expecting ]  or , %s", current()->text.c_str());
+                        next();
+                        return;
+                    }
+                }
                 else
                 {
 
                     Error.error = 1;
-                    Error.error_message = string_format("expecting ] %s", current()->text.c_str());
+                    Error.error_message = string_format("expecting ]  or , %s", current()->text.c_str());
                     next();
                     return;
                 }
@@ -847,11 +907,13 @@ public:
     void parseStatement()
     {
         Error.error = 0;
-        // asPointer =false;
-        // resParse result;
-        // NodeStatement statement;
-        // current_node=current_node->addChild(statement);
-
+// asPointer =false;
+// resParse result;
+// NodeStatement statement;
+// current_node=current_node->addChild(statement);
+#ifndef __TEST_DEBUG
+        // printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
+#endif
         // on demarre avec la function
         if (Match(TokenString))
         {
@@ -859,14 +921,14 @@ public:
             next();
             return;
         }
-        else if(Match(TokenKeywordBreak))
+        else if (Match(TokenKeywordBreak))
         {
-            string c=findForWhile();
-            if(c.compare("__")==0)
+            string c = findForWhile();
+            if (c.compare("__") == 0)
             {
                 Error.error = 1;
                 Error.error_message = string_format("nor For ar while found for break %s", linepos().c_str());
-                return;  
+                return;
             }
             next();
             if (Match(TokenSemicolon))
@@ -879,17 +941,17 @@ public:
             {
                 Error.error = 1;
                 Error.error_message = string_format("d Expected ; %s", linepos().c_str());
-                return;             
+                return;
             }
         }
-        else if(Match(TokenKeywordContinue))
+        else if (Match(TokenKeywordContinue))
         {
-            string c=findForWhile();
-            if(c.compare("__")==0)
+            string c = findForWhile();
+            if (c.compare("__") == 0)
             {
                 Error.error = 1;
                 Error.error_message = string_format("nor For ar while found for continue %s", linepos().c_str());
-                return;  
+                return;
             }
             next();
             if (Match(TokenSemicolon))
@@ -902,7 +964,7 @@ public:
             {
                 Error.error = 1;
                 Error.error_message = string_format("d Expected ; %s", linepos().c_str());
-                return;             
+                return;
             }
         }
         else if (Match(TokenKeywordReturn))
@@ -1384,7 +1446,12 @@ public:
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {
             // printf("on tente aouter un stamt\n");
+            __current = current();
+
             parseStatement();
+            __sav_pos = _tks.position;
+            deleteNotNeededToken(__current, current());
+            _tks.position = __sav_pos;
             if (Error.error)
             {
                 return;
@@ -1410,7 +1477,7 @@ public:
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
-        // printf("entering function\n");
+        // printf("entering function %s with %ur\n",current()->text.c_str(),esp_get_free_heap_size());
         if (isExternal)
         {
             ext_function = true;
@@ -1524,13 +1591,29 @@ public:
                 {
                     return;
                 }
+
                 // current_node->addChild(blocsmt._nd);
                 // current_node = current_node->parent;
                 current_node->stack_pos = stack_size;
                 // result._nd = function;
                 Error.error = 0;
+                Context *tobedeted = current_cntx;
                 current_cntx = current_cntx->parent;
+
+                point_regnum = 4;
+// printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
+#ifndef __MEM_PARSER
+                __sav_pos = _tks.position;
+                buildParents(current_node);
+                __current = current();
+                current_node->visitNode(current_node);
+                clearContext(tobedeted);
+                _tks.position = __sav_pos;
+#endif
+                // printf("on a visité\r\n");
+
                 current_node = current_node->parent;
+
                 return;
             }
             else
@@ -1642,23 +1725,23 @@ public:
                     return;
                 }
             }
-            else if(Match(TokenCloseBracket))
+            else if (Match(TokenCloseBracket))
             {
-                 var.isPointer = true;
-                        var._nodetype = defGlobalVariableNode; // we can't have arrays in the stack
-                       // var._total_size = stringToInt(num->text);
-                        next();
-                        // resParse result;
-                        Error.error = 0;
-                        nodeTokenList.push(var);
-                        return;
+                var.isPointer = true;
+                var._nodetype = defGlobalVariableNode; // we can't have arrays in the stack
+                                                       // var._total_size = stringToInt(num->text);
+                next();
+                // resParse result;
+                Error.error = 0;
+                nodeTokenList.push(var);
+                return;
             }
             else
             {
-                    Error.error = 1;
-                    Error.error_message = string_format("expecting an integer %s or ]", linepos().c_str());
-                    next();
-                    return;
+                Error.error = 1;
+                Error.error_message = string_format("expecting an integer %s or ]", linepos().c_str());
+                next();
+                return;
             }
         }
         else
@@ -1696,7 +1779,7 @@ public:
                 saveReg = true;
                 next();
             }
-             else if (Match(TokenKeywordSaveRegAbs))
+            else if (Match(TokenKeywordSaveRegAbs))
             {
                 saveRegAbs = true;
                 next();
@@ -1762,7 +1845,16 @@ public:
                 {
                     if (Match(TokenOpenParenthesis, 1))
                     {
+#ifndef __MEM_PARSER
+                        __current = current();
+#endif
                         parseDefFunction(nodeTokenList.get());
+#ifndef __MEM_PARSER
+                        __sav_pos = _tks.position;
+                        deleteNotNeededToken(__current, current());
+                        _tks.position = __sav_pos;
+#endif
+
                         if (Error.error)
                         {
                             return;
@@ -1771,6 +1863,7 @@ public:
                     }
                     else
                     {
+                        __current = current();
 
                         parseVariableForCreation();
                         if (Error.error)
@@ -1802,12 +1895,12 @@ public:
                             current_node = current_node->parent;
                             next();
                         }
-                        else if(Match(TokenEqual) && Match(TokenString,1))
+                        else if (Match(TokenEqual) && Match(TokenString, 1))
                         {
                             next();
                             current_node->addChild(NodeString(current()));
                             next();
-                             if (!Match(TokenSemicolon))
+                            if (!Match(TokenSemicolon))
                             {
 
                                 Error.error = 1;
@@ -1857,7 +1950,9 @@ public:
                             }
                             next();
                             Error.error = 0;
-
+                            __sav_pos = _tks.position;
+                            deleteNotNeededToken(__current, current());
+                            _tks.position = __sav_pos;
                             current_node = current_node->parent;
                         }
                         else
@@ -1969,8 +2064,8 @@ void run(Console *cons, vector<string> args)
         LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
     }
-SCExecutable.executeAsTask("main");
-    //SCExecutable._run(args, true);
+    SCExecutable.executeAsTask("main");
+    // SCExecutable._run(args, true);
 }
 void kill_cEsc(Console *cons)
 {

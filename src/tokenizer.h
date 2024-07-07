@@ -56,6 +56,7 @@ struct varType
     // asmInstruction div;
     string reg_name;
     int sizes[4];
+    string names[5];
     int size;
     int total_size;
 };
@@ -273,7 +274,8 @@ enum tokenType
     TokenKeywordFabs,
     TokenKeywordAbs,
     TokenKeywordSaveReg,
-    TokenKeywordSaveRegAbs
+    TokenKeywordSaveRegAbs,
+    TokenMember
     
 
 };
@@ -382,6 +384,7 @@ string tokenNames[] = {
     "TokenKeywordAbs",
     "TokenKeywordSaveReg"
     "TokenKeywordSaveRegAbs"
+    "TokenMember"
 
 #endif
 };
@@ -474,6 +477,7 @@ const char *tokenFormat[] = {
       termColor.BWhite, //Tokenabs  
       termColor.BCyan,    // Keywordsave_reg  
        termColor.BCyan,    // Keywordsave_regabs   
+       termColor.BWhite, // TokenMember
 };
 /*
 const char *KeywordTypeFormat[] =
@@ -500,6 +504,9 @@ typedef struct
 {
     // switch to uin8_t
     tokenType type;
+        varType *_vartype;
+
+   // varTypeEnum _varType;
 
     // needs to find a solution for this maybe a pointer to list string et on ne garde que les identifiers ...
     string text;
@@ -512,9 +519,7 @@ typedef struct
     // switch to uin8_t
     // KeywordType _keyword;
 
-    varType *_vartype;
 
-    varTypeEnum _varType;
 
     // possible sizee  1+4+4+1+1+4=15 au lieu de 44 ...
 
@@ -850,9 +855,9 @@ public:
         {
             _tokens->clear();
         }
-
+int position;
     private:
-        int position;
+        
         list<token> *_tokens;
         token end_token = {.type = TokenEndOfFile};
     };
@@ -1434,14 +1439,14 @@ public:
             if (c == '.')
             {
                 token t;
-                t.type = TokenUnknown;
+                t.type = TokenMember;
                 if (_for_display)
                     t.text = ".";
                 t.line = _token_line;
                 // t.pos = pos;
                 //_token_line++;
                 //  pos = 0;
-                if (_for_display)
+               // if (_for_display)
                     list_of_token.insert(_index_token, t);
                 continue;
             }
