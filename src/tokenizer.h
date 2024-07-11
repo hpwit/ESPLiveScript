@@ -67,9 +67,10 @@ varTypeEnum types[20];
     uint8_t size;
     uint8_t total_size;
 };
-
+varType usded;
 
 vector<varType> _userDefinedTypes;
+varType __v;
 string varTypeEnumNames[] =
     {
 #ifdef __TEST_DEBUG

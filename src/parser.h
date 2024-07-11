@@ -405,10 +405,10 @@ public:
                 {
 
                     // Error.error = 0;
-                    // current_node = current_node->parent;
+                     //current_node = current_node->parent;
 
                     next();
-                    // return;
+                    //return;
                 }
                 else if (Match(TokenComma))
                 {
@@ -1497,7 +1497,7 @@ public:
             is_asm = true;
         }
         // resParse result;
-        //token *func = current();
+        token *func = current();
 
         main_cntx.findFunction(current());
         if (search_result != NULL) // if (current_cntx->findFunction(current()) != NULL)
@@ -1510,7 +1510,7 @@ public:
         }
         if (ext_function)
         {
-            NodeDefExtFunction function = NodeDefExtFunction(current());
+            NodeDefExtFunction function = NodeDefExtFunction(func);
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1520,7 +1520,7 @@ public:
         }
         else if (is_asm)
         {
-            NodeDefAsmFunction function = NodeDefAsmFunction(current());
+            NodeDefAsmFunction function = NodeDefAsmFunction(func);
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1530,7 +1530,7 @@ public:
         }
         else
         {
-            NodeDefFunction function = NodeDefFunction(current());
+            NodeDefFunction function = NodeDefFunction(func);
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1539,12 +1539,10 @@ public:
             main_cntx.addFunction(current_node);
         }
         // on ajoute un nouveau contexte
-       // Context cntx;
-       // cntx.name = current()->text;
-        //Context *k 
-       // current_cntx= current_cntx->addChild(cntx);
-       current_cntx= current_cntx->addChild(Context(current()->text));
-        //current_cntx = k;
+        Context cntx;
+        cntx.name = current()->text;
+        Context *k = current_cntx->addChild(cntx);
+        current_cntx = k;
         stack_size = _STACK_SIZE;
         block_statement_num = 0;
         next();
@@ -1607,7 +1605,7 @@ public:
                 current_node->stack_pos = stack_size;
                 // result._nd = function;
                 Error.error = 0;
-                tobedeted = current_cntx;
+                Context *tobedeted = current_cntx;
                 current_cntx = current_cntx->parent;
 
                 point_regnum = 4;
@@ -1775,7 +1773,10 @@ public:
 
     void parseProgram()
     {
-
+                    int memberpos = 0;
+                    int _start = 0;
+                    int _pos = 0;
+                    int _totalsize = 0;
         // NodeProgram program;
         // Context cntx = Context();
         current_cntx->name = "main";
@@ -1788,17 +1789,18 @@ public:
         {
             if (Match(TokenKeywordStruct))
             {
+                
                 next();
                 if (Match(TokenUserDefinedName))
                 {
 
-                    varType usded;
+                    
 
                     usded._varType = __userDefined__;
-                    int memberpos = 0;
-                    int _start = 0;
-                    int _pos = 0;
-                    int _totalsize = 0;
+                     memberpos = 0;
+                     _start = 0;
+                     _pos = 0;
+                     _totalsize = 0;
                     usded.varName = current()->text;
                     
                     next(); //{
@@ -1809,15 +1811,15 @@ public:
                         
                         usded.starts[memberpos] = _start;
 
-                        varType v = *current()->_vartype;
-                         usded.types[memberpos]=v._varType;
-                        usded.memberSize[memberpos] = v.size;
-                        _start += v.total_size;
-                        for (int _var = 0; _var < v.size; _var++)
+                         __v = *current()->_vartype;
+                         usded.types[memberpos]=__v._varType;
+                        usded.memberSize[memberpos] = __v.size;
+                        _start += __v.total_size;
+                        for (int _var = 0; _var < __v.size; _var++)
                         {
-                            usded.load[_pos] = v.load[_var];
-                            usded.store[_pos] = v.store[_var];
-                            usded.sizes[_pos] = v.sizes[_var];
+                            usded.load[_pos] = __v.load[_var];
+                            usded.store[_pos] = __v.store[_var];
+                            usded.sizes[_pos] = __v.sizes[_var];
                             _pos++;
                         }
                         next(); // name

@@ -963,6 +963,7 @@ void _deleteToken(token *nds, token *nde)
 
 void deleteNotNeededToken(token *nds, token *nde)
 {
+    
     __todelete.clear();
     // printf("we delete before :%s to %s\r\n",nds->text.c_str(),nde->text.c_str());
     bool canerase = false;
