@@ -1497,7 +1497,7 @@ public:
             is_asm = true;
         }
         // resParse result;
-        token *func = current();
+        //token *func = current();
 
         main_cntx.findFunction(current());
         if (search_result != NULL) // if (current_cntx->findFunction(current()) != NULL)
@@ -1510,7 +1510,7 @@ public:
         }
         if (ext_function)
         {
-            NodeDefExtFunction function = NodeDefExtFunction(func);
+            NodeDefExtFunction function = NodeDefExtFunction(current());
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1520,7 +1520,7 @@ public:
         }
         else if (is_asm)
         {
-            NodeDefAsmFunction function = NodeDefAsmFunction(func);
+            NodeDefAsmFunction function = NodeDefAsmFunction(current());
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1530,7 +1530,7 @@ public:
         }
         else
         {
-            NodeDefFunction function = NodeDefFunction(func);
+            NodeDefFunction function = NodeDefFunction(current());
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1539,10 +1539,12 @@ public:
             main_cntx.addFunction(current_node);
         }
         // on ajoute un nouveau contexte
-        Context cntx;
-        cntx.name = current()->text;
-        Context *k = current_cntx->addChild(cntx);
-        current_cntx = k;
+       // Context cntx;
+       // cntx.name = current()->text;
+        //Context *k 
+       // current_cntx= current_cntx->addChild(cntx);
+       current_cntx= current_cntx->addChild(Context(current()->text));
+        //current_cntx = k;
         stack_size = _STACK_SIZE;
         block_statement_num = 0;
         next();
@@ -1605,7 +1607,7 @@ public:
                 current_node->stack_pos = stack_size;
                 // result._nd = function;
                 Error.error = 0;
-                Context *tobedeted = current_cntx;
+                tobedeted = current_cntx;
                 current_cntx = current_cntx->parent;
 
                 point_regnum = 4;

@@ -884,6 +884,7 @@ public:
     }
 };
 
+Context *tobedeted;
 Context main_cntx = Context();
 
 Context *current_cntx = &main_cntx;
