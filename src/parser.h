@@ -149,16 +149,16 @@ public:
         {
             // prettyPrint(program, "");
             pushToConsole("***********PARSING DONE*********");
-            // printf("parseing done %u\r\n",esp_get_free_heap_size());
+            printf("parseing done %u\r\n",esp_get_free_heap_size());
             program.visitNode(&program);
 
             pushToConsole("***********COMPILING DONE*********");
             // p.cleanint();
-            //  printf("compile done %u\r\n",esp_get_free_heap_size());
+              printf("compile done %u\r\n",esp_get_free_heap_size());
             clean();
-            // printf("afer clean done %u\r\n",esp_get_free_heap_size());
+             printf("afer clean done %u\r\n",esp_get_free_heap_size());
             pushToConsole("***********AFTER CLEAN*********");
-            // printf("%d\n",_content.size());
+            //printf("%d\n",_content.size());
             int s = _header.size();
             for (int i = 0; i < s; i++)
             {
@@ -196,7 +196,7 @@ public:
         clean2();
         __MEM();
         Script sc(&division);
-        // printf("start with %u\r\n",esp_get_free_heap_size());
+         printf("start with %u\r\n",esp_get_free_heap_size());
         _tks.init();
         tokenizer(&sc);
         list_of_token.pop_back();
@@ -228,7 +228,8 @@ public:
 #ifdef __CONSOLE_ESP32
         // _script->clear();
 #endif
-        // printf("nb token:%d\r\n",list_of_token.size());
+         printf("nb token:%d\r\n",list_of_token.size());
+         printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
         __MEM();
 
         return parse_create();
@@ -237,7 +238,7 @@ public:
     {
         clean();
         clean2();
-        // printf("start with %u\r\n",esp_get_free_heap_size());
+         printf("start with %u\r\n",esp_get_free_heap_size());
         Script sc(&division);
 
         _tks.init();
@@ -263,22 +264,26 @@ public:
         // LedOS.script.clear();
         token t;
         t.type = TokenEndOfFile;
+        //free(_script);
         list_of_token.push_back(t);
+                 printf("nb token:%d\r\n",list_of_token.size());
+         printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
         return parse_create();
     }
     void clean()
     {
-        //  printf("start clear %u\r\n", esp_get_free_heap_size());
+        _current.clear();
+          printf("start clear %u\r\n", esp_get_free_heap_size());
         clearContext(&main_cntx);
-        //  printf("mApres contexte %u\r\n", esp_get_free_heap_size());
+         printf("mApres contexte %u\r\n", esp_get_free_heap_size());
         _functions.clear();
-        //  printf("apres dfucntion %u\r\n", esp_get_free_heap_size());
+          printf("apres dfucntion %u\r\n", esp_get_free_heap_size());
         clearNodeToken(&program);
-        // printf("apres node token %u\r\n", esp_get_free_heap_size());
+         printf("apres node token %u\r\n", esp_get_free_heap_size());
         list_of_token.clear();
-        //  printf("apres token %u\r\n", esp_get_free_heap_size());
+         printf("apres token %u\r\n", esp_get_free_heap_size());
         nb_args.clear();
-        //  printf("apres args %u\r\n", esp_get_free_heap_size());
+          printf("apres args %u\r\n", esp_get_free_heap_size());
     }
     void cleanint()
     {
@@ -885,7 +890,7 @@ public:
         // resParse res;
         Error.error = 0;
         //  NodeComparator cn = NodeComparator();
-        current_node = current_node->addChild(NodeComparator());
+        current_node = current_node->addChild(NodeComparator(current()));
 
         // res._nd=NodeToken();
         parseExpr();
@@ -894,7 +899,7 @@ public:
             return;
         }
         // token *t=current();
-        current_node->_token = current();
+        current_node->addTokenType(current());
         next();
         parseExpr();
         if (Error.error)
@@ -914,6 +919,7 @@ public:
     }
     void parseStatement()
     {
+        sav_token.clear();
         Error.error = 0;
 // asPointer =false;
 // resParse result;
@@ -922,6 +928,7 @@ public:
 #ifndef __TEST_DEBUG
         // printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
 #endif
+printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         // on demarre avec la function
         if (Match(TokenString))
         {
@@ -1301,7 +1308,13 @@ public:
                 current_node = current_node->addChild(NodeFor(current(), targetList.get()));
                 next();
                 current_node = current_node->addChild(NodeStatement());
-                parseStatement();
+                            __current.push( current());
+
+            parseStatement();
+            __sav_pos = _tks.position;
+            deleteNotNeededToken(__current.pop(), current());
+            _tks.position = __sav_pos;
+               // parseStatement();
                 if (Error.error)
                 {
                     return;
@@ -1315,7 +1328,13 @@ public:
                 }
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
-                parseStatement();
+                            __current.push( current());
+
+            parseStatement();
+            __sav_pos = _tks.position;
+            deleteNotNeededToken(__current.pop(), current());
+            _tks.position = __sav_pos;
+               // parseStatement();
                 if (Error.error)
                 {
                     return;
@@ -1454,11 +1473,11 @@ public:
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {
             // printf("on tente aouter un stamt\n");
-            __current = current();
+            __current.push( current());
 
             parseStatement();
             __sav_pos = _tks.position;
-            deleteNotNeededToken(__current, current());
+            deleteNotNeededToken(__current.pop(), current());
             _tks.position = __sav_pos;
             if (Error.error)
             {
@@ -1485,7 +1504,7 @@ public:
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
-        // printf("entering function %s with %ur\n",current()->text.c_str(),esp_get_free_heap_size());
+        printf("entering function %s with %ur\n",current()->text.c_str(),esp_get_free_heap_size());
         if (isExternal)
         {
             ext_function = true;
@@ -1613,7 +1632,7 @@ public:
 #ifndef __MEM_PARSER
                 __sav_pos = _tks.position;
                 buildParents(current_node);
-                __current = current();
+                __current.push(current());
                 current_node->visitNode(current_node);
                 clearContext(tobedeted);
                 _tks.position = __sav_pos;
@@ -1655,14 +1674,20 @@ public:
         if (Match(TokenKeywordVarType) or Match(TokenUserDefinedVariable))
         {
             _nd._nodetype = typeNode;
-            _nd._token = current();
+            //_nd._token = current();
+            _nd._tokenType=current()->type;
+             _nd._vartype=current()->_vartype;
+             _nd.text=current()->text;
+
             //printf("pqoidpoqsidpoqisdopiqsopdiqsd %s\r\n",current()->text.c_str());
             varType *k=findStruct(current()->text);
             if(k!=NULL)
             {
 
                 // printf("found %s\r\n",current()->text.c_str());
-                _nd._token->_vartype=k;
+               // _nd._token->_vartype=k;
+               _nd._vartype=k;
+
             }
             next();
             if (Match(TokenStar))
@@ -1915,12 +1940,12 @@ public:
                     if (Match(TokenOpenParenthesis, 1))
                     {
 #ifndef __MEM_PARSER
-                        __current = current();
+                        __current.push( current());
 #endif
                         parseDefFunction(nodeTokenList.get());
 #ifndef __MEM_PARSER
                         __sav_pos = _tks.position;
-                        deleteNotNeededToken(__current, current());
+                        deleteNotNeededToken(__current.pop(), current());
                         _tks.position = __sav_pos;
 #endif
 
@@ -1932,7 +1957,7 @@ public:
                     }
                     else
                     {
-                        __current = current();
+                        __current.push(current());
 
                         parseVariableForCreation();
                         if (Error.error)
@@ -2020,7 +2045,7 @@ public:
                             next();
                             Error.error = 0;
                             __sav_pos = _tks.position;
-                            deleteNotNeededToken(__current, current());
+                            deleteNotNeededToken(__current.pop(), current());
                             _tks.position = __sav_pos;
                             current_node = current_node->parent;
                         }
