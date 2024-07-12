@@ -843,7 +843,7 @@ public:
     void addVariable(NodeToken nd)
     {
         nd.text = name + "_" + nd.text;
-        ////printf("i have added %s \n", nd._token->text.c_str());
+        printf("i have added %s \n", nd.text.c_str());
         variables.push_back(nd);
     }
     void addFunction(NodeToken *nd)
