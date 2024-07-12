@@ -3941,7 +3941,8 @@ public:
     };
     NodeComparator(token *t) // token th
     {
-        _token = t;
+       _token = t;
+        //=t->type;
         _nodetype = comparatorNode;
         visitNode = _visitNodeComparatorFunction;
     }
