@@ -100,6 +100,8 @@ list<int> _compare;
 
 // token *__current;
 int __sav_pos;
+string __c;
+token * func;
 class StackVarEnumType
 
 {
@@ -566,6 +568,7 @@ public:
     {
         parent = NULL;
         _link = NULL;
+        _vartype = NULL;
         // _token = NULL;
     }
     NodeToken(token *t)
@@ -606,7 +609,7 @@ public:
     NodeToken *_link;
     NodeToken *parent;
     string target;
-    varType *_vartype;
+    varType *_vartype=NULL;
 
     string text;
     //  Context *cntx;
@@ -635,6 +638,7 @@ public:
 };
 
 list<NodeToken> _node_token_stack;
+NodeToken * _uniquesave;
 
 int ggggg = 0;
 
@@ -843,7 +847,7 @@ public:
     void addVariable(NodeToken nd)
     {
         nd.text = name + "_" + nd.text;
-        printf("i have added %s \n", nd.text.c_str());
+     printf("i have added %s \n", nd.text.c_str());
         variables.push_back(nd);
     }
     void addFunction(NodeToken *nd)
@@ -1022,7 +1026,7 @@ void _deleteToken(token *nds, token *nde)
 
 void deleteNotNeededToken(token *nds, token *nde)
 {
-    return;
+    //return;
     printf("before delteNotneededToken %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
     __todelete.clear();
     // printf("we delete before :%s to %s\r\n",nds->text.c_str(),nde->text.c_str());
@@ -1058,7 +1062,8 @@ void deleteNotNeededToken(token *nds, token *nde)
         }
         if (start_delete)
         {
-            canerase = false;
+            canerase = true;
+
             switch ((*it).type)
             {
             case TokenOpenParenthesis:
@@ -1084,6 +1089,12 @@ void deleteNotNeededToken(token *nds, token *nde)
             case TokenKeywordReturn:
                 canerase = true;
                 break;
+            case TokenNumber:
+                canerase = true;
+                break;     
+            case TokenIdentifier:
+                canerase = true;
+                break;                           
 
                 /*
                             case TokenKeywordVarType:
@@ -1173,7 +1184,7 @@ void deleteNotNeededToken(token *nds, token *nde)
             default:
                 break;
             }
-            if (canerase)
+            if (start_delete)
                 __todelete.push_back(it);
         }
         it++;

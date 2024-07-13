@@ -340,6 +340,7 @@ public:
         // copyPrty(type._nd,&var);
         current_node->addChild(var);
         current_cntx->addVariable(var);
+        current_node->text=current_cntx->variables.back().text;
         // arg.addChild(nd);
         // next();
         // printf("current %s\n", tokenNames[current()->type].c_str());
@@ -364,6 +365,7 @@ public:
             // arg.addChild(var);
             current_node->addChild(var);
             current_cntx->addVariable(var);
+            current_node->text=current_cntx->variables.back().text;
             // next();
         }
         // prev();
@@ -938,8 +940,8 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         }
         else if (Match(TokenKeywordBreak))
         {
-            string c = findForWhile();
-            if (c.compare("__") == 0)
+             __c = findForWhile();
+            if (__c.compare("__") == 0)
             {
                 Error.error = 1;
                 Error.error_message = string_format("nor For ar while found for break %s", linepos().c_str());
@@ -948,7 +950,7 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
             next();
             if (Match(TokenSemicolon))
             {
-                current_node->addChild(NodeBreak(c));
+                current_node->addChild(NodeBreak(__c));
                 next();
                 return;
             }
@@ -961,8 +963,8 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         }
         else if (Match(TokenKeywordContinue))
         {
-            string c = findForWhile();
-            if (c.compare("__") == 0)
+             __c = findForWhile();
+            if (__c.compare("__") == 0)
             {
                 Error.error = 1;
                 Error.error_message = string_format("nor For ar while found for continue %s", linepos().c_str());
@@ -971,7 +973,7 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
             next();
             if (Match(TokenSemicolon))
             {
-                current_node->addChild(NodeContinue(c));
+                current_node->addChild(NodeContinue(__c));
                 next();
                 return;
             }
@@ -1308,12 +1310,12 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                 current_node = current_node->addChild(NodeFor(current(), targetList.get()));
                 next();
                 current_node = current_node->addChild(NodeStatement());
-                            __current.push( current());
+                        //    __current.push( current());
 
             parseStatement();
-            __sav_pos = _tks.position;
-            deleteNotNeededToken(__current.pop(), current());
-            _tks.position = __sav_pos;
+          //  __sav_pos = _tks.position;
+          //  deleteNotNeededToken(__current.pop(), current());
+           // _tks.position = __sav_pos;
                // parseStatement();
                 if (Error.error)
                 {
@@ -1328,12 +1330,12 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                 }
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
-                            __current.push( current());
+                           // __current.push( current());
 
             parseStatement();
-            __sav_pos = _tks.position;
-            deleteNotNeededToken(__current.pop(), current());
-            _tks.position = __sav_pos;
+           // __sav_pos = _tks.position;
+           // deleteNotNeededToken(__current.pop(), current());
+           // _tks.position = __sav_pos;
                // parseStatement();
                 if (Error.error)
                 {
@@ -1393,13 +1395,16 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
             // string var_name = nd._token->text;
             // pritnf()
             current_cntx->addVariable(nodeTokenList.get());
+            
 
             if (Match(TokenSemicolon))
             {
                 Error.error = 0;
                 // result._nd = var;
-                current_node->addChild(nodeTokenList.pop());
+                _uniquesave=current_node->addChild(nodeTokenList.pop());
+                current_cntx->variables.back().text;
                 // current_node = current_node->parent;
+                _uniquesave->text=current_cntx->variables.back().text;
                 next();
                 return;
             }
@@ -1414,7 +1419,8 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                 // auto left = createNodeLocalVariableForStore(var);
                 // copyPrty(type._nd, &var);
                 // current_node->addChild(left);
-                current_node->addChild(createNodeLocalVariableForStore(nodeTokenList.pop()));
+              _uniquesave=  current_node->addChild(createNodeLocalVariableForStore(nodeTokenList.pop()));
+                 _uniquesave->text=current_cntx->variables.back().text;
                 parseExpr();
 
                 if (Error.error)
@@ -1473,12 +1479,12 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {
             // printf("on tente aouter un stamt\n");
-            __current.push( current());
+          //  __current.push( current());
 
             parseStatement();
-            __sav_pos = _tks.position;
-            deleteNotNeededToken(__current.pop(), current());
-            _tks.position = __sav_pos;
+           // __sav_pos = _tks.position;
+           // deleteNotNeededToken(__current.pop(), current());
+           // _tks.position = __sav_pos;
             if (Error.error)
             {
                 return;
@@ -1499,8 +1505,9 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         return;
     }
 
-    void parseDefFunction(NodeToken oritype)
+    void parseDefFunction() //NodeToken oritype
     {
+        
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
@@ -1516,9 +1523,9 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
             is_asm = true;
         }
         // resParse result;
-        token *func = current();
+      func = current();
 
-        main_cntx.findFunction(current());
+        main_cntx.findFunction(func);
         if (search_result != NULL) // if (current_cntx->findFunction(current()) != NULL)
         {
 
@@ -1529,18 +1536,20 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         }
         if (ext_function)
         {
-            NodeDefExtFunction function = NodeDefExtFunction(func);
-            function.addChild(oritype);
+            current_node = current_node->addChild(NodeDefExtFunction(func));
+           // NodeDefExtFunction function = NodeDefExtFunction(func);
+           // function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
-            current_node = current_node->addChild(function);
+           // current_node = current_node->addChild(function);
             // current_cntx->parent->addFunction(current_node);
+            current_node->addChild(nodeTokenList.get());
             main_cntx.addFunction(current_node);
         }
         else if (is_asm)
         {
             NodeDefAsmFunction function = NodeDefAsmFunction(func);
-            function.addChild(oritype);
+            function.addChild(nodeTokenList.get());
             //  function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
@@ -1549,19 +1558,21 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         }
         else
         {
-            NodeDefFunction function = NodeDefFunction(func);
-            function.addChild(oritype);
-            //  function.addChild(arguments._nd);
+           NodeDefFunction function = NodeDefFunction(func);
+            //function.addChild(nodeTokenList.get());
+           current_node = current_node->addChild(function);
 
-            current_node = current_node->addChild(function);
+            //current_node = current_node->addChild(function);
             // current_cntx->parent->addFunction(current_node);
+            
+ current_node->addChild(nodeTokenList.get());
             main_cntx.addFunction(current_node);
         }
         // on ajoute un nouveau contexte
-        Context cntx;
-        cntx.name = current()->text;
-        Context *k = current_cntx->addChild(cntx);
-        current_cntx = k;
+        //Context cntx;
+        //cntx.name = current()->text;
+       current_cntx = current_cntx->addChild(Context(func->text));
+        //current_cntx = k;
         stack_size = _STACK_SIZE;
         block_statement_num = 0;
         next();
@@ -1630,9 +1641,10 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                 point_regnum = 4;
 // printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
 #ifndef __MEM_PARSER
+                printf("on compile %s\r\n",current_node->text.c_str());
                 __sav_pos = _tks.position;
                 buildParents(current_node);
-                __current.push(current());
+                
                 current_node->visitNode(current_node);
                 clearContext(tobedeted);
                 _tks.position = __sav_pos;
@@ -1812,6 +1824,9 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         Error.error = 0;
         while (Match(TokenEndOfFile) == false)
         {
+                            #ifndef __MEM_PARSER
+                        __current.push( current());
+#endif
             if (Match(TokenKeywordStruct))
             {
                 
@@ -1928,6 +1943,7 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
             }
             else
             {
+
                 parseType();
                 if (Error.error)
                 {
@@ -1939,15 +1955,9 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                 {
                     if (Match(TokenOpenParenthesis, 1))
                     {
-#ifndef __MEM_PARSER
-                        __current.push( current());
-#endif
-                        parseDefFunction(nodeTokenList.get());
-#ifndef __MEM_PARSER
-                        __sav_pos = _tks.position;
-                        deleteNotNeededToken(__current.pop(), current());
-                        _tks.position = __sav_pos;
-#endif
+
+                        parseDefFunction(); //nodeTokenList.get()
+
 
                         if (Error.error)
                         {
@@ -1957,7 +1967,7 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                     }
                     else
                     {
-                        __current.push(current());
+                      
 
                         parseVariableForCreation();
                         if (Error.error)
@@ -1972,8 +1982,9 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                             NodeDefExtGlobalVariable var = NodeDefExtGlobalVariable(nd);
                             NodeToken t = nodeTokenList.pop();
                             copyPrty(&t, &var);
-                            current_node = program.addChild(var);
+                           current_node = program.addChild(var);
                             current_cntx->addVariable(var);
+                            current_node->text=current_cntx->variables.back().text;
                             isExternal = false;
                         }
                         else
@@ -1983,6 +1994,7 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                             copyPrty(&t, &var);
                             current_node = program.addChild(var);
                             current_cntx->addVariable(var);
+                            current_node->text=current_cntx->variables.back().text;
                         }
                         if (Match(TokenSemicolon))
                         {
@@ -2044,9 +2056,9 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                             }
                             next();
                             Error.error = 0;
-                            __sav_pos = _tks.position;
-                            deleteNotNeededToken(__current.pop(), current());
-                            _tks.position = __sav_pos;
+                           // __sav_pos = _tks.position;
+                           
+                           // _tks.position = __sav_pos;
                             current_node = current_node->parent;
                         }
                         else
@@ -2065,8 +2077,16 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                     return;
                 }
             }
+                   #ifndef __MEM_PARSER
+                        __sav_pos = _tks.position;
+                        printf("delete in parseprogram");
+                        deleteNotNeededToken(__current.pop(), current());
+                        _tks.position = __sav_pos;
+#endif
         }
         // result._nd = program;
+ 
+
         Error.error = 0;
         // printf("exit programm\n");
         return;
