@@ -1022,7 +1022,7 @@ error_message_struct parseASM(list<string> *_lines, list<result_parse_line> *asm
     {
       printf("on parse line: %d : %s\r\n", i, _lines->front().c_str());
     }
-    // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
+     printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
     line res = splitOpcodeOperande(_lines->front());
     if (!res.error)
     {
@@ -1031,7 +1031,7 @@ error_message_struct parseASM(list<string> *_lines, list<result_parse_line> *asm
       {
         // re_sparse.debugtxt = _lines->front();
       }
-      // re_sparse.line = i + 1;
+       re_sparse.line = i + 1;
       // printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
 
       if (asm_Error.error)
@@ -1180,6 +1180,7 @@ void printparsdAsm(uint32_t start_address, list<result_parse_line> *asm_parsed)
 
 void flagLabel32aligned(list<result_parse_line> *asm_parsed)
 {
+  printf("ghjh\r\n");
 #ifdef __CONSOLE_ESP32
   LedOS.pushToConsole("Flag label(s) to align ... ");
 
@@ -1206,7 +1207,7 @@ void flagLabel32aligned(list<result_parse_line> *asm_parsed)
 #else
   printf("Done.");
 #endif
-  // printf("Done.\r\b");
+   printf("Done.\r\n");
 }
 
 error_message_struct calculateJump(list<result_parse_line> *asm_parsed)
@@ -1243,7 +1244,7 @@ error_message_struct calculateJump(list<result_parse_line> *asm_parsed)
       else
       {
         error.error = 1;
-        // error.error_message += string_format("line %d: label %s not found\n", parse_line->line, parse_line->name.c_str());
+         error.error_message += string_format("line : %d label %s not found\n",parse_line->line, parse_line->name.c_str());
       }
     }
   }
@@ -1459,13 +1460,16 @@ executable createExectutable(list<string> *lines, bool display)
 
   if (err.error == 0)
   {
+    printf("on a parse\r\n");
     flagLabel32aligned(&_asm_parsed);
+     printf("on a parse2\r\n");
     createAddress(&_asm_parsed);
+     printf("on a parse3\r\n");
     err = calculateJump(&_asm_parsed);
-
+ printf("on a parse4\r\n");
     if (err.error == 0)
     {
-     // printf("tenative creation binaire\r\n");
+     printf("tenative creation binaire\r\n");
       exec = createBinary(&_asm_parsed);
 
       if (exec.error.error == 0)
@@ -1487,6 +1491,7 @@ executable createExectutable(list<string> *lines, bool display)
     }
     else
     {
+      printf("oerrrrrr rrr %s\r\n",err.error_message.c_str());
       exec.error = err;
       _asm_parsed.clear();
       return exec;
@@ -1495,6 +1500,7 @@ executable createExectutable(list<string> *lines, bool display)
   else
   {
 
+printf("eero %s\r\n",err.error_message.c_str());
     exec.error = err;
     exec.error.error = 1;
     _asm_parsed.clear();

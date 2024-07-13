@@ -100,8 +100,6 @@ list<int> _compare;
 
 // token *__current;
 int __sav_pos;
-string __c;
-token * func;
 class StackVarEnumType
 
 {

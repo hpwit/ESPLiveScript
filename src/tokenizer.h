@@ -532,9 +532,10 @@ typedef struct
     // varTypeEnum _varType;
 
     // needs to find a solution for this maybe a pointer to list string et on ne garde que les identifiers ...
-    string text;
+
 
     uint8_t line;
+        string text;
 
     // switch to uin8_t unn ligne ne fera pas plus de 256 caracteres
     // uint8_t pos;

@@ -97,7 +97,7 @@ typedef struct result_parse_line
   uint32_t address;
   bool align;
   // string debugtxt;
-  // int line;
+  int line;
   uint32_t (*calculateOfssetJump)(uint32_t value, uint32_t current_address, uint32_t destination_address) = NULL;
 };
 
