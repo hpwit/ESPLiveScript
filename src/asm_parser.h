@@ -1022,7 +1022,7 @@ error_message_struct parseASM(list<string> *_lines, list<result_parse_line> *asm
     {
       printf("on parse line: %d : %s\r\n", i, _lines->front().c_str());
     }
-     printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
+    // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
     line res = splitOpcodeOperande(_lines->front());
     if (!res.error)
     {

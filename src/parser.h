@@ -149,7 +149,8 @@ public:
         {
             // prettyPrint(program, "");
             pushToConsole("***********PARSING DONE*********");
-            printf("parseing done %u\r\n",esp_get_free_heap_size());
+            upadteMem();
+            printf("parseing done max memory consumed :%u\r\n",__maxMemUsage);
             program.visitNode(&program);
 
             pushToConsole("***********COMPILING DONE*********");
@@ -196,7 +197,9 @@ public:
         clean2();
         __MEM();
         Script sc(&division);
-         printf("start with %u\r\n",esp_get_free_heap_size());
+         //printf("start with %u\r\n",esp_get_free_heap_size());
+         __startmem=esp_get_free_heap_size();
+       __maxMemUsage=0;
         _tks.init();
         tokenizer(&sc);
         list_of_token.pop_back();
@@ -228,8 +231,8 @@ public:
 #ifdef __CONSOLE_ESP32
         // _script->clear();
 #endif
-         printf("nb token:%d\r\n",list_of_token.size());
-         printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
+        // printf("nb token:%d\r\n",list_of_token.size());
+        // printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
         __MEM();
 
         return parse_create();
@@ -238,7 +241,9 @@ public:
     {
         clean();
         clean2();
-         printf("start with %u\r\n",esp_get_free_heap_size());
+        // printf("start with %u\r\n",esp_get_free_heap_size());
+       __startmem=esp_get_free_heap_size();
+       __maxMemUsage=0;
         Script sc(&division);
 
         _tks.init();
@@ -266,24 +271,26 @@ public:
         t.type = TokenEndOfFile;
         //free(_script);
         list_of_token.push_back(t);
-                 printf("nb token:%d\r\n",list_of_token.size());
-         printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
+                // printf("nb token:%d\r\n",list_of_token.size());
+         //printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
+       upadteMem();
         return parse_create();
     }
     void clean()
     {
         _current.clear();
-          printf("start clear %u\r\n", esp_get_free_heap_size());
+       //   printf("start clear %u\r\n", esp_get_free_heap_size());
         clearContext(&main_cntx);
-         printf("mApres contexte %u\r\n", esp_get_free_heap_size());
+        // printf("mApres contexte %u\r\n", esp_get_free_heap_size());
         _functions.clear();
-          printf("apres dfucntion %u\r\n", esp_get_free_heap_size());
+          //printf("apres dfucntion %u\r\n", esp_get_free_heap_size());
         clearNodeToken(&program);
-         printf("apres node token %u\r\n", esp_get_free_heap_size());
+         //printf("apres node token %u\r\n", esp_get_free_heap_size());
         list_of_token.clear();
-         printf("apres token %u\r\n", esp_get_free_heap_size());
+        // printf("apres token %u\r\n", esp_get_free_heap_size());
         nb_args.clear();
-          printf("apres args %u\r\n", esp_get_free_heap_size());
+          //printf("apres args %u\r\n", esp_get_free_heap_size());
+    upadteMem();
     }
     void cleanint()
     {
@@ -930,8 +937,9 @@ public:
 #ifndef __TEST_DEBUG
         // printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
 #endif
-printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
+//printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         // on demarre avec la function
+  upadteMem();
         if (Match(TokenString))
         {
             current_node->addChild(NodeString(current()));
@@ -1511,7 +1519,7 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
-        printf("entering function %s with %ur\n",current()->text.c_str(),esp_get_free_heap_size());
+       // printf("entering function %s with %ur\n",current()->text.c_str(),esp_get_free_heap_size());
         if (isExternal)
         {
             ext_function = true;
@@ -1637,7 +1645,7 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                 point_regnum = 4;
 // printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
 #ifndef __MEM_PARSER
-                printf("on compile %s\r\n",current_node->text.c_str());
+              //  printf("on compile %s\r\n",current_node->text.c_str());
                 __sav_pos = _tks.position;
                 buildParents(current_node);
                 
@@ -2074,10 +2082,12 @@ printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
                 }
             }
                    #ifndef __MEM_PARSER
+                   upadteMem();
                         __sav_pos = _tks.position;
-                        printf("delete in parseprogram");
+                        //printf("delete in parseprogram");
                         deleteNotNeededToken(__current.pop(), current());
                         _tks.position = __sav_pos;
+                        upadteMem();
 #endif
         }
         // result._nd = program;
