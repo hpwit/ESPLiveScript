@@ -150,12 +150,16 @@ public:
             // prettyPrint(program, "");
             pushToConsole("***********PARSING DONE*********");
             // printf("parseing done %u\r\n",esp_get_free_heap_size());
+                        upadteMem();
+            printf("parseing done max memory consumed :%u\r\n",__maxMemUsage);
             program.visitNode(&program);
 
             pushToConsole("***********COMPILING DONE*********");
             // p.cleanint();
             //  printf("compile done %u\r\n",esp_get_free_heap_size());
             clean();
+                                 __globalscript.clear();
+             list_of_token.clear();
             // printf("afer clean done %u\r\n",esp_get_free_heap_size());
             pushToConsole("***********AFTER CLEAN*********");
             // printf("%d\n",_content.size());
@@ -195,42 +199,28 @@ public:
         clean();
         clean2();
         __MEM();
-        Script sc(&division);
-        // printf("start with %u\r\n",esp_get_free_heap_size());
-        _tks.init();
-        tokenizer(&sc);
-        list_of_token.pop_back();
 
-        _token_line = 1;
-
-        for (string s : *_script)
+       __startmem=esp_get_free_heap_size();
+       __maxMemUsage=0;
+               __globalscript.clear();
+        __globalscript=division;
+            for (string s : *_script)
         {
             // string g=s+'\0';
-            Script sc(&s);
-            _tks.init();
-            tokenizer(&sc, false, false);
-            _token_line++;
+           __globalscript=__globalscript+"\n"+s;
+           // _token_line++;
         }
-        int f = _token_line;
-        _index_token = list_of_token.begin();
-        for (int i : add_on)
-        {
-
-            Script sc(_stdlib[i]);
-            _tks.init();
-            tokenizer(&sc, false, false);
-        }
-        // LedOS.script.clear();
-        token t;
-        t.type = TokenEndOfFile;
-        t.line = f;
-        list_of_token.push_back(t);
 #ifdef __CONSOLE_ESP32
         // _script->clear();
 #endif
         // printf("nb token:%d\r\n",list_of_token.size());
         __MEM();
-
+ Script sc(&__globalscript);
+_tks.tokenize(&sc,true,true,10);
+        printf("nb token:%d\rn",list_of_token.size());
+        printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
+        __MEM();
+upadteMem();
         return parse_create();
     }
     bool parse_c(string *_script)
@@ -238,8 +228,11 @@ public:
         clean();
         clean2();
         // printf("start with %u\r\n",esp_get_free_heap_size());
-        Script sc(&division);
-
+         __startmem=esp_get_free_heap_size();
+       __maxMemUsage=0;
+               __globalscript.clear();
+        __globalscript=division;
+/**
         _tks.init();
         tokenizer(&sc);
         list_of_token.pop_back();
@@ -263,7 +256,18 @@ public:
         // LedOS.script.clear();
         token t;
         t.type = TokenEndOfFile;
+        //free(_script);
         list_of_token.push_back(t);
+                // printf("nb token:%d\r\n",list_of_token.size());
+         //printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
+      */
+
+     __globalscript=__globalscript+*_script;
+
+ Script sc(&__globalscript);
+_tks.tokenize(&sc,true,true,10);
+       upadteMem();
+        return parse_create();
         return parse_create();
     }
     void clean()
@@ -275,7 +279,7 @@ public:
         //  printf("apres dfucntion %u\r\n", esp_get_free_heap_size());
         clearNodeToken(&program);
         // printf("apres node token %u\r\n", esp_get_free_heap_size());
-        list_of_token.clear();
+      //  list_of_token.clear();
         //  printf("apres token %u\r\n", esp_get_free_heap_size());
         nb_args.clear();
         //  printf("apres args %u\r\n", esp_get_free_heap_size());
