@@ -20,7 +20,7 @@ void upadteMem()
     uint32_t newdelta=__startmem-esp_get_free_heap_size();
         if(newdelta>__maxMemUsage)
                  __maxMemUsage=newdelta;
-    printf("mee %u token : %d \n\r",esp_get_free_heap_size(),list_of_token.size());                 
+   // printf("mee %u token : %d \n\r",esp_get_free_heap_size(),list_of_token.size());                 
 }
 string _numToBytes(uint32_t __num)
 {
@@ -798,7 +798,7 @@ NodeToken *search_result;
 
 list<NodeToken *> sav_token;
 
-list<token *> sav_t;
+list<token> sav_t;
 
 void copyNodeToken(NodeToken from, NodeToken *to)
 

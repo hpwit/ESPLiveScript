@@ -703,6 +703,7 @@ bool isIn0_9_x_b(unsigned char c)
     return false;
 }
 
+
 bool _for_display = false;
 class Script
 {
@@ -765,7 +766,7 @@ private:
 };
 
 list<token> list_of_token;
-
+#define __DEPTH 5
 int _token_line;
 list<token>::iterator _index_token;
 void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToRead)
@@ -779,8 +780,11 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
     {
         userDefinedVarTypeNames.clear();
         list_of_token.clear();
+        for(int i=0;i< __DEPTH;i++ )
+        {
         list_of_token.push_back(token()); 
-        list_of_token.push_back(token());// on ajoute un token pour le prev
+       
+        }
         _token_line = 1;
         _index_token = list_of_token.end();
         define_list.clear();
@@ -963,7 +967,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                 t.line = _token_line;
                 // t.pos = pos;
                 list_of_token.insert(_index_token, t);
-                nbReadToken++;
+                //nbReadToken++;
                 continue;
             }
             else
@@ -1023,7 +1027,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                     if (prev.type == TokenKeywordImport && !_for_display)
                     {
                         // script->insert(import);
-
+                nbReadToken--;
                         if (findLibFunction(v) > -1)
                         {
                             list_of_token.pop_back();
@@ -1036,6 +1040,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                     else if (prev.type == TokenKeywordDefine && !_for_display)
                     {
                         list_of_token.pop_back();
+                        nbReadToken--;
                         _define newdef;
                         newdef.name = v;
                         newdef.content = "";
@@ -1413,7 +1418,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             //  pos = 0;
             // if (_for_display)
             list_of_token.insert(_index_token, t);
-            nbReadToken++;
+           // nbReadToken++;
             continue;
         }
         if (c == '^')
@@ -1428,7 +1433,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             //  pos = 0;
             // if (_for_display)
             list_of_token.insert(_index_token, t);
-            nbReadToken++;
+           // nbReadToken++;
             continue;
         }
         if (c == '@')
@@ -1516,6 +1521,7 @@ if (script->currentChar() == EOF_TEXT )
     // return list_of_token;
 }
 
+
 class Tokens
 {
 public:
@@ -1557,7 +1563,7 @@ public:
     }
     token *current()
     {
-        return getTokenAtPos(2);
+        return getTokenAtPos(__DEPTH);
     }
     token *next()
     {
@@ -1573,7 +1579,7 @@ public:
         */
         _tokens->pop_front();
         tokenizer(_script, false, true, 1);
-        return getTokenAtPos(2);
+        return getTokenAtPos(__DEPTH);
     }
     token *prev()
     {
@@ -1584,19 +1590,19 @@ public:
         }
         */
        list_of_token.push_front(token());
-        return getTokenAtPos(2);
+        return getTokenAtPos(__DEPTH);
     }
     token *peek(int index)
     {
-        if (index + 2 < _tokens->size() && position + 2 >= 0)
+        if (index + __DEPTH < _tokens->size() && position + __DEPTH >= 0)
         {
-            return getTokenAtPos(index + 2);
+            return getTokenAtPos(index + __DEPTH);
         }
         else
         {
-              tokenizer(_script, false, true,  _tokens->size()-index-2+1);
+              tokenizer(_script, false, true,  _tokens->size()-index-__DEPTH+1);
 
-            return getTokenAtPos(index + 2);
+            return getTokenAtPos(index + __DEPTH);
         }
     }
     void init()

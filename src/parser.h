@@ -541,7 +541,7 @@ _tks.tokenize(&sc,true,true,10);
             // token *t = current();
             // NodeUnitary g = NodeUnitary();
             current_node = current_node->addChild(NodeUnitary());
-            sav_t.push_back(current());
+            sav_t.push_back(*current());
 
             next();
 
@@ -551,7 +551,7 @@ _tks.tokenize(&sc,true,true,10);
                 return;
             }
             // NodeUnitary g = NodeUnitary(NodeOperator(t), res._nd);
-            current_node->addChild(NodeOperator(sav_t.back()));
+            current_node->addChild(NodeOperator(&sav_t.back()));
             sav_t.pop_back();
             current_node = current_node->parent;
             Error.error = 0;
@@ -633,13 +633,13 @@ _tks.tokenize(&sc,true,true,10);
         {
             // on tente CRGB()
             // token *typeVar = current();
-            sav_t.push_back(current());
+            sav_t.push_back(*current());
             // NodeNumber num = NodeNumber( current());
             current_node = current_node->addChild(NodeNumber(current()));
             next();
             if (Match(TokenOpenParenthesis))
             {
-                for (int i = 0; i < sav_t.back()->_vartype->size; i++)
+                for (int i = 0; i < sav_t.back()._vartype->size; i++)
                 {
                     next();
                     parseExpr();
@@ -649,7 +649,7 @@ _tks.tokenize(&sc,true,true,10);
                         return;
                     }
                     // num.addChild(res._nd);
-                    if (i == sav_t.back()->_vartype->size - 1)
+                    if (i == sav_t.back()._vartype->size - 1)
                     {
                         if (!Match(TokenCloseParenthesis))
                         {
@@ -715,7 +715,7 @@ _tks.tokenize(&sc,true,true,10);
         while (Match(TokenStar) || Match(TokenSlash) || Match(TokenModulo) || Match(TokenKeywordOr) || Match(TokenKeywordAnd) || Match(TokenPower))
         {
             // token *op = current();
-            sav_t.push_back(current());
+            sav_t.push_back(*current());
             next();
             // NodeBinOperator nodeopt;
             _node_token_stack.push_back(current_node->children.back());
@@ -727,7 +727,7 @@ _tks.tokenize(&sc,true,true,10);
             _node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
             // NodeOperator opt = NodeOperator(op);
-            current_node->addChild(NodeOperator(sav_t.back()));
+            current_node->addChild(NodeOperator(&sav_t.back()));
             sav_t.pop_back();
             parseFactor();
             if (Error.error == 1)
@@ -761,7 +761,7 @@ _tks.tokenize(&sc,true,true,10);
         {
 
             // token *op = current();
-            sav_t.push_back(current());
+            sav_t.push_back(*current());
             next();
             // NodeBinOperator nodeopt;
             /*
@@ -777,7 +777,7 @@ _tks.tokenize(&sc,true,true,10);
             current_node->addChild(_node_token_stack.back());
             _node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
-            current_node->addChild(NodeOperator(sav_t.back()));
+            current_node->addChild(NodeOperator(&sav_t.back()));
             sav_t.pop_back();
             parseTerm();
             if (Error.error == 1)
@@ -1194,7 +1194,7 @@ _tks.tokenize(&sc,true,true,10);
         else if (Match(TokenKeywordWhile))
         {
             // on tente le for(){}
-            sav_t.push_back(current());
+            sav_t.push_back(*current());
             // Context cntx;
             // cntx.name = current()->text;
             //  //printf("entering f %d %s %s %x\n", current_cntx->_global->children.size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
@@ -1210,7 +1210,7 @@ _tks.tokenize(&sc,true,true,10);
                 // NodeWhile ndf = NodeWhile(fort);
                 // ndf.target = target;
                 // current_node = current_node->addChild(ndf);
-                current_node = current_node->addChild(NodeWhile(sav_t.back(), targetList.get()));
+                current_node = current_node->addChild(NodeWhile(&sav_t.back(), targetList.get()));
                 next();
 
                 // printf(" *************** on parse comp/n");
@@ -1335,12 +1335,12 @@ _tks.tokenize(&sc,true,true,10);
                 current_node = current_node->addChild(NodeFor(current(), targetList.get()));
                 next();
                 current_node = current_node->addChild(NodeStatement());
-                            __current.push( current());
+                          //  __current.push( current());
 
             parseStatement();
-            __sav_pos = _tks.position;
-            deleteNotNeededToken(__current.pop(), current());
-            _tks.position = __sav_pos;
+           // __sav_pos = _tks.position;
+           // deleteNotNeededToken(__current.pop(), current());
+          //  _tks.position = __sav_pos;
                // parseStatement();
                 if (Error.error)
                 {
@@ -1355,12 +1355,12 @@ _tks.tokenize(&sc,true,true,10);
                 }
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
-                            __current.push( current());
+                          //  __current.push( current());
 
             parseStatement();
-            __sav_pos = _tks.position;
-            deleteNotNeededToken(__current.pop(), current());
-            _tks.position = __sav_pos;
+           // __sav_pos = _tks.position;
+           // deleteNotNeededToken(__current.pop(), current());
+           // _tks.position = __sav_pos;
                // parseStatement();
                 if (Error.error)
                 {
@@ -1504,12 +1504,12 @@ _tks.tokenize(&sc,true,true,10);
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {
             // printf("on tente aouter un stamt\n");
-            __current.push( current());
+            //.push( current());
 
             parseStatement();
-            __sav_pos = _tks.position;
-            deleteNotNeededToken(__current.pop(), current());
-            _tks.position = __sav_pos;
+          //  __sav_pos = _tks.position;
+          //  deleteNotNeededToken(__current.pop(), current());
+          //  _tks.position = __sav_pos;
             if (Error.error)
             {
                 return;
@@ -1548,7 +1548,7 @@ _tks.tokenize(&sc,true,true,10);
             is_asm = true;
         }
         // resParse result;
-        token *func = current();
+        token func = *current();
 
         main_cntx.findFunction(current());
         if (search_result != NULL) // if (current_cntx->findFunction(current()) != NULL)
@@ -1561,7 +1561,7 @@ _tks.tokenize(&sc,true,true,10);
         }
         if (ext_function)
         {
-            NodeDefExtFunction function = NodeDefExtFunction(func);
+            NodeDefExtFunction function = NodeDefExtFunction(&func);
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1571,7 +1571,7 @@ _tks.tokenize(&sc,true,true,10);
         }
         else if (is_asm)
         {
-            NodeDefAsmFunction function = NodeDefAsmFunction(func);
+            NodeDefAsmFunction function = NodeDefAsmFunction(&func);
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1581,7 +1581,7 @@ _tks.tokenize(&sc,true,true,10);
         }
         else
         {
-            NodeDefFunction function = NodeDefFunction(func);
+            NodeDefFunction function = NodeDefFunction(&func);
             function.addChild(oritype);
             //  function.addChild(arguments._nd);
 
@@ -1765,15 +1765,15 @@ _tks.tokenize(&sc,true,true,10);
             next();
             if (Match(TokenNumber))
             {
-                token *num = current();
-                if (num->_vartype->_varType == __uint16_t__)
+                token num = *current();
+                if (num._vartype->_varType == __uint16_t__)
                 {
                     next();
                     if (Match(TokenCloseBracket))
                     {
                         var.isPointer = true;
                         var._nodetype = defGlobalVariableNode; // we can't have arrays in the stack
-                        var._total_size = stringToInt(num->text);
+                        var._total_size = stringToInt(num.text);
                         next();
                         // resParse result;
                         Error.error = 0;
@@ -1846,7 +1846,7 @@ _tks.tokenize(&sc,true,true,10);
         while (Match(TokenEndOfFile) == false)
         {
                             #ifndef __MEM_PARSER
-                        __current.push( current());
+                       // __current.push( current());
 #endif
             if (Match(TokenKeywordStruct))
             {
@@ -1919,7 +1919,7 @@ _tks.tokenize(&sc,true,true,10);
                 next();
                 if (Match(TokenIdentifier))
                 {
-                    sav_t.push_back(current());
+                    sav_t.push_back(*current());
                     next();
                     if (Match(TokenKeywordFrom))
                     {
@@ -1937,7 +1937,7 @@ _tks.tokenize(&sc,true,true,10);
                     }
                     else
                     {
-                        if (findLibFunction(sav_t.back()->text) > -1)
+                        if (findLibFunction(sav_t.back().text) > -1)
                         {
                             Error.error = 0;
                             // current_node->addChild(NodeImport(sav_t.back(),findLibFunction(sav_t.back()->text)));
@@ -2100,11 +2100,11 @@ _tks.tokenize(&sc,true,true,10);
             }
                    #ifndef __MEM_PARSER
                    upadteMem();
-                        __sav_pos = _tks.position;
+                     //   __sav_pos = _tks.position;
                         //printf("delete in parseprogram");
-                        deleteNotNeededToken(__current.pop(), current());
-                        _tks.position = __sav_pos;
-                        upadteMem();
+                      //  deleteNotNeededToken(__current.pop(), current());
+                     //   _tks.position = __sav_pos;
+                      //  upadteMem();
 #endif
         }
         // result._nd = program;
