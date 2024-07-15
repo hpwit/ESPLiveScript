@@ -110,7 +110,7 @@ list<int> _sp;
 
 list<int> _compare;
 
-token *__current;
+//token *__current;
 int __sav_pos;
 class StackVarEnumType
 
@@ -734,6 +734,48 @@ public:
         push(sav2);
     }
 };
+class StackToken
+{
+public:
+    StackToken(list<token *> *l2)
+    {
+        l = l2;
+    }
+    void push(token *a)
+    {
+        l->push_back(a);
+    }
+    token *pop()
+    {
+        token *sav = l->back();
+        l->pop_back();
+        return sav;
+    }
+    void clear()
+    {
+        l->clear();
+    }
+    token *get()
+    {
+        return l->back();
+    }
+    void duplicate()
+    {
+        l->push_back(l->back());
+    }
+    list<token *> *l;
+    void swap()
+    {
+        token *sav = pop();
+        token *sav2 = pop();
+        push(sav);
+        push(sav2);
+    }
+};
+
+
+list<token *> _current;
+StackToken __current = StackToken(&_current);
 
 StackNodeToken nodeTokenList = StackNodeToken(&_node_token_stack);
 
@@ -2646,7 +2688,7 @@ void _visitNodeDefFunction(NodeToken *nd)
     // printf("on  %d delete from %s line:%d to %s line:%d\r\n",_tks.position,  nd->getChildAtPos(2)->_token->text.c_str(),nd->getChildAtPos(2)->_token->line,__current->text.c_str(), __current->line);
     // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
 #ifndef __MEM_PARSER
-    _deleteToken(nd->getChildAtPos(2)->_token, __current);
+    _deleteToken(nd->getChildAtPos(2)->_token, __current.pop());
 #endif
     //  printf("mem toke are %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
     // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
@@ -2694,7 +2736,7 @@ void _visitNodeDefAsmFunction(NodeToken *nd)
         // content.addAfter(string_format("retw.n"));
         // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
 #ifndef __MEM_PARSER
-    _deleteToken(nd->getChildAtPos(2)->_token, __current);
+    _deleteToken(nd->getChildAtPos(2)->_token, __current.pop());
     // printf("mem toke are %u %d\r\n", esp_get_free_heap_size(),list_of_token.size());
     // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
     _node_token_stack.clear();

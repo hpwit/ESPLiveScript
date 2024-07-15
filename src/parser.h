@@ -1458,11 +1458,11 @@ _tks.tokenize(&sc,true,true,10);
         while (!Match(TokenCloseCurlyBracket) && !Match(TokenEndOfFile))
         {
             // printf("on tente aouter un stamt\n");
-            __current = current();
+            __current.push( current());
 
             parseStatement();
-            __sav_pos = _tks.position;
-            deleteNotNeededToken(__current, current());
+          __sav_pos = _tks.position;
+            deleteNotNeededToken(__current.pop(), current());
             _tks.position = __sav_pos;
             if (Error.error)
             {
@@ -1617,7 +1617,7 @@ _tks.tokenize(&sc,true,true,10);
 #ifndef __MEM_PARSER
                 __sav_pos = _tks.position;
                 buildParents(current_node);
-                __current = current();
+                __current.push( current());
                 current_node->visitNode(current_node);
                 clearContext(tobedeted);
                 _tks.position = __sav_pos;
@@ -1791,6 +1791,7 @@ _tks.tokenize(&sc,true,true,10);
         Error.error = 0;
         while (Match(TokenEndOfFile) == false)
         {
+             __current.push( current());
             if (Match(TokenKeywordStruct))
             {
                 
@@ -1918,15 +1919,9 @@ _tks.tokenize(&sc,true,true,10);
                 {
                     if (Match(TokenOpenParenthesis, 1))
                     {
-#ifndef __MEM_PARSER
-                        __current = current();
-#endif
+
                         parseDefFunction(nodeTokenList.get());
-#ifndef __MEM_PARSER
-                        __sav_pos = _tks.position;
-                        deleteNotNeededToken(__current, current());
-                        _tks.position = __sav_pos;
-#endif
+
 
                         if (Error.error)
                         {
@@ -1936,7 +1931,7 @@ _tks.tokenize(&sc,true,true,10);
                     }
                     else
                     {
-                        __current = current();
+                       
 
                         parseVariableForCreation();
                         if (Error.error)
@@ -2023,9 +2018,7 @@ _tks.tokenize(&sc,true,true,10);
                             }
                             next();
                             Error.error = 0;
-                            __sav_pos = _tks.position;
-                            deleteNotNeededToken(__current, current());
-                            _tks.position = __sav_pos;
+                      ;
                             current_node = current_node->parent;
                         }
                         else
@@ -2044,6 +2037,12 @@ _tks.tokenize(&sc,true,true,10);
                     return;
                 }
             }
+                              upadteMem();
+                        __sav_pos = _tks.position;
+                        //printf("delete in parseprogram");
+                        deleteNotNeededToken(__current.pop(), current());
+                        _tks.position = __sav_pos;
+                        upadteMem();
         }
         // result._nd = program;
         Error.error = 0;
