@@ -21,7 +21,7 @@ void pushToConsole(string str)
     pushToConsole(str, false);
 }
 // #include "tokenizer.h"
-#include "functionlib.h"
+
 #include "asm_parser.h"
 
 #ifndef __TEST_DEBUG
@@ -157,7 +157,10 @@ public:
             // p.cleanint();
               printf("compile done %u\r\n",esp_get_free_heap_size());
             clean();
+                     __globalscript.clear();
+             list_of_token.clear();
              printf("afer clean done %u\r\n",esp_get_free_heap_size());
+    
             pushToConsole("***********AFTER CLEAN*********");
             //printf("%d\n",_content.size());
             int s = _header.size();
@@ -196,24 +199,27 @@ public:
         clean();
         clean2();
         __MEM();
-        Script sc(&division);
-         //printf("start with %u\r\n",esp_get_free_heap_size());
-         __startmem=esp_get_free_heap_size();
+                 __startmem=esp_get_free_heap_size();
        __maxMemUsage=0;
-        _tks.init();
-        tokenizer(&sc);
-        list_of_token.pop_back();
+        __globalscript.clear();
+        __globalscript=division;
+      //  Script sc(&division);
+         printf("start with %u\r\n",esp_get_free_heap_size());
 
-        _token_line = 1;
+       // _tks.init();
+       // tokenizer(&sc);
+        //list_of_token.pop_back();
+
+//_token_line = 1;
 
         for (string s : *_script)
         {
             // string g=s+'\0';
-            Script sc(&s);
-            _tks.init();
-            tokenizer(&sc, false, false);
-            _token_line++;
+           __globalscript=__globalscript+"\n"+s;
+           // _token_line++;
         }
+
+        /*
         int f = _token_line;
         _index_token = list_of_token.begin();
         for (int i : add_on)
@@ -227,14 +233,16 @@ public:
         token t;
         t.type = TokenEndOfFile;
         t.line = f;
-        list_of_token.push_back(t);
+        list_of_token.push_back(t);*/
 #ifdef __CONSOLE_ESP32
         // _script->clear();
 #endif
-        // printf("nb token:%d\r\n",list_of_token.size());
-        // printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
+ Script sc(&__globalscript);
+_tks.tokenize(&sc,true,true,10);
+        printf("nb token:%d\rn",list_of_token.size());
+        printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
         __MEM();
-
+upadteMem();
         return parse_create();
     }
     bool parse_c(string *_script)
@@ -244,8 +252,9 @@ public:
         // printf("start with %u\r\n",esp_get_free_heap_size());
        __startmem=esp_get_free_heap_size();
        __maxMemUsage=0;
-        Script sc(&division);
-
+               __globalscript.clear();
+        __globalscript=division;
+/**
         _tks.init();
         tokenizer(&sc);
         list_of_token.pop_back();
@@ -273,6 +282,12 @@ public:
         list_of_token.push_back(t);
                 // printf("nb token:%d\r\n",list_of_token.size());
          //printf("after Token  %u %d\r\n",esp_get_free_heap_size(),esp_get_free_heap_size()/list_of_token.size());
+      */
+
+     __globalscript=__globalscript+*_script;
+
+ Script sc(&__globalscript);
+_tks.tokenize(&sc,true,true,10);
        upadteMem();
         return parse_create();
     }
@@ -286,7 +301,7 @@ public:
           //printf("apres dfucntion %u\r\n", esp_get_free_heap_size());
         clearNodeToken(&program);
          //printf("apres node token %u\r\n", esp_get_free_heap_size());
-        list_of_token.clear();
+        //list_of_token.clear();
         // printf("apres token %u\r\n", esp_get_free_heap_size());
         nb_args.clear();
           //printf("apres args %u\r\n", esp_get_free_heap_size());
@@ -1056,6 +1071,7 @@ public:
         if (Match(TokenIdentifier) && Match(TokenPlusPlus, 1))
         {
             // NodeAssignement d = NodeAssignement();
+           // printf("on est ici %s\r\n",current()->text.c_str());
             current_node = current_node->addChild(NodeAssignement());
             getVariable(true);
             if (Error.error)
@@ -1065,6 +1081,7 @@ public:
             // NodeUnitary g = NodeUnitary();
             current_node = current_node->addChild(NodeUnitary());
             prev();
+            // printf("on est ici %s\r\n",current()->text.c_str());
             getVariable(false);
             if (Error.error)
             {
@@ -1645,7 +1662,7 @@ public:
                 point_regnum = 4;
 // printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
 #ifndef __MEM_PARSER
-              //  printf("on compile %s\r\n",current_node->text.c_str());
+               printf("on compile %s\r\n",current_node->text.c_str());
                 __sav_pos = _tks.position;
                 buildParents(current_node);
                 

@@ -11,15 +11,17 @@ using namespace std;
 
 #define _STACK_SIZE 32
 
+string __globalscript;
 uint32_t __startmem;
 uint32_t __maxMemUsage;
+
 void upadteMem()
 {
     uint32_t newdelta=__startmem-esp_get_free_heap_size();
         if(newdelta>__maxMemUsage)
                  __maxMemUsage=newdelta;
+    printf("mee %u token : %d \n\r",esp_get_free_heap_size(),list_of_token.size());                 
 }
-
 string _numToBytes(uint32_t __num)
 {
     string val = ".bytes 4";
@@ -1036,6 +1038,7 @@ void deleteNotNeededToken(token *nds, token *nde)
     //return;
    // printf("before delteNotneededToken %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
     upadteMem();
+    return;
     __todelete.clear();
     // printf("we delete before :%s to %s\r\n",nds->text.c_str(),nde->text.c_str());
     bool canerase = false;

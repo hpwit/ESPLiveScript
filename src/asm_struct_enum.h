@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
+
+#include "functionlib.h"
 using namespace std;
 enum class operandeType
 {
