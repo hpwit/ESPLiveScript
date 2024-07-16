@@ -362,7 +362,7 @@ _tks.tokenize(&sc,true,true,10);
         // copyPrty(type._nd,&var);
         _uniquesave=current_node->addChild(var);
         current_cntx->addVariable(var);
-        _uniquesave=->text=current_cntx->variables.back().text;
+        _uniquesave->text=current_cntx->variables.back().text;
         // arg.addChild(nd);
         // next();
         // printf("current %s\n", tokenNames[current()->type].c_str());
