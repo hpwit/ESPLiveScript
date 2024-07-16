@@ -345,9 +345,10 @@ public:
         NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
 
         // copyPrty(type._nd,&var);
-        current_node->addChild(var);
+       _uniquesave= current_node->addChild(var);
         current_cntx->addVariable(var);
-        current_node->text=current_cntx->variables.back().text;
+       
+        _uniquesave->text=current_cntx->variables.back().text;
         // arg.addChild(nd);
         // next();
         // printf("current %s\n", tokenNames[current()->type].c_str());
@@ -370,9 +371,9 @@ public:
             NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
 
             // arg.addChild(var);
-            current_node->addChild(var);
+           _uniquesave= current_node->addChild(var);
             current_cntx->addVariable(var);
-            current_node->text=current_cntx->variables.back().text;
+            _uniquesave->text=current_cntx->variables.back().text;
             // next();
         }
         // prev();
@@ -1420,7 +1421,8 @@ public:
             if (Match(TokenEqual))
             {
                 //  NodeStatement ndsmt;
-                current_node->addChild(nodeTokenList.get());
+                _uniquesave=current_node->addChild(nodeTokenList.get());
+                //_uniquesave->text=current_cntx->variables.back().text;
                 // NodeAssignement nd;
                 current_node = current_node->addChild(NodeAssignement());
                 next();
