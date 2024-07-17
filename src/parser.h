@@ -99,6 +99,7 @@ public:
         register_numl.clear();
         register_numl.push(15);
         register_numr.push(15);
+        _userDefinedTypes.clear();
 
         root._nodetype = programNode;
         point_regnum = 4;
@@ -298,6 +299,7 @@ public:
         sav_t.clear();
         sav_token.clear();
         add_on.clear();
+           //     _userDefinedTypes.clear();
     }
 
     void parseCreateArguments()
@@ -402,13 +404,11 @@ public:
                 if (Match(TokenCloseBracket))
                 {
 
-                    // var.addChild(expr._nd);
-                    // resParse res;
-                    Error.error = 0;
-                    current_node = current_node->parent;
-                    // res._nd = var;
+                    // Error.error = 0;
+                     //current_node = current_node->parent;
+
                     next();
-                    return;
+                    //return;
                 }
                 else if (Match(TokenComma))
                 {
@@ -429,11 +429,11 @@ public:
 
                         // var.addChild(expr._nd);
                         // resParse res;
-                        Error.error = 0;
-                        current_node = current_node->parent;
+                        // Error.error = 0;
+                        //  current_node = current_node->parent;
                         // res._nd = var;
                         next();
-                        return;
+                        // return;
                     }
                     else
                     {
@@ -453,15 +453,23 @@ public:
                     return;
                 }
             }
-            else
+            // else
+            // {
+            if (Match(TokenMember) && Match(TokenIdentifier, 1))
             {
-
-                Error.error = 0;
-                current_node = current_node->parent;
-                // res._nd = var;
+                next();
                 // next();
-                return;
+                current_node->target = current()->text;
+                next();
             }
+
+            Error.error = 0;
+            current_node = current_node->parent;
+            // res._nd = var;
+            // next();
+            return;
+
+            //}
         }
     }
 
@@ -1644,11 +1652,18 @@ public:
             next();
         }
 
-        if (Match(TokenKeywordVarType))
+        if (Match(TokenKeywordVarType) or Match(TokenUserDefinedVariable))
         {
             _nd._nodetype = typeNode;
             _nd._token = current();
+            //printf("pqoidpoqsidpoqisdopiqsopdiqsd %s\r\n",current()->text.c_str());
+            varType *k=findStruct(current()->text);
+            if(k!=NULL)
+            {
 
+                // printf("found %s\r\n",current()->text.c_str());
+                _nd._token->_vartype=k;
+            }
             next();
             if (Match(TokenStar))
             {
@@ -1663,7 +1678,7 @@ public:
         else
         {
             Error.error = 1;
-            Error.error_message = string_format("expecting external, __ASM__  or variable type %s", linepos().c_str());
+            Error.error_message = string_format("expecting external, __ASM__  or variable type %s %d %s", linepos().c_str(),current()->type,current()->text.c_str());
             next();
             return;
         }
@@ -1758,7 +1773,10 @@ public:
 
     void parseProgram()
     {
-
+                    int memberpos = 0;
+                    int _start = 0;
+                    int _pos = 0;
+                    int _totalsize = 0;
         // NodeProgram program;
         // Context cntx = Context();
         current_cntx->name = "main";
@@ -1769,7 +1787,58 @@ public:
         Error.error = 0;
         while (Match(TokenEndOfFile) == false)
         {
-            if (Match(TokenKeywordSafeMode))
+            if (Match(TokenKeywordStruct))
+            {
+                
+                next();
+                if (Match(TokenUserDefinedName))
+                {
+
+                    
+
+                    usded._varType = __userDefined__;
+                     memberpos = 0;
+                     _start = 0;
+                     _pos = 0;
+                     _totalsize = 0;
+                    usded.varName = current()->text;
+                    
+                    next(); //{
+
+                    next(); // int
+                    while (!Match(TokenCloseCurlyBracket) and !Match(TokenEndOfFile))
+                    {
+                        
+                        usded.starts[memberpos] = _start;
+
+                         __v = *current()->_vartype;
+                         usded.types[memberpos]=__v._varType;
+                        usded.memberSize[memberpos] = __v.size;
+                        _start += __v.total_size;
+                        for (int _var = 0; _var < __v.size; _var++)
+                        {
+                            usded.load[_pos] = __v.load[_var];
+                            usded.store[_pos] = __v.store[_var];
+                            usded.sizes[_pos] = __v.sizes[_var];
+                            _pos++;
+                        }
+                        next(); // name
+                       
+                        usded.membersNames[memberpos] = current()->text;
+                       // printf(" addinr %s.%s\r\n",usded.varName.c_str(),current()->text.c_str());
+                        next(); // ;
+
+                        next();
+                        memberpos++;
+                    }
+                    usded.size = _pos;
+                    usded.total_size = _start;
+                    usded._varSize = _start;
+                    _userDefinedTypes.push_back(usded);
+                    next();
+                }
+            }
+            else if (Match(TokenKeywordSafeMode))
             {
                 safeMode = true;
                 next();
