@@ -36,7 +36,7 @@ __ASM__ float __div(float a,float b)\n\
 \"addexp.s f6, f7\"\n\
 \"divn.s f0, f2, f6\"\n\
 \"retw.n\"\n\
-}";
+}@";
 
 string _rand="\
 __ASM__ uint32_t rand(uint32_t mod) \n\
@@ -55,7 +55,7 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 \"l32r a4,stackr\" \n\
 \"s32i a15,a4,0\" \n\
 \"retw.n\" \n\
-}";
+}@";
 
 string _copycode="\
 __ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
@@ -73,7 +73,7 @@ __ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
    \"addi a7,a7,-1\" \n\
    \"bnez a7,loop\" \n\
    \"retw.n\" \n\
-}";
+}@";
 string _memset="\
 __ASM__ void memset(uint8_t *obj,uint8_t val, uint16_t size )\n\
 {\n\
@@ -88,7 +88,7 @@ __ASM__ void memset(uint8_t *obj,uint8_t val, uint16_t size )\n\
    \"addi a7,a7,-1\" \n\
    \"bnez a7,loop_memset\" \n\
    \"retw.n\" \n\
-}";
+}@";
 
 string _millis="\
 __ASM__ uint32_t millis()\n\
@@ -96,7 +96,7 @@ __ASM__ uint32_t millis()\n\
 \"rsr a14,234\" \n\
 \"l32r a13,__base_millis\"\n\
 }\n\
-";
+@";
 
 string _fill="\
 __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_iteration) \n\
@@ -120,7 +120,7 @@ __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_itera
    \"addi a8,a8,-1\" \n\
    \"bnez a8,fill_loop_main_fill\" \n\
    \"retw.n\" \n\
-}";
+}@";
 
 string empty_header="";
 int stdlib_size=4;
