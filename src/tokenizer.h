@@ -639,6 +639,10 @@ class Text
         _texts->shrink_to_fit();
 
     }
+    int size()
+    {
+        _texts->size();
+    }
 char * getText(int pos)
 {
     if (pos>=0 and pos<texts.size())
@@ -650,7 +654,11 @@ char * getText(int pos)
         return NULL;
     }
 }
-
+void pop()
+{
+    _texts->pop_back();
+    _texts->shrink_to_fit();
+}
     private:
     vector<char *> *_texts;
 };
@@ -972,6 +980,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
     {
         userDefinedVarTypeNames.clear();
         userDefinedVarTypeNames.shrink_to_fit();
+        all_text.clear();
         _tks.clear();
         for (int i = 0; i < __DEPTH; i++)
         {
@@ -1247,6 +1256,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                         if (findLibFunction(v) > -1)
                         {
                             _tks.pop_back();
+                            all_text.pop();
                             //list_of_token.pop_back();
                             // add_on.push_back(findLibFunction(v));
                             script->insert(*_stdlib[findLibFunction(v)]);
@@ -1257,6 +1267,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                     else if (prev.getType() == TokenKeywordDefine && !_for_display)
                     {
                         _tks.pop_back();
+                        all_text.pop();
                         nbReadToken--;
                         _define newdef;
                         newdef.name = v; 
@@ -1499,14 +1510,16 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                 Token t;
                 t._vartype = EOF_VARTYPE;
                 t.type = (int)TokenLineComment;
-                if (_for_display)
-                    t.addText("//");
+                string str="//";
+
                 c2 = script->nextChar();
                 while (c2 != '\n' and c2 != EOF_TEXT)
                 {
-                    t.addText( string_format("%s%c", t.getText(),c2));
+                    str= string_format("%s%c", t.getText(),c2);
                     c2 = script->nextChar();
                 }
+                                if (_for_display)
+                    t.addText(str);
                 t.line = _token_line;
                 // t.pos = pos;
                 if (increae_line)
@@ -1523,17 +1536,19 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                 Token t;
                 t._vartype = EOF_VARTYPE;
                 t.type =(int) TokenLineComment;
-                if (_for_display)
-                    t.addText("/*");
+
+                    string str="/*";
                 c = script->nextChar();
                 c2 = script->nextChar();
                 while ((c != '*' or c2 != '/') and c2 != EOF_TEXT and c != EOF_TEXT) // stop when (c=* and c2=/) or c=0 or c2=0
                 {
                     if (_for_display)
-                        t.addText(string_format("%s%c" ,t.getText(), c));
+                        str=string_format("%s%c" ,t.getText(), c);
                     c = c2;
                     c2 = script->nextChar();
                 }
+                                if (_for_display)
+                    t.addText(str);
                 t.line = _token_line;
                 // t.pos = pos;
                 if (_for_display)
@@ -1576,14 +1591,16 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             Token t;
             t.line = _token_line;
             // t.pos = pos;
-            if (_for_display)
-                t.addText("");
+            string str="";
+   
             while (c == ' ')
             {
                 c = script->nextChar();
                 pos++;
-                t.addText(string_format("%s ",  t.getText()));
+                str=str+" ";
             }
+                        if (_for_display)
+                t.addText(str);
             script->previousChar(); // on revient un caractere en arriere
             pos--;
             t.type = TokenSpace;
