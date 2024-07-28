@@ -45,7 +45,6 @@ enum varTypeEnum
     __CRGBW__,
     __char__,
     __userDefined__
-
 };
 
 struct varType
@@ -73,155 +72,159 @@ varType usded;
 
 vector<varType> _userDefinedTypes;
 varType __v;
-string varTypeEnumNames[] =
-    {
+string varTypeEnumNames[] = {
 #ifdef __TEST_DEBUG
-        "__none__",
-        "__unit8_t__",
-        "__unit16_t__",
-        "__unit32_t__",
-        "__int__",
-        "__float__",
-        "__void__",
-        "__CRGB__",
-        "__CRGBW__",
-        "__char__",
-        "__userDefined__",
+    "__none__",
+    "__unit8_t__",
+    "__unit16_t__",
+    "__unit32_t__",
+    "__int__",
+    "__float__",
+    "__void__",
+    "__CRGB__",
+    "__CRGBW__",
+    "__char__",
+    "__userDefined__",
 #endif
 
 };
 
 vector<string> userDefinedVarTypeNames;
 
-varType _varTypes[] =
+varType _varTypes[] = {
     {
-        {
-            ._varType = __none__,
-        },
-        {._varType = __uint8_t__,
-         ._varSize = 1,
-         // .load={l8ui},
-         // .store = {s8i},
-         // .reg_name = "a",
-         .sizes = {1},
-         .size = 1,
-         .total_size = 1},
-        {
-            ._varType = __uint16_t__,
-            ._varSize = 2,
-            .load = {l16ui},
-            .store = {s16i},
-            // .reg_name = "a",
-            .sizes = {2},
-            .size = 1,
-            .total_size = 2,
-        },
-        {
-            ._varType = __uint32_t__,
-            ._varSize = 4,
-            .load = {l32i},
-            .store = {s32i},
-            // .reg_name = "a",
-            .sizes = {4},
-            .size = 1,
-            .total_size = 4,
-        },
-        {
-            ._varType = __int__,
-            ._varSize = 2,
-            .load = {l16si},
-            .store = {s16i},
-            // .reg_name = "a",
-            .sizes = {2},
-            .size = 1,
-            .total_size = 2,
-        },
-        {
-            ._varType = __float__,
-            ._varSize = 4,
-            .load = {lsi},
-            .store = {ssi},
-            // .reg_name = "f",
-            .sizes = {4},
-            .size = 1,
-            .total_size = 4,
-        },
-        {
-            ._varType = __void__,
-            ._varSize = 0,
-            .load = {},
-            .store = {},
-            // .reg_name = "a",
-            .sizes = {0},
-            .size = 0,
-            .total_size = 0,
-        },
-        {
-            ._varType = __CRGB__,
-            ._varSize = 3,
-            .load = {l8ui, l8ui, l8ui},
-            .store = {s8i, s8i, s8i},
-            // .reg_name = "a",
-            .sizes = {1, 1, 1},
-            .size = 3,
-            .total_size = 3,
-        },
-        {
-            ._varType = __CRGBW__,
-            ._varSize = 4,
-            .load = {l8ui, l8ui, l8ui, l8ui},
-            .store = {s8i, s8i, s8i, s8i},
-            // .reg_name = "a",
-            .sizes = {1, 1, 1, 1},
-            .size = 4,
-            .total_size = 4,
-        },
-        {
-            ._varType = __char__,
-            ._varSize = 1,
-            .load = {l8ui},
-            .store = {s8i},
-            // .reg_name = "a",
-            .sizes = {1},
-            .size = 1,
-            .total_size = 1,
-        }
+        ._varType = __none__,
+    },
+    {._varType = __uint8_t__,
+     ._varSize = 1,
+     // .load={l8ui},
+     // .store = {s8i},
+     // .reg_name = "a",
+     .sizes = {1},
+     .size = 1,
+     .total_size = 1},
+    {
+        ._varType = __uint16_t__,
+        ._varSize = 2,
+        .load = {l16ui},
+        .store = {s16i},
+        // .reg_name = "a",
+        .sizes = {2},
+        .size = 1,
+        .total_size = 2,
+    },
+    {
+        ._varType = __uint32_t__,
+        ._varSize = 4,
+        .load = {l32i},
+        .store = {s32i},
+        // .reg_name = "a",
+        .sizes = {4},
+        .size = 1,
+        .total_size = 4,
+    },
+    {
+        ._varType = __int__,
+        ._varSize = 2,
+        .load = {l16si},
+        .store = {s16i},
+        // .reg_name = "a",
+        .sizes = {2},
+        .size = 1,
+        .total_size = 2,
+    },
+    {
+        ._varType = __float__,
+        ._varSize = 4,
+        .load = {lsi},
+        .store = {ssi},
+        // .reg_name = "f",
+        .sizes = {4},
+        .size = 1,
+        .total_size = 4,
+    },
+    {
+        ._varType = __void__,
+        ._varSize = 0,
+        .load = {},
+        .store = {},
+        // .reg_name = "a",
+        .sizes = {0},
+        .size = 0,
+        .total_size = 0,
+    },
+    {
+        ._varType = __CRGB__,
+        ._varSize = 3,
+        .load = {l8ui, l8ui, l8ui},
+        .store = {s8i, s8i, s8i},
+        // .reg_name = "a",
+        .sizes = {1, 1, 1},
+        .size = 3,
+        .total_size = 3,
+    },
+    {
+        ._varType = __CRGBW__,
+        ._varSize = 4,
+        .load = {l8ui, l8ui, l8ui, l8ui},
+        .store = {s8i, s8i, s8i, s8i},
+        // .reg_name = "a",
+        .sizes = {1, 1, 1, 1},
+        .size = 4,
+        .total_size = 4,
+    },
+    {
+        ._varType = __char__,
+        ._varSize = 1,
+        .load = {l8ui},
+        .store = {s8i},
+        // .reg_name = "a",
+        .sizes = {1},
+        .size = 1,
+        .total_size = 1,
+    }
 
 };
 
-string keywordTypeNames[] =
-    {
+string keywordTypeNames[] = {
 #ifdef __TEST_DEBUG
-        "KeywordVarType",
-        "KeywordVarType",
-        "KeywordVarType",
-        "KeywordVarType",
-        "KeywordVarType",
-        "KeywordVarType",
-        "KeywordVarType",
-        "KeywordVarType",
-        "KeywordVarType",
-        "KeywordExternalVar",
-        "KeywordFor",
-        "KeywordIf",
-        "KeywordThen",
-        "KeywordElse",
-        "KeywordWhile",
-        "KeywordReturn",
-        "KeywordImport",
-        "KeywordFrom",
-        "KeywordASM",
-        "KeywordDefine",
-        "KeywordSafeMode",
-        "KeywordHeader",
-        "KeywordContent",
+    "KeywordVarType",
+    "KeywordVarType",
+    "KeywordVarType",
+    "KeywordVarType",
+    "KeywordVarType",
+    "KeywordVarType",
+    "KeywordVarType",
+    "KeywordVarType",
+    "KeywordVarType",
+    "KeywordExternalVar",
+    "KeywordFor",
+    "KeywordIf",
+    "KeywordThen",
+    "KeywordElse",
+    "KeywordWhile",
+    "KeywordReturn",
+    "KeywordImport",
+    "KeywordFrom",
+    "KeywordASM",
+    "KeywordDefine",
+    "KeywordSafeMode",
+    "KeywordHeader",
+    "KeywordContent",
 #endif
 
 };
 
 #define nb_keywords 33
 #define nb_typeVariables 10
-string keyword_array[nb_keywords] = {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB", "CRGBW", "char", "external", "for", "if", "then", "else", "while", "return", "import", "from", "__ASM__", "define", "safe_mode", "_header_", "_content_", "and", "or", "continue", "break", "fabs", "abs", "save_reg", "save_reg_abs", "struct"};
+string keyword_array[nb_keywords] =
+    {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB",
+     "CRGBW", "char", "external", "for", "if", "then", "else", "while", "return",
+     "import", "from", "__ASM__",
+     "define", "safe_mode", "_header_", "_content_", "and", "or", "continue",
+     "break", "fabs", "abs", "save_reg",
+     "save_reg_abs", "struct"};
+
 bool __isBlockComment = false;
 enum tokenType
 {
@@ -297,41 +300,40 @@ enum tokenType
 
 };
 
-tokenType __keywordTypes[] =
-    {
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordVarType,
-        TokenKeywordExternalVar,
-        TokenKeywordFor,
-        TokenKeywordIf,
-        TokenKeywordThen,
-        TokenKeywordElse,
-        TokenKeywordWhile,
-        TokenKeywordReturn,
-        TokenKeywordImport,
-        TokenKeywordFrom,
-        TokenKeywordASM,
-        TokenKeywordDefine,
-        TokenKeywordSafeMode,
-        TokenKeywordHeader,
-        TokenKeywordContent,
-        TokenKeywordAnd,
-        TokenKeywordOr,
-        TokenKeywordContinue,
-        TokenKeywordBreak,
-        TokenKeywordFabs,
-        TokenKeywordAbs,
-        TokenKeywordSaveReg,
-        TokenKeywordSaveRegAbs,
-        TokenKeywordStruct,
+tokenType __keywordTypes[] = {
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordVarType,
+    TokenKeywordExternalVar,
+    TokenKeywordFor,
+    TokenKeywordIf,
+    TokenKeywordThen,
+    TokenKeywordElse,
+    TokenKeywordWhile,
+    TokenKeywordReturn,
+    TokenKeywordImport,
+    TokenKeywordFrom,
+    TokenKeywordASM,
+    TokenKeywordDefine,
+    TokenKeywordSafeMode,
+    TokenKeywordHeader,
+    TokenKeywordContent,
+    TokenKeywordAnd,
+    TokenKeywordOr,
+    TokenKeywordContinue,
+    TokenKeywordBreak,
+    TokenKeywordFabs,
+    TokenKeywordAbs,
+    TokenKeywordSaveReg,
+    TokenKeywordSaveRegAbs,
+    TokenKeywordStruct,
 
 };
 
@@ -414,21 +416,36 @@ typedef struct
 {
     string name;
     string content;
+    string hh;
 } _define;
 
-list<_define> define_list;
+vector<_define> define_list;
 
-string getDefine(string name)
+const char * getDefine(string name)
 {
-    for (list<_define>::iterator it = define_list.begin(); it != define_list.end(); ++it)
+    for (vector<_define>::iterator it = define_list.begin();
+         it != define_list.end(); ++it)
     {
         if ((*it).name.compare(name) == 0)
         {
             // printf("one rrent %s\n",(*it).content.c_str());
-            return (*it).content;
+            return (*it).content.c_str();
         }
     }
-    return "";
+    return NULL;
+}
+
+void deleteDefine()
+{
+    for (vector<_define>::iterator it = define_list.begin();
+         it != define_list.end(); ++it)
+    {
+        (*it).content.clear();
+        (*it).content.shrink_to_fit();
+                (*it).name.clear();
+        (*it).name.shrink_to_fit();
+       
+    }
 }
 
 #ifdef __CONSOLE_ESP32
@@ -503,6 +520,7 @@ const char *tokenFormat[] = {
     termColor.Green,    // TokenUserDefinedVariable,
     termColor.BWhite,   // TokenMember
 };
+
 /*
 const char *KeywordTypeFormat[] =
     {
@@ -550,164 +568,216 @@ typedef struct
 #define EOF_TEXTARRAY 0xFFFF
 #define EOF_VARTYPE 0xFF
 
-
 vector<char *> texts;
 
 class Script
 {
 public:
-    Script(string *input)
+    Script()
     {
-        script = input;
+
         position = -1;
     }
+    void init()
+    {
+        it = script.begin();
+        position = -1;
+    }
+    void addContent(char *str)
+    {
+        script.push_back(str);
+    }
+    void clear()
+    {
+        script.clear();
+        script.shrink_to_fit();
+        position = -1;
+    }
+
     char nextChar()
     {
-        // //printf("%d\n",position);
-        if ((position + 1) < (*script).size())
+
+        if ((*it)[position + 1] != 0)
         {
             position++;
-            return (*script)[position];
+            return (*it)[position];
         }
         else
         {
-            position++;
-            return EOF_TEXT;
+
+            if (next(it) == script.end())
+            {
+
+                position++;
+                return EOF_TEXT;
+            }
+            else
+            {
+                it = next(it);
+                position = 0;
+                return (*it)[position];
+            }
         }
     }
 
     char currentChar()
     {
-        if (position < (*script).size())
+
+        if ((*it)[position] != 0)
         {
-            // position++;
-            return (*script)[position];
+
+            return (*it)[position];
         }
         else
         {
+
             return EOF_TEXT;
         }
     }
 
     char previousChar()
     {
+
         if ((position - 1) >= 0)
         {
             position--;
-            return (*script)[position];
+            return (*it)[position];
         }
         else
         {
-            return EOF_TEXT;
+            if (it != script.begin())
+            {
+
+                it--;
+                position = 0;
+                while ((*it)[position] != 0)
+                {
+                    position++;
+                }
+                position--;
+                return (*it)[position];
+            }
+            else
+            {
+                position = 0;
+                return (*it)[0];
+            }
         }
     }
-    void insert(string toInsert)
+
+    void insert(char *toInsert)
     {
-        position = position + 1;
-        script->insert(position, toInsert.c_str());
-        // printf("%s\n",script->c_str());
+
+        char *_cur = &(*it)[position];
+        char *_next = &(*it)[position + 1];
+        it++;
+        if (*_next != 0 and *_cur != 0)
+            it = script.insert(it, _next);
+        it = script.insert(it, toInsert);
+        position = -1;
     }
 
 private:
-    string *script;
+    // string * script;
     int position;
-};
 
+    vector<char *> script;
+    vector<char *>::iterator it;
+};
 class Text
 {
-    public:
+public:
     Text()
     {
         //_texts=t;
         _texts.clear();
         _texts.shrink_to_fit();
-
     }
 
     int addText(string str)
     {
-          char *m=(char*)malloc(str.size()+1);
-        memcpy(m,str.c_str(),str.size());
-        m[str.size()]=0;
+        char *m = (char *)malloc(str.size() + 1);
+        memcpy(m, str.c_str(), str.size());
+        m[str.size()] = 0;
         _texts.push_back(m);
-        return _texts.size()-1;
+        return _texts.size() - 1;
     }
-    void replaceText(int pos,string str)
+    void replaceText(int pos, string str)
     {
-        if (pos>0 and pos<size())
+        if (pos > 0 and pos < size())
         {
             free(_texts[pos]);
-                        char *m=(char*)malloc(str.size()+1);
-        memcpy(m,str.c_str(),str.size());
-        m[str.size()]=0;
-        _texts[pos]=m;
-        
+            char *m = (char *)malloc(str.size() + 1);
+            memcpy(m, str.c_str(), str.size());
+            m[str.size()] = 0;
+            _texts[pos] = m;
         }
-       
     }
-     void  clear()
+    void clear()
     {
-    
-        for(int i=0;i<_texts.size();i++)
+
+        for (int i = 0; i < _texts.size(); i++)
         {
             free(_texts[i]);
         }
         _texts.clear();
         _texts.shrink_to_fit();
-
     }
     int size()
     {
-      return  _texts.size();
+        return _texts.size();
     }
-char * getText(int pos)
-{
-    if (pos>=0 and pos<_texts.size())
+    char *getText(int pos)
     {
-        return _texts[pos];
+        if (pos >= 0 and pos < _texts.size())
+        {
+            return _texts[pos];
+        }
+        else
+        {
+            return cc;
+        }
     }
-    else
-    {
-        return cc;
-    }
-}
 
-
-void pop()
-{
-    if(size()>0)
+    void pop()
     {
-        
-    _texts.pop_back();
-    _texts.shrink_to_fit();
+        if (size() > 0)
+        {
+            free(_texts.back());
+            _texts.pop_back();
+            _texts.shrink_to_fit();
+        }
     }
-   
-}
-    private:
+
+private:
     vector<char *> _texts;
-    char cc[1]={'\0'};
+    char cc[1] = {'\0'};
 };
-Text all_text=Text();
+
+Text all_text = Text();
 class Token
 {
 
 public:
-    Token() {}
+    Token()
+    {
+        type=(int)TokenUnknown;
+    }
 
     Token(tokenType h)
     {
         type = (int)h;
     }
-     Token(tokenType _type, int __vartype,int _line)
-     {
-                 type = (int)_type;
-         _vartype=__vartype;
-         line=_line;
-     }
+    Token(tokenType _type, int __vartype, int _line)
+    {
+        type = (int)_type;
+        _vartype = __vartype;
+        line = _line;
+    }
     Token(tokenType _type, int __vartype)
     {
-         type = (int)_type;
-         _vartype=__vartype;
+        type = (int)_type;
+        _vartype = __vartype;
     }
     tokenType getType()
     {
@@ -719,31 +789,31 @@ public:
     }
     void clean()
     {
-        line=0;
-        type=0;
-            _vartype = EOF_VARTYPE;
+        line = 0;
+        type = 0;
+        _vartype = EOF_VARTYPE;
 
-     textref = EOF_TEXTARRAY;
-
-}
+        textref = EOF_TEXTARRAY;
+    }
     void addText(string t)
     {
-        textref=all_text.addText(t);
+        textref = all_text.addText(t);
     }
-    char * getText()
+    char *getText()
     {
         return all_text.getText(textref);
     }
-    varType * getVarType()
-{
-    if( _vartype != EOF_VARTYPE)
+    varType *getVarType()
     {
-        return &_varTypes[_vartype];
+        if (_vartype != EOF_VARTYPE)
+        {
+            return &_varTypes[_vartype];
+        }
+        else
+        {
+            return NULL;
+        }
     }
-    else{
-        return NULL;
-    }
-}
     uint16_t line = 0;
     uint8_t type = 0;
     uint8_t _vartype = EOF_VARTYPE;
@@ -751,52 +821,69 @@ public:
     uint16_t textref = EOF_TEXTARRAY;
 };
 
-
 vector<Token> _list_of_tokens;
-
+#ifdef __FULL_TOKEN
+#define __DEPTH 0
+#else
 #define __DEPTH 5
-void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToRead);
+#endif
+int tokenizer(Script *script, bool update, bool increae_line,
+               int nbMaxTokenToRead);
 class Tokens
 {
-    public:
+public:
+    void init()
+    {
+#ifdef __FULL_TOKEN
+
+        position = 0;
+#endif
+    }
     Tokens()
     {
-       // _tokens = &_list_of_tokens;
-        _tokens.clear();
-        _tokens.shrink_to_fit();
+        // _tokens = &_list_of_tokens;
+        clear();
+        init();
     }
 
     void clear()
     {
         _tokens.clear();
-        _tokens.empty();
+
         _tokens.shrink_to_fit();
+
+#ifdef __FULL_TOKEN
+        position = 0;
+#endif
     }
     int size()
     {
         return _tokens.size();
     }
-        void tokenize(Script *script, bool update, bool increae_line, int nbToken)
+    void tokenize(Script *script, bool update, bool increae_line, int nbToken)
     {
-        _script = script; 
+        _script = script;
         clear();
-        // list_of_token.push_back(token());
         tokenizer(script, true, increae_line, nbToken);
+        // list_of_token.push_back(token());
+      // Serial.printf("token read %d\n", tokenizer(script, true, increae_line, nbToken));
     }
     void push(Token t)
     {
         _tokens.push_back(t);
     }
-    Token pop_back()
+    void pop_back()
     {
-        if(size()>0)
+        if (_tokens.size() > 0)
         {
-        Token t = _tokens.back();
-        _tokens.pop_back();
-        return t;
+            //	Token t = _tokens.back ();
+
+            _tokens.pop_back();
+
+            //	return t;
         }
-        else
-            return end_token;
+        //	else
+        //	  return end_token;
     }
     Token *getTokenAtPos(int pos)
     {
@@ -809,41 +896,75 @@ class Tokens
     }
     Token *current()
     {
+#ifdef __FULL_TOKEN
+        return getTokenAtPos(position);
+#else
         return getTokenAtPos(__DEPTH);
+#endif
     }
-        Token *next()
+    Token *next()
     {
-//printf("we erase\n");
-        _tokens.erase(_tokens.begin());
-          _tokens.shrink_to_fit();
-  //        printf("we tokenizen\n");
-        tokenizer(_script, false, true, 1);
-    //     printf("we en tokenzizen\n");
+#ifdef __FULL_TOKEN
+        
+        //position++;
+tokenizer(_script, false, true, 1);
+    position++;
 
+    
+       
+        return getTokenAtPos(position);
+#else
+        _tokens.erase(_tokens.begin());
+        _tokens.shrink_to_fit();
+
+        tokenizer(_script, false, true, 1);
         return getTokenAtPos(__DEPTH);
+#endif
     }
     Token *prev()
     {
-
-       _tokens.insert(_tokens.begin(),Token());
+#ifdef __FULL_TOKEN
+        return getTokenAtPos(position - 1);
+#else
+        _tokens.insert(_tokens.begin(), Token());
         return getTokenAtPos(__DEPTH);
+#endif
     }
     Token *peek(int index)
     {
+
+#ifdef __FULL_TOKEN
+        if (index + position < _tokens.size() && index + position >= 0)
+        {
+            return getTokenAtPos(index + position);
+        }
+        else
+        {
+            tokenizer(_script, false, true,
+                      -_tokens.size() + index + position + 1);
+
+            return getTokenAtPos(index + position);
+        }
+#else
         if (index + __DEPTH < _tokens.size() && index + __DEPTH >= 0)
         {
             return getTokenAtPos(index + __DEPTH);
         }
         else
         {
-            tokenizer(_script, false, true, _tokens.size() - index - __DEPTH + 1);
+            tokenizer(_script, false, true,
+                      -_tokens.size() + index + __DEPTH + 1);
 
             return getTokenAtPos(index + __DEPTH);
         }
+#endif
     }
     Token back()
     {
+        if(_tokens.size()>0)
         return _tokens.back();
+        else
+        return Token();
     }
 
     bool Match(tokenType tt)
@@ -876,12 +997,17 @@ private:
     vector<Token> _tokens;
     Token end_token = Token(TokenEndOfFile);
     Script *_script;
+#ifdef __FULL_TOKEN
+    int position;
+#endif
 };
-Tokens _tks=Tokens();
+
+Tokens _tks = Tokens();
 void displaytoken(token t)
 {
     // printf("%s\t%d\t%f\t%s%d %d\t%s\n", tokenNames[t.type].c_str(), t.int_value, t.float_value, t.text.c_str(), t.line, //t.pos, keywordTypeNames[t._keyword].c_str());
 }
+
 Token transNumber(string str)
 {
     // t;
@@ -889,21 +1015,18 @@ Token transNumber(string str)
     // t.int_value=0;
     if (str.find(".") != string::npos)
     {
-       
-        Token t=Token(TokenNumber,(int)__float__);
+
+        Token t = Token(TokenNumber, (int)__float__);
         t.addText(str);
         return t;
     }
     else
     {
 
-    Token t=Token(TokenNumber,(int)__uint32_t__);
-      t.addText(str);
+        Token t = Token(TokenNumber, (int)__uint32_t__);
+        t.addText(str);
         return t;
     }
-
-
-
 }
 
 int isKeyword(string str)
@@ -918,6 +1041,7 @@ int isKeyword(string str)
 
     return -1;
 }
+
 int isUserDefined(string str)
 {
     for (int i = 0; i < userDefinedVarTypeNames.size(); i++)
@@ -977,6 +1101,7 @@ bool isIn0_9(unsigned char c)
     }
     return false;
 }
+
 bool isIn0_9_x_b(unsigned char c)
 {
     if (c >= 48 && c <= 57)
@@ -1008,19 +1133,22 @@ bool isIn0_9_x_b(unsigned char c)
 
 bool _for_display = false;
 
-
 int _token_line;
 int _sav_token_line;
 list<token>::iterator _index_token;
-void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToRead)
+int tokenizer(Script *script, bool update, bool increae_line,
+               int nbMaxTokenToRead)
 {
 
     // list<token> list_of_token;
     // int line = 1;
+    
+  
     Token t;
     int pos = 0;
     char c;
     char c2;
+     _define newdef;
     string v;
     if (update)
     {
@@ -1033,9 +1161,9 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             _tks.push(Token());
         }
         _token_line = 1;
-        
+
         define_list.clear();
-        
+
         __isBlockComment = false;
         // _for_display= true;
     }
@@ -1046,25 +1174,26 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
     int nbReadToken = 0;
     while (script->nextChar() != EOF_TEXT and nbReadToken < nbMaxTokenToRead)
     {
+        // printf(" nb read :%d:\n",nbReadToken);
         t.clean();
         v.clear();
         pos++;
-        
-         c = script->currentChar();
+
+        c = script->currentChar();
         // printf("line : %d pos:%d char:%c token size:%d %d\n",line,pos,c,list_of_token.size(),heap_caps_get_free_size(MALLOC_CAP_8BIT));
         if (c == '=')
         {
-             c2 = script->nextChar();
+            c2 = script->nextChar();
             if (c2 == '=')
             {
-                 t=Token(TokenDoubleEqual,EOF_VARTYPE);
-               // t._vartype = NULL;
-               // t.type = TokenDoubleEqual;
+                t = Token(TokenDoubleEqual, EOF_VARTYPE);
+                // t._vartype = NULL;
+                // t.type = TokenDoubleEqual;
                 if (_for_display)
                     t.addText("==");
                 t.line = _token_line;
                 // t.pos = pos;
-                _tks.push( t);
+                _tks.push(t);
                 nbReadToken++;
 
                 continue;
@@ -1072,168 +1201,168 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             else
             {
                 script->previousChar();
-               // token t;
-              //  t._vartype = NULL;
-              //  t.type = TokenEqual;
-              //  t.line = _token_line;
-                 t=Token(TokenEqual,EOF_VARTYPE,_token_line);
+                // token t;
+                //  t._vartype = NULL;
+                //  t.type = TokenEqual;
+                //  t.line = _token_line;
+                t = Token(TokenEqual, EOF_VARTYPE, _token_line);
                 // t.pos = pos;
                 if (_for_display)
-                    t.addText ("=");
-                 _tks.push( t);
+                    t.addText("=");
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
         }
         if (c == '<')
         {
-             c2 = script->nextChar();
+            c2 = script->nextChar();
             if (c2 == '=')
             {
-               // token t;
-                //t._vartype = NULL;
-                //t.type = TokenLessOrEqualThan;
+                // token t;
+                // t._vartype = NULL;
+                // t.type = TokenLessOrEqualThan;
 
-                  t=Token(TokenLessOrEqualThan,EOF_VARTYPE,_token_line);
+                t = Token(TokenLessOrEqualThan, EOF_VARTYPE, _token_line);
                 if (_for_display)
-                    t.addText( "<=");
-               // t.line = _token_line;
+                    t.addText("<=");
+                // t.line = _token_line;
                 // t.pos = pos;
-                 _tks.push( t);
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
             else if (c2 == '<')
             {
-               // token t;
-               // t._vartype = NULL;
-              //  t.type = TokenShiftLeft;
-                  t=Token(TokenShiftLeft,EOF_VARTYPE,_token_line);
+                // token t;
+                // t._vartype = NULL;
+                //  t.type = TokenShiftLeft;
+                t = Token(TokenShiftLeft, EOF_VARTYPE, _token_line);
                 if (_for_display)
                     t.addText("<<");
-                //t.line = _token_line;
-                // t.pos = pos;
-               // _tks.push(t);
-                 _tks.push( t);
+                // t.line = _token_line;
+                //  t.pos = pos;
+                //  _tks.push(t);
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
             else
             {
                 script->previousChar();
-               // token t;
-                //t._vartype = NULL;
-               // t.type = TokenLessThan;
-                //t.line = _token_line;
+                // token t;
+                // t._vartype = NULL;
+                // t.type = TokenLessThan;
+                // t.line = _token_line;
 
-                  t=Token(TokenShiftLeft,EOF_VARTYPE,_token_line);
+                t = Token(TokenShiftLeft, EOF_VARTYPE, _token_line);
                 // t.pos = pos;
                 if (_for_display)
-                    t.addText( "<");
-                 _tks.push( t);
+                    t.addText("<");
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
         }
         if (c == '>')
         {
-             c2 = script->nextChar();
+            c2 = script->nextChar();
             if (c2 == '=')
             {
-              //  token t;
-              //  t._vartype = NULL;
-               // t.type = TokenMoreOrEqualThan;
-                  t=Token(TokenMoreOrEqualThan,EOF_VARTYPE,_token_line);
+                //  token t;
+                //  t._vartype = NULL;
+                // t.type = TokenMoreOrEqualThan;
+                t = Token(TokenMoreOrEqualThan, EOF_VARTYPE, _token_line);
                 if (_for_display)
-                    t.addText( ">=");
-               // t.line = _token_line;
+                    t.addText(">=");
+                // t.line = _token_line;
                 // t.pos = pos;
                 //_tks.push(t);
-                 _tks.push( t);
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
             else if (c2 == '>')
             {
-               // token t;
-               // t._vartype = NULL;
-                //t.type = TokenShiftRight;
-                  t=Token(TokenShiftRight,EOF_VARTYPE,_token_line);
+                // token t;
+                // t._vartype = NULL;
+                // t.type = TokenShiftRight;
+                t = Token(TokenShiftRight, EOF_VARTYPE, _token_line);
                 if (_for_display)
                     t.addText(">>");
-               // t.line = _token_line;
+                // t.line = _token_line;
                 // t.pos = pos;
-               // _tks.push(t);
-                _tks.push( t);
+                // _tks.push(t);
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
             else
             {
                 script->previousChar();
-               // token t;
-               // t._vartype = NULL;
-               // t.type = TokenMoreThan;
-               // t.line = _token_line;
-                 t=Token(TokenMoreThan,EOF_VARTYPE,_token_line);
+                // token t;
+                // t._vartype = NULL;
+                // t.type = TokenMoreThan;
+                // t.line = _token_line;
+                t = Token(TokenMoreThan, EOF_VARTYPE, _token_line);
                 // t.pos = pos;
                 if (_for_display)
-                    t.addText ( ">");
-               // _tks.push(t);
-                _tks.push( t);
+                    t.addText(">");
+                // _tks.push(t);
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
         }
         if (c == '!')
         {
-             c2 = script->nextChar();
+            c2 = script->nextChar();
             if (c2 == '=')
             {
-                //token t;
-                //t._vartype = NULL;
-                //t.type = TokenNotEqual;
-                 t=Token(TokenNotEqual,EOF_VARTYPE,_token_line);
+                // token t;
+                // t._vartype = NULL;
+                // t.type = TokenNotEqual;
+                t = Token(TokenNotEqual, EOF_VARTYPE, _token_line);
                 if (_for_display)
-                    t.addText( "!=");
-               // t.line = _token_line;
+                    t.addText("!=");
+                // t.line = _token_line;
                 // t.pos = pos;
                 //_tks.push(t);
-                _tks.push( t);
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
             else
             {
                 script->previousChar();
-              //  token t;
-              //  t._vartype = NULL;
-               // t.type = TokenNot;
-               // t.line = _token_line;
-                  t=Token(TokenNot,EOF_VARTYPE,_token_line);
+                //  token t;
+                //  t._vartype = NULL;
+                // t.type = TokenNot;
+                // t.line = _token_line;
+                t = Token(TokenNot, EOF_VARTYPE, _token_line);
                 // t.pos = pos;
                 if (_for_display)
-                    t.addText( "!");
-               // _tks.push(t);
-                _tks.push( t);
+                    t.addText("!");
+                // _tks.push(t);
+                _tks.push(t);
                 nbReadToken++;
                 continue;
             }
         }
         if (c == '+')
         {
-             c2 = script->nextChar();
+            c2 = script->nextChar();
             if (c2 == '+')
             {
-               // token t;
-                //t._vartype = NULL;
-                //t.type = TokenPlusPlus;
-                  t=Token(TokenPlusPlus,EOF_VARTYPE,_token_line);
+                // token t;
+                // t._vartype = NULL;
+                // t.type = TokenPlusPlus;
+                t = Token(TokenPlusPlus, EOF_VARTYPE, _token_line);
                 if (_for_display)
-                    t.addText( "++");
-               // t.line = _token_line;
+                    t.addText("++");
+                // t.line = _token_line;
                 // t.pos = pos;
-               // _tks.push(t);
+                // _tks.push(t);
                 // nbReadToken++;
                 _tks.push(t);
                 continue;
@@ -1241,15 +1370,15 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             else
             {
                 script->previousChar();
-                //token t;
-               // t._vartype = NULL;
-                //t.type = TokenAddition;
-                  t=Token(TokenAddition,EOF_VARTYPE,_token_line);
+                // token t;
+                //  t._vartype = NULL;
+                // t.type = TokenAddition;
+                t = Token(TokenAddition, EOF_VARTYPE, _token_line);
                 if (_for_display)
                     t.addText("+");
-               // t.line = _token_line;
+                // t.line = _token_line;
                 // t.pos = pos;
-               // _tks.push(t);
+                // _tks.push(t);
                 _tks.push(t);
                 nbReadToken++;
                 continue;
@@ -1258,7 +1387,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
 
         if (isIna_zA_Z_(c))
         {
-             v;
+            v;
             int newpos = pos;
             while (isIna_zA_Z_0_9(c))
             {
@@ -1267,9 +1396,9 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                 c = script->nextChar();
             }
             script->previousChar(); // on revient un caractere en arriere
-            //token t;
-            //Token t;
-            // t._vartype=NULL;
+            // token t;
+            // Token t;
+            //  t._vartype=NULL;
             t.line = _token_line;
             // t.pos = pos;
             if (isKeyword(v) > -1)
@@ -1283,6 +1412,13 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                 {
                     t.type = (int)TokenExternal;
                 }
+                if ((t.getType() == TokenKeywordImport or t.getType() ==
+                                                              TokenKeywordDefine) &&
+                    !_for_display)
+                {
+
+                    nbReadToken--;
+                }
             }
             else if (isUserDefined(v) > -1)
             {
@@ -1292,28 +1428,31 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             else
             {
                 t.type = (int)TokenIdentifier;
-                if (_tks.size() > __DEPTH)
+
+                if (_tks.size() >= __DEPTH)
                 {
+
                     Token prev = _tks.back();
                     if (prev.getType() == TokenKeywordImport && !_for_display)
                     {
+
                         // script->insert(import);
-                       
-                        _sav_token_line=_token_line;
+
+                        _sav_token_line = _token_line;
                         nbReadToken--;
                         if (findLibFunction(v) > -1)
                         {
-                            
+
                             _tks.pop_back();
-                            
+
                             all_text.pop();
-                            
-                            //list_of_token.pop_back();
-                            // add_on.push_back(findLibFunction(v));
-                            script->insert(*_stdlib[findLibFunction(v)]);
-                            
-                            script->previousChar();
-                             
+
+                            // list_of_token.pop_back();
+                            //  add_on.push_back(findLibFunction(v));
+                            script->insert((char *)((*_stdlib[findLibFunction(v)]).c_str()));
+
+                            // script->previousChar ();
+
                             continue;
                         }
                     }
@@ -1321,11 +1460,11 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                     {
                         _tks.pop_back();
                         all_text.pop();
-                        nbReadToken--;
-                        _define newdef;
-                        newdef.name = v; 
+                        // nbReadToken--;
+                       
+                        newdef.name = v;
                         newdef.content = "";
-                         c2;
+
                         c2 = script->nextChar();
                         // c2 = script->nextChar();
                         while (c2 != '\n' and c2 != EOF_TEXT)
@@ -1333,10 +1472,10 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                             newdef.content = newdef.content + c2;
                             c2 = script->nextChar();
                         }
-                        // printf("ona joute %s\n",newdef.content.c_str());
                         define_list.push_back(newdef);
                         if (increae_line)
                             _token_line++;
+                        // script->previousChar();
                         continue;
                     }
                     else if (prev.getType() == TokenKeywordStruct && !_for_display)
@@ -1348,15 +1487,19 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                 }
                 if (!_for_display) // on ne remplace pas lorsque l'on display
                 {
-                    if (getDefine(v) != "")
+                    if (getDefine(v) != NULL)
                     {
-                        script->insert(getDefine(v));
+                 
+                        script->insert((char *)(getDefine(v)));
+                        script->nextChar();
+                        // nbReadToken--;
                         continue;
                     }
                 }
             }
             pos = newpos - 1;
-            t.addText ( v);
+            if (t.type == (int)TokenIdentifier or _for_display)
+                t.addText(v);
             //_tks.push(t);
             _tks.push(t);
             nbReadToken++;
@@ -1366,7 +1509,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         if (isIn0_9(c))
         {
             // //printf("on a %c\n",c);
-             v = "";
+            v = "";
             int newpos = pos;
             while (isIn0_9_x_b(c))
             {
@@ -1375,7 +1518,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
                 newpos++;
             }
             script->previousChar(); // on revient un caractere en arriere
-             t = transNumber(v);
+            t = transNumber(v);
             //  t._vartype=NULL;
             t.line = _token_line;
             // t.pos = pos;
@@ -1387,47 +1530,47 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == ';')
         {
-           // token t;
-           // t.type = TokenSemicolon;
-           // t._vartype = NULL;
-             t=Token(TokenSemicolon,EOF_VARTYPE,_token_line);
+            // token t;
+            // t.type = TokenSemicolon;
+            // t._vartype = NULL;
+            t = Token(TokenSemicolon, EOF_VARTYPE, _token_line);
             if (_for_display)
                 t.addText(";");
-           // t.line = _token_line;
+            // t.line = _token_line;
             // t.pos = pos;
-           // _tks.push(t);
+            // _tks.push(t);
             _tks.push(t);
             nbReadToken++;
             continue;
         }
         if (c == '\t')
         {
-           // token t;
-           // t.type = TokenSpace;
-           // t._vartype = NULL;
-              t=Token(TokenSpace,EOF_VARTYPE,_token_line);
+            // token t;
+            // t.type = TokenSpace;
+            // t._vartype = NULL;
+            t = Token(TokenSpace, EOF_VARTYPE, _token_line);
             if (_for_display)
                 t.addText("\t");
-            //t.line = _token_line;
-            // t.pos = pos;
+            // t.line = _token_line;
+            //  t.pos = pos;
             if (_for_display)
             {
                 //_tks.push(t);
-                //nbReadToken++;
+                // nbReadToken++;
                 _tks.push(t);
             }
             continue;
         }
         if (c == '&')
         {
-           // token t;
-           // t.type = TokenUppersand;
-           // t._vartype = NULL;
-              t=Token(TokenUppersand,EOF_VARTYPE,_token_line);
+            // token t;
+            // t.type = TokenUppersand;
+            // t._vartype = NULL;
+            t = Token(TokenUppersand, EOF_VARTYPE, _token_line);
             if (_for_display)
-                t.addText( "&");
-            //t.line = _token_line;
-            // t.pos = pos;
+                t.addText("&");
+            // t.line = _token_line;
+            //  t.pos = pos;
             //_tks.push(t);
             _tks.push(t);
             nbReadToken++;
@@ -1435,31 +1578,31 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '#')
         {
-            //token t;
-            //t.type = TokenDiese;
-            //t._vartype = NULL;
-              t=Token(TokenDiese,EOF_VARTYPE,_token_line);
+            // token t;
+            // t.type = TokenDiese;
+            // t._vartype = NULL;
+            t = Token(TokenDiese, EOF_VARTYPE, _token_line);
             if (_for_display)
             {
-                t.addText( "#");
-                          // _tks.push(t);
-                          _tks.push(t);
-            nbReadToken++;
+                t.addText("#");
+                // _tks.push(t);
+                _tks.push(t);
+                nbReadToken++;
             }
-            //t.line = _token_line;
-            // t.pos = pos;
+            // t.line = _token_line;
+            //  t.pos = pos;
 
             continue;
         }
         if (c == '(')
         {
-           // token t;
-            //t.type = TokenOpenParenthesis;
-            //t._vartype = NULL;
-              t=Token(TokenOpenParenthesis,EOF_VARTYPE,_token_line);
+            // token t;
+            // t.type = TokenOpenParenthesis;
+            // t._vartype = NULL;
+            t = Token(TokenOpenParenthesis, EOF_VARTYPE, _token_line);
             if (_for_display)
                 t.addText("(");
-           // t.line = _token_line;
+            // t.line = _token_line;
             // t.pos = pos;
             //_tks.push(t);
             _tks.push(t);
@@ -1468,13 +1611,13 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '%')
         {
-            //token t;
-           // t.type = TokenModulo;
-            //t._vartype = NULL;
-              t=Token(TokenModulo,EOF_VARTYPE,_token_line);
+            // token t;
+            //  t.type = TokenModulo;
+            // t._vartype = NULL;
+            t = Token(TokenModulo, EOF_VARTYPE, _token_line);
             if (_for_display)
                 t.addText("%");
-           // t.line = _token_line;
+            // t.line = _token_line;
             // t.pos = pos;
             //_tks.push(t);
             _tks.push(t);
@@ -1483,13 +1626,13 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == ')')
         {
-          //  token t;
-           // t.type = TokenCloseParenthesis;
-           // t._vartype = NULL;
-              t=Token(TokenCloseParenthesis,EOF_VARTYPE,_token_line);
+            //  token t;
+            // t.type = TokenCloseParenthesis;
+            // t._vartype = NULL;
+            t = Token(TokenCloseParenthesis, EOF_VARTYPE, _token_line);
             if (_for_display)
                 t.addText(")");
-           // t.line = _token_line;
+            // t.line = _token_line;
             // t.pos = pos;
             //_tks.push(t);
             _tks.push(t);
@@ -1498,14 +1641,14 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '{')
         {
-           // token t;
-           // t.type = TokenOpenCurlyBracket;
-           // t._vartype = NULL;
-              t=Token(TokenOpenCurlyBracket,EOF_VARTYPE,_token_line);
+            // token t;
+            // t.type = TokenOpenCurlyBracket;
+            // t._vartype = NULL;
+            t = Token(TokenOpenCurlyBracket, EOF_VARTYPE, _token_line);
             if (_for_display)
                 t.addText("{");
-            //t.line = _token_line;
-            // t.pos = pos;
+            // t.line = _token_line;
+            //  t.pos = pos;
             //_tks.push(t);
             _tks.push(t);
             nbReadToken++;
@@ -1513,28 +1656,28 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '}')
         {
-           // token t;
-            //t.type = TokenCloseCurlyBracket;
-           // t._vartype = NULL;
-              t=Token(TokenCloseCurlyBracket,EOF_VARTYPE,_token_line);
+            // token t;
+            // t.type = TokenCloseCurlyBracket;
+            // t._vartype = NULL;
+            t = Token(TokenCloseCurlyBracket, EOF_VARTYPE, _token_line);
             if (_for_display)
-                t.addText( "}");
-           // t.line = _token_line;
+                t.addText("}");
+            // t.line = _token_line;
             // t.pos = pos;
-           // _tks.push(t);
-           _tks.push(t);
+            // _tks.push(t);
+            _tks.push(t);
             nbReadToken++;
             continue;
         }
         if (c == '[')
         {
-          //  token t;
-           // t.type = TokenOpenBracket;
-           // t._vartype = NULL;
-             t=Token(TokenOpenBracket,EOF_VARTYPE,_token_line);
+            //  token t;
+            // t.type = TokenOpenBracket;
+            // t._vartype = NULL;
+            t = Token(TokenOpenBracket, EOF_VARTYPE, _token_line);
             if (_for_display)
-                t.addText( "[");
-           // t.line = _token_line;
+                t.addText("[");
+            // t.line = _token_line;
             // t.pos = pos;
             //_tks.push(t);
             _tks.push(t);
@@ -1543,10 +1686,10 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == ']')
         {
-           // token t;
-           // t.type = TokenCloseBracket;
-           // t._vartype = NULL;
-              t=Token(TokenCloseBracket,EOF_VARTYPE,_token_line);
+            // token t;
+            // t.type = TokenCloseBracket;
+            // t._vartype = NULL;
+            t = Token(TokenCloseBracket, EOF_VARTYPE, _token_line);
             if (_for_display)
                 t.addText("]");
             t.line = _token_line;
@@ -1560,18 +1703,18 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             char c2 = script->nextChar();
             if (c2 == '/')
             {
-                //Token t;
+                // Token t;
                 t._vartype = EOF_VARTYPE;
                 t.type = (int)TokenLineComment;
-                string str="//";
+                string str = "//";
 
                 c2 = script->nextChar();
                 while (c2 != '\n' and c2 != EOF_TEXT)
                 {
-                    str= string_format("%s%c", t.getText(),c2);
+                    str = string_format("%s%c", t.getText(), c2);
                     c2 = script->nextChar();
                 }
-                                if (_for_display)
+                if (_for_display)
                     t.addText(str);
                 t.line = _token_line;
                 // t.pos = pos;
@@ -1586,21 +1729,21 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             }
             else if (c2 == '*')
             {
-               // Token t;
+                // Token t;
                 t._vartype = EOF_VARTYPE;
-                t.type =(int) TokenLineComment;
+                t.type = (int)TokenLineComment;
 
-                    string str="/*";
+                string str = "/*";
                 c = script->nextChar();
                 c2 = script->nextChar();
                 while ((c != '*' or c2 != '/') and c2 != EOF_TEXT and c != EOF_TEXT) // stop when (c=* and c2=/) or c=0 or c2=0
                 {
                     if (_for_display)
-                        str=string_format("%s%c" ,t.getText(), c);
+                        str = string_format("%s%c", t.getText(), c);
                     c = c2;
                     c2 = script->nextChar();
                 }
-                                if (_for_display)
+                if (_for_display)
                     t.addText(str);
                 t.line = _token_line;
                 // t.pos = pos;
@@ -1614,7 +1757,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
             else
             {
                 script->previousChar();
-               // Token t;
+                // Token t;
                 t.type = (int)TokenSlash;
                 t._vartype = EOF_VARTYPE;
                 if (_for_display)
@@ -1628,7 +1771,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '-')
         {
-            //Token t;
+            // Token t;
             t.type = (int)TokenSubstraction;
             t._vartype = EOF_VARTYPE;
             if (_for_display)
@@ -1641,18 +1784,18 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == ' ')
         {
-            //Token t;
+            // Token t;
             t.line = _token_line;
             // t.pos = pos;
-            string str="";
-   
+            string str = "";
+
             while (c == ' ')
             {
                 c = script->nextChar();
                 pos++;
-                str=str+" ";
+                str = str + " ";
             }
-                        if (_for_display)
+            if (_for_display)
                 t.addText(str);
             script->previousChar(); // on revient un caractere en arriere
             pos--;
@@ -1667,8 +1810,8 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '"')
         {
-             v = "";
-            //Token t;
+            v = "";
+            // Token t;
             t._vartype = EOF_VARTYPE;
             t.line = _token_line;
             // t.pos = pos;
@@ -1692,7 +1835,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '\n')
         {
-           // Token t;
+            // Token t;
             t.type = (int)TokenNewline;
             if (_for_display)
                 t.addText("\r\n");
@@ -1707,7 +1850,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '?')
         {
-            //Token t;
+            // Token t;
             t.type = (int)TokenUnknown;
             if (_for_display)
                 t.addText("?");
@@ -1721,7 +1864,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '.')
         {
-            //Token t;
+            // Token t;
             t.type = (int)TokenMember;
             if (_for_display)
                 t.addText(".");
@@ -1736,7 +1879,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '^')
         {
-           // Token t;
+            // Token t;
             t.type = (int)TokenPower;
             if (_for_display)
                 t.addText("^");
@@ -1751,7 +1894,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '@')
         {
-            //Token t;
+            // Token t;
             t.type = (int)TokenUnknown;
             if (_for_display)
                 t.addText("@");
@@ -1761,7 +1904,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '\'')
         {
-            //Token t;
+            // Token t;
             t.type = (int)TokenUnknown;
             if (_for_display)
                 t.addText("\'");
@@ -1775,7 +1918,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == ':')
         {
-            //Token t;
+            // Token t;
             t.type = (int)TokenUnknown;
             if (_for_display)
                 t.addText(":");
@@ -1789,7 +1932,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == '*')
         {
-           //Token t;
+            // Token t;
             t._vartype = EOF_VARTYPE;
             t.type = (int)TokenStar;
             if (_for_display)
@@ -1802,7 +1945,7 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         if (c == ',')
         {
-            //Token t;
+            // Token t;
             t._vartype = EOF_VARTYPE;
             t.type = (int)TokenComma;
             if (_for_display)
@@ -1815,29 +1958,28 @@ void tokenizer(Script *script, bool update, bool increae_line, int nbMaxTokenToR
         }
         // printf("Error invalid character |%c|\n", c);
     }
-  //  token t;
-  //  t.type = TokenEndOfFile;
-  //  t.addText("";
-  //  t.line = _token_line;
+    //  token t;
+    //  t.type = TokenEndOfFile;
+    //  t.addText("";
+    //  t.line = _token_line;
     // t.pos = pos + 1;
     if (script->currentChar() == EOF_TEXT)
     {
         if (_tks.back().getType() != TokenEndOfFile)
         { // printf("oinr termine");
-            //token t;
-           // t.type = TokenEndOfFile;
-           // t.addText("";
-          //  t.line = _token_line;
-          
-           t=Token(TokenEndOfFile,EOF_VARTYPE,_token_line);
-           // _tks.push(t);
-           _tks.push(t);
+            // token t;
+            //  t.type = TokenEndOfFile;
+            //  t.addText("";
+            //   t.line = _token_line;
+
+            t = Token(TokenEndOfFile, EOF_VARTYPE, _token_line);
+            // _tks.push(t);
+            _tks.push(t);
         }
     }
     // return list_of_token;
+    return nbReadToken-1;
 }
-
-
 
 /*
 class Tokens
@@ -1954,7 +2096,6 @@ private:
 
 */
 
-
 #ifdef __CONSOLE_ESP32
 list<const char *> _parenthesis;
 list<const char *> _curlybracket;
@@ -1963,12 +2104,11 @@ int _prevparenthesis;
 int _prevcurlybracket;
 int _prevbracket;
 #define _NB_COLORS 3
-const char *_colors[_NB_COLORS] =
-    {
+const char *_colors[_NB_COLORS] = {
 
-        termColor.Magenta,
-        termColor.LBlue,
-        termColor.Yellow,
+    termColor.Magenta,
+    termColor.LBlue,
+    termColor.Yellow,
 
 };
 
@@ -1989,7 +2129,8 @@ void formatNewLine()
     _prevbracket = 0;
 }
 
-string formatLine(string str)
+string
+formatLine(string str)
 {
     // Serial.printf("streing:%s\r\n",str.c_str());
     // _parent.clear();
@@ -2019,52 +2160,65 @@ string formatLine(string str)
         token tk = *_tks.current();
         //    Serial.printf("token %s\r\n",tk.text.c_str());
         /* if (tk.type == TokenOpenCurlyBracket)
-         {
+           {
 
-             // char *color= (char *)_colors[_curlybracket.size()%_NB_COLORS];
-             res = res + string_format("%s%s", _colors[_curlybracket.size() % _NB_COLORS], tk.text.c_str());
-             _curlybracket.push_back(_colors[_curlybracket.size() % _NB_COLORS]);
-             _prevcurlybracket++;
-         }
-         else if (tk.type == TokenCloseCurlyBracket)
-         {
+           // char *color= (char *)_colors[_curlybracket.size()%_NB_COLORS];
+           res = res + string_format("%s%s", _colors[_curlybracket.size() % _NB_COLORS], tk.text.c_str());
+           _curlybracket.push_back(_colors[_curlybracket.size() % _NB_COLORS]);
+           _prevcurlybracket++;
+           }
+           else if (tk.type == TokenCloseCurlyBracket)
+           {
 
-             if (_curlybracket.size() == 0)
-             {
-                 res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
-             }
-             else
-             {
-                 // char * color=_curlybracket.back();
-                 _prevcurlybracket--;
-                 res = res + string_format("%s%s", _curlybracket.back(), tk.text.c_str());
-                 _curlybracket.pop_back();
-             }
-         }*/
+           if (_curlybracket.size() == 0)
+           {
+           res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
+           }
+           else
+           {
+           // char * color=_curlybracket.back();
+           _prevcurlybracket--;
+           res = res + string_format("%s%s", _curlybracket.back(), tk.text.c_str());
+           _curlybracket.pop_back();
+           }
+           } */
         if (tk.getType() == TokenOpenParenthesis)
         {
             _prevparenthesis++;
-            res = res + string_format("%s%s", _colors[(_parenthesis.size() + 2) % _NB_COLORS], tk.getText());
-            _parenthesis.push_back(_colors[(_parenthesis.size() + 2) % _NB_COLORS]);
+            res =
+                res + string_format("%s%s",
+                                    _colors[(_parenthesis.size() +
+                                             2) %
+                                            _NB_COLORS],
+                                    tk.getText());
+            _parenthesis.push_back(_colors
+                                       [(_parenthesis.size() + 2) % _NB_COLORS]);
         }
         else if (tk.getType() == TokenCloseParenthesis)
         {
 
             if (_parenthesis.size() == 0)
             {
-                res = res + string_format("%s%s", "\u001b[38;5;196m", tk.getText());
+                res =
+                    res + string_format("%s%s", "\u001b[38;5;196m",
+                                        tk.getText());
             }
             else
             {
                 _prevparenthesis--;
-                res = res + string_format("%s%s", _parenthesis.back(), tk.getText());
+                res =
+                    res + string_format("%s%s", _parenthesis.back(),
+                                        tk.getText());
                 _parenthesis.pop_back();
             }
         }
         else if (tk.getType() == TokenOpenBracket)
         {
             _prevbracket++;
-            res = res + string_format("%s%s", _colors[_bracket.size() % _NB_COLORS], tk.getText());
+            res =
+                res + string_format("%s%s",
+                                    _colors[_bracket.size() % _NB_COLORS],
+                                    tk.getText());
             _bracket.push_back(_colors[_bracket.size() % _NB_COLORS]);
         }
         else if (tk.getType() == TokenCloseBracket)
@@ -2072,31 +2226,38 @@ string formatLine(string str)
 
             if (_bracket.size() == 0)
             {
-                res = res + string_format("%s%s", "\u001b[38;5;196m", tk.getText());
+                res =
+                    res + string_format("%s%s", "\u001b[38;5;196m",
+                                        tk.getText());
             }
             else
             {
                 _prevbracket--;
-                res = res + string_format("%s%s", _bracket.back(), tk.getText());
+                res =
+                    res + string_format("%s%s", _bracket.back(), tk.getText());
                 _bracket.pop_back();
             }
         }
         /*
-        else if (tk.type == TokenKeyword)
-        {
-            res = res + string_format("%s%s", KeywordTypeFormat[tk._keyword], tk.text.c_str());
-        }*/
+           else if (tk.type == TokenKeyword)
+           {
+           res = res + string_format("%s%s", KeywordTypeFormat[tk._keyword], tk.text.c_str());
+           } */
         else
         {
             token tkn = *_tks.peek(1);
             if (tk.getType() == TokenIdentifier && tkn.getType() == TokenOpenParenthesis)
             {
-                res = res + string_format("%s%s", tokenFormat[TokenFunction], tk.getText());
+                res =
+                    res + string_format("%s%s", tokenFormat[TokenFunction],
+                                        tk.getText());
             }
             else
             {
 
-                res = res + string_format("%s%s", tokenFormat[tk.type], tk.getText());
+                res =
+                    res + string_format("%s%s", tokenFormat[tk.type],
+                                        tk.getText());
             }
             // _tks.prev();
         }
