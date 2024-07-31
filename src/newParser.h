@@ -140,9 +140,11 @@ public:
         targetList.clear();
         sav_token.clear();
         _node_token_stack.clear();
+        _functions.clear();
+
 
         initMem();
-        parseProgram();
+       parseProgram();
     }
 
 void getVariable(bool isStore)
@@ -250,11 +252,123 @@ void getVariable(bool isStore)
             //}
         }
     }
+void parseArguments()
+    {
+        // resParse result;
+        nb_argument = 0;
+        nb_args.push_back(0);
+        // NodeInputArguments arg;
+        current_node = current_node->addChild(NodeToken(inputArgumentsNode));
+        if (Match(TokenCloseParenthesis))
+        {
+            // resParse result;
+            Error.error = 0;
+            // result._nd = arg;
+            // printf("on retourne with argh ide\n");
+            current_node = current_node->parent;
+            next();
+            return;
+        }
+        nb_args.pop_back();
+        nb_args.push_back(1);
+        // nb_argument = 1;
+        // Serial.printf("lkklqdqsdksmdkqsd\r\n");
+        parseExpr();
+        // Serial.printf("lkklqdqsdksm excut dkqsd\r\n");
+        if (Error.error)
+        {
+            return;
+        }
+        // arg.addChild(res._nd);
+        while (Match(TokenComma))
+        {
+            next();
+            __sav_arg = nb_args.back();
+            nb_args.pop_back();
+            nb_args.push_back(__sav_arg + 1);
+            // nb_argument++;
+            parseExpr();
+            if (Error.error)
+            {
+                return;
+            }
+            // arg.addChild(res._nd);
+        }
+        if (!Match(TokenCloseParenthesis))
+        {
 
+            Error.error = 1;
+            Error.error_message = string_format("Expected ) %s", linepos().c_str());
+            next();
+            return;
+        }
+        next();
+        Error.error = 0;
+        // result._nd = arg;
+        current_node = current_node->parent;
+        return;
+    }
 void parseFunctionCall()
-{
-    next();
-}
+    {
+        // Serial.printf("serial %s\r\n",current()->text.c_str());
+        // int sav_nb_arg;
+        // NodeToken *t = current_cntx->findFunction(current());
+
+        main_context.findFunction(current());
+        // NodeToken *t =search_result;
+        if (search_result == NULL)
+        {
+            Error.error = 1;
+            Error.error_message = string_format("function %s not found %s", current()->getText(), linepos().c_str());
+            return;
+        }
+        next();
+        next();
+        NodeToken res=*search_result;
+        if (res._nodetype ==(int) defExtFunctionNode)
+        {
+            
+             res._nodetype=extCallFunctionNode;
+            // NodeExtCallFunction function = NodeExtCallFunction(t);
+            current_node = current_node->addChild(res);
+           
+            // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
+            nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
+           
+        }
+        else
+        {
+            // Serial.printf("serial2\r\n");
+            // NodeCallFunction function = NodeCallFunction(t);
+                      res._nodetype=callFunctionNode;
+            
+            current_node = current_node->addChild(res);
+            // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
+            nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
+            // Serial.printf("serial3\r\n");
+        }
+        parseArguments();
+        // Serial.printf("serial4\r\n");
+        if (Error.error)
+        {
+            return;
+        }
+
+        if (nb_sav_args.back() != nb_args.back()) // if (sav_nb_arg != nb_args.back())
+        {
+            Error.error = 1;
+            // sav_nb_args
+            Error.error_message = string_format("Expected %d arguments got %d %s", nb_sav_args.back(), nb_args.back(), linepos().c_str());
+            return;
+        }
+        nb_args.pop_back();
+        nb_sav_args.pop_back();
+        Error.error = 0;
+        current_node = current_node->parent;
+
+        return;
+    }
+
 void parseComparaison()
     {
         // resParse res;
@@ -856,6 +970,7 @@ void parseBlockStatement()
         // Context cntx;
         // cntx.name = string_format("%d", block_statement_num);
         // current_cntx = current_cntx->addChild(cntx);
+        updateMem();
         current_cntx = current_cntx->addChild(Context());
         block_statement_num++;
 
@@ -964,6 +1079,7 @@ void parseBlockStatement()
         // prev();
         // resParse result;
         Error.error = 0;
+        
         current_node = current_node->parent;
         return;
     }
@@ -993,7 +1109,7 @@ void parseBlockStatement()
         {
 
             Error.error = 1;
-            Error.error_message = string_format("function already declared in the scope for %s", linepos().c_str());
+            Error.error_message = string_format("function already %s  declared in the scope for %s",current()->getText(), linepos().c_str());
             next();
             return;
         }
@@ -1005,7 +1121,7 @@ void parseBlockStatement()
 
             current_node = current_node->addChild(function);
             // current_cntx->parent->addFunction(current_node);
-            main_context.addFunction(current_node);
+           // main_context.addFunction(current_node);
         }
         else if (is_asm)
         {
@@ -1015,7 +1131,7 @@ void parseBlockStatement()
 
             current_node = current_node->addChild(function);
             // current_cntx->parent->addFunction(current_node);
-            main_context.addFunction(current_node);
+           
         }
         else
         {
@@ -1025,7 +1141,7 @@ void parseBlockStatement()
 
             current_node = current_node->addChild(function);
             // current_cntx->parent->addFunction(current_node);
-            main_context.addFunction(current_node);
+          //  main_context.addFunction(current_node);
         }
         // on ajoute un nouveau contexte
         
@@ -1036,6 +1152,8 @@ void parseBlockStatement()
         next();
         next();
         parseCreateArguments();
+         main_context.addFunction(current_node);
+        
         if (Error.error)
         {
             return;
@@ -1093,12 +1211,15 @@ void parseBlockStatement()
                 current_node->stack_pos = stack_size;
                 // result._nd = function;
                 Error.error = 0;
-                Context *tobedeted = current_cntx;
+               current_cntx->clear();
                 current_cntx = current_cntx->parent;
 
                 point_regnum = 4;
-// printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
 
+// printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
+        current_node->clear();
+        printf("after clean function %s\n",current_node->getTokenText());
+        updateMem();
 /*
 #ifndef __MEM_PARSER
                printf("on compile %s\r\n",current_node->text.c_str());
@@ -1684,7 +1805,7 @@ void parseBlockStatement()
                         if (isExternal)
                         {
                             nd._nodetype = (int)defExtGlobalVariableNode;
-                            printf("here\n");
+                           
                             isExternal = false;
                         }
                         else

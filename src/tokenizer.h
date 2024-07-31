@@ -92,12 +92,10 @@ string varTypeEnumNames[] = {
 vector<string> userDefinedVarTypeNames;
 
 varType _varTypes[] = {
-    {
-        ._varType = __none__,
-        ._varSize = 0,
-        .size=0,
-        .total_size = 2
-    },
+    {._varType = __none__,
+     ._varSize = 0,
+     .size = 0,
+     .total_size = 2},
     {._varType = __uint8_t__,
      ._varSize = 1,
      // .load={l8ui},
@@ -424,7 +422,7 @@ typedef struct
 
 vector<_define> define_list;
 
-const char * getDefine(string name)
+const char *getDefine(string name)
 {
     for (vector<_define>::iterator it = define_list.begin();
          it != define_list.end(); ++it)
@@ -445,10 +443,11 @@ void deleteDefine()
     {
         (*it).content.clear();
         (*it).content.shrink_to_fit();
-                (*it).name.clear();
+        (*it).name.clear();
         (*it).name.shrink_to_fit();
-       
     }
+    define_list.clear();
+    define_list.shrink_to_fit();
 }
 
 #ifdef __CONSOLE_ESP32
@@ -572,7 +571,43 @@ typedef struct
 #define EOF_VARTYPE 0
 
 vector<char *> texts;
-
+template <class T>
+class Stack
+{
+public:
+    Stack() {}
+    void push(T a)
+    {
+        _stack.push_back(a);
+    }
+    T pop()
+    {
+        T sav = _stack.back();
+        _stack.pop_back();
+        return sav;
+    }
+    T get()
+    {
+        return _stack.back();
+    }
+    void duplicate()
+    {
+        _stack.push_back(_stack.back());
+    }
+    void swap()
+    {
+        T sav = pop();
+        T sav2 = pop();
+        push(sav);
+        push(sav2);
+    }
+    void clear()
+    {
+        _stack.clear();
+        _stack.shrink_to_fit();
+    }
+    vector<T> _stack;
+};
 class Script
 {
 public:
@@ -695,27 +730,128 @@ public:
         //_texts=t;
         _texts.clear();
         _texts.shrink_to_fit();
+        position = 0;
+        _it = _texts.begin();
     }
-
+    int findText(string str)
+    {
+        for (int i = 0; i < _texts.size(); i++)
+        {
+            if (str.compare(string(_texts[i])) == 0)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
     int addText(string str)
     {
+        int pos = findText(str);
+        if (pos > -1)
+        {
+            return pos;
+        }
         char *m = (char *)malloc(str.size() + 1);
         memcpy(m, str.c_str(), str.size());
         m[str.size()] = 0;
         _texts.push_back(m);
+        position++;
         return _texts.size() - 1;
+    }
+    void addAfter(int pos, string s)
+    {
+        _it = getChildAtPos(pos);
+        // printf(" on recupere %d:%s\n",pos,(*__it).c_str());
+        // if((*_it).compare(s)!=0)
+        //{
+        addAfter(s);
+        position--;
+        _it = getChildAtPos(position);
+        position++;
+        // }
+    }
+    void addAfter(string str)
+    {
+        int pos = findText(str);
+        if (pos > -1)
+        {
+            _it = _texts.insert(next(_it), _texts[pos]);
+        }
+        else
+        {
+            char *m = (char *)malloc(str.size() + 1);
+            memcpy(m, str.c_str(), str.size());
+            m[str.size()] = 0;
+            _it = _texts.insert(next(_it), m);
+        }
+        position++;
+    }
+    void addAfterNoDouble(string s)
+    {
+        char *str;
+        if (_it != _texts.end())
+        {
+
+            if (s.compare(string(*_it)) == 0)
+            {
+                return;
+            }
+        }
+        addAfter(s);
+    }
+    void addBefore(string s)
+    {
+        int pos = findText(s);
+        if (pos > -1)
+        {
+            _it = _texts.insert(_it, _texts[pos]);
+        }
+        else
+        {
+            char *m = (char *)malloc(s.size() + 1);
+            memcpy(m, s.c_str(), s.size());
+            m[s.size()] = 0;
+            _it = _texts.insert(_it, m);
+        }
+        _it++;
+        position++;
     }
     void replaceText(int pos, string str)
     {
         if (pos > 0 and pos < size())
         {
-            if(_texts[pos]!=NULL)
+            if (_texts[pos] != NULL)
                 free(_texts[pos]);
             char *m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());
             m[str.size()] = 0;
             _texts[pos] = m;
         }
+    }
+    vector<char *>::iterator getChildAtPos(int pos)
+    {
+        int i = 0;
+        if (pos >= _texts.size() || pos < 0)
+        {
+            return _texts.end();
+        }
+        for (vector<char *>::iterator it = _texts.begin(); it != _texts.end(); it++)
+        {
+            if (i == pos)
+            {
+                return it;
+            }
+            i++;
+        }
+        return _texts.end();
+    }
+    void putIteratorAtPos(int pos)
+    {
+        _it = getChildAtPos(pos);
+    }
+    void end()
+    {
+        _it = getChildAtPos(_texts.size() - 1);
     }
     void clear()
     {
@@ -726,6 +862,8 @@ public:
         }
         _texts.clear();
         _texts.shrink_to_fit();
+        position = 0;
+        _it = _texts.begin();
     }
     int size()
     {
@@ -742,20 +880,47 @@ public:
             return cc;
         }
     }
-
+    bool isReused(int pos)
+    {
+        if (pos < 0 or pos >= _texts.size())
+        {
+            return false;
+        }
+        char *c = _texts[pos];
+        for (int i = 0; i < _texts.size(); i++)
+        {
+            if (i != pos and strcmp(c, _texts[i]) == 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     void pop()
     {
         if (size() > 0)
         {
-            free(_texts.back());
+            if (!isReused(_texts.size() - 1))
+            {
+                free(_texts.back());
+            }
             _texts.pop_back();
             _texts.shrink_to_fit();
         }
+        position--;
+    }
+    void begin()
+    {
+        _it = _texts.begin();
+        position = 0;
     }
 
 private:
     vector<char *> _texts;
     char cc[1] = {'\0'};
+    int position;
+    vector<char *>::iterator _it;
+    Stack<int> sp;
 };
 
 Text all_text = Text();
@@ -765,7 +930,7 @@ class Token
 public:
     Token()
     {
-        type=(int)TokenUnknown;
+        type = (int)TokenUnknown;
     }
 
     Token(tokenType h)
@@ -809,7 +974,7 @@ public:
     }
     varType *getVarType()
     {
-            return &_varTypes[_vartype];
+        return &_varTypes[_vartype];
     }
     uint16_t line = 0;
     uint8_t type = (int)TokenUnknown;
@@ -818,14 +983,13 @@ public:
     uint16_t textref = EOF_TEXTARRAY;
 };
 
-
 #ifdef __FULL_TOKEN
 #define __DEPTH 0
 #else
 #define __DEPTH 5
 #endif
 int tokenizer(Script *script, bool update, bool increae_line,
-               int nbMaxTokenToRead);
+              int nbMaxTokenToRead);
 class Tokens
 {
 public:
@@ -863,7 +1027,7 @@ public:
         clear();
         tokenizer(script, true, increae_line, nbToken);
         // list_of_token.push_back(token());
-      // Serial.printf("token read %d\n", tokenizer(script, true, increae_line, nbToken));
+        // Serial.printf("token read %d\n", tokenizer(script, true, increae_line, nbToken));
     }
     void push(Token t)
     {
@@ -902,13 +1066,11 @@ public:
     Token *next()
     {
 #ifdef __FULL_TOKEN
-        
-        //position++;
-tokenizer(_script, false, true, 1);
-    position++;
 
-    
-       
+        // position++;
+        tokenizer(_script, false, true, 1);
+        position++;
+
         return getTokenAtPos(position);
 #else
         _tokens.erase(_tokens.begin());
@@ -921,8 +1083,8 @@ tokenizer(_script, false, true, 1);
     Token *prev()
     {
 #ifdef __FULL_TOKEN
-position--;
-        return getTokenAtPos(position );
+        position--;
+        return getTokenAtPos(position);
 #else
         _tokens.insert(_tokens.begin(), Token());
         return getTokenAtPos(__DEPTH);
@@ -959,10 +1121,10 @@ position--;
     }
     Token back()
     {
-        if(_tokens.size()>0)
-        return _tokens.back();
+        if (_tokens.size() > 0)
+            return _tokens.back();
         else
-        return Token();
+            return Token();
     }
 
     bool Match(tokenType tt)
@@ -1135,18 +1297,17 @@ int _token_line;
 int _sav_token_line;
 list<token>::iterator _index_token;
 int tokenizer(Script *script, bool update, bool increae_line,
-               int nbMaxTokenToRead)
+              int nbMaxTokenToRead)
 {
 
     // list<token> list_of_token;
     // int line = 1;
-    
-  
+
     Token t;
     int pos = 0;
     char c;
     char c2;
-     _define newdef;
+    _define newdef;
     string v;
     if (update)
     {
@@ -1160,7 +1321,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
         }
         _token_line = 1;
 
-        define_list.clear();
+        deleteDefine();
 
         __isBlockComment = false;
         // _for_display= true;
@@ -1252,7 +1413,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 // t._vartype = NULL;
                 // t.type = TokenLessThan;
                 // t.line = _token_line;//
-//TokenLessThan
+                // TokenLessThan
                 t = Token(TokenLessThan, EOF_VARTYPE, _token_line);
                 // t.pos = pos;
                 if (_for_display)
@@ -1459,7 +1620,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                         _tks.pop_back();
                         all_text.pop();
                         // nbReadToken--;
-                       
+
                         newdef.name = v;
                         newdef.content = "";
 
@@ -1487,7 +1648,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 {
                     if (getDefine(v) != NULL)
                     {
-                 
+
                         script->insert((char *)(getDefine(v)));
                         script->nextChar();
                         // nbReadToken--;
@@ -1496,8 +1657,8 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 }
             }
             pos = newpos - 1;
-            
-                t.addText(v);
+
+            t.addText(v);
             //_tks.push(t);
             _tks.push(t);
             nbReadToken++;
@@ -1976,7 +2137,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
         }
     }
     // return list_of_token;
-    return nbReadToken-1;
+    return nbReadToken - 1;
 }
 
 /*

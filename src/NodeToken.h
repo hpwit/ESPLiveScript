@@ -75,7 +75,7 @@ void initMem()
     // Get the minimum stack size left for the loop task
     UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(loopTaskHandle);
     __startStackMemory = stackHighWaterMark * sizeof(StackType_t);
-    printf("We satrt with: %ld free and stack:%ld \n", __startmem, __startStackMemory);
+    printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
 #endif
 }
 void updateMem()
@@ -94,7 +94,7 @@ void updateMem()
     newdelta = __startStackMemory - stackHighWaterMark * sizeof(StackType_t);
     if (newdelta > __MaxStackMemory)
         __MaxStackMemory = newdelta;
-    printf("max memory: %ld mem and stack:%ld \n", __maxMemUsage, __MaxStackMemory);
+    printf("max memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory,esp_get_free_heap_size());
 #endif
 }
 
@@ -391,6 +391,7 @@ public:
         isPointer = nd->isPointer;
         _total_size = nd->_total_size;
         target = nd->target;
+       
     }
     NodeToken(string _target,nodeType tt)
     {
@@ -638,7 +639,6 @@ public:
         }
     }
     vector<NodeToken> children;
-    NodeToken *_link = NULL;
     NodeToken *parent = NULL;
     uint16_t _total_size = 1;
     uint16_t target = EOF_TEXTARRAY;
@@ -697,7 +697,7 @@ Script main_script;
 NodeToken program = NodeToken(programNode);
 NodeToken *current_node;
 NodeToken *search_result;
-vector<NodeToken *> _functions;
+vector<NodeToken> _functions;
 class Context
 {
 public:
@@ -712,8 +712,7 @@ public:
         }
         children.clear();
         children.shrink_to_fit();
-        _functions.clear();
-        _functions.shrink_to_fit();
+
     }
     Context *addChild(Context cntx)
     {
@@ -734,7 +733,7 @@ public:
     }
     void addFunction(NodeToken *nd)
     {
-        _functions.push_back(nd);
+        _functions.push_back(*nd);
     }
     void addVariable(NodeToken nd)
     {
@@ -743,14 +742,17 @@ public:
     void findFunction(Token *t)
     {
         // NodeTo
+      
         search_result = NULL;
         if (t->getText() == NULL)
             return;
-        for (vector<NodeToken *>::iterator it = _functions.begin(); it != _functions.end(); ++it)
+        for (vector<NodeToken>::iterator it = _functions.begin(); it != _functions.end(); ++it)
         {
-            if (strcmp((*it)->getTokenText(), t->getText()) == 0)
+
+            
+            if (strcmp((*it).getTokenText(), t->getText()) == 0)
             {
-                search_result = *it;
+                search_result = &*it;
                 return;
             }
         }
@@ -815,43 +817,7 @@ Context main_context;
 Context *current_cntx;
 f_error_struct Error;
 
-template <class T>
-class Stack
-{
-public:
-    Stack() {}
-    void push(T a)
-    {
-        _stack.push_back(a);
-    }
-    T pop()
-    {
-        T sav = _stack.back();
-        _stack.pop_back();
-        return sav;
-    }
-    T get()
-    {
-        return _stack.back();
-    }
-    void duplicate()
-    {
-        _stack.push_back(_stack.back());
-    }
-    void swap()
-    {
-        T sav = pop();
-        T sav2 = pop();
-        push(sav);
-        push(sav2);
-    }
-    void clear()
-    {
-        _stack.clear();
-        _stack.shrink_to_fit();
-    }
-    vector<T> _stack;
-};
+
 
 Stack<NodeToken> nodeTokenList;
 Stack<string> targetList;
