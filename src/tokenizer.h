@@ -94,6 +94,9 @@ vector<string> userDefinedVarTypeNames;
 varType _varTypes[] = {
     {
         ._varType = __none__,
+        ._varSize = 0,
+        .size=0,
+        .total_size = 2
     },
     {._varType = __uint8_t__,
      ._varSize = 1,
@@ -566,7 +569,7 @@ typedef struct
 } token;
 
 #define EOF_TEXTARRAY 0xFFFF
-#define EOF_VARTYPE 0xFF
+#define EOF_VARTYPE 0
 
 vector<char *> texts;
 
@@ -706,7 +709,8 @@ public:
     {
         if (pos > 0 and pos < size())
         {
-            free(_texts[pos]);
+            if(_texts[pos]!=NULL)
+                free(_texts[pos]);
             char *m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());
             m[str.size()] = 0;
@@ -805,23 +809,16 @@ public:
     }
     varType *getVarType()
     {
-        if (_vartype != EOF_VARTYPE)
-        {
             return &_varTypes[_vartype];
-        }
-        else
-        {
-            return NULL;
-        }
     }
     uint16_t line = 0;
-    uint8_t type = 0;
+    uint8_t type = (int)TokenUnknown;
     uint8_t _vartype = EOF_VARTYPE;
 
     uint16_t textref = EOF_TEXTARRAY;
 };
 
-vector<Token> _list_of_tokens;
+
 #ifdef __FULL_TOKEN
 #define __DEPTH 0
 #else
@@ -924,7 +921,8 @@ tokenizer(_script, false, true, 1);
     Token *prev()
     {
 #ifdef __FULL_TOKEN
-        return getTokenAtPos(position - 1);
+position--;
+        return getTokenAtPos(position );
 #else
         _tokens.insert(_tokens.begin(), Token());
         return getTokenAtPos(__DEPTH);
@@ -1253,9 +1251,9 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 // token t;
                 // t._vartype = NULL;
                 // t.type = TokenLessThan;
-                // t.line = _token_line;
-
-                t = Token(TokenShiftLeft, EOF_VARTYPE, _token_line);
+                // t.line = _token_line;//
+//TokenLessThan
+                t = Token(TokenLessThan, EOF_VARTYPE, _token_line);
                 // t.pos = pos;
                 if (_for_display)
                     t.addText("<");
@@ -1498,7 +1496,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 }
             }
             pos = newpos - 1;
-            if (t.type == (int)TokenIdentifier or _for_display)
+            
                 t.addText(v);
             //_tks.push(t);
             _tks.push(t);
