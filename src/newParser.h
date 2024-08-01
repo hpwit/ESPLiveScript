@@ -145,6 +145,14 @@ public:
 
         initMem();
        parseProgram();
+       if(Error.error)
+       {
+        printf("ERROR: %s\r\n",Error.error_message.c_str());
+       }
+       else
+       {
+        program.visitNode();
+       }
     }
 
 void getVariable(bool isStore)
@@ -1211,15 +1219,20 @@ void parseBlockStatement()
                 current_node->stack_pos = stack_size;
                 // result._nd = function;
                 Error.error = 0;
-               current_cntx->clear();
-                current_cntx = current_cntx->parent;
+              
+               
 
                 point_regnum = 4;
 
-// printf("on visit la function %s %d\r\n",current_node->_token->text.c_str(),_tks.position);
+
+#ifndef __MEM_PARSER
+current_node->visitNode();
         current_node->clear();
+         current_cntx->clear();
+          _node_token_stack.clear();
         printf("after clean function %s\n",current_node->getTokenText());
         updateMem();
+        #endif
 /*
 #ifndef __MEM_PARSER
                printf("on compile %s\r\n",current_node->text.c_str());
@@ -1232,7 +1245,7 @@ void parseBlockStatement()
 #endif
 */
                 // printf("on a visité\r\n");
-
+ current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
 
                 return;

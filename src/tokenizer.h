@@ -592,7 +592,10 @@ public:
     }
     void duplicate()
     {
+        if(_stack.size()>0)
         _stack.push_back(_stack.back());
+        else
+        printf("_stack vuide\n");
     }
     void swap()
     {
@@ -600,6 +603,22 @@ public:
         T sav2 = pop();
         push(sav);
         push(sav2);
+    }
+    void increase()
+    {
+        if( typeid(T).hash_code()==typeid(int).hash_code())
+        {
+             int sav = pop();
+        push(sav + 1);
+        }
+    }
+        void decrease()
+    {
+        if( typeid(T).hash_code()==typeid(int).hash_code())
+        {
+             int sav = pop();
+        push(sav - 1);
+        }
     }
     void clear()
     {
@@ -731,6 +750,7 @@ public:
         _texts.clear();
         _texts.shrink_to_fit();
         position = 0;
+       // _texts.push_back(cc);
         _it = _texts.begin();
     }
     int findText(string str)
@@ -782,7 +802,17 @@ public:
             char *m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());
             m[str.size()] = 0;
-            _it = _texts.insert(next(_it), m);
+
+            if(_it==_texts.end())
+            {
+                _texts.push_back(m);
+                _it=_texts.end();
+                _it--;
+            }
+            else
+            {
+             _it = _texts.insert(next(_it), m);
+            }
         }
         position++;
     }
@@ -862,6 +892,7 @@ public:
         }
         _texts.clear();
         _texts.shrink_to_fit();
+         
         position = 0;
         _it = _texts.begin();
     }
@@ -909,18 +940,29 @@ public:
         }
         position--;
     }
+    int get()
+    {
+        return position-1;
+    }
     void begin()
     {
         _it = _texts.begin();
         position = 0;
     }
-
+void display()
+{
+    for(char *c :_texts)
+    {
+        printf("%s\r\n",c);
+    }
+}
+Stack<int> sp;
 private:
     vector<char *> _texts;
     char cc[1] = {'\0'};
     int position;
     vector<char *>::iterator _it;
-    Stack<int> sp;
+    
 };
 
 Text all_text = Text();
