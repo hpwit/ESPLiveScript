@@ -97,14 +97,16 @@ varType _varTypes[] = {
      .size = 0,
      .total_size = 0
      },
-    {._varType = __uint8_t__,
+    {
+        ._varType = __uint8_t__,
      ._varSize = 1,
      .load={l8ui},
       .store = {s8i},
      // .reg_name = "a",
      .sizes = {1},
      .size = 1,
-     .total_size = 1},
+     .total_size = 1
+     },
     {
         ._varType = __uint16_t__,
         ._varSize = 2,

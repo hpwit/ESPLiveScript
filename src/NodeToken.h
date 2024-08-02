@@ -1261,7 +1261,7 @@ void _visitoperatorNode(NodeToken *nd)
     }
     // //printf("kk3\n");
     bool ff = false;
-    if ((nd->parent->getVarType() == NULL))
+    if ((nd->parent->_vartype == (int)__none__))
     {
         // addTokenSup(nd->parent);
         if (globalType.get() == __float__)
@@ -2143,7 +2143,7 @@ void _visitextCallFunctionNode(NodeToken *nd)
         globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
         nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
         register_numl.pop();
-        if (nd->getChildAtPos(2)->getChildAtPos(i)->_vartype != NULL)
+        if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL)
             translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
         else
         {
@@ -2575,7 +2575,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd) {
         register_numl.duplicate();
         nd->getChildAtPos(0)->visitNode();
         register_numl.pop();
-        if (nd->getChildAtPos(0)->_vartype != NULL)
+        if (nd->getChildAtPos(0)->getVarType() != NULL)
         {
             translateType(__int__, nd->getChildAtPos(0)->getVarType()->_varType, register_numl.get());
         }
@@ -2771,7 +2771,7 @@ void _visitchangeTypeNode(NodeToken *nd)
         // f = f + g.f;
         // h = h + g.header;
         // register_numl.pop();
-        if (nd->getChildAtPos(i)->_vartype != NULL)
+        if (nd->getChildAtPos(i)->getVarType() != NULL)
             translateType(globalType.get(), nd->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
         else
         {
