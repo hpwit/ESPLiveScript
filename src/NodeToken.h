@@ -2599,7 +2599,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd) {
 
     if (safeMode && nd->isPointer)
     {
-        content.addAfter(string_format("l32r a%d,_size_main_%s", regnum, nd->getTokenText()));
+        content.addAfter(string_format("l32r a%d,_size_%s", regnum, nd->getTokenText()));
         content.addAfter(string_format("l32i a%d,a%d,0", regnum, regnum));
         content.addAfter(string_format("bge a%d,a%d,__test_safe_%d", regnum, register_numl.get(), for_if_num));
         content.addAfter(string_format("movi a10,%d", 0)); // nd->_token->line
