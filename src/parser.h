@@ -1128,7 +1128,7 @@ _tks.tokenize(&sc,true,true,10);
                     return;
                 }
 
-                if (!Match(TokenSemicolon)) //&& !Match(TokenCloseParenthesis))
+                if (!Match(TokenSemicolon) && !Match(TokenCloseParenthesis)) //&& !Match(TokenCloseParenthesis))
                 {
                     Error.error = 1;
                     Error.error_message = string_format("Expected ici ; %s", linepos().c_str());
@@ -1763,6 +1763,7 @@ _tks.tokenize(&sc,true,true,10);
             NodeToken var = NodeToken(current());
             next();
             next();
+            int t_size=0;
             if (Match(TokenNumber))
             {
                 token num = *current();

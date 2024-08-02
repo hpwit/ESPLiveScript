@@ -121,8 +121,7 @@ public:
         block_statement_num = 0;
         local_var_num = 0;
         nb_argument = 0;
-        main_script.init();
-        _tks.tokenize(&main_script, true, true, 1);
+     
         safeMode = false;
         saveReg = false;
         saveRegAbs = false;
@@ -141,9 +140,13 @@ public:
         sav_token.clear();
         _node_token_stack.clear();
         _functions.clear();
+        content.clear();
+        header.clear();
 
-
-        initMem();
+   main_script.init();
+    initMem();
+        _tks.tokenize(&main_script, true, true, 1);
+       
        parseProgram();
        if(Error.error)
        {
@@ -151,7 +154,7 @@ public:
        }
        else
        {
-        program.visitNode();
+       // program.visitNode();
        }
     }
 
@@ -597,7 +600,7 @@ void parseComparaison()
                     return;
                 }
 
-                if (!Match(TokenSemicolon)) //&& !Match(TokenCloseParenthesis))
+                if (!Match(TokenSemicolon) && !Match(TokenCloseParenthesis))
                 {
                     Error.error = 1;
                     Error.error_message = string_format("Expected ici ; %s", linepos().c_str());
@@ -825,7 +828,7 @@ void parseComparaison()
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
                           //  __current.push( current());
-
+current_node = current_node->addChild(NodeToken(statementNode));
             parseStatement();
            // __sav_pos = _tks.position;
            // deleteNotNeededToken(__current.pop(), current());
@@ -835,7 +838,7 @@ void parseComparaison()
                 {
                     return;
                 }
-
+current_node = current_node->parent;
                 parseBlockStatement();
                 if (Error.error)
                 {

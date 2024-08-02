@@ -58,8 +58,8 @@ bool saveRegAbs = false;
 // list<int> _register_numl;
 
 // list<int> _register_numr;
-Stack<int> register_numr;
-Stack<int> register_numl;
+Stack<int> register_numr=Stack<int>(15);
+Stack<int> register_numl=Stack<int>(15);
 
 list<int> _sp;
 
@@ -459,13 +459,13 @@ public:
     {
         if (type == TokenUserDefinedVariable)
         {
-            int k = findStruct(getTokenText());
-            if (k > -1)
-            {
+           /// int k = findStruct(getTokenText());
+           // if (k > -1)
+           // {
                 return &_userDefinedTypes[_vartype];
-            }
-            else
-                return &_varTypes[_vartype];
+           // }
+           // else
+            //    return &_varTypes[_vartype];
         }
         else
             return &_varTypes[_vartype];
@@ -729,7 +729,7 @@ public:
 
         if (t->getText() == NULL)
             return;
-        // printf("lokking for variable |%s| dans %s  already %d variables defined \n", t->text.c_str(),name.c_str(),variables.size());
+        // //printf("lokking for variable |%s| dans %s  already %d variables defined \n", t->text.c_str(),name.c_str(),variables.size());
         for (vector<NodeToken>::iterator it = variables.begin(); it != variables.end(); ++it)
         {
 
@@ -747,13 +747,13 @@ public:
             Context *c_cntx = this->parent;
             while (c_cntx != NULL)
             {
-                // //printf("lokking for variable |%s| dans %s %d branches\n", t->text.c_str(),c_cntx->name.c_str(),c_cntx->variables.size());
+                // ////printf("lokking for variable |%s| dans %s %d branches\n", t->text.c_str(),c_cntx->name.c_str(),c_cntx->variables.size());
                 for (vector<NodeToken>::iterator it = c_cntx->variables.begin(); it != c_cntx->variables.end(); ++it)
                 {
-                    // //printf("is equalt to |%s|\n", (*it)._token->text.c_str());
+                    // ////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
                     if ((*it).getTokenText() != NULL)
                     {
-                        //  ////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
+                        //  //////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
                         if (strcmp((*it).getTokenText(), t->getText()) == 0)
                         {
                             search_result = &*it;
@@ -794,9 +794,9 @@ void copyPrty(NodeToken *from, NodeToken *to)
 void createNodeVariable(Token *_var, bool isStore)
 
 {
-    // printf("***************create cariavbla %d %s\n", isStore ,nd->_token->text.c_str());
+    // //printf("***************create cariavbla %d %s\n", isStore ,nd->_token->text.c_str());
     // NodeToken var = NodeToken(_var);
-    // printf("%s %d\n",_var->text.c_str(),_asPointer);
+    // //printf("%s %d\n",_var->text.c_str(),_asPointer);
 
     NodeToken v = NodeToken(_var);
     switch (search_result->getNodeTokenType())
@@ -982,16 +982,31 @@ string findForWhile()
     }
     if (p != NULL)
     {
-        // printf("jkd\n");
+        // //printf("jkd\n");
         res = string(p->getTargetText());
     }
     return res;
 }
 
+
+void buildParents(NodeToken *nd)
+
+{
+    // return; //new
+    if (nd->children.size() > 0)
+    {
+        for (int i=0;i<nd->children.size();i++)
+        {
+            (&(nd->children[i]))->parent = nd;
+            buildParents(&(nd->children[i]));
+        }
+    }
+}
+
 void translateType(varTypeEnum to, varTypeEnum from, int regnum)
 
 {
-    // printf("to:%s from: %s\n",varTypeEnumNames[to].c_str(),varTypeEnumNames[from].c_str());
+     //printf("to:%s from: %s\n",varTypeEnumNames[to].c_str(),varTypeEnumNames[from].c_str());
     // if(to==__none__)
     //       to=__int__;
     if (to == __none__ or from == to)
@@ -1021,12 +1036,12 @@ void translateType(varTypeEnum to, varTypeEnum from, int regnum)
 }
 
 string _data_sav;
-Stack<varTypeEnum> globalType;
+Stack<varTypeEnum> globalType=Stack<varTypeEnum>(__int__);
 
 void _visittypeNode(NodeToken *nd) {}
 void _visitnumberNode(NodeToken *nd) 
 {
-    // printf("in number\n");
+    // //printf("in number\n");
     
     // register_numl.duplicate();
     if (nd->children.size() > 0)
@@ -1050,7 +1065,7 @@ void _visitnumberNode(NodeToken *nd)
             // local_var_num++;
             string val = ".bytes 4";
             uint32_t __num = (uint32_t)(*((uint32_t *)&__f));
-            // Serial.printf(" on a float  %4x\r\n",__num);
+            // Serial.//printf(" on a float  %4x\r\n",__num);
             uint8_t c = __num & 0xff;
             val = val + " " + string_format("%02x", c);
             // val=val+'A';
@@ -1125,21 +1140,424 @@ void _visitnumberNode(NodeToken *nd)
 
 }
 
-void _visitbinOpNode(NodeToken *nd) {}
-void _visitunitaryOpNode(NodeToken *nd) {}
-void _visitoperatorNode(NodeToken *nd) {}
+void _visitbinOpNode(NodeToken *nd) {
+
+       // //printf("bin operator\n");
+    //register_numl.displaystack();
+    register_numl.duplicate();
+    // register_numr.duplicate();
+   // if (nd->getChildAtPos(0)->visitNode != NULL)
+        nd->getChildAtPos(0)->visitNode();
+    //register_numl.displaystack();
+    register_numl.duplicate();
+    // register_numr.duplicate();
+    if (nd->getChildAtPos(1)->type != TokenPower)
+    {
+       // if (nd->getChildAtPos(2)->visitNode != NULL)
+            nd->getChildAtPos(2)->visitNode();
+    }
+    else
+    {
+        content.addAfter("");
+        content.sp.push(content.get());
+    }
+    // register_numr.pop();
+    register_numl.swap();
+    register_numr.push(register_numl.pop());
+    register_numl.swap();
+   // register_numl.displaystack();
+   // if (nd->getChildAtPos(1)->visitNode != NULL)
+        nd->getChildAtPos(1)->visitNode();
+    register_numl.pop();
+    if (nd->getChildAtPos(1)->type == TokenAddition || nd->getChildAtPos(1)->type == TokenSubstraction)
+    {
+        register_numl.increase();
+    }
+    // nex
+    if (nd->getChildAtPos(1)->type == TokenSlash || nd->getChildAtPos(1)->type == TokenStar)
+    {
+        register_numl.pop();
+        register_numl.push(register_numr.get());
+    }
+    // end new
+    content.sp.pop();
+    content.sp.pop();
+    content.sp.push(content.get());
+    // register_numl.pop();
+    register_numr.pop();
+}
+void _visitunitaryOpNode(NodeToken *nd) 
+{
+        //register_numl.displaystack();
+    register_numl.duplicate();
+    // register_numr.duplicate();
+    if (nd->getChildAtPos(1)->type== TokenUppersand)
+    {
+        // //printf("node UNitary operator2\n");
+       // nd->getChildAtPos(0)->asPointer = true;
+       // addTokenSup(nd);
+        // nd->_token->_varType = __none__;
+        nd->_vartype = (int)__none__;
+        nd->isPointer = true;
+            nd->getChildAtPos(0)->visitNode();
+        register_numl.pop();
+        // content.sp.pop();
+        content.sp.push(content.get());
+        return;
+    }
+    else if (nd->getChildAtPos(1)->type == TokenSubstraction)
+    {
+        nd->getChildAtPos(1)->type = TokenNegation;
+        
+            nd->getChildAtPos(0)->visitNode();
+       // register_numl.displaystack();
+        register_numl.pop();
+        // content.sp.push(content.get());
+       
+            nd->getChildAtPos(1)->visitNode();
+        // register_numl.pop();
+        register_numl.decrease();
+    }
+    else
+    {
+       // if (nd->getChildAtPos(0)->visitNode != NULL)
+            nd->getChildAtPos(0)->visitNode();
+        //register_numl.displaystack();
+        register_numl.pop();
+        
+            nd->getChildAtPos(1)->visitNode();
+        register_numl.decrease();
+        content.sp.push(content.get());
+    }
+}
+
+void _visitoperatorNode(NodeToken *nd) 
+{
+        //printf("operator %s\n",tokenNames[nd->type].c_str());
+    //  register_numl.pop();
+   // register_numl.displaystack();
+    varTypeEnum l = __none__;
+    varTypeEnum r = __none__;
+    // //printf("kk\n");
+
+    if (nd->parent->getChildAtPos(0)->getVarType() != NULL)
+    {
+        l = nd->parent->getChildAtPos(0)->getVarType()->_varType;
+    }
+
+    // //printf("kk2 :%d\n",nd->parent->children.size());
+    if (nd->parent->children.size() >= 3)
+    {
+        if (nd->parent->getChildAtPos(2) == NULL)
+        {
+         //printf("WFT %d %s\n",nd->parent->children.size(),nodeTypeNames[nd->parent->_nodetype].c_str());
+        }
+
+        if (nd->parent->getChildAtPos(2)->getVarType() != NULL)
+        {
+            // //printf("kk32 %s\n",nodeTypeNames[nd->parent->_nodetype].c_str());
+            r = nd->parent->getChildAtPos(2)->getVarType()->_varType;
+        }
+    }
+    // //printf("kk3\n");
+    bool ff = false;
+    if ((nd->parent->getVarType() == NULL))
+    {
+        // addTokenSup(nd->parent);
+        if (globalType.get() == __float__)
+        {
+            // nd->parent->_token->_varType = __float__;
+            nd->parent->_vartype = (int)__float__;
+        }
+        else
+        {
+            // nd->parent->_token->_varType = __none__;
+            nd->parent->_vartype = __none__;
+        }
+    }
+
+    // //printf("kk4\n");
+    if (globalType.get() == __float__)
+    {
+        ff = true;
+        nd->parent->_vartype = __float__;
+    }
+    // //printf("kk5\n");
+    asmInstruction asmInstr;
+    if (nd->parent->children.size() >= 3)
+        translateType(globalType.get(), r, register_numr.get());
+    translateType(globalType.get(), l, register_numl.get());
+    switch (nd->type)
+    {
+    case TokenAddition:
+        if (ff)
+        {
+            asmInstr = adds;
+        }
+        else
+        {
+            asmInstr = add;
+        }
+        content.addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get()));
+        // return;
+        break;
+    case TokenShiftLeft:
+        // content.addAfter("movi a8,32");
+        // content.addAfter(string_format("sub a%d,a8,a%d",register_numr.get(),register_numr.get()).c_str());
+        content.addAfter(string_format("ssl a%d", register_numr.get()).c_str());
+        content.addAfter(string_format("sll a%d,a%d", register_numl.get(), register_numl.get()).c_str());
+        break;
+    case TokenShiftRight:
+        // content.addAfter("movi a8,32");
+        // content.addAfter(string_format("sub a%d,a8,a%d",register_numr.get(),register_numr.get()).c_str());
+        content.addAfter(string_format("wsr a%d,3", register_numr.get()).c_str());
+        content.addAfter(string_format("srl a%d,a%d", register_numl.get(), register_numl.get()).c_str());
+        break;
+    case TokenSubstraction:
+        if (ff)
+        {
+            asmInstr = subs;
+        }
+        else
+        {
+            asmInstr = sub;
+        }
+        content.addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get()));
+        // content.addAfter(string_format("sub a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
+        // return;
+        break;
+    case TokenSlash:
+        // content.addAfter(string_format("quou a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
+        if (ff)
+        {
+            content.addAfter(string_format("mov.s f1,f%d", register_numl.get()));
+            content.addAfter(string_format("mov.s f2,f%d", register_numr.get()));
+            content.addAfter("call8 __div");
+            content.addAfter(string_format("mov.s f%d,f0", register_numl.get()));
+        }
+        else
+        {
+            asmInstr = quou;
+            content.addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get()));
+        }
+        // return;
+        break;
+    case TokenStar:
+        if (ff)
+        {
+            asmInstr = muls;
+        }
+        else
+        {
+            asmInstr = mull;
+        }
+        content.addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get()));
+        // content.addAfter(string_format("mull a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
+        // return;
+        break;
+    case TokenPlusPlus:
+        if (nd->parent->getChildAtPos(0)->isPointer && nd->parent->getChildAtPos(0)->children.size() == 0)
+        {
+            content.addAfter(string_format("addi a%d,a%d,%d", register_numl.get(), register_numl.get(), nd->parent->getChildAtPos(0)->getVarType()->total_size));
+        }
+        else
+        {
+            content.addAfter(string_format("addi a%d,a%d,1", register_numl.get(), register_numl.get()));
+        }
+        // return;
+        break;
+    case TokenModulo:
+        content.addAfter(string_format("remu a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
+        //  return;
+        break;
+    case TokenPower:
+    {
+        // comment supprimer ce qu'il y a avant
+        int __num = 0;
+        if (nd->parent->getChildAtPos(2)->_nodetype == numberNode)
+        {
+
+            sscanf(nd->parent->getChildAtPos(2)->getTokenText(), "%d", &__num);
+
+            if (ff)
+            {
+                content.addAfter(string_format("mov.s f10,f%d", register_numl.get()));
+                asmInstr = muls;
+            }
+            else
+            {
+                content.addAfter(string_format("movi a10,a%d", register_numl.get()));
+                asmInstr = mull;
+            }
+            for (int k = 1; k < __num; k++)
+            {
+                content.addAfter(string_format("%s %s%d,%s%d,%s10", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str()));
+            }
+        }
+    }
+    break;
+    case TokenKeywordAnd:
+        content.addAfter(string_format("and a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
+        break;
+    case TokenKeywordOr:
+        content.addAfter(string_format("or a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
+        break;
+    case TokenKeywordFabs:
+        content.addAfter(string_format("abs.s f%d,f%d", register_numl.get(), register_numl.get()));
+        break;
+    case TokenKeywordAbs:
+        content.addAfter(string_format("abs a%d,a%d", register_numl.get(), register_numl.get()));
+        break;
+    case TokenNegation:
+        if (ff)
+        {
+            asmInstr = negs;
+        }
+        else
+        {
+            asmInstr = neg;
+        }
+        content.addAfter(string_format("%s %s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get()));
+        content.sp.pop();
+        content.sp.push(content.get());
+        // return;
+    default:
+        // return;
+        break;
+    }
+}
 void _visitProgram(NodeToken *nd) {}
-void _visitglobalVariableNode(NodeToken *nd) {}
+void _visitglobalVariableNode(NodeToken *nd) {
+
+    register_numl.duplicate();
+    if (nd->children.size() > 0)
+    {
+        globalType.push(__int__);
+        register_numl.duplicate();
+        nd->getChildAtPos(0)->visitNode();
+        register_numl.pop();
+        globalType.pop();
+    }
+    varType *v = nd->getVarType();
+    int start = nd->stack_pos;
+    uint8_t regnum = 1;
+    if (nd->asPointer or (nd->isPointer)) // && nd->children.size() == 0))
+        point_regnum++;
+    if (nd->isPointer)
+    {
+        // start = nd->stack_pos;
+        regnum = point_regnum;
+    }
+    string body = "";
+    // register_numl++;
+    // content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->_token->text.c_str()));
+    if (nd->isPointer && nd->children.size() > 0) // leds[g];
+    {
+        // f=f+number.f;
+        if (v->total_size > 4)
+        {
+            // string tmp=content.l->back();
+            // content.l->pop_back();
+            content.addAfter(string_format("movi a%d,%d", point_regnum, v->total_size));
+            content.addAfter(string_format("mull a%d,a%d,a%d", register_numl.get(), register_numl.get(), point_regnum));
+            content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+            content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
+        }
+        else
+        {
+            content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+            for (int i = 0; i < v->total_size; i++)
+            {
+                content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
+            }
+        }
+    }
+    else
+    {
+        content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+    }
+    content.sp.push(content.get());
+    if (nd->asPointer) //(&d)
+    {
+        content.addAfter(string_format("mov a%d,a%d", register_numl.get(), point_regnum));
+        content.sp.push(content.get());
+    }
+    else if (nd->children.size() > 0 or !nd->isPointer) // leds[h] or h h being global)
+    {
+        if (string(nd->getTargetText()).size() == 0)
+        {
+            for (int i = 0; i < v->size; i++)
+            {
+                // content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
+                asmInstruction asmInstr = v->load[i];
+                content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), point_regnum, start));
+                // register_numl--;
+                start += v->sizes[i];
+                content.sp.push(content.get());
+            }
+        }
+        else
+        {
+
+            int i = findMember(nd->getVarType(), string(nd->getTargetText()));
+            int pos = 0;
+            //printf(" we try to find %s %d\r\n", nd->getTargetText(), i);
+            if (i > -1)
+            {
+               // nd->getVarType() = &_varTypes[v->types[i]];
+               nd->_vartype=(uint8_t)v->types[i];
+                start = nd->stack_pos + v->starts[i];
+                for (int h = 0; h < i; h++)
+                {
+                    pos += v->memberSize[h];
+                    // //printf("pos %d\r\n", pos);
+                }
+
+                for (int l = pos; l <= v->memberSize[i] - 1 + pos; l++)
+                {
+                    // //printf("start gloabl %d\r\n", start);
+                    content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[v->load[l]].c_str(), getRegType(v->load[l], 0).c_str(), register_numl.get(), getRegType(v->load[l], 1).c_str(), point_regnum, start));
+                    start += v->sizes[l];
+                    content.sp.push(content.get());
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        // if(v->size==1)
+        // content.sp.pop();
+    }
+    else // s(leds)
+    {
+        content.addAfter(string_format("mov a%d,a%d", register_numl.get(), point_regnum));
+        content.sp.push(content.get());
+    }
+    // res.f = f;
+    // res.header = number.header + h;
+    // point_regnum++;
+    register_numl.pop();
+    //    res.register_numl=register_numl;
+    // res.register_numr=register_numr;
+    register_numl.decrease();
+    if (nd->asPointer or (nd->isPointer)) // && nd->children.size() == 0))
+        point_regnum--;
+    return;
+}
+
+
 void _visitlocalVariableNode(NodeToken *nd)
  {
-    printf("in lcoall\n");
+    //printf("in lcoall\n");
 
         if (nd->asPointer)
     {
         register_numl.duplicate();
         varType *v = nd->getVarType();
         int start = nd->stack_pos;
-        // printf("kzlekmze\n");
+        // //printf("kzlekmze\n");
         // content.addAfter(string_format("l32r a%d,stack", point_regnum));
         content.addAfter(string_format("addi a%d,a1,%d", register_numl.get(), start));
         register_numl.decrease();
@@ -1157,7 +1575,7 @@ void _visitlocalVariableNode(NodeToken *nd)
         content.sp.push(content.get());
         register_numl.pop();
         register_numl.decrease();
-        // printf("kzlekmze2\n");
+        // //printf("kzlekmze2\n");
         return;
     }
     register_numl.duplicate();
@@ -1225,18 +1643,24 @@ void _visitlocalVariableNode(NodeToken *nd)
     }
     else
     {
+        //printf("jj\n");
         for (int i = 0; i < v->size; i++)
         {
             // content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), regnum, start));
             asmInstruction asmInstr = v->load[i];
             content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), regnum, start));
+            //printf("jj2\n");
             translateType(globalType.get(), v->_varType, register_numl.get());
+             //printf("jj3\n");
             // register_numl--;
             start += v->sizes[i];
             content.sp.push(content.get());
+             //printf("jj4\n");
         }
         register_numl.pop();
+         //printf("jj5\n");
         register_numl.decrease();
+         //printf("jj6\n");
 
         return;
     }
@@ -1247,6 +1671,13 @@ void _visitlocalVariableNode(NodeToken *nd)
 
 void _visitblockStatementNode(NodeToken *nd)
 {
+            register_numr.clear();
+    register_numl.clear();
+    register_numl.push(15);
+    register_numr.push(15);
+
+        register_numl.push(15);
+    register_numr.push(15);
     for (int i = 0; i < nd->children.size(); i++)
     {
 
@@ -1296,6 +1727,14 @@ void _visitdefFunctionNode(NodeToken *nd)
 }
 void _visitstatementNode(NodeToken *nd) {
     point_regnum = 4;
+    //printf("visit statement\n");
+        register_numr.clear();
+    register_numl.clear();
+    register_numl.push(15);
+    register_numr.push(15);
+
+        register_numl.push(15);
+    register_numr.push(15);
     for (int i = 0; i < nd->children.size(); i++)
     {
 
@@ -1305,12 +1744,12 @@ void _visitstatementNode(NodeToken *nd) {
         
     }
     //nd->clear();
-
+//printf("end statement\n");
      //_node_token_stack.clear();
 }
 void _visitprogramNode(NodeToken *nd)
 {
-    printf("visit program\n");
+    //printf("visit program\n");
     point_regnum = 4;
     content.begin();
     header.begin();
@@ -1338,9 +1777,79 @@ void _visitprogramNode(NodeToken *nd)
 #endif
     }
 }
-void _visitassignementNode(NodeToken *nd) {}
+void _visitassignementNode(NodeToken *nd) {
+//printf("entre assignemen\n") ;
+point_regnum = 4;
+    content.sp.clear();
+    content.sp.push(content.get());
+    register_numl.duplicate();
+  
+    if (string(nd->getChildAtPos(0)->getTargetText()).size() > 0)
+    {
+        int i = findMember(nd->getChildAtPos(0)->getVarType(), string(nd->getChildAtPos(0)->getTargetText()));
+        if (i > -1)
+        {
+            globalType.push(nd->getChildAtPos(0)->getVarType()->types[i]);
+        }
+    }
+    else
+    {
+         //printf("on oass on push\n") ;
+        globalType.push(nd->getChildAtPos(0)->getVarType()->_varType);
+         //printf("retour on push\n") ;
+    }
+ 
+        register_numl.duplicate();
+        nd->getChildAtPos(1)->visitNode();
+        register_numl.pop();
+        if (nd->getChildAtPos(1)->getVarType() != NULL)
+        {
+             //printf("retour translate\n") ;
+            translateType(globalType.get(), nd->getChildAtPos(1)->getVarType()->_varType, register_numl.get());
+        }
+        else
+        {
+            //   translateType(globalType.get(), nd->getChildAtPos(1)->_token->_varType, register_numl.get());
+        }
+         //printf("retour assignemen\n") ;
+        // new
+        content.sp.pop();
+        content.sp.push(content.get());
+        // end en
+    
+    //content.sp.displaystack("PILE");
+    // //printf("before store\n");
+    point_regnum++;
+    //register_numl.displaystack();
+    // register_numl.pop();
+    // register_numl.displaystack();
+ 
+        register_numl.duplicate();
+        nd->getChildAtPos(0)->visitNode();
+        register_numl.pop();
+    
+    register_numl.pop();
+    content.sp.pop();
+    globalType.pop();
+    //clearNodeToken(nd); // new
+    register_numl.clear();
+    register_numl.push(15);
+    register_numl.push(15);
+    register_numl.push(15);
+    register_numl.push(15);
+    register_numl.push(15);
+    register_numr.clear();
+    register_numr.push(15);
+    register_numr.push(15);
+    register_numr.push(15);
+    register_numr.push(15);
+    register_numr.push(15);
+
+
+}
 void _visitcomparatorNode(NodeToken *nd) 
 {
+    //printf("in comparator\n");
  int numl = register_numl.get();
 
         // register_numl.duplicate();
@@ -1353,7 +1862,7 @@ void _visitcomparatorNode(NodeToken *nd)
         nd->getChildAtPos(1)->visitNode();
         // register_numl.pop();
     
-    ////printf("compare %s %s\n",tokenNames[nd->_token->type ].c_str(),nd->_token->text.c_str());
+    //////printf("compare %s %s\n",tokenNames[nd->_token->type ].c_str(),nd->_token->text.c_str());
     string compop = "";
     // to compose
     int h;
@@ -1431,12 +1940,47 @@ void _visitcomparatorNode(NodeToken *nd)
         // content.addAfter(_compare.back()+2,string_format("%s_if:", nd->target.c_str()));
         register_numl.increase();
     }
-
+ //printf("out comparator\n");
 }
 
 
 void _visitcallFunctionNode(NodeToken *nd) {}
-void _visitforNode(NodeToken *nd) {}
+void _visitforNode(NodeToken *nd) {
+    //printf("ente for\n") ;
+        point_regnum = 4;
+
+        register_numl.duplicate();
+        nd->getChildAtPos(0)->visitNode();
+        register_numl.pop();
+    
+    content.addAfter(string_format("%s:", nd->getTargetText()));
+    _compare.push_back(content.get());
+  
+        register_numl.duplicate();
+        nd->getChildAtPos(3)->visitNode();
+        register_numl.pop();
+    
+    content.addAfter(string_format("%s_continue:", nd->getTargetText()));
+
+        register_numl.duplicate();
+        nd->getChildAtPos(2)->visitNode();
+        register_numl.pop();
+    
+    int jumpsize = (content.get() - _compare.back()) * 3;
+    nd->getChildAtPos(1)->_total_size = jumpsize;
+     content.putIteratorAtPos(_compare.back());
+
+        register_numl.duplicate();
+        nd->getChildAtPos(1)->visitNode();
+        register_numl.pop();
+    
+    _compare.pop_back();
+     content.putIteratorAtPos(content.get());
+    content.addAfter(string_format("j %s", nd->getTargetText()));
+    content.addAfter(string_format("%s_end:", nd->getTargetText()));
+    // clearNodeToken(nd);
+    return;
+}
 void _visitargumentNode(NodeToken *nd) {}
 void _visitextGlobalVariableNode(NodeToken *nd)
 {
@@ -1504,14 +2048,14 @@ void _visitextGlobalVariableNode(NodeToken *nd)
 }
 void _visitextDefFunctionNode(NodeToken *nd)
 {
-    printf("visit1 function %s\n", nd->getTokenText());
+    //printf("visit1 function %s\n", nd->getTokenText());
 }
 void _visitextCallFunctionNode(NodeToken *nd) {}
 void _visitreturnArgumentNode(NodeToken *nd) {}
 void _visitvariableDeclarationNode(NodeToken *nd) {}
 void _visitdefExtFunctionNode(NodeToken *nd)
 {
-    printf("visit externazl function %s\n", nd->getTokenText());
+    //printf("visit externazl function %s\n", nd->getTokenText());
 }
 void _visitinputArgumentsNode(NodeToken *nd)
 {
@@ -1626,7 +2170,90 @@ void _visitdefGlobalVariableNode(NodeToken *nd)
     }
 }
 void _visitdefLocalVariableNode(NodeToken *nd) {}
-void _visitstoreLocalVariableNode(NodeToken *nd) {}
+
+
+void _visitstoreLocalVariableNode(NodeToken *nd) {
+    // //printf("jjjkkj\n");
+    varType *v = nd->getVarType();
+    // globalType.push(__float__);//v->_varType);
+    // //printf("ona stocké:%d: %s\n",globalType.get(),varTypeEnumNames[globalType.get()].c_str());
+    uint8_t regnum = 1;
+    if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
+        point_regnum++;
+    if (nd->isPointer)
+    {
+        // start = nd->stack_pos;
+        regnum = point_regnum;
+    }
+    int start = nd->stack_pos;
+    if (nd->isPointer)
+    {
+        start = 0;
+    }
+    int numl = register_numl.get();
+    for (int h = 0; h < v->size - 1; h++)
+    {
+        start += v->sizes[h];
+    }
+    if (nd->children.size() > 0 or !nd->isPointer or nd->asPointer)
+    {
+        for (int i = v->size - 1; i >= 0; i--)
+        {
+            // //printf("jjjkkj: %d\n",i);
+            // list<string>::iterator l=content.sp.pop();
+            // content.addAfter(  content.sp.pop(),  string_format("%s %s%d,%s%d,%d", v->store[i].c_str(), v->reg_name.c_str(), numl, v->reg_name.c_str(), regnum, start));
+            content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[v->store[i]].c_str(), getRegType(v->store[i], 0).c_str(), numl, getRegType(v->store[i], 1).c_str(), regnum, start));
+            // numl++;
+            start -= v->sizes[i];
+        }
+    }
+    else
+    {
+        content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", numl, regnum, 0)); // start
+        // content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", numl, 1,nd->stack_pos));
+    }
+    if (nd->isPointer)
+    {
+        register_numl.duplicate();
+        content.sp.push(content.get());
+        content.sp.swap();
+        content.putIteratorAtPos(content.sp.get());
+       // content.sp.displaystack("PILE");
+        if (nd->children.size() > 0)
+        {
+            globalType.push(__int__);
+            register_numl.duplicate();
+            nd->getChildAtPos(0)->visitNode();
+            register_numl.pop();
+            globalType.pop();
+        }
+        if (nd->children.size() > 0)
+        {
+            content.addAfter(string_format("l32i a%d,a1,%d", point_regnum, nd->stack_pos));
+            for (int i = 0; i < v->total_size; i++)
+            {
+                content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
+            }
+        }
+        else if (nd->asPointer)
+        {
+            content.addAfter(string_format("l32i a%d,a1,%d", point_regnum, nd->stack_pos));
+        }
+        else
+        {
+            // a remettre
+            content.addAfter(string_format("addi a%d,a1,%d", point_regnum, nd->stack_pos));
+        }
+        content.end();
+        content.sp.pop();
+        // point_regnum++;
+        register_numl.pop();
+        // point_regnum--;
+        if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
+            point_regnum--;
+    }
+
+}
 void _visitstoreGlobalVariableNode(NodeToken *nd) {}
 void _visitstoreExtGlocalVariableNode(NodeToken *nd) {}
 
@@ -1634,27 +2261,27 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd) {}
 
 void _visitifNode(NodeToken *nd)
 {
- printf("oo\n");
+ //printf("oo\n");
     point_regnum = 4;
     _compare.push_back(content.get());
-    printf("oo1\n");
+    //printf("oo1\n");
     // content.addAfter(  string_format("%s:\n",nd->target.c_str()));
 
     register_numl.duplicate();
-    printf("oo2bis\n");
+    //printf("oo2bis\n");
     nd->getChildAtPos(1)->visitNode();
     register_numl.pop();
-    printf("oo2\n");
+    //printf("oo2\n");
 
     nd->getChildAtPos(0)->_total_size = (content.get() - _compare.back()) * 3; // on estime que toutes les instructions ont la meme taille
     content.addAfter(string_format("%s_end:", nd->getTargetText()));
-    printf("oo3\n");
+    //printf("oo3\n");
     content.putIteratorAtPos(_compare.back());
-printf("oo4\n");
+//printf("oo4\n");
     register_numl.duplicate();
     nd->getChildAtPos(0)->visitNode();
     register_numl.pop();
-printf("oo5n");
+//printf("oo5n");
     content.putIteratorAtPos(content.get());
     _compare.pop_back();
 }

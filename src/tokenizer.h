@@ -576,18 +576,27 @@ class Stack
 {
 public:
     Stack() {}
+    Stack(T def) 
+    {
+        _default=def;
+    }
     void push(T a)
     {
         _stack.push_back(a);
     }
     T pop()
     {
+        if(_stack.size()<1)
+        return _default;
         T sav = _stack.back();
         _stack.pop_back();
         return sav;
     }
     T get()
     {
+
+                if(_stack.size()<1)
+                 return _default;
         return _stack.back();
     }
     void duplicate()
@@ -595,10 +604,14 @@ public:
         if(_stack.size()>0)
         _stack.push_back(_stack.back());
         else
-        printf("_stack vuide\n");
+        {
+             _stack.push_back(_default);
+               _stack.push_back(_default);
+        }
     }
     void swap()
     {
+
         T sav = pop();
         T sav2 = pop();
         push(sav);
@@ -626,6 +639,7 @@ public:
         _stack.shrink_to_fit();
     }
     vector<T> _stack;
+    T _default;
 };
 class Script
 {
@@ -818,16 +832,20 @@ public:
     }
     void addAfterNoDouble(string s)
     {
+       
         char *str;
         if (_it != _texts.end())
         {
 
             if (s.compare(string(*_it)) == 0)
             {
+                
                 return;
             }
         }
+      
         addAfter(s);
+       
     }
     void addBefore(string s)
     {
@@ -886,9 +904,28 @@ public:
     void clear()
     {
 
+           
+        for(int i=0;i<_texts.size();i++)
+        {
+            char *c1=_texts[i];
+            if(c1!=NULL)
+            {
+                if(i!=_texts.size()-1)
+                {
+                    for(int j=i+1;j<_texts.size();j++)
+                    {
+                        if(_texts[j]==c1)
+                            _texts[j]=NULL;
+                    }
+                }
+        
+            }
+        }
+
         for (int i = 0; i < _texts.size(); i++)
         {
-            free(_texts[i]);
+            if(_texts[i]!=NULL)
+             free(_texts[i]);
         }
         _texts.clear();
         _texts.shrink_to_fit();
