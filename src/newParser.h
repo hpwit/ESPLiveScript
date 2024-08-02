@@ -31,9 +31,12 @@ void pushToConsole(string str)
 #endif
 
 #include "NodeToken.h"
+#include "asm_parser.h"
 #ifndef __TEST_DEBUG
 #include "execute.h"
 #endif
+
+
 
 void prettyPrint2(NodeToken nd, string ident)
 {
@@ -140,6 +143,8 @@ public:
         sav_token.clear();
         _node_token_stack.clear();
         _functions.clear();
+        _functions.shrink_to_fit();
+        all_text.clear();
         content.clear();
         header.clear();
 
@@ -148,16 +153,65 @@ public:
         _tks.tokenize(&main_script, true, true, 1);
        
        parseProgram();
-       if(Error.error)
-       {
-        printf("ERROR: %s\r\n",Error.error_message.c_str());
-       }
-       else
-       {
-       // program.visitNode();
-       }
+       
     }
 
+    bool parseScript(string *str)
+    {
+        
+        main_script.clear();
+        main_script.addContent((char *)division.c_str());
+        main_script.addContent((char *)str->c_str());
+        parse();
+        if (Error.error)
+        {
+            pushToConsole(Error.error_message.c_str(), true);
+            return false;
+        }
+        pushToConsole("***********PARSING DONE*********");
+        updateMem();
+        buildParents(&program);
+        program.visitNode();
+         pushToConsole("***********COMPILING DONE*********");
+          printf("compile done %u\r\n",esp_get_free_heap_size());
+         main_script.clear();
+        _userDefinedTypes.clear();
+        nodeTokenList.clear();
+        program.clear();
+        sav_t.clear();
+        sav_t.shrink_to_fit();
+        main_context.clear();
+        targetList.clear();
+        sav_token.clear();
+        _node_token_stack.clear();
+        _functions.clear();
+        _functions.shrink_to_fit();
+        all_text.clear();
+         printf("afer clean done %u\r\n",esp_get_free_heap_size());
+    
+            pushToConsole("***********AFTER CLEAN*********");
+            #ifndef __TEST_DEBUG
+            pushToConsole("***********CREATE EXECUTABLE*********");
+            executecmd = createExectutable(&header,&content, __parser_debug);
+         content.clear();
+        header.clear();
+            if (executecmd.error.error == 0)
+            {
+
+                exeExist = true;
+            }
+            else
+            {
+                exeExist = false;
+                // Serial.printf(termColor.Red);
+
+                pushToConsole(executecmd.error.error_message.c_str(), true);
+            }
+            return exeExist;
+#else
+            return false;
+#endif
+    }
 void getVariable(bool isStore)
     {
 
@@ -1229,6 +1283,7 @@ void parseBlockStatement()
 
 
 #ifndef __MEM_PARSER
+buildParents(current_node);
 current_node->visitNode();
         current_node->clear();
          current_cntx->clear();

@@ -609,6 +609,13 @@ public:
                _stack.push_back(_default);
         }
     }
+    T front()
+    {
+    if(_stack.size()>0)
+        return _stack.front();
+    else    
+    return _default;
+    }
     void swap()
     {
 
@@ -619,19 +626,19 @@ public:
     }
     void increase()
     {
-        if( typeid(T).hash_code()==typeid(int).hash_code())
-        {
-             int sav = pop();
+      //  if( typeid(T).hash_code()==typeid(int).hash_code())
+      //  {
+             int sav =(int)pop();
         push(sav + 1);
-        }
+      //  }
     }
         void decrease()
     {
-        if( typeid(T).hash_code()==typeid(int).hash_code())
-        {
-             int sav = pop();
+      //  if( typeid(T).hash_code()==typeid(int).hash_code())
+      //  {
+             int sav = (int)pop();
         push(sav - 1);
-        }
+      //  }
     }
     void clear()
     {
@@ -830,6 +837,23 @@ public:
         }
         position++;
     }
+    string front()
+    {
+        if(_texts.size()>0)
+        return string(_texts.front());
+        else
+        return "";
+    }
+    void pop_front()
+    {
+        if(_texts.size()>0)
+        {
+            if(!isReused(0))
+             free(_texts[0]);
+             _texts.erase(_texts.begin());
+
+        }
+    }
     void addAfterNoDouble(string s)
     {
        
@@ -904,7 +928,7 @@ public:
     void clear()
     {
 
-           
+           int kk=0;
         for(int i=0;i<_texts.size();i++)
         {
             char *c1=_texts[i];
@@ -925,13 +949,17 @@ public:
         for (int i = 0; i < _texts.size(); i++)
         {
             if(_texts[i]!=NULL)
+            {
              free(_texts[i]);
+             kk++;
+            }
         }
         _texts.clear();
         _texts.shrink_to_fit();
-         
+         sp.clear();
         position = 0;
         _it = _texts.begin();
+        printf("delteted %d\n",kk);
     }
     int size()
     {
@@ -994,8 +1022,9 @@ void display()
     }
 }
 Stack<int> sp;
+   vector<char *> _texts;
 private:
-    vector<char *> _texts;
+ 
     char cc[1] = {'\0'};
     int position;
     vector<char *>::iterator _it;

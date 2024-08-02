@@ -1001,7 +1001,7 @@ error_message_struct parseASM(vector<string> *_lines, vector<result_parse_line> 
 }
 */
 
-error_message_struct parseASM(list<string> *_lines, list<result_parse_line> *asm_parsed)
+error_message_struct parseASM(Text *_header,Text *_content, list<result_parse_line> *asm_parsed)
 {
   // list<string> lines = *_lines;
   error_message_struct main_error;
@@ -1009,21 +1009,22 @@ error_message_struct parseASM(list<string> *_lines, list<result_parse_line> *asm
   main_error.error_message = "";
   // printf("her:\r\n");
 #ifdef __CONSOLE_ESP32
-  string d = string_format("Parsing %d assembly lines ... ", _lines->size());
+  string d = string_format("Parsing %d assembly lines ... ", _header->size()+_content->size());
   LedOS.pushToConsole(d);
 #else
-  printf("Parsing %d assembly lines ...\r\n ", _lines->size());
+  printf("Parsing %d assembly lines ...\r\n ", _header->size()+_content->size());
 #endif
 
-  int size = _lines->size();
+  int size = _header->size();
+  int tmp_size=size;
   for (int i = 0; i < size; i++)
   {
     if (__parser_debug)
     {
-      printf("on parse line: %d : %s\r\n", i, _lines->front().c_str());
+      printf("on parse line: %d : %s\r\n", i, _header->front().c_str());
     }
     // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
-    line res = splitOpcodeOperande(_lines->front());
+    line res = splitOpcodeOperande(_header->front());
     if (!res.error)
     {
       result_parse_line re_sparse = parseline(res, asm_parsed);
@@ -1046,7 +1047,41 @@ error_message_struct parseASM(list<string> *_lines, list<result_parse_line> *asm
         // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
       }
     }
-    _lines->pop_front();
+    _header->pop_front();
+  }
+
+     size = _content->size();
+  for (int i =tmp_size; i < size+tmp_size; i++)
+  {
+    if (__parser_debug)
+    {
+      printf("on parse line: %d : %s\r\n", i, _content->front().c_str());
+    }
+    // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
+    line res = splitOpcodeOperande(_content->front());
+    if (!res.error)
+    {
+      result_parse_line re_sparse = parseline(res, asm_parsed);
+      if (__parser_debug)
+      {
+        // re_sparse.debugtxt = _lines->front();
+      }
+       re_sparse.line = i + 1;
+      // printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
+
+      if (asm_Error.error)
+      {
+        main_error.error = 1;
+        main_error.error_message += string_format("line:%d %s\r\n", i, asm_Error.error_message.c_str());
+      }
+      else
+      {
+        // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+        asm_parsed->push_back(re_sparse);
+        // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+      }
+    }
+    _content->pop_front();
   }
 
   // printf("Done.\r\n");
@@ -1447,16 +1482,18 @@ executable createExectutable(vector<string> *lines, bool display)
 }
 */
 
-executable createExectutable(list<string> *lines, bool display)
+executable createExectutable(Text *_header,Text *_content, bool display)
 {
 
   executable exec;
   _asm_parsed.clear();
   // printf("max size:%d\r\n",_asm_parsed.max_size());
   // printf("lines %d\n",lines->size());
-  error_message_struct err = parseASM(lines, &_asm_parsed);
+  __parser_debug=display;
+  error_message_struct err = parseASM(_header,_content, &_asm_parsed);
   // on clean les lignes
-  lines->clear();
+  _header->clear();
+  _content->clear();
 
   if (err.error == 0)
   {
