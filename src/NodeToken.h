@@ -85,7 +85,7 @@ void updateMem()
 #ifndef __COMPILER_TEST
 
     if(esp_get_free_heap_size()>__startmem)
-    __startmem=esp_get_free_heap_size;
+    __startmem=esp_get_free_heap_size();
     uint32_t newdelta = __startmem - esp_get_free_heap_size();
     if (newdelta > __maxMemUsage)
         __maxMemUsage = newdelta;
