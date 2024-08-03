@@ -83,6 +83,9 @@ void initMem()
 void updateMem()
 {
 #ifndef __COMPILER_TEST
+
+    if(esp_get_free_heap_size()>__startmem)
+    __startmem=esp_get_free_heap_size;
     uint32_t newdelta = __startmem - esp_get_free_heap_size();
     if (newdelta > __maxMemUsage)
         __maxMemUsage = newdelta;
@@ -1809,7 +1812,23 @@ point_regnum = 4;
         if (nd->getChildAtPos(1)->getVarType() != NULL)
         {
              //printf("retour translate\n") ;
-            translateType(globalType.get(), nd->getChildAtPos(1)->getVarType()->_varType, register_numl.get());
+             if (string(nd->getChildAtPos(1)->getTargetText()).size() > 0)
+    {
+        int i = findMember(nd->getChildAtPos(1)->getVarType(), string(nd->getChildAtPos(1)->getTargetText()));
+        if (i > -1)
+        {
+           // globalType.push(nd->getChildAtPos(0)->getVarType()->types[i]);
+             translateType(globalType.get(), nd->getChildAtPos(1)->getVarType()->types[i], register_numl.get());
+        }
+    }
+    else
+    {
+         //printf("on oass on push\n") ;
+       // globalType.push(nd->getChildAtPos(0)->getVarType()->_varType);
+         translateType(globalType.get(), nd->getChildAtPos(1)->getVarType()->_varType, register_numl.get());
+         //printf("retour on push\n") ;
+    }
+           
         }
         else
         {
