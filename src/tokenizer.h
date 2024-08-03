@@ -571,7 +571,7 @@ typedef struct
 } token;
 
 #define EOF_TEXTARRAY 0xFFFF
-#define EOF_VARTYPE 0
+#define EOF_VARTYPE 255
 
 vector<char *> texts;
 template <class T>
@@ -1042,6 +1042,7 @@ public:
     Token()
     {
         type = (int)TokenUnknown;
+        _vartype=EOF_VARTYPE;
     }
 
     Token(tokenType h)
@@ -1085,6 +1086,10 @@ public:
     }
     varType *getVarType()
     {
+        if(_vartype==EOF_VARTYPE)
+        
+        return NULL;
+
         return &_varTypes[_vartype];
     }
     uint16_t line = 0;

@@ -457,6 +457,10 @@ public:
 
     varType *getVarType()
     {
+           if(_vartype==EOF_VARTYPE)
+        
+        return NULL;
+
         if (type == TokenUserDefinedVariable)
         {
            /// int k = findStruct(getTokenText());
@@ -1009,7 +1013,7 @@ void translateType(varTypeEnum to, varTypeEnum from, int regnum)
      //printf("to:%s from: %s\n",varTypeEnumNames[to].c_str(),varTypeEnumNames[from].c_str());
     // if(to==__none__)
     //       to=__int__;
-    if (to == __none__ or from == to)
+    if (to == __none__ or from == to )
         return;
     switch (to)
     {
@@ -1261,7 +1265,7 @@ void _visitoperatorNode(NodeToken *nd)
     }
     // //printf("kk3\n");
     bool ff = false;
-    if ((nd->parent->_vartype == (int)__none__))
+    if (nd->parent->getVarType() == NULL)
     {
         // addTokenSup(nd->parent);
         if (globalType.get() == __float__)
@@ -2143,7 +2147,7 @@ void _visitextCallFunctionNode(NodeToken *nd)
         globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
         nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
         register_numl.pop();
-        if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL)
+        if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()!=NULL)
             translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
         else
         {
@@ -2169,6 +2173,7 @@ void _visitextCallFunctionNode(NodeToken *nd)
         content.addAfter(string_format("wfr f%d,a10", register_numl.get()));
 
         content.sp.push(content.get());
+       // globalType.push(__float__);
     }
     else
     {

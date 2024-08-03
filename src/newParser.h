@@ -412,6 +412,7 @@ void parseFunctionCall()
             nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
             // Serial.printf("serial3\r\n");
         }
+        current_node->_vartype=current_node->getChildAtPos(0)->_vartype;
         parseArguments();
         // Serial.printf("serial4\r\n");
         if (Error.error)
