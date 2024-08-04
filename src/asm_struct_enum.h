@@ -144,7 +144,42 @@ class parsedLines
     parsed_lines.shrink_to_fit();
   }
 
+ vector<result_parse_line *>::iterator getIterAtPos(int pos)
+{
+  int i = 0;
+  if (pos >= parsed_lines.size() || pos < 0)
+  {
+    return parsed_lines.end();
+  }
+  for (vector<result_parse_line*>::iterator it = parsed_lines.begin(); it != parsed_lines.end(); it++)
+  {
+    if (i == pos)
+    {
 
+      return it;
+    }
+    i++;
+  }
+  return parsed_lines.end();
+}
+result_parse_line *getInstrAtPos(int pos)
+{
+  int i = 0;
+  if (pos >= parsed_lines.size() || pos < 0)
+  {
+    return *parsed_lines.end();
+  }
+  for (vector<result_parse_line *>::iterator it = parsed_lines.begin(); it != parsed_lines.end(); it++)
+  {
+    if (i == pos)
+    {
+
+      return *it;
+    }
+    i++;
+  }
+  return *parsed_lines.end();
+}
   vector<result_parse_line *> parsed_lines;
 };
 
