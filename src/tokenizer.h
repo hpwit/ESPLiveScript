@@ -962,7 +962,7 @@ public:
          sp.clear();
         position = 0;
         _it = _texts.begin();
-        printf("delteted %d\n",kk);
+       
     }
     int size()
     {
@@ -1986,9 +1986,11 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 c2 = script->nextChar();
                 while (c2 != '\n' and c2 != EOF_TEXT)
                 {
-                    str = string_format("%s%c", t.getText(), c2);
+                    str = str+c2; //string_format("%s%c", t.getText(), c2);
                     c2 = script->nextChar();
                 }
+               // str=str+'\0';
+                c2 = script->previousChar();
                 if (_for_display)
                     t.addText(str);
                 t.line = _token_line;
@@ -1997,6 +1999,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     _token_line++;
                 if (_for_display)
                 {
+                    //script->previousChar();
                     _tks.push(t);
                     nbReadToken++;
                 }
@@ -2014,7 +2017,8 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 while ((c != '*' or c2 != '/') and c2 != EOF_TEXT and c != EOF_TEXT) // stop when (c=* and c2=/) or c=0 or c2=0
                 {
                     if (_for_display)
-                        str = string_format("%s%c", t.getText(), c);
+                       // str = string_format("%s%c", t.getText(), c);
+                        str = str+c2; 
                     c = c2;
                     c2 = script->nextChar();
                 }
@@ -2372,187 +2376,5 @@ private:
 */
 
 #ifdef __CONSOLE_ESP32
-list<const char *> _parenthesis;
-list<const char *> _curlybracket;
-list<const char *> _bracket;
-int _prevparenthesis;
-int _prevcurlybracket;
-int _prevbracket;
-#define _NB_COLORS 3
-const char *_colors[_NB_COLORS] = {
 
-    termColor.Magenta,
-    termColor.LBlue,
-    termColor.Yellow,
-
-};
-
-void formatInit()
-{
-    _parenthesis.clear();
-    _curlybracket.clear();
-    _bracket.clear();
-    _prevparenthesis = 0;
-    _prevcurlybracket = 0;
-    _prevbracket = 0;
-}
-
-void formatNewLine()
-{
-    _prevparenthesis = 0;
-    _prevcurlybracket = 0;
-    _prevbracket = 0;
-}
-
-string
-formatLine(string str)
-{
-    // Serial.printf("streing:%s\r\n",str.c_str());
-    // _parent.clear();
-    _for_display = true;
-    Script s(&str);
-    _tks.tokenize(&s, true, true, 1);
-    // _tks.init();
-    string res = "";
-    for (int i = 0; i < _prevparenthesis; i++)
-    {
-        _parenthesis.pop_back();
-    }
-    for (int i = 0; i < _prevbracket; i++)
-    {
-        _bracket.pop_back();
-    }
-    for (int i = 0; i < _prevcurlybracket; i++)
-    {
-        _curlybracket.pop_back();
-    }
-    _prevparenthesis = 0;
-    _prevcurlybracket = 0;
-    _prevbracket = 0;
-
-    while (_tks.current()->getType() != TokenEndOfFile) // for (int i = 0; i < _tks.size(); i++)
-    {
-        token tk = *_tks.current();
-        //    Serial.printf("token %s\r\n",tk.text.c_str());
-        /* if (tk.type == TokenOpenCurlyBracket)
-           {
-
-           // char *color= (char *)_colors[_curlybracket.size()%_NB_COLORS];
-           res = res + string_format("%s%s", _colors[_curlybracket.size() % _NB_COLORS], tk.text.c_str());
-           _curlybracket.push_back(_colors[_curlybracket.size() % _NB_COLORS]);
-           _prevcurlybracket++;
-           }
-           else if (tk.type == TokenCloseCurlyBracket)
-           {
-
-           if (_curlybracket.size() == 0)
-           {
-           res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
-           }
-           else
-           {
-           // char * color=_curlybracket.back();
-           _prevcurlybracket--;
-           res = res + string_format("%s%s", _curlybracket.back(), tk.text.c_str());
-           _curlybracket.pop_back();
-           }
-           } */
-        if (tk.getType() == TokenOpenParenthesis)
-        {
-            _prevparenthesis++;
-            res =
-                res + string_format("%s%s",
-                                    _colors[(_parenthesis.size() +
-                                             2) %
-                                            _NB_COLORS],
-                                    tk.getText());
-            _parenthesis.push_back(_colors
-                                       [(_parenthesis.size() + 2) % _NB_COLORS]);
-        }
-        else if (tk.getType() == TokenCloseParenthesis)
-        {
-
-            if (_parenthesis.size() == 0)
-            {
-                res =
-                    res + string_format("%s%s", "\u001b[38;5;196m",
-                                        tk.getText());
-            }
-            else
-            {
-                _prevparenthesis--;
-                res =
-                    res + string_format("%s%s", _parenthesis.back(),
-                                        tk.getText());
-                _parenthesis.pop_back();
-            }
-        }
-        else if (tk.getType() == TokenOpenBracket)
-        {
-            _prevbracket++;
-            res =
-                res + string_format("%s%s",
-                                    _colors[_bracket.size() % _NB_COLORS],
-                                    tk.getText());
-            _bracket.push_back(_colors[_bracket.size() % _NB_COLORS]);
-        }
-        else if (tk.getType() == TokenCloseBracket)
-        {
-
-            if (_bracket.size() == 0)
-            {
-                res =
-                    res + string_format("%s%s", "\u001b[38;5;196m",
-                                        tk.getText());
-            }
-            else
-            {
-                _prevbracket--;
-                res =
-                    res + string_format("%s%s", _bracket.back(), tk.getText());
-                _bracket.pop_back();
-            }
-        }
-        /*
-           else if (tk.type == TokenKeyword)
-           {
-           res = res + string_format("%s%s", KeywordTypeFormat[tk._keyword], tk.text.c_str());
-           } */
-        else
-        {
-            token tkn = *_tks.peek(1);
-            if (tk.getType() == TokenIdentifier && tkn.getType() == TokenOpenParenthesis)
-            {
-                res =
-                    res + string_format("%s%s", tokenFormat[TokenFunction],
-                                        tk.getText());
-            }
-            else
-            {
-
-                res =
-                    res + string_format("%s%s", tokenFormat[tk.type],
-                                        tk.getText());
-            }
-            // _tks.prev();
-        }
-        _tks.next();
-    }
-
-    _tks.clear();
-    //  _parent.clear();
-
-    _for_display = false;
-    return res;
-}
-
-class __INIT_TOKEN
-{
-public:
-    __INIT_TOKEN()
-    {
-        LedOS.addHightLightinf("sc", formatLine, formatInit, formatNewLine);
-    }
-};
-__INIT_TOKEN _init_token;
 #endif

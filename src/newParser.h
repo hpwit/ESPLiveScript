@@ -173,7 +173,7 @@ public:
         buildParents(&program);
         program.visitNode();
          pushToConsole("***********COMPILING DONE*********");
-          printf("compile done %u\r\n",esp_get_free_heap_size());
+          pushToConsole(string_format("compile done %u\r\n",esp_get_free_heap_size()));
          main_script.clear();
         _userDefinedTypes.clear();
         nodeTokenList.clear();
@@ -187,7 +187,7 @@ public:
         _functions.clear();
         _functions.shrink_to_fit();
         all_text.clear();
-         printf("afer clean done %u\r\n",esp_get_free_heap_size());
+         pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
     
             pushToConsole("***********AFTER CLEAN*********");
             #ifndef __TEST_DEBUG
@@ -211,6 +211,72 @@ public:
 #else
             return false;
 #endif
+    }
+        bool parse_c(list<string> *_script)
+    {
+main_script.clear();
+        main_script.addContent((char *)division.c_str());
+        string sc="";
+        for(string s:*_script)
+        {
+             sc=sc+"\n"+s;
+        }
+         main_script.addContent((char *)sc.c_str());
+        parse();
+        if (Error.error)
+        {
+            pushToConsole(Error.error_message.c_str(), true);
+            return false;
+        }
+        sc.clear();
+        pushToConsole("***********PARSING DONE*********");
+        updateMem();
+        buildParents(&program);
+
+        program.visitNode();
+         pushToConsole("***********COMPILING DONE*********");
+         pushToConsole(string_format("max used memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size()));
+         main_script.clear();
+        _userDefinedTypes.clear();
+        nodeTokenList.clear();
+        program.clear();
+        sav_t.clear();
+        sav_t.shrink_to_fit();
+        main_context.clear();
+        targetList.clear();
+        sav_token.clear();
+        _node_token_stack.clear();
+        _functions.clear();
+        _functions.shrink_to_fit();
+        all_text.clear();
+           pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
+    
+            pushToConsole("***********AFTER CLEAN*********");
+            #ifndef __TEST_DEBUG
+            pushToConsole("***********CREATE EXECUTABLE*********");
+            executecmd = createExectutable(&header,&content, __parser_debug);
+         content.clear();
+        header.clear();
+            if (executecmd.error.error == 0)
+            {
+
+                exeExist = true;
+            }
+            else
+            {
+                exeExist = false;
+                // Serial.printf(termColor.Red);
+
+                pushToConsole(executecmd.error.error_message.c_str(), true);
+            }
+            return exeExist;
+#else
+            return false;
+#endif
+#ifdef __CONSOLE_ESP32
+        // _script->clear();
+#endif
+
     }
 void getVariable(bool isStore)
     {
@@ -1291,7 +1357,7 @@ current_node->visitNode();
         current_node->clear();
          current_cntx->clear();
           _node_token_stack.clear();
-        printf("after clean function %s\n",current_node->getTokenText());
+       // printf("after clean function %s\n",current_node->getTokenText());
         updateMem();
         #endif
 /*
@@ -1972,3 +2038,395 @@ current_node->visitNode();
         return;
     }
 };
+
+#ifdef __CONSOLE_ESP32
+/*
+static volatile TaskHandle_t __run_handle = NULL;
+executable executecmd;
+// string strcompile;
+bool exeExist;
+typedef struct
+{
+    vector<string> args;
+    executable exe;
+} _exe_args;
+
+static void _run_task(void *pvParameters)
+{
+
+    _exe_args *_fg = ((_exe_args *)pvParameters);
+    if (_fg->args.size() > 0)
+    {
+        executeBinary(_fg->args[0], _fg->exe);
+    }
+    else
+    {
+        executeBinary("main", _fg->exe);
+    }
+    LedOS.pushToConsole("Execution done.", true, true);
+    __run_handle = NULL;
+    vTaskDelete(NULL);
+}*/
+Parser p = Parser();
+// Executable consExecutable = Executable();
+
+void kill(Console *cons, vector<string> args)
+{
+    if (__run_handle != NULL)
+    {
+
+        SCExecutable._kill();
+    }
+    else
+    {
+        LedOS.pushToConsole("Nothing is currently running.", true);
+    }
+}
+void run(Console *cons, vector<string> args)
+{
+    if (__run_handle != NULL)
+    {
+        LedOS.pushToConsole("Something Already running kill it first ...");
+        kill(cons, args);
+    }
+    SCExecutable.executeAsTask("main");
+    // SCExecutable._run(args, true);
+}
+void kill_cEsc(Console *cons)
+{
+    LedOS.displayf = false;
+    vector<string> f;
+    if (cons->cmode == edit)
+    {
+        LedOS.storeCurrentLine();
+    }
+    kill(cons, f);
+    if (cons->cmode == keyword)
+    {
+        _push(config.ENDLINE);
+        _push(cons->prompt(cons).c_str());
+    }
+}
+void parseasm(Console *cons, vector<string> args)
+{
+    /*
+    bool othercore = false;
+    executecmd = createExectutable(&cons->script, true);
+    // strcompile = "";
+   // p.clean2();
+    // //Serial.printf(config.ESC_RESET);
+
+    if (executecmd.error.error == 0)
+    {
+
+        exeExist = true;
+        if (othercore)
+        {
+            vector<string> d;
+            d.push_back("main");
+            LedOS.pushToConsole("***********START RUN *********");
+            run(cons, d);
+            if (cons->cmode == keyword)
+            {
+                _push(config.ENDLINE);
+                _push(cons->prompt(cons).c_str());
+            }
+        }
+        else
+        {
+            LedOS.pushToConsole("***********START RUN*********");
+            LedOS.pushToConsole("Execution asm ...", true);
+            executeBinary("main", executecmd);
+            LedOS.pushToConsole("Execution done.", true, true);
+        }
+    }
+    else
+    {
+        exeExist = false;
+        // Serial.printf(termColor.Red);
+        LedOS.pushToConsole(executecmd.error.error_message.c_str());
+        // Serial.printf(config.ESC_RESET);
+    }
+    */
+}
+void parse_c(Console *cons, vector<string> args)
+{
+    if (__run_handle != NULL)
+    {
+        LedOS.pushToConsole("Something Already running kill it first ...");
+        kill(cons, args);
+    }
+    bool othercore = false;
+
+    SCExecutable.free();
+    LedOS.pushToConsole("Compiling ...", true);
+    if (args.size() > 0)
+    {
+        if (args[0].compare("&") != 0)
+            __parser_debug = true;
+        if (args[args.size() - 1].compare("&") == 0)
+            othercore = true;
+    }
+
+    if (p.parse_c(&cons->script))
+    {
+
+        exeExist = true;
+        if (othercore)
+        {
+            vector<string> d;
+            d.push_back("main");
+            LedOS.pushToConsole("***********START RUN *********");
+            run(cons, d);
+
+            if (cons->cmode == keyword)
+            {
+                _push(config.ENDLINE);
+                _push(cons->prompt(cons).c_str());
+            }
+        }
+        else
+        {
+            LedOS.pushToConsole("Start program", true);
+            SCExecutable.execute("main");
+            // executeBinary("main", executecmd);
+            LedOS.pushToConsole("Execution done.", true);
+        }
+    }
+
+    __parser_debug = false;
+}
+
+void parsec_cEsc(Console *cons)
+{
+    LedOS.displayf = false;
+    vector<string> f;
+    f.push_back("&");
+    if (cons->cmode == edit)
+    {
+        LedOS.storeCurrentLine();
+    }
+    parse_c(cons, f);
+    if (cons->cmode == keyword)
+    {
+        _push(config.ENDLINE);
+        _push(cons->prompt(cons).c_str());
+    }
+}
+
+class __INIT_PARSER
+{
+public:
+    __INIT_PARSER()
+    {
+        __run_handle = NULL;
+        LedOS.addKeywordCommand("compile", parse_c, "Compile and run a program add '&' for run on the second core");
+        LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core)");
+        LedOS.addKeywordCommand("kill", kill, "Stop a running program");
+        LedOS.addKeywordCommand("parseasm", parseasm, "Parse assembly program");
+        LedOS.addEscCommand(18, parsec_cEsc, "Compile and execute a program (always second Core)");
+        LedOS.addEscCommand(11, kill_cEsc, "Stop a running program");
+        addExternal("__feed", externalType::function, (void *)feedTheDog);
+        LedOS.script.clear();
+        LedOS.script.push_back("stack:");
+        LedOS.script.push_back(".bytes 120");
+        LedOS.script.push_back(".global main");
+        LedOS.script.push_back("main:");
+        LedOS.script.push_back("entry a1,72");
+        for (int i = 1; i < 400; i++)
+        {
+            LedOS.script.push_back("nop");
+        }
+        LedOS.script.push_back("retw.n");
+    }
+};
+__INIT_PARSER _init_parser;
+
+
+
+list<const char *> _parenthesis;
+list<const char *> _curlybracket;
+list<const char *> _bracket;
+int _prevparenthesis;
+int _prevcurlybracket;
+int _prevbracket;
+#define _NB_COLORS 3
+const char *_colors[_NB_COLORS] = {
+
+    termColor.Magenta,
+    termColor.LBlue,
+    termColor.Yellow,
+
+};
+
+void formatInit()
+{
+    _parenthesis.clear();
+    _curlybracket.clear();
+    _bracket.clear();
+    _prevparenthesis = 0;
+    _prevcurlybracket = 0;
+    _prevbracket = 0;
+}
+
+void formatNewLine()
+{
+    _prevparenthesis = 0;
+    _prevcurlybracket = 0;
+    _prevbracket = 0;
+}
+
+string formatLine(string str)
+{
+ //Serial.printf("streing:%s\r\n",str.c_str());
+ if(str.size()<2)
+ return str;
+ string sd;
+ sd="";
+ sd=sd+str;
+    // _parent.clear();
+    _for_display = true;
+   // Script s(&str);
+   main_script.clear();
+   all_text.clear();
+        main_script.addContent((char *)sd.c_str());
+        main_script.init();
+       // Serial.printf("streing:%s\r\n",str.c_str());
+    _tks.tokenize(&main_script, true, true, 1);
+    // _tks.init();
+    // Serial.printf("streing:%s\r\n",str.c_str());
+    string res = "";
+
+    _parenthesis.clear();
+    _bracket.clear();
+    _parenthesis.clear();
+    _prevparenthesis = 0;
+    _prevcurlybracket = 0;
+    _prevbracket = 0;
+
+    while (_tks.current()->getType() != TokenEndOfFile) // for (int i = 0; i < _tks.size(); i++)
+    {
+        Token tk = *_tks.current();
+        //   Serial.printf("token %s\r\n",tk.getText());
+        /* if (tk.type == TokenOpenCurlyBracket)
+           {
+
+           // char *color= (char *)_colors[_curlybracket.size()%_NB_COLORS];
+           res = res + string_format("%s%s", _colors[_curlybracket.size() % _NB_COLORS], tk.text.c_str());
+           _curlybracket.push_back(_colors[_curlybracket.size() % _NB_COLORS]);
+           _prevcurlybracket++;
+           }
+           else if (tk.type == TokenCloseCurlyBracket)
+           {
+
+           if (_curlybracket.size() == 0)
+           {
+           res = res + string_format("%s%s", "\u001b[38;5;196m", tk.text.c_str());
+           }
+           else
+           {
+           // char * color=_curlybracket.back();
+           _prevcurlybracket--;
+           res = res + string_format("%s%s", _curlybracket.back(), tk.text.c_str());
+           _curlybracket.pop_back();
+           }
+           } */
+        if (tk.getType() == TokenOpenParenthesis)
+        {
+            _prevparenthesis++;
+            res =
+                res + string_format("%s%s",
+                                    _colors[(_parenthesis.size() +
+                                             2) %
+                                            _NB_COLORS],
+                                    tk.getText());
+            _parenthesis.push_back(_colors
+                                       [(_parenthesis.size() + 2) % _NB_COLORS]);
+        }
+        else if (tk.getType() == TokenCloseParenthesis)
+        {
+
+            if (_parenthesis.size() == 0)
+            {
+                res =
+                    res + string_format("%s%s", "\u001b[38;5;196m",
+                                        tk.getText());
+            }
+            else
+            {
+                _prevparenthesis--;
+                res =
+                    res + string_format("%s%s", _parenthesis.back(),
+                                        tk.getText());
+                _parenthesis.pop_back();
+            }
+        }
+        else if (tk.getType() == TokenOpenBracket)
+        {
+            _prevbracket++;
+            res =
+                res + string_format("%s%s",
+                                    _colors[_bracket.size() % _NB_COLORS],
+                                    tk.getText());
+            _bracket.push_back(_colors[_bracket.size() % _NB_COLORS]);
+        }
+        else if (tk.getType() == TokenCloseBracket)
+        {
+
+            if (_bracket.size() == 0)
+            {
+                res =
+                    res + string_format("%s%s", "\u001b[38;5;196m",
+                                        tk.getText());
+            }
+            else
+            {
+                _prevbracket--;
+                res =
+                    res + string_format("%s%s", _bracket.back(), tk.getText());
+                _bracket.pop_back();
+            }
+        }
+        /*
+           else if (tk.type == TokenKeyword)
+           {
+           res = res + string_format("%s%s", KeywordTypeFormat[tk._keyword], tk.text.c_str());
+           } */
+        else
+        {
+            Token tkn = *_tks.peek(1);
+            if (tk.getType() == TokenIdentifier && tkn.getType() == TokenOpenParenthesis)
+            {
+                res =
+                    res + string_format("%s%s", tokenFormat[TokenFunction],
+                                        tk.getText());
+            }
+            else
+            {
+
+                res =
+                    res + string_format("%s%s", tokenFormat[tk.type],
+                                        tk.getText());
+            }
+            // _tks.prev();
+        }
+        _tks.next();
+    }
+
+    _tks.clear();
+    //  _parent.clear();
+
+    _for_display = false;
+    return res;
+}
+
+class __INIT_TOKEN
+{
+public:
+    __INIT_TOKEN()
+    {
+        LedOS.addHightLightinf("sc", formatLine, formatInit, formatNewLine);
+    }
+};
+__INIT_TOKEN _init_token;
+#endif

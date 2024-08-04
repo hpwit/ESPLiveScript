@@ -77,7 +77,9 @@ void initMem()
     // Get the minimum stack size left for the loop task
     UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(loopTaskHandle);
     __startStackMemory = stackHighWaterMark * sizeof(StackType_t);
-    printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
+    __maxMemUsage=0;
+    __MaxStackMemory=0;
+   // printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
 #endif
 }
 void updateMem()
@@ -99,7 +101,7 @@ void updateMem()
     newdelta = __startStackMemory - stackHighWaterMark * sizeof(StackType_t);
     if (newdelta > __MaxStackMemory)
         __MaxStackMemory = newdelta;
-    printf("max memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size());
+   //printf("max memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size());
 #endif
 }
 
@@ -1467,6 +1469,7 @@ void _visitoperatorNode(NodeToken *nd)
 //void _visitProgram(NodeToken *nd) {}
 void _visitglobalVariableNode(NodeToken *nd) {
 
+//printf("comopiline glmobalvar  %s\n",nd->getTokenText());
     register_numl.duplicate();
     if (nd->children.size() > 0)
     {
@@ -1727,6 +1730,7 @@ void _visitblockStatementNode(NodeToken *nd)
 }
 void _visitdefFunctionNode(NodeToken *nd)
 {
+    //printf("compiling %s\n",nd->getTokenText());
     header.addAfter(string_format(".global %s", nd->getTokenText()));
     content.addAfter(string_format("%s:", nd->getTokenText()));
     content.addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
@@ -1844,7 +1848,7 @@ point_regnum = 4;
         register_numl.pop();
         if (nd->getChildAtPos(1)->getVarType() != NULL)
         {
-             printf("retour translate\n") ;
+            // printf("retour translate\n") ;
      /*        if (string(nd->getChildAtPos(1)->getTargetText()).size() > 0)
     {
         int i = findMember(nd->getChildAtPos(1)->getVarType(), string(nd->getChildAtPos(1)->getTargetText()));
@@ -2000,6 +2004,7 @@ void _visitcomparatorNode(NodeToken *nd)
 
 void _visitcallFunctionNode(NodeToken *nd) 
 {
+   // printf("compiling  call function %s\n",nd->getTokenText());
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
                               //  printf("token type %d\r\n",nd->_link->getChildAtPos(0)->_token->_vartype->_varType);
     if (t == NULL)
@@ -2014,11 +2019,11 @@ void _visitcallFunctionNode(NodeToken *nd)
     for (int i = 0; i < t->getChildAtPos(1)->children.size(); i++)
     {
         // isPointer = false;
-        if (t->getChildAtPos(1)->getChildAtPos(i)->isPointer)
+        if (t->getChildAtPos(2)->getChildAtPos(i)->isPointer)
         {
             // isPointer = true;
             register_numl.duplicate();
-            nd->getChildAtPos(0)->getChildAtPos(i)->visitNode();
+            nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
             register_numl.pop();
             int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE;
             content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", register_numl.get(), save, start)); // point_regnum
@@ -2292,6 +2297,7 @@ void _visitdefExtGlobalVariableNode(NodeToken *nd)
 }
 void _visitdefGlobalVariableNode(NodeToken *nd)
 {
+
 
     if (safeMode)
     {

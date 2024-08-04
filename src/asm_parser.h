@@ -1215,7 +1215,7 @@ void printparsdAsm(uint32_t start_address, list<result_parse_line> *asm_parsed)
 
 void flagLabel32aligned(list<result_parse_line> *asm_parsed)
 {
-  printf("ghjh\r\n");
+  
 #ifdef __CONSOLE_ESP32
   LedOS.pushToConsole("Flag label(s) to align ... ");
 
@@ -1242,7 +1242,7 @@ void flagLabel32aligned(list<result_parse_line> *asm_parsed)
 #else
   printf("Done.");
 #endif
-   printf("Done.\r\n");
+ //  printf("Done.\r\n");
 }
 
 error_message_struct calculateJump(list<result_parse_line> *asm_parsed)
@@ -1497,16 +1497,16 @@ executable createExectutable(Text *_header,Text *_content, bool display)
 
   if (err.error == 0)
   {
-    printf("on a parse\r\n");
+   // printf("on a parse\r\n");
     flagLabel32aligned(&_asm_parsed);
-     printf("on a parse2\r\n");
+   //  printf("on a parse2\r\n");
     createAddress(&_asm_parsed);
-     printf("on a parse3\r\n");
+   //  printf("on a parse3\r\n");
     err = calculateJump(&_asm_parsed);
- printf("on a parse4\r\n");
+// printf("on a parse4\r\n");
     if (err.error == 0)
     {
-     printf("tenative creation binaire\r\n");
+    // printf("tenative creation binaire\r\n");
       exec = createBinary(&_asm_parsed);
 
       if (exec.error.error == 0)
