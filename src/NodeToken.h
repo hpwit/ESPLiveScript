@@ -2494,7 +2494,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd) {
 
             int i = findMember(nd->_vartype, string(nd->getTargetText()));
             int pos = 0;
-             printf(" we try to find %s %d\r\n", nd->getTargetText(), i);
+            // printf(" we try to find %s %d\r\n", nd->getTargetText(), i);
             if (i > -1)
             {
                 v=&_userDefinedTypes[nd->_vartype];
