@@ -103,6 +103,51 @@ typedef struct result_parse_line
   uint32_t (*calculateOfssetJump)(uint32_t value, uint32_t current_address, uint32_t destination_address) = NULL;
 };
 
+class parsedLines
+{
+
+  public:
+  parsedLines();
+
+  int size()
+  {
+    return parsed_lines.size();
+  }
+  
+  result_parse_line *getChildAtPos(int pos)
+  {
+    if(pos>=0 and pos<parsed_lines.size())
+    {
+      return parsed_lines[pos];
+    }
+    else
+    {
+      return NULL;
+    }
+
+  }
+  result_parse_line  *push_back(result_parse_line res)
+  {
+    result_parse_line *tmp=(result_parse_line *)malloc(sizeof(result_parse_line));
+    memcpy(tmp,&res,sizeof(result_parse_line));
+    parsed_lines.push_back(tmp);
+    return parsed_lines.back();
+  }
+  
+  void clear()
+  {
+    for(int i=0;i<parsed_lines.size();i++)
+    {
+      free(parsed_lines[i]);
+    }
+    parsed_lines.clear();
+    parsed_lines.shrink_to_fit();
+  }
+
+
+  vector<result_parse_line *> parsed_lines;
+};
+
 enum asmInstruction
 {
   s8i,

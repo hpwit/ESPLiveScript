@@ -227,9 +227,26 @@ typedef struct
 
 int findMember(varType *v, string member)
 {
+    printf("zerk %d %s\n",v->size,v->varName.c_str());
     for (int i = 0; i < v->size; i++)
     {
-        if (member.compare(v->membersNames[i]) == 0)
+        printf("look for %s %s\n",member.c_str(),v->membersNames[i].c_str());
+        if (v->membersNames[i].compare(member) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+int findMember(uint8_t _v, string member)
+{
+
+varType *v =&_userDefinedTypes[_v];
+//printf("zerk dfin %d %s\n",v->size,v->varName.c_str());
+    for (int i = 0; i < v->size; i++)
+    {
+  //      printf("look for %s %s\n",member.c_str(),v->membersNames[i].c_str());
+        if (v->membersNames[i].compare(member) == 0)
         {
             return i;
         }
@@ -469,6 +486,20 @@ public:
            /// int k = findStruct(getTokenText());
            // if (k > -1)
            // {
+                  if (target != EOF_TEXTARRAY)
+                  {
+                     int i = findMember(_vartype, string(getTargetText()));
+                     if(i>-1)
+                     {
+                        return &_varTypes[(_userDefinedTypes[_vartype]).types[i]];
+                     }
+                     else
+                     {
+                        printf("member %s not foudn in %s\n",getTargetText(),_userDefinedTypes[_vartype].varName.c_str());
+                        return NULL;
+                     }
+                  }
+
                 return &_userDefinedTypes[_vartype];
            // }
            // else
@@ -1491,7 +1522,7 @@ void _visitglobalVariableNode(NodeToken *nd) {
     }
     else if (nd->children.size() > 0 or !nd->isPointer) // leds[h] or h h being global)
     {
-        if (string(nd->getTargetText()).size() == 0)
+        if (nd->target == EOF_TEXTARRAY)
         {
             for (int i = 0; i < v->size; i++)
             {
@@ -1506,13 +1537,14 @@ void _visitglobalVariableNode(NodeToken *nd) {
         else
         {
 
-            int i = findMember(nd->getVarType(), string(nd->getTargetText()));
+            int i = findMember(nd->_vartype, string(nd->getTargetText()));
             int pos = 0;
+            v=&_userDefinedTypes[nd->_vartype];
             //printf(" we try to find %s %d\r\n", nd->getTargetText(), i);
             if (i > -1)
             {
                // nd->getVarType() = &_varTypes[v->types[i]];
-               nd->_vartype=(uint8_t)v->types[i];
+              // nd->_vartype=(uint8_t)v->types[i];
                 start = nd->stack_pos + v->starts[i];
                 for (int h = 0; h < i; h++)
                 {
@@ -1791,6 +1823,7 @@ point_regnum = 4;
     content.sp.push(content.get());
     register_numl.duplicate();
   
+  /*
     if (string(nd->getChildAtPos(0)->getTargetText()).size() > 0)
     {
         int i = findMember(nd->getChildAtPos(0)->getVarType(), string(nd->getChildAtPos(0)->getTargetText()));
@@ -1800,34 +1833,35 @@ point_regnum = 4;
         }
     }
     else
-    {
+    {*/
          //printf("on oass on push\n") ;
         globalType.push(nd->getChildAtPos(0)->getVarType()->_varType);
          //printf("retour on push\n") ;
-    }
+   // }
  
         register_numl.duplicate();
         nd->getChildAtPos(1)->visitNode();
         register_numl.pop();
         if (nd->getChildAtPos(1)->getVarType() != NULL)
         {
-             //printf("retour translate\n") ;
-             if (string(nd->getChildAtPos(1)->getTargetText()).size() > 0)
+             printf("retour translate\n") ;
+     /*        if (string(nd->getChildAtPos(1)->getTargetText()).size() > 0)
     {
         int i = findMember(nd->getChildAtPos(1)->getVarType(), string(nd->getChildAtPos(1)->getTargetText()));
         if (i > -1)
         {
            // globalType.push(nd->getChildAtPos(0)->getVarType()->types[i]);
+            printf("retour translate2\n") ;
              translateType(globalType.get(), nd->getChildAtPos(1)->getVarType()->types[i], register_numl.get());
         }
     }
     else
-    {
+    {*/
          //printf("on oass on push\n") ;
        // globalType.push(nd->getChildAtPos(0)->getVarType()->_varType);
          translateType(globalType.get(), nd->getChildAtPos(1)->getVarType()->_varType, register_numl.get());
          //printf("retour on push\n") ;
-    }
+   // }
            
         }
         else
@@ -2436,7 +2470,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd) {
     }
     if (nd->children.size() > 0 or !nd->isPointer)
     {
-        if (string(nd->getTargetText()).size() == 0)
+        if (nd->target == EOF_TEXTARRAY)
         {
             for (int i = v->size - 1; i >= 0; i--)
             {
@@ -2452,12 +2486,13 @@ void _visitstoreGlobalVariableNode(NodeToken *nd) {
         else
         {
 
-            int i = findMember(nd->getVarType(), string(nd->getTargetText()));
+            int i = findMember(nd->_vartype, string(nd->getTargetText()));
             int pos = 0;
-            //  printf(" we try to find %s %d\r\n", nd->target.c_str(), i);
+             printf(" we try to find %s %d\r\n", nd->getTargetText(), i);
             if (i > -1)
             {
-                nd->_vartype =v->types[i];
+                v=&_userDefinedTypes[nd->_vartype];
+                //nd->_vartype =v->types[i];
                 start = nd->stack_pos + v->starts[i];
                 for (int h = 0; h < i; h++)
                 {

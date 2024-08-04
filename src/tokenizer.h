@@ -570,7 +570,7 @@ typedef struct
 
 } token;
 
-#define EOF_TEXTARRAY 0xFFFF
+#define EOF_TEXTARRAY 9999
 #define EOF_VARTYPE 255
 
 vector<char *> texts;

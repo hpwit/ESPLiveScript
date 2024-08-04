@@ -302,7 +302,9 @@ void getVariable(bool isStore)
             // {
             if (Match(TokenMember) && Match(TokenIdentifier, 1))
             {
-                next();
+                 next();
+                
+
                 // next();
                 current_node->addTargetText(string( current()->getText()));
                 next();
