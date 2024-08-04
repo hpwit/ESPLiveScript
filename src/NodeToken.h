@@ -2218,6 +2218,20 @@ void _visitextCallFunctionNode(NodeToken *nd)
         {
             content.addAfter(string_format("rfr a%d,f%d", 10 + i, register_numl.get()));
         }
+        else if (t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType == __CRGB__)
+        {
+            // content.addAfter( content.sp.pop(),string_format("mov a%d,a%d", 10 + i, register_numl.get()));
+           for (int k=0;k<t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size; k++)
+        {
+            // content.addAfter(string_format("mov a15,a10"));
+           // content.addAfter(content.sp.pop(),string_format("slli a%d,a%d,%d", 10+i,register_numl.get(),  k* 8));
+            // register_numl--;
+            content.pop();
+           
+        }
+        content.addAfter( content.sp.pop(),string_format("l32i a%d,a1,%d", 10 + i, t->getChildAtPos(1)->getChildAtPos(i)->stack_pos));
+        }
+        
         else
         {
             content.addAfter(string_format("mov a%d,a%d", 10 + i, register_numl.get()));
