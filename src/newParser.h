@@ -173,7 +173,7 @@ public:
         buildParents(&program);
         program.visitNode();
          pushToConsole("***********COMPILING DONE*********");
-          pushToConsole(string_format("compile done %u\r\n",esp_get_free_heap_size()));
+          pushToConsole(string_format("max used memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size()));
          main_script.clear();
         _userDefinedTypes.clear();
         nodeTokenList.clear();
