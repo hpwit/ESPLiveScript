@@ -97,6 +97,8 @@ void updateMem()
     UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(loopTaskHandle);
 
     // Print the remaining stack size in bytes
+    if(__startStackMemory - stackHighWaterMark * sizeof(StackType_t)<0)
+            __startStackMemory= stackHighWaterMark * sizeof(StackType_t);
 
     newdelta = __startStackMemory - stackHighWaterMark * sizeof(StackType_t);
     if (newdelta > __MaxStackMemory)
