@@ -814,6 +814,7 @@ public:
         position++;
         // }
     }
+    /*
     void addAfter(string str)
     {
         int pos = findText(str);
@@ -838,6 +839,32 @@ public:
              _it = _texts.insert(next(_it), m);
             }
         }
+        position++;
+    }*/
+   void addAfter(string str)
+    {
+        int pos = findText(str);
+        char * tmp;
+        if (pos > -1)
+        {
+        tmp =_texts[pos];
+        }
+        else
+        {
+            tmp = (char *)malloc(str.size() + 1);
+            memcpy(tmp, str.c_str(), str.size());
+            tmp[str.size()] = 0;
+        }
+          if(_it==_texts.end())
+            {
+                _texts.push_back(tmp);
+                _it=_texts.end();
+                _it--;
+            }
+            else
+            {
+             _it = _texts.insert(next(_it), tmp);
+            }
         position++;
     }
     string front()

@@ -187,6 +187,8 @@ public:
         _functions.clear();
         _functions.shrink_to_fit();
         all_text.clear();
+        all_targets.clear();
+
          pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
     
             pushToConsole("***********AFTER CLEAN*********");
@@ -195,6 +197,7 @@ public:
             executecmd = createExectutable(&header,&content, __parser_debug);
          content.clear();
         header.clear();
+        pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
             if (executecmd.error.error == 0)
             {
 
@@ -249,6 +252,7 @@ main_script.clear();
         _functions.clear();
         _functions.shrink_to_fit();
         all_text.clear();
+         all_targets.clear();
            pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
     
             pushToConsole("***********AFTER CLEAN*********");
@@ -257,6 +261,7 @@ main_script.clear();
             executecmd = createExectutable(&header,&content, __parser_debug);
          content.clear();
         header.clear();
+        pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
             if (executecmd.error.error == 0)
             {
 
