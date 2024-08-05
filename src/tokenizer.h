@@ -95,18 +95,15 @@ varType _varTypes[] = {
     {._varType = __none__,
      ._varSize = 0,
      .size = 0,
-     .total_size = 0
-     },
-    {
-        ._varType = __uint8_t__,
+     .total_size = 0},
+    {._varType = __uint8_t__,
      ._varSize = 1,
-     .load={l8ui},
-      .store = {s8i},
+     .load = {l8ui},
+     .store = {s8i},
      // .reg_name = "a",
      .sizes = {1},
      .size = 1,
-     .total_size = 1
-     },
+     .total_size = 1},
     {
         ._varType = __uint16_t__,
         ._varSize = 2,
@@ -579,9 +576,9 @@ class Stack
 {
 public:
     Stack() {}
-    Stack(T def) 
+    Stack(T def)
     {
-        _default=def;
+        _default = def;
     }
     void push(T a)
     {
@@ -589,8 +586,8 @@ public:
     }
     T pop()
     {
-        if(_stack.size()<1)
-        return _default;
+        if (_stack.size() < 1)
+            return _default;
         T sav = _stack.back();
         _stack.pop_back();
         return sav;
@@ -598,26 +595,26 @@ public:
     T get()
     {
 
-                if(_stack.size()<1)
-                 return _default;
+        if (_stack.size() < 1)
+            return _default;
         return _stack.back();
     }
     void duplicate()
     {
-        if(_stack.size()>0)
-        _stack.push_back(_stack.back());
+        if (_stack.size() > 0)
+            _stack.push_back(_stack.back());
         else
         {
-             _stack.push_back(_default);
-               _stack.push_back(_default);
+            _stack.push_back(_default);
+            _stack.push_back(_default);
         }
     }
     T front()
     {
-    if(_stack.size()>0)
-        return _stack.front();
-    else    
-    return _default;
+        if (_stack.size() > 0)
+            return _stack.front();
+        else
+            return _default;
     }
     void swap()
     {
@@ -629,19 +626,19 @@ public:
     }
     void increase()
     {
-      //  if( typeid(T).hash_code()==typeid(int).hash_code())
-      //  {
-             int sav =(int)pop();
+        //  if( typeid(T).hash_code()==typeid(int).hash_code())
+        //  {
+        int sav = (int)pop();
         push(sav + 1);
-      //  }
+        //  }
     }
-        void decrease()
+    void decrease()
     {
-      //  if( typeid(T).hash_code()==typeid(int).hash_code())
-      //  {
-             int sav = (int)pop();
+        //  if( typeid(T).hash_code()==typeid(int).hash_code())
+        //  {
+        int sav = (int)pop();
         push(sav - 1);
-      //  }
+        //  }
     }
     void clear()
     {
@@ -774,7 +771,7 @@ public:
         _texts.clear();
         _texts.shrink_to_fit();
         position = 0;
-       // _texts.push_back(cc);
+        // _texts.push_back(cc);
         _it = _texts.begin();
     }
     int findText(string str)
@@ -841,13 +838,13 @@ public:
         }
         position++;
     }*/
-   void addAfter(string str)
+    void addAfter(string str)
     {
         int pos = findText(str);
-        char * tmp;
+        char *tmp;
         if (pos > -1)
         {
-        tmp =_texts[pos];
+            tmp = _texts[pos];
         }
         else
         {
@@ -855,51 +852,49 @@ public:
             memcpy(tmp, str.c_str(), str.size());
             tmp[str.size()] = 0;
         }
-          if(_it==_texts.end())
-            {
-                _texts.push_back(tmp);
-                _it=_texts.end();
-                _it--;
-            }
-            else
-            {
-             _it = _texts.insert(next(_it), tmp);
-            }
+        if (_it == _texts.end())
+        {
+            _texts.push_back(tmp);
+            _it = _texts.end();
+            _it--;
+        }
+        else
+        {
+            _it = _texts.insert(next(_it), tmp);
+        }
         position++;
     }
     string front()
     {
-        if(_texts.size()>0)
-        return string(_texts.front());
+        if (_texts.size() > 0)
+            return string(_texts.front());
         else
-        return "";
+            return "";
     }
     void pop_front()
     {
-        if(_texts.size()>0)
+        if (_texts.size() > 0)
         {
-            if(!isReused(0))
-             free(_texts[0]);
-             _texts.erase(_texts.begin());
-
+            if (!isReused(0))
+                free(_texts[0]);
+            _texts.erase(_texts.begin());
         }
     }
     void addAfterNoDouble(string s)
     {
-       
+
         char *str;
         if (_it != _texts.end())
         {
 
             if (s.compare(string(*_it)) == 0)
             {
-                
+
                 return;
             }
         }
-      
+
         addAfter(s);
-       
     }
     void addBefore(string s)
     {
@@ -958,38 +953,36 @@ public:
     void clear()
     {
 
-           int kk=0;
-        for(int i=0;i<_texts.size();i++)
+        int kk = 0;
+        for (int i = 0; i < _texts.size(); i++)
         {
-            char *c1=_texts[i];
-            if(c1!=NULL)
+            char *c1 = _texts[i];
+            if (c1 != NULL)
             {
-                if(i!=_texts.size()-1)
+                if (i != _texts.size() - 1)
                 {
-                    for(int j=i+1;j<_texts.size();j++)
+                    for (int j = i + 1; j < _texts.size(); j++)
                     {
-                        if(_texts[j]==c1)
-                            _texts[j]=NULL;
+                        if (_texts[j] == c1)
+                            _texts[j] = NULL;
                     }
                 }
-        
             }
         }
 
         for (int i = 0; i < _texts.size(); i++)
         {
-            if(_texts[i]!=NULL)
+            if (_texts[i] != NULL)
             {
-             free(_texts[i]);
-             kk++;
+                free(_texts[i]);
+                kk++;
             }
         }
         _texts.clear();
         _texts.shrink_to_fit();
-         sp.clear();
+        sp.clear();
         position = 0;
         _it = _texts.begin();
-       
     }
     int size()
     {
@@ -1032,33 +1025,34 @@ public:
             }
             _texts.pop_back();
             _texts.shrink_to_fit();
+            position--;
+            _it = _texts.end();
+            _it--;
         }
-        position--;
     }
     int get()
     {
-        return position-1;
+        return position - 1;
     }
     void begin()
     {
         _it = _texts.begin();
         position = 0;
     }
-void display()
-{
-    for(char *c :_texts)
+    void display()
     {
-        printf("%s\r\n",c);
+        for (char *c : _texts)
+        {
+            printf("%s\r\n", c);
+        }
     }
-}
-Stack<int> sp;
-   vector<char *> _texts;
+    Stack<int> sp;
+    vector<char *> _texts;
+
 private:
- 
     char cc[1] = {'\0'};
     int position;
     vector<char *>::iterator _it;
-    
 };
 
 Text all_text = Text();
@@ -1069,7 +1063,7 @@ public:
     Token()
     {
         type = (int)TokenUnknown;
-        _vartype=EOF_VARTYPE;
+        _vartype = EOF_VARTYPE;
     }
 
     Token(tokenType h)
@@ -1113,9 +1107,9 @@ public:
     }
     varType *getVarType()
     {
-        if(_vartype==EOF_VARTYPE)
-        
-        return NULL;
+        if (_vartype == EOF_VARTYPE)
+
+            return NULL;
 
         return &_varTypes[_vartype];
     }
@@ -2013,10 +2007,10 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 c2 = script->nextChar();
                 while (c2 != '\n' and c2 != EOF_TEXT)
                 {
-                    str = str+c2; //string_format("%s%c", t.getText(), c2);
+                    str = str + c2; // string_format("%s%c", t.getText(), c2);
                     c2 = script->nextChar();
                 }
-               // str=str+'\0';
+                // str=str+'\0';
                 c2 = script->previousChar();
                 if (_for_display)
                     t.addText(str);
@@ -2026,7 +2020,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     _token_line++;
                 if (_for_display)
                 {
-                    //script->previousChar();
+                    // script->previousChar();
                     _tks.push(t);
                     nbReadToken++;
                 }
@@ -2044,8 +2038,8 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 while ((c != '*' or c2 != '/') and c2 != EOF_TEXT and c != EOF_TEXT) // stop when (c=* and c2=/) or c=0 or c2=0
                 {
                     if (_for_display)
-                       // str = string_format("%s%c", t.getText(), c);
-                        str = str+c2; 
+                        // str = string_format("%s%c", t.getText(), c);
+                        str = str + c2;
                     c = c2;
                     c2 = script->nextChar();
                 }
