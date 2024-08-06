@@ -11,6 +11,8 @@ using namespace std;
 
 #define _STACK_SIZE 32
 
+
+
 string __globalscript;
 uint32_t __startmem;
 uint32_t __maxMemUsage;
@@ -432,6 +434,17 @@ public:
         _total_size = nd->_total_size;
         target = nd->target;
     }
+        NodeToken(NodeToken *nd)
+    {
+
+        type = nd->type;
+        textref = nd->textref;
+        _vartype = nd->_vartype;
+        _nodetype = nd->_nodetype;
+        isPointer = nd->isPointer;
+        _total_size = nd->_total_size;
+        target = nd->target;
+    }
     NodeToken(string _target, nodeType tt)
     {
         _nodetype = tt;
@@ -449,19 +462,64 @@ public:
         stack_pos = nd.stack_pos;
         addTargetText(_target);
     }
-    NodeToken *addChild(NodeToken j)
+    NodeToken *addChild(NodeToken *j)
     {
-        j.parent = this;
+        j->parent=this;
         children.push_back(j);
-        return &(children[children.size() - 1]);
+        return j;
+    }
+    void copyChildren(NodeToken *k)
+    {
+        for(NodeToken *lm:k->children)
+        {
+            addChild(lm);
+        }
+    }
+   NodeToken *addChild(NodeToken j)
+    {
+        j.parent=this;
+        NodeToken *tmp=(NodeToken *)malloc(sizeof(NodeToken));
+        if(tmp==NULL)
+        {
+           // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
+            return NULL;
+        }
+         //printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
+        memcpy(tmp,&j,sizeof(NodeToken));
+        for(NodeToken *k:j.children)
+        {
+           // tmp-addChild(k);       
+            }
+
+        //tmp->children.shrink_to_fit();
+       // tmp->parent = this;
+        children.push_back(tmp);
+        return tmp;
     }
     void clear()
     {
-        for (NodeToken child : children)
+        int i=0;
+        if(_nodetype == extCallFunctionNode || _nodetype == callFunctionNode)
         {
-            child.clear();
+             i=2;
         }
-        children.clear();
+        int j=0;
+        for (NodeToken *child : children)
+        {
+      
+            child->clear();
+            
+          if(j>=i)
+          {
+               
+                   heap_caps_free(child);
+                    children[j]=NULL;
+          }
+        j++;
+        }
+        
+        
+       // children.clear();
         children.shrink_to_fit();
     }
     void replaceTargetText(string t)
@@ -471,11 +529,11 @@ public:
     NodeToken *getChildAtPos(int pos)
     {
         if (pos >= 0 and pos < children.size())
-            return &(children[pos]);
+            return children[pos];
         else
             return NULL;
     }
-    char *getTokenText()
+char *getTokenText()
     {
         return all_text.getText(textref);
     }
@@ -695,7 +753,7 @@ public:
             break;
         }
     }
-    vector<NodeToken> children;
+    vector<NodeToken *> children;
     NodeToken *parent = NULL;
     uint16_t _total_size = 1;
     uint16_t target = EOF_TEXTARRAY;
@@ -833,7 +891,7 @@ f_error_struct Error;
 Stack<NodeToken> nodeTokenList;
 Stack<string> targetList;
 list<NodeToken *> sav_token;
-list<NodeToken> _node_token_stack;
+list<NodeToken *> _node_token_stack;
 NodeToken _uniquesave;
 void copyPrty(NodeToken *from, NodeToken *to)
 
@@ -1052,8 +1110,8 @@ void buildParents(NodeToken *nd)
     {
         for (int i=0;i<nd->children.size();i++)
         {
-            (&(nd->children[i]))->parent = nd;
-            buildParents(&(nd->children[i]));
+            (nd->children[i])->parent = nd;
+            buildParents(nd->children[i]);
         }
     }
 }
@@ -2346,12 +2404,12 @@ void _visitdefGlobalVariableNode(NodeToken *nd)
         _data_sav = "";
         if (nd->getVarType()->_varType == __CRGB__)
         {
-            for (NodeToken ndt : nd->children)
+            for (NodeToken * ndt : nd->children)
             {
-                for (NodeToken ndtc : ndt.children)
+                for (NodeToken * ndtc : ndt->children)
                 {
                     int __num = 0;
-                    sscanf(ndtc.getTokenText(), "%d", &__num);
+                    sscanf(ndtc->getTokenText(), "%d", &__num);
                     _data_sav = _data_sav + " " + string_format("%02x", __num);
                 }
             }
@@ -2371,18 +2429,18 @@ void _visitdefGlobalVariableNode(NodeToken *nd)
             uint32_t __num;
             __num = 0;
             uint8_t c;
-            for (NodeToken ndt : nd->children)
+            for (NodeToken *ndt : nd->children)
             {
                 if (nd->getVarType()->_varType == __float__)
                 {
                     float __f = 0;
-                    sscanf(ndt.getTokenText(), "%f", &__f);
+                    sscanf(ndt->getTokenText(), "%f", &__f);
                     __num = (uint32_t)(*((uint32_t *)&__f));
                 }
                 else
                 {
                     __num = 0;
-                    sscanf(ndt.getTokenText(), "%d", &__num);
+                    sscanf(ndt->getTokenText(), "%d", &__num);
                 }
                 for (int i = 0; i < nd->getVarType()->total_size; i++)
                 {

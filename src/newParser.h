@@ -59,10 +59,10 @@ void prettyPrint2(NodeToken nd, string ident)
     // printf("nb chilrend\t\t%d\n",nd.children.size());
     // if(nd.children!=NULL)
     //{
-    for (NodeToken t : nd.children)
+    for (NodeToken *t : nd.children)
     {
         // printf("child:%d\n",i);
-        prettyPrint2(t, ident);
+        prettyPrint2(*t, ident);
         //  printf("on finit child:%d\n",i);
     }
     // }
@@ -464,29 +464,35 @@ void parseFunctionCall()
         }
         next();
         next();
-        NodeToken res=*search_result;
+       // NodeToken *res=search_result;
+
+        NodeToken res=NodeToken(search_result);
         if (res._nodetype ==(int) defExtFunctionNode)
         {
             
              res._nodetype=extCallFunctionNode;
-            // NodeExtCallFunction function = NodeExtCallFunction(t);
-            current_node = current_node->addChild(res);
-           
-            // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
-            nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
-           
         }
         else
         {
-            // Serial.printf("serial2\r\n");
-            // NodeCallFunction function = NodeCallFunction(t);
-                      res._nodetype=callFunctionNode;
-            
-            current_node = current_node->addChild(res);
+             res._nodetype=callFunctionNode;
+        }
+     
+            // NodeExtCallFunction function = NodeExtCallFunction(t);
+             current_node = current_node->addChild(res);
+             current_node->copyChildren(search_result);
+           
             // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
             nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
+           
+    
+            // Serial.printf("serial2\r\n");
+            // NodeCallFunction function = NodeCallFunction(t);
+            
+           
+            // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
+            //nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
             // Serial.printf("serial3\r\n");
-        }
+        
         current_node->_vartype=current_node->getChildAtPos(0)->_vartype;
         parseArguments();
         // Serial.printf("serial4\r\n");
@@ -1152,6 +1158,7 @@ void parseBlockStatement()
     {
         Error.error = 0;
         //NodeInputArguments arg;
+       
        NodeToken  arg= NodeToken(inputArgumentsNode);
         current_node = current_node->addChild(arg);
         if (Match(TokenCloseParenthesis))
@@ -1160,7 +1167,7 @@ void parseBlockStatement()
             Error.error = 0;
             // result._nd = arg;
             current_node = current_node->parent;
-            // printf("on retourne with argh ide\n");
+            printf("on retourne with argh ide\n");
             return;
         }
         parseType();
@@ -1257,30 +1264,33 @@ void parseBlockStatement()
         if (ext_function)
         {
            NodeToken function = NodeToken(current(),defExtFunctionNode);
-            function.addChild( nodeTokenList.pop());
+            //function.addChild( nodeTokenList.pop());
             //  function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
+            current_node->addChild(nodeTokenList.pop());
             // current_cntx->parent->addFunction(current_node);
            // main_context.addFunction(current_node);
         }
         else if (is_asm)
         {
            NodeToken function = NodeToken(current(),defAsmFunctionNode);
-            function.addChild( nodeTokenList.pop());
+            //function.addChild( nodeTokenList.pop());
             //  function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
+             current_node->addChild(nodeTokenList.pop());
             // current_cntx->parent->addFunction(current_node);
            
         }
         else
         {
       NodeToken function = NodeToken(current(),defFunctionNode);
-            function.addChild( nodeTokenList.pop());
+           // function.addChild( nodeTokenList.pop());
             //  function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
+             current_node->addChild(nodeTokenList.pop());
             // current_cntx->parent->addFunction(current_node);
           //  main_context.addFunction(current_node);
         }
@@ -1362,7 +1372,7 @@ void parseBlockStatement()
 buildParents(current_node);
 current_node->visitNode();
         current_node->clear();
-         current_cntx->clear();
+       //  current_cntx->clear();
           _node_token_stack.clear();
        // printf("after clean function %s\n",current_node->getTokenText());
         updateMem();
