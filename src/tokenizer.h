@@ -776,6 +776,9 @@ public:
     }
     int findText(string str)
     {
+         #ifdef __SPEED
+        return -1;
+        #endif
         for (int i = 0; i < _texts.size(); i++)
         {
             if (str.compare(string(_texts[i])) == 0)
@@ -952,8 +955,8 @@ public:
     }
     void clear()
     {
-
-        int kk = 0;
+// #ifndef __SPEED
+       // int kk = 0;
         for (int i = 0; i < _texts.size(); i++)
         {
             char *c1 = _texts[i];
@@ -969,13 +972,13 @@ public:
                 }
             }
         }
-
+//#endif
         for (int i = 0; i < _texts.size(); i++)
         {
             if (_texts[i] != NULL)
             {
                 free(_texts[i]);
-                kk++;
+               // kk++;
             }
         }
         _texts.clear();
@@ -1001,6 +1004,9 @@ public:
     }
     bool isReused(int pos)
     {
+        #ifdef __SPEED
+        return false;
+        #endif
         if (pos < 0 or pos >= _texts.size())
         {
             return false;

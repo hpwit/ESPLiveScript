@@ -1504,6 +1504,8 @@ executable createExectutable(Text *_header,Text *_content, bool display)
    //  printf("on a parse3\r\n");
     err = calculateJump(&_asm_parsed);
 // printf("on a parse4\r\n");
+updateMem();
+pushToConsole(string_format("max used memory: %ld mem and stack:%ld free mem:%ld time:%dms\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size(),(__endtime-  __starttime)/240000 ),true) ;
     if (err.error == 0)
     {
     // printf("tenative creation binaire\r\n");

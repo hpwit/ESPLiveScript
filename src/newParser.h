@@ -237,8 +237,10 @@ main_script.clear();
         buildParents(&program);
 
         program.visitNode();
+        updateMem();
          pushToConsole("***********COMPILING DONE*********");
-         pushToConsole(string_format("max used memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size()));
+         pushToConsole(string_format("max used memory: %ld mem and stack:%ld free mem:%ld time:%dms\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size(),(__endtime-  __starttime)/240000 ),true) ;
+
          main_script.clear();
         _userDefinedTypes.clear();
         nodeTokenList.clear();

@@ -16,6 +16,9 @@ uint32_t __startmem;
 uint32_t __maxMemUsage;
 uint32_t __startStackMemory;
 uint32_t __MaxStackMemory;
+uint32_t __endtime;
+uint32_t __starttime;
+
 
 int stack_size = 0;
 
@@ -79,6 +82,7 @@ void initMem()
     __startStackMemory = stackHighWaterMark * sizeof(StackType_t);
     __maxMemUsage=0;
     __MaxStackMemory=0;
+    __starttime = ESP.getCycleCount();
    // printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
 #endif
 }
@@ -103,6 +107,9 @@ void updateMem()
     newdelta = __startStackMemory - stackHighWaterMark * sizeof(StackType_t);
     if (newdelta > __MaxStackMemory)
         __MaxStackMemory = newdelta;
+    
+    __endtime=ESP.getCycleCount();
+
    //printf("max memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size());
 #endif
 }
