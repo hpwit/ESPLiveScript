@@ -498,28 +498,31 @@ public:
     }
     void clear()
     {
+        //printf("delete %s %d\r\n",getTokenText(),_nodetype);
         int i=0;
-        if(_nodetype == extCallFunctionNode || _nodetype == callFunctionNode)
+        if(_nodetype == (int)callFunctionNode || _nodetype == (int)extCallFunctionNode || _nodetype == (int)defAsmFunctionNode || _nodetype == (int)defFunctionNode || _nodetype == (int)defExtFunctionNode)
         {
+            printf("on tente %s\r\n",getTokenText());
              i=2;
         }
         int j=0;
         for (NodeToken *child : children)
         {
       
-            child->clear();
             
+             // child->clear();
           if(j>=i)
           {
-               
-                   heap_caps_free(child);
-                    children[j]=NULL;
+           
+             child->clear();
+                  free(child);
+                  // children[j]=NULL;
           }
         j++;
         }
+   
+        children.clear();
         
-        
-       // children.clear();
         children.shrink_to_fit();
     }
     void replaceTargetText(string t)
