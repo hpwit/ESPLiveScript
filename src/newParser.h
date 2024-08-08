@@ -3,23 +3,7 @@ using namespace std;
 using namespace std;
 
 #include <string>
-void pushToConsole(string str, bool force)
-{
-#ifdef __CONSOLE_ESP32
-    LedOS.pushToConsole(str, force);
-#else
-#ifndef __TEST_DEBUG
-    Serial.printf("%s\r\n", str.c_str());
-#else
-    printf("%s\r\n", str.c_str());
-#endif
-#endif
-}
 
-void pushToConsole(string str)
-{
-    pushToConsole(str, false);
-}
 // #include "tokenizer.h"
 
 // #include "asm_parser.h"
@@ -135,7 +119,7 @@ public:
 
         _userDefinedTypes.clear();
         nodeTokenList.clear();
-        program.clear();
+        program.clearAll();
         sav_t.clear();
         sav_t.shrink_to_fit();
         main_context.clear();
@@ -173,11 +157,12 @@ public:
         buildParents(&program);
         program.visitNode();
          pushToConsole("***********COMPILING DONE*********");
-          pushToConsole(string_format("max used memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size()));
+         updateMem();
+          displayStat();
          main_script.clear();
         _userDefinedTypes.clear();
         nodeTokenList.clear();
-        program.clear();
+        program.clearAll();
         sav_t.clear();
         sav_t.shrink_to_fit();
         main_context.clear();
@@ -189,7 +174,8 @@ public:
         all_text.clear();
         all_targets.clear();
 
-         pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
+                 updateMem();
+          displayStat();
     
             pushToConsole("***********AFTER CLEAN*********");
             #ifndef __TEST_DEBUG
@@ -197,7 +183,8 @@ public:
             executecmd = createExectutable(&header,&content, __parser_debug);
          content.clear();
         header.clear();
-        pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
+                updateMem();
+          displayStat();
             if (executecmd.error.error == 0)
             {
 
@@ -232,19 +219,22 @@ main_script.clear();
             return false;
         }
         sc.clear();
-        pushToConsole("***********PARSING DONE*********");
+        pushToConsole("***********PARSING DONE*********",true);
         updateMem();
+        displayStat();
         buildParents(&program);
 
         program.visitNode();
-        updateMem();
-         pushToConsole("***********COMPILING DONE*********");
-         pushToConsole(string_format("max used memory: %ld mem and stack:%ld free mem:%ld time:%dms\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size(),(__endtime-  __starttime)/240000 ),true) ;
+        
 
+         pushToConsole("***********COMPILING DONE*********",true);
+         //pushToConsole(string_format("max used memory: %ld mem and stack:%ld free mem:%ld time:%dms\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size(),(__endtime-  __starttime)/240000 ),true) ;
+     updateMem();
+displayStat();
          main_script.clear();
         _userDefinedTypes.clear();
         nodeTokenList.clear();
-        program.clear();
+        program.clearAll();
         sav_t.clear();
         sav_t.shrink_to_fit();
         main_context.clear();
@@ -255,15 +245,19 @@ main_script.clear();
         _functions.shrink_to_fit();
         all_text.clear();
          all_targets.clear();
-           pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
+
     
-            pushToConsole("***********AFTER CLEAN*********");
+            pushToConsole("***********AFTER CLEAN*********",true);
+                               updateMem();
+        displayStat();
             #ifndef __TEST_DEBUG
-            pushToConsole("***********CREATE EXECUTABLE*********");
+            pushToConsole("***********CREATE EXECUTABLE*********",true);
             executecmd = createExectutable(&header,&content, __parser_debug);
          content.clear();
         header.clear();
-        pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
+        updateMem();
+        displayStat();
+        //pushToConsole(string_format("afer clean done %u\r\n",esp_get_free_heap_size()));
             if (executecmd.error.error == 0)
             {
 
@@ -479,7 +473,9 @@ void parseFunctionCall()
      
             // NodeExtCallFunction function = NodeExtCallFunction(t);
              current_node = current_node->addChild(res);
-             current_node->copyChildren(search_result);
+             //current_node->copyChildren(search_result);
+             current_node->addChild(search_result->getChildAtPos(0));
+             current_node->addChild(search_result->getChildAtPos(1));
            
             // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
             nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());

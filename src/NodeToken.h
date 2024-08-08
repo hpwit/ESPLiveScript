@@ -9,6 +9,24 @@ using namespace std;
 
 #include "tokenizer.h"
 
+
+void pushToConsole(string str, bool force)
+{
+#ifdef __CONSOLE_ESP32
+    LedOS.pushToConsole(str, force);
+#else
+#ifndef __TEST_DEBUG
+    Serial.printf("%s\r\n", str.c_str());
+#else
+    printf("%s\r\n", str.c_str());
+#endif
+#endif
+}
+
+void pushToConsole(string str)
+{
+    pushToConsole(str, false);
+}
 #define _STACK_SIZE 32
 
 
@@ -115,7 +133,10 @@ void updateMem()
    //printf("max memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size());
 #endif
 }
-
+void displayStat()
+{
+    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms\n", __maxMemUsage, __MaxStackMemory,__startmem, esp_get_free_heap_size(),__startmem- esp_get_free_heap_size(),(__endtime-__starttime)/240000),true);
+}
 string _numToBytes(uint32_t __num)
 {
     string val = ".bytes 4";
@@ -496,14 +517,17 @@ public:
         children.push_back(tmp);
         return tmp;
     }
-    void clear()
+    void clear(bool all)
     {
         //printf("delete %s %d\r\n",getTokenText(),_nodetype);
         int i=0;
-        if(_nodetype == (int)callFunctionNode || _nodetype == (int)extCallFunctionNode || _nodetype == (int)defAsmFunctionNode || _nodetype == (int)defFunctionNode || _nodetype == (int)defExtFunctionNode)
+        if(!all)
         {
-            printf("on tente %s\r\n",getTokenText());
-             i=2;
+            if(_nodetype == (int)callFunctionNode || _nodetype == (int)extCallFunctionNode || _nodetype == (int)defAsmFunctionNode || _nodetype == (int)defFunctionNode || _nodetype == (int)defExtFunctionNode)
+            {
+               // printf("on tente %s\r\n",getTokenText());
+                i=2;
+            }
         }
         int j=0;
         for (NodeToken *child : children)
@@ -525,6 +549,15 @@ public:
         
         children.shrink_to_fit();
     }
+    void clear()
+    {
+        clear(false);
+    }
+    void clearAll()
+    {
+        clear(true);
+    }
+
     void replaceTargetText(string t)
     {
         all_targets.replaceText(textref, t);

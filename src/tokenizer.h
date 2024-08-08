@@ -774,14 +774,15 @@ public:
         // _texts.push_back(cc);
         _it = _texts.begin();
     }
-    int findText(string str)
+    int findText(char * str)
     {
          #ifdef __SPEED
         return -1;
         #endif
-        for (int i = 0; i < _texts.size(); i++)
+       // for (int i = 0; i < _texts.size(); i++)
+       for (int i =  _texts.size()-1; i >=0; i--)
         {
-            if (str.compare(string(_texts[i])) == 0)
+            if (strcmp(str,_texts[i]) == 0)
             {
                 return i;
             }
@@ -790,7 +791,7 @@ public:
     }
     int addText(string str)
     {
-        int pos = findText(str);
+        int pos = findText((char *)str.c_str());
         if (pos > -1)
         {
             return pos;
@@ -843,7 +844,7 @@ public:
     }*/
     void addAfter(string str)
     {
-        int pos = findText(str);
+        int pos = findText((char *)str.c_str());
         char *tmp;
         if (pos > -1)
         {
@@ -901,7 +902,7 @@ public:
     }
     void addBefore(string s)
     {
-        int pos = findText(s);
+        int pos = findText((char *)s.c_str());
         if (pos > -1)
         {
             _it = _texts.insert(_it, _texts[pos]);
