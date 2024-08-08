@@ -66,6 +66,7 @@ public:
         bool othercore = false;
         exeExist = false;
         freeBinary(&executecmd);
+        
     }
     void setPrekill(void (*function)(), void (*function2)())
     {
