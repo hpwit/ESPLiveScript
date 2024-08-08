@@ -1397,6 +1397,7 @@ __exe_size=intr_size+ data_size;
   // MALLOC_CAP_32BIT ||
   //  uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 8) * 8 + 8,  MALLOC_CAP_EXEC );
   uint32_t *exec = (uint32_t *)heap_caps_malloc((intr_size / 8) * 8 + 8, MALLOC_CAP_EXEC);
+  updateMem();
   int h = 0;
   for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
