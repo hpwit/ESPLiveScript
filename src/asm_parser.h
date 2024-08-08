@@ -418,7 +418,7 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
     res.size = 0;
     res.align = false;
     res.addText (trim(sp.opcde.substr(0, sp.opcde.find(":"))));
-    printf("processing label:%s\n",res.getText());
+   // printf("processing label:%s\n",res.getText());
     if (findLabel(string(res.getText()), asm_parsed) != -1)
     {
       asm_Error.error = 1;
@@ -754,7 +754,7 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
   {
     result_parse_line ps;
     ps = parseOperandes(sp.operandes, 1, op_global, 0, NULL);
-     printf("operandes %s\r\n",ps.getText());
+    // printf("operandes %s\r\n",ps.getText());
     ps.op = opCodeType::function_declaration;
     return ps;
   }
@@ -1322,7 +1322,7 @@ executable createBinary(list<result_parse_line> *asm_parsed)
   {
     if ((*it).op == opCodeType::function_declaration)
     {
-      printf("look for %s\n",(*it).getText());
+     // printf("look for %s\n",(*it).getText());
       if(*(*it).getText()=='\0')
         continue;
       int index = findLabel(string((*it).getText()), asm_parsed);
