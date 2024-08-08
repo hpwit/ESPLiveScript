@@ -10,7 +10,7 @@
 using namespace std;
 #define EOF_TEXTARRAY 9999
 #define EOF_VARTYPE 255
-
+int __exe_size=0;
 template <class T>
 class Stack
 {
@@ -76,6 +76,7 @@ public:
     {
         //  if( typeid(T).hash_code()==typeid(int).hash_code())
         //  {
+        
         int sav = (int)pop();
         push(sav - 1);
         //  }

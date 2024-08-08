@@ -1366,7 +1366,7 @@ executable createBinary(list<result_parse_line> *asm_parsed)
     data_size = getInstrAtPos(last_one)->size + getInstrAtPos(last_one)->address; //(*asm_parsed)[last_one].size + (*asm_parsed)[last_one].address;
   }
   uint32_t intr_size = getInstrAtPos((*asm_parsed).size() - 1)->size + getInstrAtPos((*asm_parsed).size() - 1)->address; //(*asm_parsed)[(*asm_parsed).size() - 1].address + (*asm_parsed)[(*asm_parsed).size() - 1].size;
-
+__exe_size=intr_size+ data_size;
 #ifdef __CONSOLE_ESP32
   string d = string_format("Creation of an %d bytes binary and %d bytes data, nb data_label %d", intr_size, data_size, nb_data);
   LedOS.pushToConsole(d);
@@ -1669,7 +1669,7 @@ void freeBinary(executable *ex)
   if (ex->start_program != NULL)
   {
 
-    heap_caps_aligned_free(ex->start_program);
+    heap_caps_free(ex->start_program);
   }
 
   ex->start_program = NULL;
@@ -1677,7 +1677,7 @@ void freeBinary(executable *ex)
   if (ex->data != NULL)
   {
 
-    free(ex->data);
+    heap_caps_free(ex->data);
   }
   ex->data = NULL;
 }

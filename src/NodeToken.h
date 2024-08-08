@@ -103,6 +103,7 @@ void initMem()
     __maxMemUsage=0;
     __MaxStackMemory=0;
     __starttime = ESP.getCycleCount();
+   __exe_size = 0;
    // printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
 #endif
 }
@@ -135,7 +136,7 @@ void updateMem()
 }
 void displayStat()
 {
-    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms\n", __maxMemUsage, __MaxStackMemory,__startmem, esp_get_free_heap_size(),__startmem- esp_get_free_heap_size(),(__endtime-__starttime)/240000),true);
+    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld exe size:%d time:%dms\n", __maxMemUsage, __MaxStackMemory,__startmem, esp_get_free_heap_size(),__startmem- esp_get_free_heap_size(),__exe_size,(__endtime-__starttime)/240000), true);
 }
 string _numToBytes(uint32_t __num)
 {

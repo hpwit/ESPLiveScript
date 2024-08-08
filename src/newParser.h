@@ -169,10 +169,15 @@ public:
         targetList.clear();
         sav_token.clear();
         _node_token_stack.clear();
+        for(NodeToken h:_functions)
+        {
+            h.clearAll();
+        }
         _functions.clear();
         _functions.shrink_to_fit();
         all_text.clear();
         all_targets.clear();
+
 
                  updateMem();
           displayStat();
@@ -241,10 +246,15 @@ displayStat();
         targetList.clear();
         sav_token.clear();
         _node_token_stack.clear();
+                for(NodeToken h:_functions)
+        {
+            h.clearAll();
+        }
         _functions.clear();
         _functions.shrink_to_fit();
         all_text.clear();
          all_targets.clear();
+     
 
     
             pushToConsole("***********AFTER CLEAN*********",true);
