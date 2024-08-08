@@ -347,7 +347,7 @@ result_parse_line parseOperandes(string str, int nboperande, operandeType *optyp
       {
         if (optypes[i] == operandeType::label)
         {
-          result.name = res.label;
+          result.addText( res.label);
         }
         values[i] = res.value;
       }
@@ -378,7 +378,7 @@ int findLabel(string s, list<result_parse_line> *asm_parsed)
   {
     if ((*it).op == opCodeType::label || (*it).op == opCodeType::data_label || (*it).op == opCodeType::number_label)
     {
-      if (trim((*it).name).compare(trim(s)) == 0)
+      if (trim(string((*it).getText())).compare(trim(s)) == 0)
       {
         return i;
       }
@@ -396,7 +396,8 @@ int findFunction(string s, list<result_parse_line> *asm_parsed)
   {
     if ((*it).op == opCodeType::function_declaration)
     {
-      if ((*it).name.compare(s) == 0)
+      //if ((*it).name.compare(s) == 0)
+      if(strcmp((*it).getText(),s.c_str())==0)
       {
         return i;
       }
@@ -416,12 +417,13 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
     res.op = opCodeType::label;
     res.size = 0;
     res.align = false;
-    res.name = trim(sp.opcde.substr(0, sp.opcde.find(":")));
-    if (findLabel(res.name, asm_parsed) != -1)
+    res.addText (trim(sp.opcde.substr(0, sp.opcde.find(":"))));
+    printf("processing label:%s\n",res.getText());
+    if (findLabel(string(res.getText()), asm_parsed) != -1)
     {
       asm_Error.error = 1;
       // res.error.error_message = string_format("label %s is already declared in line %d\n", res.name.c_str(), (*asm_parsed)[findLabel(res.name, asm_parsed)].line);
-      asm_Error.error_message = string_format("label %s is already declare\n", res.name.c_str());
+      asm_Error.error_message = string_format("label %s is already declare\n", res.getText());
     }
 
     return res;
@@ -690,14 +692,15 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
         asm_Error.error = 0;
         ps.size = value;
         vector<string> sf = split(suite, " ");
-        ps.name = "";
+       string name = "";
         for (int i = 0; i < sf.size(); i++)
         {
           char __num = 0;
           sscanf(sf[i].c_str(), "%x", &__num);
           // printf("%s \r\n",sf[i].c_str());
-          ps.name = ps.name + __num;
+          name = name + __num;
         }
+        ps.addText(name);
         sf.clear();
         return ps;
       }
@@ -729,8 +732,8 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
       ps1->align = true;
       asm_Error.error = 0;
       ps.size = 4;
-      ps.name = sp.operandes;
-      printf(".woprd %s\n\r", ps.name.c_str());
+      ps.addText( sp.operandes);
+      //printf(".woprd %s\n\r", ps.name.c_str());
       // ps.name = ps.name + '\n' + '\0';
     }
     return ps;
@@ -751,7 +754,7 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
   {
     result_parse_line ps;
     ps = parseOperandes(sp.operandes, 1, op_global, 0, NULL);
-    // printf("operandes %s\r\n",ps.name.c_str());
+     printf("operandes %s\r\n",ps.getText());
     ps.op = opCodeType::function_declaration;
     return ps;
   }
@@ -764,11 +767,11 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
     {
       return ps;
     }
-    int i = findLink(ps.name, externalType::function);
+    int i = findLink(string(ps.getText()), externalType::function);
     if (i == -1)
     {
       asm_Error.error = 1;
-      asm_Error.error_message = string_format("External variable %s not found\n", ps.name.c_str());
+      asm_Error.error_message = string_format("External variable %s not found\n", ps.getText());
     }
     else
     {
@@ -791,11 +794,11 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
     result_parse_line ps;
     ps = parseOperandes(sp.operandes, 2, op_movExt, 0, bin_movExt);
     // ps.op=opCodeType::external_call;
-    int i = findLink(ps.name, externalType::value);
+    int i = findLink(string(ps.getText()), externalType::value);
     if (i == -1)
     {
       asm_Error.error = 1;
-      asm_Error.error_message = string_format("External variable %s not found\n", ps.name.c_str());
+      asm_Error.error_message = string_format("External variable %s not found\n", ps.getText());
     }
     else
     {
@@ -824,8 +827,8 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
         ps1->align = true;
         asm_Error.error = 0;
         ps.size = sp.operandes.size() + 2;
-        ps.name = sp.operandes;
-        ps.name = ps.name + '\n' + '\0';
+       // ps.name = sp.operandes;
+        ps.addText ( sp.operandes + '\n' + '\0');
       }
     }
     else
@@ -1203,7 +1206,7 @@ void printparsdAsm(uint32_t start_address, list<result_parse_line> *asm_parsed)
     {
       if (re_sparse.op == opCodeType::label)
       {
-        printf("%8x \t <%s>:\n", re_sparse.address + start_address, re_sparse.name.c_str());
+        printf("%8x \t <%s>:\n", re_sparse.address + start_address, re_sparse.getText());
       }
       else
       {
@@ -1228,7 +1231,7 @@ void flagLabel32aligned(list<result_parse_line> *asm_parsed)
   {
     if (it->op == opCodeType::jump_32aligned || it->op == opCodeType::function_declaration)
     {
-      int i = findLabel(it->name, asm_parsed);
+      int i = findLabel(string(it->getText()), asm_parsed);
       if (i != -1)
       {
         result_parse_line *parse_line = getInstrAtPos(i); // &(*asm_parsed)[i];
@@ -1263,7 +1266,7 @@ error_message_struct calculateJump(list<result_parse_line> *asm_parsed)
     result_parse_line *parse_line = &*it;
     if ((parse_line->op == opCodeType::jump) || (parse_line->op == opCodeType::jump_32aligned))
     {
-      int index = findLabel(parse_line->name, asm_parsed);
+      int index = findLabel(string(parse_line->getText()), asm_parsed);
       if (index != -1)
       {
         if (parse_line->calculateOfssetJump)
@@ -1279,7 +1282,7 @@ error_message_struct calculateJump(list<result_parse_line> *asm_parsed)
       else
       {
         error.error = 1;
-         error.error_message += string_format("line : %d label %s not found\n",parse_line->line, parse_line->name.c_str());
+         error.error_message += string_format("line : %d label %s not found\n",parse_line->line, parse_line->getText());
       }
     }
   }
@@ -1319,17 +1322,20 @@ executable createBinary(list<result_parse_line> *asm_parsed)
   {
     if ((*it).op == opCodeType::function_declaration)
     {
-      int index = findLabel((*it).name, asm_parsed);
+      printf("look for %s\n",(*it).getText());
+      if(*(*it).getText()=='\0')
+        continue;
+      int index = findLabel(string((*it).getText()), asm_parsed);
       if (index == -1)
       {
         exe.error.error = 1;
-        exe.error.error_message = string_format("Impossible to find start function :%s", (*it).name.c_str());
+        exe.error.error_message = string_format("Impossible to find start function :%s", (*it).getText());
         return exe;
       }
       else
       {
         globalcall gc;
-        gc.name = (*it).name;
+        gc.name = string((*it).getText());
         gc.address = getInstrAtPos(index)->address; //(*asm_parsed)[index].address;
         exe.functions.push_back(gc);
       }
@@ -1392,7 +1398,7 @@ executable createBinary(list<result_parse_line> *asm_parsed)
     if ((*it).op == opCodeType::data || ((*it).op == opCodeType::number))
     {
       // Serial.printf("store data %d at %d\r\n",i,(*asm_parsed)[i].address);
-      memcpy(data + (*it).address, (*it).name.c_str(), (*it).size);
+      memcpy(data + (*it).address, (*it).getText(), (*it).size);
     }
     else
     {
@@ -1526,6 +1532,7 @@ displayStat();
         exec.error.error = 0;
       }
       _asm_parsed.clear();
+      all_text.clear();
       return exec;
     }
     else
@@ -1533,6 +1540,7 @@ displayStat();
       printf("oerrrrrr rrr %s\r\n",err.error_message.c_str());
       exec.error = err;
       _asm_parsed.clear();
+      all_text.clear();
       return exec;
     }
   }
@@ -1543,9 +1551,11 @@ printf("eero %s\r\n",err.error_message.c_str());
     exec.error = err;
     exec.error.error = 1;
     _asm_parsed.clear();
+    all_text.clear();
     return exec;
   }
   _asm_parsed.clear();
+  all_text.clear();
 }
 
 /*
