@@ -701,7 +701,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
           name = name + __num;
         }
         if(sf.size()>0)
-        ps.addText(name);
+        ps.addText(name,value);
         sf.clear();
         return ps;
       }

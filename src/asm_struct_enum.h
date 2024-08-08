@@ -117,6 +117,15 @@ public:
         }
         return -1;
     }
+    int addText(string str,uint16_t si)
+    {
+              char *m = (char *)malloc(si + 1);
+        memcpy(m, str.c_str(), si);
+        m[str.size()] = 0;
+        _texts.push_back(m);
+        position++;
+        return _texts.size() - 1;
+    }
     int addText(string str)
     {
         int pos = findText((char *)str.c_str());
@@ -485,6 +494,10 @@ char *getText()
         void addText(string t)
     {
         nameref = all_text.addText(t);
+    }
+            void addText(string t,uint16_t si)
+    {
+        nameref = all_text.addText(t,si);
     }
   uint32_t bincode;
   uint32_t size;
