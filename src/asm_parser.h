@@ -700,6 +700,7 @@ result_parse_line parseline(line sp, list<result_parse_line> *asm_parsed)
           // printf("%s \r\n",sf[i].c_str());
           name = name + __num;
         }
+        if(sf.size()>0)
         ps.addText(name);
         sf.clear();
         return ps;
