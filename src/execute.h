@@ -26,7 +26,7 @@ static void _run_task(void *pvParameters)
     }
     else
     {
-        executeBinary("main", _fg->exe);
+        executeBinary("@_main", _fg->exe);
     }
     pushToConsole("Execution done.", true);
     __run_handle = NULL;

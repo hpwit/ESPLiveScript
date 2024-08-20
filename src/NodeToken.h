@@ -1211,7 +1211,7 @@ void _visitnumberNode(NodeToken *nd)
         {
             float __f = 0;
             sscanf(nd->getTokenText(), "%f", &__f);
-            header.addAfter(string_format("%s_%d:", "local_var", local_var_num));
+            header.addAfter(string_format("@_%s_%d:", "local_var", local_var_num));
             // local_var_num++;
             string val = ".bytes 4";
             uint32_t __num = (uint32_t)(*((uint32_t *)&__f));
@@ -1233,7 +1233,7 @@ void _visitnumberNode(NodeToken *nd)
             // val=val+'A';
             header.addAfter(val);
             // point_regnum++;
-            content.addAfter(string_format("l32r a%d,%s_%d", 8, "local_var", local_var_num));
+            content.addAfter(string_format("l32r a%d,@_%s_%d", 8, "local_var", local_var_num));
             content.addAfter(string_format("lsi f%d,a%d,0", register_numl.get(), 8));
             content.sp.push(content.get());
             // point_regnum--;
@@ -1253,7 +1253,7 @@ void _visitnumberNode(NodeToken *nd)
             }
             if (__num >= 2048)
             {
-                header.addAfter(string_format("%s_%d:", "local_var", local_var_num));
+                header.addAfter(string_format("@_%s_%d:", "local_var", local_var_num));
                 string val = ".bytes 4";
                 uint8_t c = __num & 0xff;
                 val = val + " " + string_format("%02x", c);
@@ -1272,7 +1272,7 @@ void _visitnumberNode(NodeToken *nd)
                 // val=val+'A';
                 header.addAfter(val);
                 // point_regnum++;
-                content.addAfter(string_format("l32r a%d,%s_%d", 8, "local_var", local_var_num));
+                content.addAfter(string_format("l32r a%d,@_%s_%d", 8, "local_var", local_var_num));
                 content.addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), 8));
                 content.sp.push(content.get());
                 // point_regnum--;
@@ -1482,7 +1482,7 @@ void _visitoperatorNode(NodeToken *nd)
         {
             content.addAfter(string_format("mov.s f1,f%d", register_numl.get()));
             content.addAfter(string_format("mov.s f2,f%d", register_numr.get()));
-            content.addAfter("call8 __div");
+            content.addAfter("call8  @___div");
             content.addAfter(string_format("mov.s f%d,f0", register_numl.get()));
         }
         else
@@ -1536,7 +1536,7 @@ void _visitoperatorNode(NodeToken *nd)
             }
             else
             {
-                content.addAfter(string_format("movi a10,a%d", register_numl.get()));
+                content.addAfter(string_format("mov a10,a%d", register_numl.get()));
                 asmInstr = mull;
             }
             for (int k = 1; k < __num; k++)
@@ -1611,12 +1611,12 @@ void _visitglobalVariableNode(NodeToken *nd) {
             // content.l->pop_back();
             content.addAfter(string_format("movi a%d,%d", point_regnum, v->total_size));
             content.addAfter(string_format("mull a%d,a%d,a%d", register_numl.get(), register_numl.get(), point_regnum));
-            content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+            content.addAfter(string_format("l32r a%d,@_%s", point_regnum, nd->getTokenText()));
             content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
         }
         else
         {
-            content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+            content.addAfter(string_format("l32r a%d,@_%s", point_regnum, nd->getTokenText()));
             for (int i = 0; i < v->total_size; i++)
             {
                 content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
@@ -1625,7 +1625,7 @@ void _visitglobalVariableNode(NodeToken *nd) {
     }
     else
     {
-        content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+        content.addAfter(string_format("l32r a%d,@_%s", point_regnum, nd->getTokenText()));
     }
     content.sp.push(content.get());
     if (nd->asPointer) //(&d)
@@ -1841,8 +1841,8 @@ void _visitblockStatementNode(NodeToken *nd)
 void _visitdefFunctionNode(NodeToken *nd)
 {
     //printf("compiling %s\n",nd->getTokenText());
-    header.addAfter(string_format(".global %s", nd->getTokenText()));
-    content.addAfter(string_format("%s:", nd->getTokenText()));
+    header.addAfter(string_format(".global @_%s", nd->getTokenText()));
+    content.addAfter(string_format("@_%s:", nd->getTokenText()));
     content.addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
     if (saveReg)
     {
@@ -1906,9 +1906,9 @@ void _visitprogramNode(NodeToken *nd)
     point_regnum = 4;
     content.begin();
     header.begin();
-    header.addAfter("stack:");
+    header.addAfter("@_stack:");
     header.addAfter(".bytes 60");
-    header.addAfter("stackr:");
+    header.addAfter("@_stackr:");
     header.addAfter(".bytes 60");
 
     // header.addAfter("__basetime:");
@@ -2125,7 +2125,7 @@ void _visitcallFunctionNode(NodeToken *nd)
     // if(t->getChildAtPos(1)->children.size()<1)
     // return;point_regnum
     int save = 9;                                                    // point_regnum;
-    content.addAfterNoDouble(string_format("l32r a%d,stack", save)); // point_regnum
+    content.addAfterNoDouble(string_format("l32r a%d,@_stack", save)); // point_regnum
     for (int i = 0; i < t->getChildAtPos(1)->children.size(); i++)
     {
         // isPointer = false;
@@ -2166,7 +2166,7 @@ void _visitcallFunctionNode(NodeToken *nd)
         // content.addAfter(string_format("addi a%d,a1,%d",11+i,t->getChildAtPos(1)->getChildAtPos(i)->stack_pos));
     }
     content.addAfter(string_format("mov a10,a2")); // neded to find the external variables !!!!!!
-    content.addAfter(string_format("call8 %s", nd->getTokenText()));
+    content.addAfter(string_format("call8 @_%s", nd->getTokenText()));
     int start = nd->stack_pos;
     // printf("ini\r\n");
     varType *v = nd->getChildAtPos(0)->getVarType();
@@ -2180,7 +2180,7 @@ void _visitcallFunctionNode(NodeToken *nd)
     if (v->size > 0)
     {
         //   printf("ini size\r\n");
-        content.addAfter(string_format("l32r a%d,stackr", 9)); // point_regnum
+        content.addAfter(string_format("l32r a%d,@_stackr", 9)); // point_regnum
         for (int i = 0; i < v->size; i++)
         {
             // content.addAfter(string_format("mov a15,a10"));
@@ -2385,7 +2385,7 @@ void _visitinputArgumentsNode(NodeToken *nd)
         return;
     int sav = 9; // point_regnum;
 
-    content.addAfterNoDouble(string_format("l32r a%d,stack", sav)); // point_regnum
+    content.addAfterNoDouble(string_format("l32r a%d,@_stack", sav)); // point_regnum
     for (int i = 0; i < nd->children.size(); i++)
     {
         int start = nd->getChildAtPos(i)->stack_pos;
@@ -2414,7 +2414,7 @@ void _visitdefExtGlobalVariableNode(NodeToken *nd)
     {
         if (nd->isPointer)
         {
-            header.addAfter(string_format("_size_%s:", nd->getTokenText()));
+            header.addAfter(string_format("@_size_%s:", nd->getTokenText()));
             header.addAfter(_numToBytes(nd->_total_size / nd->getVarType()->total_size).c_str());
         }
     }
@@ -2427,11 +2427,11 @@ void _visitdefGlobalVariableNode(NodeToken *nd)
     {
         if (nd->isPointer)
         {
-            header.addAfter(string_format("_size_%s:", nd->getTokenText()));
+            header.addAfter(string_format("@_size_%s:", nd->getTokenText()));
             header.addAfter(_numToBytes(nd->_total_size / nd->getVarType()->total_size).c_str());
         }
     }
-    header.addAfter(string_format("%s:", nd->getTokenText()));
+    header.addAfter(string_format("@_%s:", nd->getTokenText()));
     if (nd->children.size() == 0)
     {
         header.addAfter(string_format(".bytes %d", nd->_total_size));
@@ -2668,7 +2668,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd) {
 
     if (safeMode && nd->isPointer)
     {
-        content.addAfter(string_format("l32r a%d,_size_%s", point_regnum, nd->getTokenText()));
+        content.addAfter(string_format("l32r a%d,@_size_%s", point_regnum, nd->getTokenText()));
         content.addAfter(string_format("l32i a%d,a%d,0", point_regnum, point_regnum));
         content.addAfter(string_format("bge a%d,a%d,__test_safe_%d", point_regnum, register_numl.get(), for_if_num));
         content.addAfter(string_format("movi a10,%d", 0));
@@ -2688,12 +2688,12 @@ void _visitstoreGlobalVariableNode(NodeToken *nd) {
             // content.l->pop_back();
             content.addAfter(string_format("movi a%d,%d", point_regnum, v->total_size));
             content.addAfter(string_format("mull a%d,a%d,a%d", register_numl.get(), register_numl.get(), point_regnum));
-            content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+            content.addAfter(string_format("l32r a%d,@_%s", point_regnum, nd->getTokenText()));
             content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
         }
         else
         {
-            content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+            content.addAfter(string_format("l32r a%d,@_%s", point_regnum, nd->getTokenText()));
             for (int i = 0; i < v->total_size; i++)
             {
                 content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
@@ -2702,7 +2702,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd) {
     }
     else
     {
-        content.addAfter(string_format("l32r a%d,%s", point_regnum, nd->getTokenText()));
+        content.addAfter(string_format("l32r a%d,@_%s", point_regnum, nd->getTokenText()));
     }
     content.end();
     content.sp.pop();
@@ -2788,7 +2788,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd) {
 
     if (safeMode && nd->isPointer)
     {
-        content.addAfter(string_format("l32r a%d,_size_%s", regnum, nd->getTokenText()));
+        content.addAfter(string_format("l32r a%d,@_size_%s", regnum, nd->getTokenText()));
         content.addAfter(string_format("l32i a%d,a%d,0", regnum, regnum));
         content.addAfter(string_format("bge a%d,a%d,__test_safe_%d", regnum, register_numl.get(), for_if_num));
         content.addAfter(string_format("movi a10,%d", 0)); // nd->_token->line
@@ -2895,7 +2895,7 @@ void _visitreturnNode(NodeToken *nd)
         t = t->parent;
     }
     t=t->getChildAtPos(0);
-    content.addAfter(string_format("l32r a%d,stackr", 9)); // point_regnum
+    content.addAfter(string_format("l32r a%d,@_stackr", 9)); // point_regnum
     for (int i = 0; i < nd->children.size(); i++)
     {
         globalType.push(t->getVarType()->_varType);
@@ -2932,8 +2932,8 @@ void _visitreturnNode(NodeToken *nd)
 
 void _visitdefAsmFunctionNode(NodeToken *nd)
 {
-    header.addAfter(string_format(".global %s", nd->getTokenText()));
-    content.addAfter(string_format("%s:", nd->getTokenText()));
+    header.addAfter(string_format(".global @_%s", nd->getTokenText()));
+    content.addAfter(string_format("@_%s:", nd->getTokenText()));
     // content.addAfter(string_format("entry a1,%d", 80)); // ((nd->stack_pos) / 8 + 1) * 8)
     if (nd->children.size() >= 3)
     {

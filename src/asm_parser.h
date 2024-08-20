@@ -416,6 +416,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     asm_Error.error = 0;
     res.op = opCodeType::label;
     res.size = 0;
+
     res.align = false;
     res.addText (trim(sp.opcde.substr(0, sp.opcde.find(":"))));
    // printf("processing label:%s\n",res.getText());
@@ -425,7 +426,10 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
       // res.error.error_message = string_format("label %s is already declared in line %d\n", res.name.c_str(), (*asm_parsed)[findLabel(res.name, asm_parsed)].line);
       asm_Error.error_message = string_format("label %s is already declare\n", res.getText());
     }
-
+  if (sp.opcde.substr(0,2).compare("@_")==0)
+  {
+    res.align=true;
+  }
     return res;
   }
   if (sp.opcde.compare("add") == 0)
@@ -1223,7 +1227,7 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
 
 void flagLabel32aligned(parsedLines *asm_parsed)
 {
-  
+  return;
 #ifdef __CONSOLE_ESP32
   LedOS.pushToConsole("Flag label(s) to align ... ");
 
@@ -1266,6 +1270,8 @@ error_message_struct calculateJump(parsedLines *asm_parsed)
   error_message_struct error;
   error.error = 0;
   error.error_message = "";
+
+  return error;
   for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     result_parse_line *parse_line = *it;
@@ -1277,6 +1283,48 @@ error_message_struct calculateJump(parsedLines *asm_parsed)
         if (parse_line->calculateOfssetJump)
         {
           parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address, getInstrAtPos(index)->address);
+        }
+        else
+        {
+          error.error = 1;
+          // error.error_message += string_format("asm_Error:No method to calcuylate jump offset for %s\n", parse_line->debugtxt.c_str());
+        }
+      }
+      else
+      {
+        error.error = 1;
+         error.error_message += string_format("line : %d label %s not found\n",parse_line->line, parse_line->getText());
+      }
+    }
+  }
+  // printf("Done.\r\n");
+  return error;
+}
+error_message_struct calculateJump(uint8_t *exec,parsedLines *asm_parsed)
+{
+
+#ifdef __CONSOLE_ESP32
+  LedOS.pushToConsole("alculating jumps 2...");
+
+#else
+  printf("Calculating jumps2 ... ");
+#endif
+
+  error_message_struct error;
+  error.error = 0;
+  error.error_message = "";
+  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  {
+    result_parse_line *parse_line = *it;
+    if ((parse_line->op == opCodeType::jump) || (parse_line->op == opCodeType::jump_32aligned))
+    {
+      int index = findLabel(string(parse_line->getText()), asm_parsed);
+      if (index != -1)
+      {
+        if (parse_line->calculateOfssetJump)
+        {
+          parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address, getInstrAtPos(index)->address);
+        memcpy(exec+parse_line->address, &parse_line->bincode, parse_line->size);
         }
         else
         {
@@ -1424,6 +1472,7 @@ __exe_size=intr_size+ data_size;
     }
   }
   // Serial.printf("create absolute jump \r\n");
+  calculateJump(val_tmp, asm_parsed);
   createAbsoluteJump(val_tmp, asm_parsed, (uint32_t)data);
   // Serial.printf("copy \r\n");
   memcpy(exec, val_tmp, (intr_size / 8) * 8 + 8);
@@ -1510,14 +1559,13 @@ executable createExectutable(Text *_header,Text *_content, bool display)
   if (err.error == 0)
   {
    //printf("on a parse\r\n");
-    flagLabel32aligned(&_asm_parsed);
+    //flagLabel32aligned(&_asm_parsed);
    //  printf("on a parse2\r\n");
     createAddress(&_asm_parsed);
    // printf("on a parse3\r\n");
-    err = calculateJump(&_asm_parsed);
+   // err = calculateJump(&_asm_parsed);
  //printf("on a parse4\r\n");
-updateMem();
-displayStat();
+
     if (err.error == 0)
     {
     // printf("tenative creation binaire\r\n");

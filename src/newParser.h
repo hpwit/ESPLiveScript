@@ -2112,7 +2112,7 @@ void run(Console *cons, vector<string> args)
         LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
     }
-    SCExecutable.executeAsTask("main");
+    SCExecutable.executeAsTask("@_main");
     // SCExecutable._run(args, true);
 }
 void kill_cEsc(Console *cons)
@@ -2198,7 +2198,7 @@ void parse_c(Console *cons, vector<string> args)
         if (othercore)
         {
             vector<string> d;
-            d.push_back("main");
+            d.push_back("@_main");
             LedOS.pushToConsole("***********START RUN *********");
             run(cons, d);
 
@@ -2211,7 +2211,7 @@ void parse_c(Console *cons, vector<string> args)
         else
         {
             LedOS.pushToConsole("Start program", true);
-            SCExecutable.execute("main");
+            SCExecutable.execute("@_main");
             // executeBinary("main", executecmd);
             LedOS.pushToConsole("Execution done.", true);
         }
@@ -2253,8 +2253,8 @@ public:
         LedOS.script.clear();
         LedOS.script.push_back("stack:");
         LedOS.script.push_back(".bytes 120");
-        LedOS.script.push_back(".global main");
-        LedOS.script.push_back("main:");
+        LedOS.script.push_back(".global @_main");
+        LedOS.script.push_back("@_main:");
         LedOS.script.push_back("entry a1,72");
         for (int i = 1; i < 400; i++)
         {
