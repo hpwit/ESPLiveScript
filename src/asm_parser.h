@@ -1104,12 +1104,12 @@ void createAddress(parsedLines *asm_parsed)
 {
   uint32_t add_instr = 0;
   uint32_t add_data = 0;
-  // printf("create address\r\n");
+ //  printf("create address\r\n");
   // vector<result_parse_line>::iterator it = (*asm_parsed).begin();
   int i = 0;
   for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-
+//printf("libne i:%d\r\n",i);
     if ((*it)->op != opCodeType::data && (*it)->op != opCodeType::number)
     {
 
@@ -1119,6 +1119,7 @@ void createAddress(parsedLines *asm_parsed)
      (*it)->address = add_instr;
       if ((*it)->align == true)
       {
+       // printf("on ajoute \r\n");
         // printf("%s %s %d\n\r",it->debugtxt.c_str(), it->name.c_str(),add_instr & 3);
         if ((add_instr & 3) != 0)
         {
@@ -1146,12 +1147,13 @@ void createAddress(parsedLines *asm_parsed)
           (*it)->address = add_instr + add_op.size;
           // printf("function not aligned\t %s \t %s\n", it->debugtxt.c_str(), it->name.c_str());
           //printf("one insert \n");
-          asm_parsed->insert(it, add_op);
+          it=asm_parsed->insert(it, add_op);
            //printf("apres insert \n");
            it++;
           add_instr = add_instr + add_op.size;
           // add_instr += 4 - (add_instr & 3);
         }
+        // printf("fin ajoute \r\n");
       }
       add_instr += (*it)->size;
     }
@@ -1165,8 +1167,9 @@ void createAddress(parsedLines *asm_parsed)
       if(it!=asm_parsed->end())
          add_data += (*it)->size;
     }
+    i++;
   }
-   printf("Done\r\n");
+ //  printf("Done\r\n");
 }
 void dumpmem(uint32_t *dump)
 {
