@@ -188,7 +188,7 @@ public:
             executecmd = createExectutable(&header,&content, __parser_debug);
          content.clear();
         header.clear();
-                updateMem();
+               updateMem();
           displayStat();
             if (executecmd.error.error == 0)
             {

@@ -1052,6 +1052,7 @@ error_message_struct parseASM(Text *_header,Text *_content, parsedLines *asm_par
       {
         // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
         asm_parsed->push_back(re_sparse);
+        updateMem();
         // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
       }
     }
@@ -1087,6 +1088,7 @@ error_message_struct parseASM(Text *_header,Text *_content, parsedLines *asm_par
       {
         // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
         asm_parsed->push_back(re_sparse);
+        updateMem();
         // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
       }
     }
@@ -1150,7 +1152,7 @@ void createAddress(parsedLines *asm_parsed)
           (*it)->address = add_instr + add_op.size;
           // printf("function not aligned\t %s \t %s\n", it->debugtxt.c_str(), it->name.c_str());
           //printf("one insert \n");
-          asm_parsed->insert(it, add_op);
+         it= asm_parsed->insert(it, add_op);
            //printf("apres insert \n");
            it++;
           add_instr = add_instr + add_op.size;
@@ -1227,7 +1229,7 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
 
 void flagLabel32aligned(parsedLines *asm_parsed)
 {
-  return;
+ // return;
 #ifdef __CONSOLE_ESP32
   LedOS.pushToConsole("Flag label(s) to align ... ");
 
@@ -1271,7 +1273,7 @@ error_message_struct calculateJump(parsedLines *asm_parsed)
   error.error = 0;
   error.error_message = "";
 
-  return error;
+ // return error;
   for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     result_parse_line *parse_line = *it;
@@ -1445,7 +1447,7 @@ __exe_size=intr_size+ data_size;
   // MALLOC_CAP_32BIT ||
   //  uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 8) * 8 + 8,  MALLOC_CAP_EXEC );
   uint32_t *exec = (uint32_t *)heap_caps_malloc((intr_size / 8) * 8 + 8, MALLOC_CAP_EXEC);
-  updateMem();
+ updateMem();
   int h = 0;
   for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
@@ -1472,7 +1474,14 @@ __exe_size=intr_size+ data_size;
     }
   }
   // Serial.printf("create absolute jump \r\n");
-  calculateJump(val_tmp, asm_parsed);
+ error_message_struct error=calculateJump(val_tmp, asm_parsed);
+  if(error.error==1)
+  {
+    exe.error=error;
+          _asm_parsed.clear();
+      all_text.clear();
+      return exe;
+  }
   createAbsoluteJump(val_tmp, asm_parsed, (uint32_t)data);
   // Serial.printf("copy \r\n");
   memcpy(exec, val_tmp, (intr_size / 8) * 8 + 8);

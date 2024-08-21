@@ -561,11 +561,11 @@ class parsedLines
     parsed_lines.shrink_to_fit();
   }
 
-void insert(vector<result_parse_line *>::iterator t,result_parse_line op)
+vector<result_parse_line *>::iterator insert(vector<result_parse_line *>::iterator t,result_parse_line op)
 {
   result_parse_line *tmp=(result_parse_line *)malloc(sizeof(result_parse_line));
     memcpy(tmp,&op,sizeof(result_parse_line));
-  parsed_lines.insert(t,tmp);
+  return parsed_lines.insert(t,tmp);
 }
 
   vector<result_parse_line *> parsed_lines;
