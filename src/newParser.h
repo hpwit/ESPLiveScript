@@ -2198,7 +2198,7 @@ void parse_c(Console *cons, vector<string> args)
         if (othercore)
         {
             vector<string> d;
-            d.push_back("@_main");
+            d.push_back("main");
             LedOS.pushToConsole("***********START RUN *********");
             run(cons, d);
 
@@ -2211,7 +2211,7 @@ void parse_c(Console *cons, vector<string> args)
         else
         {
             LedOS.pushToConsole("Start program", true);
-            SCExecutable.execute("@_main");
+            SCExecutable.execute("main");
             // executeBinary("main", executecmd);
             LedOS.pushToConsole("Execution done.", true);
         }
@@ -2250,7 +2250,9 @@ public:
         LedOS.addEscCommand(18, parsec_cEsc, "Compile and execute a program (always second Core)");
         LedOS.addEscCommand(11, kill_cEsc, "Stop a running program");
         addExternal("__feed", externalType::function, (void *)feedTheDog);
-        LedOS.script.clear();
+       
+       /*
+       LedOS.script.clear();
         LedOS.script.push_back("stack:");
         LedOS.script.push_back(".bytes 120");
         LedOS.script.push_back(".global @_main");
@@ -2261,6 +2263,7 @@ public:
             LedOS.script.push_back("nop");
         }
         LedOS.script.push_back("retw.n");
+        */
     }
 };
 __INIT_PARSER _init_parser;
