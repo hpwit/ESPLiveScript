@@ -2329,6 +2329,12 @@ void _visitextCallFunctionNode(NodeToken *nd)
         else if (t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGB__)
         {
             // content.addAfter( content.sp.pop(),string_format("mov a%d,a%d", 10 + i, register_numl.get()));
+        if(t->getChildAtPos(2)->getChildAtPos(i)->_nodetype==numberNode)
+        {
+
+        }
+        else{
+        
            for (int k=0;k<t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->size; k++)
         {
             // content.addAfter(string_format("mov a15,a10"));
@@ -2337,7 +2343,20 @@ void _visitextCallFunctionNode(NodeToken *nd)
             content.pop();
            
         }
+        if(t->getChildAtPos(2)->getChildAtPos(i)->_nodetype==extCallFunctionNode)
+        {
+            content.addAfter( content.sp.pop(),string_format("mov a%d,a10", 10 + i));
+        }
+        else if(t->getChildAtPos(2)->getChildAtPos(i)->_nodetype==localVariableNode) 
+        {
         content.addAfter( content.sp.pop(),string_format("l32i a%d,a1,%d", 10 + i, t->getChildAtPos(2)->getChildAtPos(i)->stack_pos));
+        }
+        else if(t->getChildAtPos(2)->getChildAtPos(i)->_nodetype==globalVariableNode) 
+        {
+            //tobe done
+            content.addAfter( content.sp.pop(),string_format("l32i a%d,a5,0", 10 + i));
+        }
+        }
         }
         
         else
