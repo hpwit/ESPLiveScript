@@ -98,6 +98,7 @@ public:
             Serial.printf("Program stopped.\r\n");
 #endif
         }
+         freeBinary(&executecmd);
     }
 
     void _run(vector<string> args, bool second_core)
@@ -139,13 +140,13 @@ public:
 
     void execute(string prog)
     {
-        executeBinary(prog, executecmd);
+        executeBinary("@_"+prog, executecmd);
     }
 
     void executeAsTask(string prog)
     {
         vector<string> args;
-        args.push_back(prog);
+        args.push_back("@_"+prog);
         _run(args,true);
     }
 
