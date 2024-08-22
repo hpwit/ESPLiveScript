@@ -212,6 +212,14 @@ public:
         else
             return "";
     }
+    string textAt(int pos)
+    {
+      if(pos>0 and pos<_texts.size())
+      {
+        return string(_texts[pos]);
+      }
+      return "";
+    }
     void pop_front()
     {
         if (_texts.size() > 0)
@@ -566,6 +574,10 @@ vector<result_parse_line *>::iterator insert(vector<result_parse_line *>::iterat
   result_parse_line *tmp=(result_parse_line *)malloc(sizeof(result_parse_line));
     memcpy(tmp,&op,sizeof(result_parse_line));
   return parsed_lines.insert(t,tmp);
+}
+result_parse_line * last()
+{
+  return parsed_lines.back();
 }
 
   vector<result_parse_line *> parsed_lines;
