@@ -1629,8 +1629,8 @@ void _visitglobalVariableNode(NodeToken *nd)
     }
     else if (nd->children.size() > 0 or !nd->isPointer) // leds[h] or h h being global)
     {
-        if (nd->target == EOF_TEXTARRAY)
-        {
+       // if (nd->target == EOF_TEXTARRAY)
+      //  {
             for (int i = 0; i < v->size; i++)
             {
                 // content.addAfter(string_format("%s %s%d,%s%d,%d", v->load[i].c_str(), v->reg_name.c_str(), register_numl.get(), v->reg_name.c_str(), point_regnum, start));
@@ -1640,7 +1640,8 @@ void _visitglobalVariableNode(NodeToken *nd)
                 start += v->sizes[i];
                 content.sp.push(content.get());
             }
-        }
+       // }
+       /*
         else
         {
 
@@ -1672,7 +1673,7 @@ void _visitglobalVariableNode(NodeToken *nd)
                 return;
             }
         }
-
+        */
         // if(v->size==1)
         // content.sp.pop();
     }
@@ -2603,8 +2604,8 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
     }
     if (nd->children.size() > 0 or !nd->isPointer)
     {
-        if (nd->target == EOF_TEXTARRAY)
-        {
+      //  if (nd->target == EOF_TEXTARRAY)
+       // {
             for (int i = v->size - 1; i >= 0; i--)
             {
                 // printf("here in store %d\r\n",i);
@@ -2615,6 +2616,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
                 start -= v->sizes[i - 1];
                 // content.sp.push(content.get());
             }
+            /*
         }
         else
         {
@@ -2649,6 +2651,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
                 return;
             }
         }
+        */
     }
     else
     {

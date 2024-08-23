@@ -372,9 +372,21 @@ public:
             if (Match(TokenMember) && Match(TokenIdentifier, 1))
             {
                 next();
-
+                int i = findMember(current_node->_vartype, string(current()->getText()));
+            int pos = 0;
+            varType *v = &_userDefinedTypes[current_node->_vartype];
+            if(i<0)
+            {
+                                    Error.error = 1;
+                    Error.error_message = string_format("Member %s of struct %s does not exists", current()->getText(),v->varName.c_str());
+                    next();
+                    return;
+            }
                 // next();
-                current_node->addTargetText(string(current()->getText()));
+               // current_node->addTargetText(string(current()->getText()));
+               current_node->type=TokenKeywordVarType;
+               current_node->_vartype=v->types[i];
+               current_node->stack_pos=current_node->stack_pos + v->starts[i];
                 next();
             }
 
