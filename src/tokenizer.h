@@ -567,8 +567,6 @@ typedef struct
 
 } token;
 
-
-
 vector<char *> texts;
 
 class Script
