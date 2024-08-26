@@ -57,6 +57,7 @@ void addInstr(result_parse_line operande,parsedLines *asm_parsed)
         operande.address+=add_size;
       }
       memcpy(tmp_exec + operande.address, &operande.bincode, operande.size);
+     // printf("parseASM instr %d\r\n",operande.address);
       _address_instr=operande.size+  operande.address;
       if(operande.op!=opCodeType::standard)
           asm_parsed->push_back(operande);
@@ -66,6 +67,7 @@ void addInstr(result_parse_line operande,parsedLines *asm_parsed)
       asm_parsed->last()->bincode=_address_data;
       _address_instr+=4;
       memcpy(binary_data+_address_data,operande.getText(),operande.size);
+     // printf("parseASM eddr_adta %d\r\n",_address_data);
       _address_data+=operande.size;
     }
 
@@ -1033,34 +1035,7 @@ line splitOpcodeOperande(string s)
   res.operandes = operandes;
   return res;
 }
-/*
-error_message_struct parseASM(vector<string> *_lines, vector<result_parse_line> *asm_parsed)
-{
-  vector<string> lines = *_lines;
-  error_message_struct main_error;
-  main_error.error = 0;
-  main_error.error_message = "";
-  // printf("Parsing %d lines ... ", lines.size());
-  for (int i = 0; i < lines.size(); i++)
-  {
-    line res = splitOpcodeOperande(lines[i]);
-    if (!res.error)
-    {
-      result_parse_line re_sparse = parseline(res, asm_parsed);
-      // re_sparse.debugtxt = lines[i];
-      re_sparse.line = i + 1;
-      (*asm_parsed).push_back(re_sparse);
-      if (re_sparse.error.error)
-      {
-        main_error.error = 1;
-        main_error.error_message += string_format("line:%d %s\n", i, re_sparse.error.error_message.c_str());
-      }
-    }
-  }
-  // printf("Done.\r\n");
-  return main_error;
-}
-*/
+
 
 
 
@@ -1070,7 +1045,9 @@ error_message_struct parseASM(Text *_header,Text *_content, parsedLines *asm_par
   error_message_struct main_error;
   main_error.error = 0;
   main_error.error_message = "";
-
+optimize(_content);
+//_content->display();
+//printf("optimized done\r\n");
 if(binary_data!=NULL)
 {
   free(binary_data);
@@ -1117,7 +1094,7 @@ int _nb_not_aligned_label=0;
   }
  }
 
-  _instr_size=_nb_align_label*5+(_content->size()-_nb_align_label-_nb_not_aligned_label)*3;
+  _instr_size=_nb_align_label*5+(_content->size()-_nb_not_aligned_label)*3;
   //printf("taille instr %d\r\n",_instr_size);
 
 
@@ -1147,6 +1124,7 @@ if(_size>0)
   int tmp_size=size;
   for (int i = 0; i < size; i++)
   {
+
     if (__parser_debug)
     {
       printf("on parse line: %d : %s\r\n", i, _header->front().c_str());
@@ -1187,6 +1165,8 @@ if(_size>0)
     {
       printf("on parse line: %d : %s\r\n", i, _content->front().c_str());
     }
+    if(_content->front().compare(" ")!=0)
+    {
     // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
     line res = splitOpcodeOperande(_content->front());
     if (!res.error)
@@ -1213,6 +1193,7 @@ if(_size>0)
         updateMem();
         // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
       }
+    }
     }
     _content->pop_front();
   }
@@ -1448,6 +1429,7 @@ error_message_struct calculateJump(uint8_t *exec,parsedLines *asm_parsed)
         if (parse_line->calculateOfssetJump)
         {
           parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address, getInstrAtPos(index)->address);
+         // printf("line:%d %d\r\n",parse_line->address,parse_line->size);
         memcpy(exec+parse_line->address, &parse_line->bincode, parse_line->size);
         }
         else
@@ -1459,6 +1441,7 @@ error_message_struct calculateJump(uint8_t *exec,parsedLines *asm_parsed)
       else
       {
         error.error = 1;
+        printf("b ou foune\r\n");
          error.error_message += string_format("line : %d label %s not found\n",parse_line->line, parse_line->getText());
       }
     }
@@ -1480,6 +1463,7 @@ void createAbsoluteJump(uint8_t *exec, parsedLines *asm_parsed, uint32_t address
     //  it--; // à cause de l'"it++"
       // printf("on veut mapper address:%s %ld\r\n",(*it)->getText(),(*it)->bincode);
      // (*it)->address = content;
+    // printf("absoluit line:%d\r\n",nb_data*4);
       uint32_t *new_adr = (uint32_t *)exec + nb_data; // (*asm_parsed)[i].address / 4;
       // printf("new content %x atr adress %x\n",content,(uint32_t)new_adr);
       nb_data++;
@@ -1601,22 +1585,24 @@ __exe_size=intr_size+ data_size;
       }
     }
   }*/
-  // Serial.printf("create absolute jump \r\n");
+  // Serial.printf("create  jump \r\n");
  error_message_struct error=calculateJump(tmp_exec, asm_parsed);
   if(error.error==1)
   {
+
     exe.error=error;
           _asm_parsed.clear();
       all_text.clear();
       return exe;
   }
  // createAbsoluteJump(val_tmp, asm_parsed, (uint32_t)data);
+ //Serial.printf("create  jump \r\n");
    createAbsoluteJump(tmp_exec, asm_parsed, (uint32_t)binary_data);
-  // Serial.printf("copy \r\n");
+ // Serial.printf("copy \r\n");
   memcpy(exec, tmp_exec, _instr_size);
-  // Serial.printf("cleaning \r\n");
+   //Serial.printf("cleaning \r\n");
   free(tmp_exec);
-
+//Serial.printf("free \r\n");
   // exe.start_function = (uint32_t)(exec + (*asm_parsed)[index].address / 4);
   // Serial.printf("%d start function(s) found:\r\n", exe.functions.size());
   for (int i = 0; i < exe.functions.size(); i++)
@@ -1708,7 +1694,7 @@ executable createExectutable(Text *_header,Text *_content, bool display)
     {
     // printf("tenative creation binaire\r\n");
       exec = createBinary(&_asm_parsed);
-
+// printf("fair creation binaire\r\n");
       if (exec.error.error == 0)
       {
         // createAbsoluteJump(exec.start_program,&asm_parsed);
@@ -1729,7 +1715,7 @@ executable createExectutable(Text *_header,Text *_content, bool display)
     }
     else
     {
-      printf("oerrrrrr rrr %s\r\n",err.error_message.c_str());
+    //  printf("oerrrrrr rrr %s\r\n",err.error_message.c_str());
       exec.error = err;
       _asm_parsed.clear();
       all_text.clear();
@@ -1739,7 +1725,7 @@ executable createExectutable(Text *_header,Text *_content, bool display)
   else
   {
 
-printf("eero %s\r\n",err.error_message.c_str());
+//printf("eero %s\r\n",err.error_message.c_str());
     exec.error = err;
     exec.error.error = 1;
     _asm_parsed.clear();

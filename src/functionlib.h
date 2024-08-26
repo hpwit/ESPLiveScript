@@ -42,7 +42,7 @@ string _rand="\
 __ASM__ uint32_t rand(uint32_t mod) \n\
 {\n\
 \"entry a1,56\" \n\
-\"l32r a4,@_stack\" \n\
+\"l32r a4,@_stack_rand\" \n\
 \"l32i a15,a4,0\" \n\
 \"rsr a14,234\" \n\
 \"mov a13,a14\" \n\
@@ -61,7 +61,7 @@ string _copycode="\
 __ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
 { \n\
    \"entry a1,80\"\n\
-   \"l32r a4,@_stack\" \n\
+   \"l32r a4,@_stack_copy\" \n\
    \"l32i a5,a4,0\" \n\
    \"l32i a6,a4,4\" \n\
    \"l16ui a7,a4,8\" \n\
@@ -78,7 +78,7 @@ string _memset="\
 __ASM__ void memset(uint8_t *obj,uint8_t val, uint16_t size )\n\
 {\n\
    \"entry a1,80\" \n\
-   \"l32r a4,@_stack\" \n\
+   \"l32r a4,@_stack_memset\" \n\
    \"l32i a5,a4,0\" \n\
    \"l8ui a6,a4,4\" \n\
    \"l16ui a7,a4,6\" \n\
@@ -102,7 +102,7 @@ string _fill="\
 __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_iteration) \n\
 {\n\
    \"entry a1,80\" \n\
-   \"l32r a4,@_stack\" \n\
+   \"l32r a4,@_stack_fill\" \n\
    \"l32i a5,a4,0\" \n\
    \"l32i a6,a4,4\" \n\
    \"l8ui a7,a4,8\" \n\

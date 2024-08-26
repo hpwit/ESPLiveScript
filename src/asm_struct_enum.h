@@ -264,10 +264,12 @@ public:
     }
     void replaceText(int pos, string str)
     {
-        if (pos > 0 and pos < size())
+        if (pos >= 0 and pos < size())
         {
-            if (_texts[pos] != NULL)
+            if (!isReused(pos))
+            {
                 free(_texts[pos]);
+            }
             char *m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());
             m[str.size()] = 0;

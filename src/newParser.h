@@ -1010,7 +1010,7 @@ public:
             }
         }
 
-        else if (Match(TokenKeywordVarType))
+        else if (Match(TokenKeywordVarType)or Match(TokenUserDefinedVariable))
         {
             // printf("trying to create %s\n", current()->text.c_str());
             parseType();
