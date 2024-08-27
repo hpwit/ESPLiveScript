@@ -730,6 +730,7 @@ public:
             getVariable(true);
 
             _asPointer = false;
+            isPointer = false;
             if (Error.error)
             {
                 return;
@@ -1509,6 +1510,13 @@ public:
             next();
             // return;
         }
+        if (Match(TokenUppersand) && Match(TokenIdentifier, 1))
+        {
+            isPointer = true;
+            // printf("qsldkqsld\n");
+            next();
+            // return;
+        }
         if (current()->getType() == TokenEndOfFile)
         {
 
@@ -1762,17 +1770,20 @@ public:
         if (Match(TokenOpenBracket, 1))
         {
             // we are in the case led[];
-
+            string sizestr="";
+            int j=0;
             NodeToken var = NodeToken(current());
             next();
             next();
             var._total_size = 1;
             if (Match(TokenNumber))
             {
+                j++;
                 // Token num = *current();
                 if (current()->getVarType()->_varType == __uint32_t__)
                 {
                     var._total_size *= stringToInt(current()->getText());
+                    sizestr=sizestr+" "+string(current()->getText());
                     next();
                 }
                 else
@@ -1788,7 +1799,9 @@ public:
                     next();
                     if (current()->getVarType()->_varType == __uint32_t__)
                     {
+                        j++;
                         var._total_size *= stringToInt(current()->getText());
+                        sizestr=sizestr+" "+string(current()->getText());
                         next();
                     }
                     else
@@ -1805,7 +1818,9 @@ public:
                     var.isPointer = true;
                     var._nodetype = defGlobalVariableNode; // we can't have arrays in the stack
                     // var._total_size = stringToInt(num.getText());
-                    next();
+                  sizestr=string_format("@%d%s",j,sizestr.c_str());
+                  var.addTargetText(sizestr);
+                   next();
                     // resParse result;
                     Error.error = 0;
                     nodeTokenList.push(var);
