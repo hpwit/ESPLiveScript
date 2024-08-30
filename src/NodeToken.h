@@ -821,10 +821,11 @@ public:
     uint16_t _total_size = 1;
     uint16_t target = EOF_TEXTARRAY;
     uint16_t textref = EOF_TEXTARRAY;
+    uint16_t stack_pos = 0;
     bool isPointer = false;
     bool asPointer = false;
     uint8_t _nodetype = (int)UnknownNode;
-    uint8_t stack_pos = 0;
+   
     uint8_t type = (int)TokenUnknown;
     uint8_t _vartype = EOF_VARTYPE;
 };
@@ -1473,7 +1474,8 @@ void _visitoperatorNode(NodeToken *nd)
     switch (nd->type)
     {
     case TokenAddition:
-        if (ff)
+    {
+          if (ff)
         {
             asmInstr = adds;
         }
@@ -1481,8 +1483,33 @@ void _visitoperatorNode(NodeToken *nd)
         {
             asmInstr = add;
         }
-        content.addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get()));
-        // return;
+        string new_line=string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get());
+     
+    string _last=content.back();
+    string tocmp=string_format("movi a%d,",register_numr.get());
+    //printf("to found %s\r\n",_last,tocmp);
+    if(_last.compare(0,tocmp.size(),tocmp)==0)
+    {
+      //   printf("to found %s\r\n",_last,tocmp);
+        int a,b;
+        sscanf(_last.c_str(),"movi a%d,%d",&a,&b);
+        if(b>=-128 and b<=127)
+        {
+            content.pop();
+            content.addAfter(string_format("addi a%d,a%d,%d",register_numl.get(),register_numl.get(),b));
+        }
+        else
+        {
+            content.addAfter(new_line);
+        }
+    }
+    else
+    {
+        content.addAfter(new_line);
+    }
+
+         // return;
+    }
         break;
     case TokenShiftLeft:
         // content.addAfter("movi a8,32");
@@ -1778,7 +1805,18 @@ void _visitlocalVariableNode(NodeToken *nd)
         int start = nd->stack_pos;
         // //printf("kzlekmze\n");
         // content.addAfter(string_format("l32r a%d,stack", point_regnum));
+
+        //if( if (nd->isPointer && nd->children.size() > 0))
+
+        if(nd->type==TokenUserDefinedVariableMember)
+        {
+             content.addAfter(string_format("addi a%d,a1,%d", register_numl.get(), start-(int)(start/1000)*1000));
+             content.addAfter(string_format("l32i a%d,a%d,%d", register_numl.get(), register_numl.get(),(start/1000)));
+        }
+        else
+        {
         content.addAfter(string_format("addi a%d,a1,%d", register_numl.get(), start));
+        }
         register_numl.decrease();
         if (nd->isPointer && nd->children.size() > 0)
         {
@@ -2738,6 +2776,16 @@ void _visitstoreLocalVariableNode(NodeToken *nd)
         }
         else if (nd->asPointer)
         {
+            if(nd->type== TokenUserDefinedVariableMember )
+            {
+                content.addAfter(string_format("l32i a%d,a1,%d", point_regnum,nd->stack_pos-(int)(nd->stack_pos/1000)*1000));
+                 content.addAfter(string_format("addi a%d,a%d,%d", point_regnum, point_regnum,(int)(nd->stack_pos/1000)));
+             
+                         
+            // content.addAfter(string_format("l32i a%d,a%d,%d", register_numl.get(), register_numl.get(),(start/1000)));
+            }
+            else
+
             content.addAfter(string_format("l32i a%d,a1,%d", point_regnum, nd->stack_pos));
         }
         else
@@ -3203,7 +3251,7 @@ void optimize(Text *text)
         // regnum=9;
         string str = "__";
         string registername = string_format("a%d", regnum);
-       printf("on test register name %s\r\n", registername.c_str());
+      // printf("on test register name %s\r\n", registername.c_str());
         for (int i = 0; i < text->size(); i++)
         {
             string tmp = string((*text->getChildAtPos(i)));
@@ -3258,4 +3306,6 @@ void optimize(Text *text)
             }
         }
     }
+
+    
 }

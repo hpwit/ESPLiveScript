@@ -384,10 +384,15 @@ public:
             }
                 // next();
                // current_node->addTargetText(string(current()->getText()));
-               current_node->type=TokenKeywordVarType;
+               current_node->type=TokenUserDefinedVariableMember;
                current_node->_vartype=v->types[i];
-               current_node->stack_pos=current_node->stack_pos + v->starts[i];
+               if(!_asPointer)
+                current_node->stack_pos=current_node->stack_pos + v->starts[i];
+                else
+                 current_node->stack_pos=current_node->stack_pos+ 1000*v->starts[i];
+                 current_node->_total_size=v->sizes[i];
                 next();
+
             }
 
             Error.error = 0;
@@ -558,6 +563,8 @@ public:
     }
     void parseStatement()
     {
+        //_asPointer=false;
+        isPointer=false;
         sav_token.clear();
         Error.error = 0;
 // asPointer =false;

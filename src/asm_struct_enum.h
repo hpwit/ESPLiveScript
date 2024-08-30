@@ -205,6 +205,13 @@ public:
         }
         position++;
     }
+    string back()
+    {
+              if (_texts.size() > 0)
+            return string(_texts.back());
+        else
+            return "";
+    }
     string front()
     {
         if (_texts.size() > 0)
