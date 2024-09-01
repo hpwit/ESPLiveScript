@@ -36,6 +36,7 @@ uint32_t __startStackMemory;
 uint32_t __MaxStackMemory;
 uint32_t __endtime;
 uint32_t __starttime;
+bool oneFunction=false;
 
 int stack_size = 0;
 
@@ -49,7 +50,7 @@ int local_var_num = 0;
 
 int __sav_arg = 0;
 bool _asPointer = false;
-
+string struct_name="";
 list<int> nb_args;
 
 list<int> nb_sav_args;
@@ -70,7 +71,7 @@ int point_regnum = 4;
 bool isExternal = false;
 
 bool isPointer = true;
-
+bool isStructFunction=false;
 bool isASM = false;
 bool safeMode = false;
 bool saveReg = false;
@@ -569,6 +570,10 @@ public:
     {
         return all_text.getText(textref);
     }
+    void setTokenText(string t)
+    {
+       textref= all_text.addText( t);
+    }
     void addTargetText(string t)
     {
         target = all_targets.addText(t);
@@ -1022,7 +1027,7 @@ void createNodeVariable(Token *_var, bool isStore)
         {
             // NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
             v._nodetype = (int)storeLocalVariableNode;
-            // current_node->asPointer=asPointer;
+            //current_node->asPointer=asPointer;
             // asPointer=false;
             // return;
         }
@@ -1117,6 +1122,10 @@ void createNodeVariable(Token *_var, bool isStore)
     }
     copyPrty(search_result, &v);
     v.asPointer = _asPointer;
+    if(search_result->asPointer)
+    {
+         v.asPointer=true;
+    }
     if(isPointer)
          v.isPointer = isPointer;
     current_node = current_node->addChild(v);
@@ -1810,8 +1819,19 @@ void _visitlocalVariableNode(NodeToken *nd)
 
         if(nd->type==TokenUserDefinedVariableMember)
         {
+            if(!nd->isPointer)
+            {
              content.addAfter(string_format("addi a%d,a1,%d", register_numl.get(), start-(int)(start/1000)*1000));
              content.addAfter(string_format("l32i a%d,a%d,%d", register_numl.get(), register_numl.get(),(start/1000)));
+            }
+            else
+            {
+                content.addAfter(string_format("l32i a%d,a1,%d", register_numl.get(),start-(int)(start/1000)*1000));
+                                asmInstruction asmInstr = v->load[0];
+                content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), start/1000));
+                translateType(globalType.get(), v->_varType, register_numl.get());
+                // content.addAfter(string_format("l16si a%d,a%d,%d", register_numl.get(),register_numl.get(),start/1000));
+            }
         }
         else
         {

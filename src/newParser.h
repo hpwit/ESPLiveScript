@@ -369,30 +369,30 @@ public:
             }
             // else
             // {
-            if (Match(TokenMember) && Match(TokenIdentifier, 1))
+
+            else if (Match(TokenMember) && Match(TokenIdentifier, 1))
             {
                 next();
                 int i = findMember(current_node->_vartype, string(current()->getText()));
-            int pos = 0;
-            varType *v = &_userDefinedTypes[current_node->_vartype];
-            if(i<0)
-            {
-                                    Error.error = 1;
-                    Error.error_message = string_format("Member %s of struct %s does not exists", current()->getText(),v->varName.c_str());
+                int pos = 0;
+                varType *v = &_userDefinedTypes[current_node->_vartype];
+                if (i < 0)
+                {
+                    Error.error = 1;
+                    Error.error_message = string_format("Member %s of struct %s does not exists", current()->getText(), v->varName.c_str());
                     next();
                     return;
-            }
+                }
                 // next();
-               // current_node->addTargetText(string(current()->getText()));
-               current_node->type=TokenUserDefinedVariableMember;
-               current_node->_vartype=v->types[i];
-               if(!_asPointer)
-                current_node->stack_pos=current_node->stack_pos + v->starts[i];
+                // current_node->addTargetText(string(current()->getText()));
+                current_node->type = TokenUserDefinedVariableMember;
+                current_node->_vartype = v->types[i];
+                if (!_asPointer)
+                    current_node->stack_pos = current_node->stack_pos + v->starts[i];
                 else
-                 current_node->stack_pos=current_node->stack_pos+ 1000*v->starts[i];
-                 current_node->_total_size=v->sizes[i];
+                    current_node->stack_pos = current_node->stack_pos + 1000 * v->starts[i];
+                current_node->_total_size = v->sizes[i];
                 next();
-
             }
 
             Error.error = 0;
@@ -411,6 +411,28 @@ public:
         nb_args.push_back(0);
         // NodeInputArguments arg;
         current_node = current_node->addChild(NodeToken(inputArgumentsNode));
+if(isStructFunction)
+{
+    if(struct_name.size()==0)
+    {
+    current_node->addChild(nodeTokenList.pop());
+      nb_args.pop_back();
+       nb_args.push_back(1);
+    }
+    else
+    {
+                    NodeToken nd=NodeToken();
+            nd.setTargetText("pointer");
+            nd.isPointer= true;
+            nd.type=TokenUserDefinedVariable;
+            nd._nodetype=localVariableNode;
+            nd.stack_pos=_STACK_SIZE;
+            current_node->addChild(nd);
+                nb_args.pop_back();
+       nb_args.push_back(1);  
+    }
+
+}
         if (Match(TokenCloseParenthesis))
         {
             // resParse result;
@@ -422,7 +444,14 @@ public:
             return;
         }
         nb_args.pop_back();
-        nb_args.push_back(1);
+        if(isStructFunction)
+{
+        nb_args.push_back(2);
+}
+else
+{
+     nb_args.push_back(1);
+}
         // nb_argument = 1;
         // Serial.printf("lkklqdqsdksmdkqsd\r\n");
         parseExpr();
@@ -470,9 +499,24 @@ public:
         // NodeToken *t =search_result;
         if (search_result == NULL)
         {
+            if(struct_name.size()>0)
+            {
+                current()->addText(string_format("%s.%s",struct_name.c_str(),current()->getText()));
+                main_context.findFunction(current());
+                isStructFunction=true;
+                        if (search_result == NULL)
+        {
+                        Error.error = 1;
+            Error.error_message = string_format("function %s not found %s", current()->getText(), linepos().c_str());
+            return;
+        }
+            }
+            else
+            {
             Error.error = 1;
             Error.error_message = string_format("function %s not found %s", current()->getText(), linepos().c_str());
             return;
+            }
         }
         next();
         next();
@@ -564,7 +608,7 @@ public:
     void parseStatement()
     {
         //_asPointer=false;
-        isPointer=false;
+        isPointer = false;
         sav_token.clear();
         Error.error = 0;
 // asPointer =false;
@@ -663,9 +707,63 @@ public:
                 }
             }
         }
+        else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifier, 2)  && Match(TokenOpenParenthesis, 3))
+            {
+                 current_cntx->findVariable(current(), false);
+                        if (search_result == NULL)
+        {
+       
+
+            Error.error = 1;
+            Error.error_message = string_format("impossible to find declaraiton for %s %s", current()->getText(), linepos().c_str());
+            next();
+            return;
+        }
+                next();
+                next();
+                current()->addText(string_format("%s.%s",search_result->getVarType()->varName.c_str() ,current()->getText()));
+                NodeToken nd=*search_result;
+                nd._nodetype=globalVariableNode;
+                 nd.isPointer=true;
+                 nodeTokenList.push(nd);
+                isStructFunction=true;
+               
+                 parseFunctionCall();
+                 isStructFunction=false;
+                 if (Error.error)
+            {
+                return;
+            }
+            else
+            {
+                if (Match(TokenSemicolon))
+                {
+                    Error.error = 0;
+                    // current_node->addChild(res._nd);
+                    // current_node=current_node->parent;
+                    // result._nd = res._nd;
+                    next();
+                    return;
+                }
+                else
+                {
+                    Error.error = 1;
+                    Error.error_message = string_format("Expected ; %s", linepos().c_str());
+                    next();
+                    return;
+                }
+            }
+                
+                 next();
+                return;
+                
+            }
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
+                       bool sav_b=isStructFunction;
+                       isStructFunction=false;
             parseFunctionCall();
+isStructFunction=sav_b;
             if (Error.error)
             {
                 return;
@@ -1018,7 +1116,7 @@ public:
             }
         }
 
-        else if (Match(TokenKeywordVarType)or Match(TokenUserDefinedVariable))
+        else if (Match(TokenKeywordVarType) or Match(TokenUserDefinedVariable))
         {
             // printf("trying to create %s\n", current()->text.c_str());
             parseType();
@@ -1171,6 +1269,19 @@ public:
 
         NodeToken arg = NodeToken(inputArgumentsNode);
         current_node = current_node->addChild(arg);
+        if(isStructFunction)
+        {
+            NodeToken nd=NodeToken();
+            nd.setTargetText("pointer");
+            nd.isPointer= true;
+            nd.type=TokenUserDefinedVariable;
+            nd._nodetype=defLocalVariableNode;
+            nd.stack_pos=_STACK_SIZE;
+                    current_node->addChild(nd);
+        current_cntx->addVariable(nd);
+        
+
+        }
         if (Match(TokenCloseParenthesis))
         {
             // resParse result;
@@ -1307,7 +1418,14 @@ public:
 
         Context *k = current_cntx->addChild(Context());
         current_cntx = k;
+        if(isStructFunction)
+        {
+stack_size = _STACK_SIZE+4;
+        }
+        else
+        {
         stack_size = _STACK_SIZE;
+        }
         block_statement_num = 0;
         next();
         next();
@@ -1383,6 +1501,7 @@ public:
                 // printf("after clean function %s\n",current_node->getTokenText());
                 updateMem();
 #endif
+
                 /*
                 #ifndef __MEM_PARSER
                                printf("on compile %s\r\n",current_node->text.c_str());
@@ -1617,7 +1736,31 @@ public:
                 return;
             }
         }
+else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifier, 2)  && Match(TokenOpenParenthesis, 3))
+            {
+                 current_cntx->findVariable(current(), false);
+                        if (search_result == NULL)
+        {
+       
 
+            Error.error = 1;
+            Error.error_message = string_format("impossible to find declaraiton for %s %s", current()->getText(), linepos().c_str());
+            next();
+            return;
+        }
+                next();
+                next();
+                current()->addText(string_format("%s.%s",search_result->getTokenText() ,current()->getText()));
+                NodeToken nd=*search_result;
+                nd._nodetype=globalVariableNode;
+                 nd.isPointer=true;
+                 nodeTokenList.push(nd);
+                isStructFunction=true;
+                 parseFunctionCall();
+                 isStructFunction=false;
+                return;
+                
+            }
         else if (Match(TokenIdentifier) && !Match(TokenOpenParenthesis, 1))
         {
             getVariable(false);
@@ -1629,11 +1772,13 @@ public:
 
             return;
         }
-
+           
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
+            bool sav_b=isStructFunction;
+             isStructFunction=false;
             parseFunctionCall();
-
+isStructFunction=sav_b;
             return;
         }
 
@@ -1777,8 +1922,8 @@ public:
         if (Match(TokenOpenBracket, 1))
         {
             // we are in the case led[];
-            string sizestr="";
-            int j=0;
+            string sizestr = "";
+            int j = 0;
             NodeToken var = NodeToken(current());
             next();
             next();
@@ -1790,7 +1935,7 @@ public:
                 if (current()->getVarType()->_varType == __uint32_t__)
                 {
                     var._total_size *= stringToInt(current()->getText());
-                    sizestr=sizestr+" "+string(current()->getText());
+                    sizestr = sizestr + " " + string(current()->getText());
                     next();
                 }
                 else
@@ -1808,7 +1953,7 @@ public:
                     {
                         j++;
                         var._total_size *= stringToInt(current()->getText());
-                        sizestr=sizestr+" "+string(current()->getText());
+                        sizestr = sizestr + " " + string(current()->getText());
                         next();
                     }
                     else
@@ -1824,10 +1969,10 @@ public:
                 {
                     var.isPointer = true;
                     var._nodetype = defGlobalVariableNode; // we can't have arrays in the stack
-                    // var._total_size = stringToInt(num.getText());
-                  sizestr=string_format("@%d%s",j,sizestr.c_str());
-                  var.addTargetText(sizestr);
-                   next();
+                                                           // var._total_size = stringToInt(num.getText());
+                    sizestr = string_format("@%d%s", j, sizestr.c_str());
+                    var.addTargetText(sizestr);
+                    next();
                     // resParse result;
                     Error.error = 0;
                     nodeTokenList.push(var);
@@ -1884,10 +2029,13 @@ public:
         Error.error = 0;
         while (Match(TokenEndOfFile) == false)
         {
+            isStructFunction=false;
             updateMem();
             if (Match(TokenKeywordStruct))
             {
-
+               
+                oneFunction = false;
+                current_cntx = current_cntx->addChild(Context());
                 next();
                 if (Match(TokenUserDefinedName))
                 {
@@ -1898,6 +2046,7 @@ public:
                     _pos = 0;
                     _totalsize = 0;
                     usded.varName = current()->getText();
+                    struct_name=usded.varName;
 
                     next(); //{
 
@@ -1905,27 +2054,68 @@ public:
                     while (!Match(TokenCloseCurlyBracket) and !Match(TokenEndOfFile))
                     {
 
-                        usded.starts[memberpos] = _start;
-
-                        __v = *current()->getVarType();
-                        usded.types[memberpos] = __v._varType;
-                        usded.memberSize[memberpos] = __v.size;
-                        _start += __v.total_size;
-                        for (int _var = 0; _var < __v.size; _var++)
+                        if (Match(TokenKeywordVarType) and Match(TokenIdentifier, 1) and Match(TokenOpenParenthesis, 2))
                         {
-                            usded.load[_pos] = __v.load[_var];
-                            usded.store[_pos] = __v.store[_var];
-                            usded.sizes[_pos] = __v.sizes[_var];
-                            _pos++;
+                            isStructFunction=true;
+                           /* if (!oneFunction)
+                            {
+                                current_cntx = current_cntx->parent;
+                                oneFunction = true;
+                            }
+                            */
+                            parseType();
+                            if (Error.error)
+                            {
+
+                                return;
+                            }
+                           
+                            current()->addText(string_format("%s.%s",usded.varName.c_str(),current()->getText()));
+                            parseDefFunction();
+                           
+                            if (Error.error)
+                            {
+                                return;
+                            }
+                             isStructFunction=false;
                         }
-                        next(); // name
+                        else
+                        {
+                            usded.starts[memberpos] = _start;
 
-                        usded.membersNames[memberpos] = current()->getText();
-                        // printf(" addinr %s.%s\r\n",usded.varName.c_str(),current()->text.c_str());
-                        next(); // ;
+                            __v = *current()->getVarType();
+                            usded.types[memberpos] = __v._varType;
+                            usded.memberSize[memberpos] = __v.size;
+                            _start += __v.total_size;
+                            for (int _var = 0; _var < __v.size; _var++)
+                            {
+                                usded.load[_pos] = __v.load[_var];
+                                usded.store[_pos] = __v.store[_var];
+                                usded.sizes[_pos] = __v.sizes[_var];
+                                _pos++;
+                            }
+                            next(); // name
+                            NodeToken nd = NodeToken(current(), defLocalVariableNode);
+                            nd.type=TokenUserDefinedVariableMember;
+                            nd._vartype = __v._varType;
+                            nd.stack_pos = 1000*(_start-__v.total_size)+_STACK_SIZE;
+                            nd._total_size = __v.size;
+                            nd.asPointer=true;
+                            nd.isPointer=true;
+                            current_cntx->addVariable(nd);
 
-                        next();
-                        memberpos++;
+                            usded.membersNames[memberpos] = current()->getText();
+                            // printf(" addinr %s.%s\r\n",usded.varName.c_str(),current()->text.c_str());
+                            next(); // ;
+                            if (!Match(TokenSemicolon))
+                            {
+                                Error.error = 1;
+                                Error.error_message = string_format("missing ; at line %s", linepos().c_str());
+                                return;
+                            }
+                            next();
+                            memberpos++;
+                        }
                     }
                     usded.size = _pos;
                     usded.total_size = _start;
@@ -1933,6 +2123,12 @@ public:
                     _userDefinedTypes.push_back(usded);
                     next();
                 }
+                //if (!oneFunction)
+                //{
+                    current_cntx = current_cntx->parent;
+                    struct_name="";
+                    isStructFunction=false;
+               // }
             }
             else if (Match(TokenKeywordSafeMode))
             {
@@ -2069,6 +2265,20 @@ public:
                     return;
                 }
             }
+            /*
+            #ifndef __MEM_PARSER
+            if (current_node->children.size()>1)
+            {
+                buildParents(current_node->getChildAtPos(current_node->children.size()-1));
+                current_node->getChildAtPos(current_node->children.size()-1)->visitNode();
+                current_node->getChildAtPos(current_node->children.size()-1)->clear();
+                //  current_cntx->clear();
+                _node_token_stack.clear();
+                // printf("after clean function %s\n",current_node->getTokenText());
+                updateMem();
+            }
+#endif
+*/
         }
         Error.error = 0;
 

@@ -15,9 +15,9 @@ uint32_t __startmem;
 uint32_t __maxMemUsage;
 void upadteMem()
 {
-    uint32_t newdelta=__startmem-esp_get_free_heap_size();
-        if(newdelta>__maxMemUsage)
-                 __maxMemUsage=newdelta;
+    uint32_t newdelta = __startmem - esp_get_free_heap_size();
+    if (newdelta > __maxMemUsage)
+        __maxMemUsage = newdelta;
 }
 
 string _numToBytes(uint32_t __num)
@@ -616,7 +616,7 @@ public:
     NodeToken *_link;
     NodeToken *parent;
     string target;
-    varType *_vartype=NULL;
+    varType *_vartype = NULL;
 
     string text;
     //  Context *cntx;
@@ -645,7 +645,7 @@ public:
 };
 
 list<NodeToken> _node_token_stack;
-NodeToken * _uniquesave;
+NodeToken *_uniquesave;
 
 int ggggg = 0;
 
@@ -854,7 +854,7 @@ public:
     void addVariable(NodeToken nd)
     {
         nd.text = name + "_" + nd.text;
-    // printf("i have added %s \n", nd.text.c_str());
+        // printf("i have added %s \n", nd.text.c_str());
         variables.push_back(nd);
     }
     void addFunction(NodeToken *nd)
@@ -981,7 +981,7 @@ token main_token;
 list<list<token>::iterator> __todelete;
 void _deleteToken(token *nds, token *nde)
 {
-   // printf("before Token %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
+    // printf("before Token %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
     __todelete.clear();
     // printf("we delete before :%s to %s\r\n",nds->text.c_str(),nde->text.c_str());
     bool canerase = false;
@@ -1028,13 +1028,13 @@ void _deleteToken(token *nds, token *nde)
     // printf("position: %d\r\n",_tks.position);
     __todelete.clear();
     //}
-   // printf("after Token %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
+    // printf("after Token %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
 }
 
 void deleteNotNeededToken(token *nds, token *nde)
 {
-    //return;
-   // printf("before delteNotneededToken %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
+    // return;
+    // printf("before delteNotneededToken %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
     upadteMem();
     __todelete.clear();
     // printf("we delete before :%s to %s\r\n",nds->text.c_str(),nde->text.c_str());
@@ -1099,10 +1099,10 @@ void deleteNotNeededToken(token *nds, token *nde)
                 break;
             case TokenNumber:
                 canerase = true;
-                break;     
+                break;
             case TokenIdentifier:
                 canerase = true;
-                break;                           
+                break;
 
                 /*
                             case TokenKeywordVarType:
@@ -1208,8 +1208,8 @@ void deleteNotNeededToken(token *nds, token *nde)
     // printf("position: %d\r\n",_tks.position);
     __todelete.clear();
     //}
-   // printf("after delteNotneededToken %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
-   upadteMem();
+    // printf("after delteNotneededToken %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
+    upadteMem();
 }
 
 string findForWhile()
@@ -2376,7 +2376,7 @@ public:
     NodeStoreLocalVariable()
     {
         _nodetype = storeLocalVariableNode;
-       // _token = NULL;
+        // _token = NULL;
         visitNode = _visitNodeStoreLocalVariable;
     }
     NodeStoreLocalVariable(NodeToken nd)
@@ -2857,11 +2857,11 @@ void _visitNodeDefFunction(NodeToken *nd)
             clearNodeToken(&*it);
     }*/
     // printf("on  %d delete from %s line:%d to %s line:%d\r\n",_tks.position,  nd->getChildAtPos(2)->_token->text.c_str(),nd->getChildAtPos(2)->_token->line,__current->text.c_str(), __current->line);
-    //printf("meme toke av %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
+    // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
 #ifndef __MEM_PARSER
     //_deleteToken(nd->getChildAtPos(2)->_token, __current.pop());
 #endif
-   // printf("mem toke are %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
+    // printf("mem toke are %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
     // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
     _node_token_stack.clear();
 }
@@ -2874,12 +2874,12 @@ public:
     NodeDefFunction()
     {
         _nodetype = defFunctionNode;
-       // _token = NULL;
+        // _token = NULL;
         visitNode = _visitNodeDefFunction;
     }
     NodeDefFunction(token *t)
     {
-                _tokenType = t->type;
+        _tokenType = t->type;
         text = t->text;
         _vartype = t->_vartype;
         _nodetype = defFunctionNode;
@@ -2908,11 +2908,11 @@ void _visitNodeDefAsmFunction(NodeToken *nd)
             // f = f + g.f;
             // h = h + g.header;
         }
-    // content.addAfter(string_format("retw.n"));
-   // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
+        // content.addAfter(string_format("retw.n"));
+        // printf("meme toke av %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
 #ifndef __MEM_PARSER
     // _deleteToken(nd->getChildAtPos(2)->_token, __current.pop());
-   // printf("mem toke are %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
+    // printf("mem toke are %u %d\r\n", esp_get_free_heap_size(), list_of_token.size());
     // printf("new current %s line;%d\r\n",_tks.current()->text.c_str(),_tks.current()->line);
     _node_token_stack.clear();
 #endif
@@ -3075,9 +3075,9 @@ void _visitNodeBlockStatement(NodeToken *nd)
     }
 
     // clearToken(nd->getChildAtPos(0),nd->getChildAtPos(nd->children.size()-1));
-    //printf("meme ava %u\r\n", esp_get_free_heap_size());
+    // printf("meme ava %u\r\n", esp_get_free_heap_size());
     clearNodeToken(nd); // new
-    //printf("meme apres %u\r\n", esp_get_free_heap_size());
+    // printf("meme apres %u\r\n", esp_get_free_heap_size());
 }
 
 class NodeBlockStatement : public NodeToken
@@ -3952,9 +3952,9 @@ void visitNodeStatement(NodeToken *nd)
             register_numl.pop();
         }
     }
-    //printf("meme ava %u\r\n", esp_get_free_heap_size());
+    // printf("meme ava %u\r\n", esp_get_free_heap_size());
     clearNodeToken(nd); // new
-    //printf("meme apres %u\r\n", esp_get_free_heap_size());
+    // printf("meme apres %u\r\n", esp_get_free_heap_size());
     _node_token_stack.clear();
     // return;
 }
@@ -4027,7 +4027,7 @@ class NodeFor : public NodeToken
 public:
     NodeFor()
     {
-       // _token = NULL;
+        // _token = NULL;
         _nodetype = forNode;
         visitNode = _visitNodeFor;
     };
