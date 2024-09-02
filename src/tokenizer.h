@@ -299,6 +299,7 @@ enum tokenType
     TokenUserDefinedVariable,
     TokenMember,
     TokenUserDefinedVariableMember,
+    TokenUserDefinedVariableMemberFunction,
 
 };
 
@@ -410,7 +411,8 @@ string tokenNames[] = {
     "TokenUserDefinedName",
     "TokenUserDefinedVariable",
     "TokenMember",
-    "TokenUserDefinedVariableMember"
+    "TokenUserDefinedVariableMember",
+    "TokenUserDefinedVariableMemberFunction"
 
 #endif
 };

@@ -370,7 +370,7 @@ public:
             // else
             // {
 
-            else if (Match(TokenMember) && Match(TokenIdentifier, 1))
+            if (Match(TokenMember) && Match(TokenIdentifier, 1)  && !Match(TokenOpenParenthesis, 2))
             {
                 next();
                 int i = findMember(current_node->_vartype, string(current()->getText()));
@@ -391,10 +391,71 @@ public:
                     current_node->stack_pos = current_node->stack_pos + v->starts[i];
                 else
                     current_node->stack_pos = current_node->stack_pos + 1000 * v->starts[i];
+                    if(current_node->isPointer)
+                    {
+                         //current_node->_total_size =1000* current_node->_total_size +v->sizes[i];
+                    }
+                    else {
                 current_node->_total_size = v->sizes[i];
+                    }
                 next();
             }
+                    else  if (Match(TokenMember,0) && Match(TokenIdentifier, 1)  && Match(TokenOpenParenthesis, 2))
+            {
+                
+                 current_cntx->findVariable(current_node->getTokenText(), false);
+                        if (search_result == NULL)
+        {
+       
 
+            Error.error = 1;
+            Error.error_message = string_format("impossible to find declaraiton for %s %s", current()->getText(), linepos().c_str());
+            next();
+            return;
+        }
+               // next();
+                next();
+                /*
+                NodeToken *par=current_node->parent;
+                current_node->parent->children.pop_back();
+                current_node=par;
+                */
+               // par=current_node->parent;
+               // current_node->parent->children.pop_back();
+               // current_node=par;
+                current()->addText(string_format("%s.%s",search_result->getVarType()->varName.c_str() ,current()->getText()));
+                NodeToken nd=*search_result;
+                nd._nodetype=globalVariableNode;
+                nd.type=TokenUserDefinedVariableMemberFunction;
+                 nd.isPointer=true;
+                // nd.copyChildren(current_node);
+                 /*
+                for(int i=0;i<current_node->children.size();i++)
+                {
+                    nd.addChild(*current_node->getChildAtPos(i));
+                }
+                 
+                                 NodeToken *par=current_node->parent;
+                current_node->parent->children.pop_back();
+                current_node=par;
+                */
+                current_node->_nodetype=UnknownNode;
+ NodeToken *par=current_node;
+               current_node= current_node->parent;
+                nodeTokenList.push(nd);
+                isStructFunction=true;
+               
+                 parseFunctionCall();
+                 current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
+                 isStructFunction=false;
+                 if (Error.error)
+            {
+                return;
+            }
+            Error.error = 0;
+            return;
+                
+            }
             Error.error = 0;
             current_node = current_node->parent;
             // res._nd = var;
@@ -707,6 +768,7 @@ else
                 }
             }
         }
+        /*
         else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifier, 2)  && Match(TokenOpenParenthesis, 3))
             {
                  current_cntx->findVariable(current(), false);
@@ -757,7 +819,7 @@ else
                  next();
                 return;
                 
-            }
+            }*/
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
                        bool sav_b=isStructFunction;
@@ -838,6 +900,16 @@ isStructFunction=sav_b;
             isPointer = false;
             if (Error.error)
             {
+                return;
+            }
+ 
+ if (Match(TokenSemicolon))
+            {
+                                Error.error = 0;
+                // result._nd = nd;
+                // current_node=current_node->parent;
+                current_node = current_node->parent;
+                next();
                 return;
             }
             if (Match(TokenEqual))
@@ -1736,6 +1808,7 @@ stack_size = _STACK_SIZE+4;
                 return;
             }
         }
+        /*
 else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifier, 2)  && Match(TokenOpenParenthesis, 3))
             {
                  current_cntx->findVariable(current(), false);
@@ -1760,7 +1833,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                  isStructFunction=false;
                 return;
                 
-            }
+            }*/
         else if (Match(TokenIdentifier) && !Match(TokenOpenParenthesis, 1))
         {
             getVariable(false);
@@ -1850,7 +1923,7 @@ isStructFunction=sav_b;
             return;
         }
         Error.error = 1;
-        Error.error_message = string_format(" impossible to find Token %s", linepos().c_str());
+        Error.error_message = string_format(" impossible to find Token %s %s", current()->getText(),  linepos().c_str());
         next();
         return;
     }
