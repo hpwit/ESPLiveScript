@@ -428,7 +428,7 @@ public:
                 nd._nodetype=globalVariableNode;
                 nd.type=TokenUserDefinedVariableMemberFunction;
                  nd.isPointer=true;
-                // nd.copyChildren(current_node);
+                 nd._total_size=search_result->getVarType()->total_size;              // nd.copyChildren(current_node);
                  /*
                 for(int i=0;i<current_node->children.size();i++)
                 {
@@ -442,6 +442,7 @@ public:
                 current_node->_nodetype=UnknownNode;
  NodeToken *par=current_node;
                current_node= current_node->parent;
+
                 nodeTokenList.push(nd);
                 isStructFunction=true;
                

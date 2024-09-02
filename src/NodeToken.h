@@ -1766,7 +1766,7 @@ void _visitglobalVariableNode(NodeToken *nd)
         // f=f+number.f;
                 if(nd->type==TokenUserDefinedVariableMember or nd->type==TokenUserDefinedVariableMemberFunction)
         {
-            content.addAfter(string_format("movi a%d,%d", point_regnum, r_size));
+            content.addAfter(string_format("movi a%d,%d", point_regnum, nd->_total_size));
             content.addAfter(string_format("mull a%d,a%d,a%d", register_numl.get(), register_numl.get(), point_regnum));
             content.addAfter(string_format("l32r a%d,@_%s", point_regnum, nd->getTokenText()));
             content.addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
