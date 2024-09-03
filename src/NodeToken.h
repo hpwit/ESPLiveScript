@@ -2093,8 +2093,8 @@ void _visitprogramNode(NodeToken *nd)
     point_regnum = 4;
     content.begin();
     header.begin();
-    // header.addAfter("@_stack:");
-    // header.addAfter(".bytes 60");
+   header.addAfter("@_stack:");
+ header.addAfter(".bytes 60");
     header.addAfter("@_stackr:");
     header.addAfter(".bytes 16");
 
@@ -2290,6 +2290,7 @@ void _visitcallFunctionNode(NodeToken *nd)
             content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", register_numl.get(), save, start)); // point_regnum
             content.addBefore(string_format("l32r a%d,@_stack_%s", save, nd->getTokenText()));                      // point_regnum
                                                                                                                     // isPointer=false;
+        //content.addBefore(string_format("l32r a%d,@_stack",save));    
         }
         else
         {
@@ -2319,7 +2320,9 @@ void _visitcallFunctionNode(NodeToken *nd)
                 {
                     // content.sp.push(content.get());
 
+                   
                     content.addAfter(sav, string_format("l32r a%d,@_stack_%s", save, nd->getTokenText())); // point_regnum
+              // content.addAfter(sav, string_format("l32r a%d,@_stack",save));
                 }
                 // start+=t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->sizes[j];
             }
@@ -2655,6 +2658,7 @@ void _visitinputArgumentsNode(NodeToken *nd)
         return;
     int sav = 9;                                                                                     // point_regnum;
     content.addAfterNoDouble(string_format("l32r a%d,@_stack_%s", sav, nd->parent->getTokenText())); // point_regnum
+   //content.addAfterNoDouble(string_format("l32r a%d,@_stack", sav));
     for (int i = 0; i < nd->children.size(); i++)
     {
        //printf("ee\r\n");
