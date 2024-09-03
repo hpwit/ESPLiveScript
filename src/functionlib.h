@@ -122,11 +122,20 @@ __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_itera
    \"retw.n\" \n\
 }@";
 
+string _arduino="\n\
+void main(){\n\
+setup();\n\
+while(2>1)\n\
+{\n\
+loop();\n\
+}\n\
+}\n\
+";
 string empty_header="";
-int stdlib_size=4;
-string stdlib[]={"rand","copy","memset","fill"};
- string * _stdlib[]={&_rand,&_copycode,&_memset,&_fill};
-string * _stdlib_header[]={&empty_header,&empty_header,&empty_header,&empty_header};
+int stdlib_size=5;
+string stdlib[]={"rand","copy","memset","fill","arduino"};
+ string * _stdlib[]={&_rand,&_copycode,&_memset,&_fill,&_arduino};
+string * _stdlib_header[]={&empty_header,&empty_header,&empty_header,&empty_header,&empty_header};
 
 int findLibFunction(string name)
 {

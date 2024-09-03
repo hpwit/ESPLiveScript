@@ -679,6 +679,29 @@ public:
         it = script.insert(it, toInsert);
         position = -1;
     }
+    void insertAtEnd(char *toInsert)
+    {
+        int i = 0;
+        int res = -1;
+        for (vector<char *>::iterator _it = script.begin(); _it != script.end(); _it++)
+        {
+            if (it == _it)
+            {
+                res = i;
+            }
+            else
+            {
+                i++;
+            }
+        }
+        script.insert(script.end(), toInsert);
+        it = script.begin();
+        while (res > 0)
+        {
+            it++;
+            res--;
+        }
+    }
 
 private:
     // string * script;
@@ -1102,7 +1125,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
     int nbReadToken = 0;
     while (script->nextChar() != EOF_TEXT and nbReadToken < nbMaxTokenToRead)
     {
-        // printf(" nb read :%d:\n",nbReadToken);
+        // printf(" nb read :%c:\n",script->currentChar());
         t.clean();
         v.clear();
         pos++;
@@ -1340,9 +1363,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 {
                     t.type = (int)TokenExternal;
                 }
-                if ((t.getType() == TokenKeywordImport or t.getType() ==
-                                                              TokenKeywordDefine) &&
-                    !_for_display)
+                if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
                 {
 
                     nbReadToken--;
@@ -1381,6 +1402,25 @@ int tokenizer(Script *script, bool update, bool increae_line,
 
                             // script->previousChar ();
 
+                            continue;
+                        }
+                    }
+                    else if (prev.getType() == TokenDiese && !_for_display)
+                    {
+                        nbReadToken--;
+                        if (findLibFunction(v) > -1)
+                        {
+
+                            _tks.pop_back();
+                            // printf("token %d\n",_tks.back().type);
+                            all_text.pop();
+
+                            // list_of_token.pop_back();
+                            //  add_on.push_back(findLibFunction(v));
+                            script->insertAtEnd((char *)((*_stdlib[findLibFunction(v)]).c_str()));
+                            // printf("ll%d %s\n",findLibFunction(v),(*_stdlib[findLibFunction(v)]).c_str());
+                            script->nextChar();
+                            // script->previousChar ();
                             continue;
                         }
                     }
@@ -1514,12 +1554,11 @@ int tokenizer(Script *script, bool update, bool increae_line,
             {
                 t.addText("#");
                 // _tks.push(t);
-                _tks.push(t);
-                nbReadToken++;
             }
             // t.line = _token_line;
             //  t.pos = pos;
-
+            _tks.push(t);
+            // nbReadToken++;
             continue;
         }
         if (c == '(')

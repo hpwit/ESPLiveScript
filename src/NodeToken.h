@@ -2657,18 +2657,18 @@ void _visitinputArgumentsNode(NodeToken *nd)
     content.addAfterNoDouble(string_format("l32r a%d,@_stack_%s", sav, nd->parent->getTokenText())); // point_regnum
     for (int i = 0; i < nd->children.size(); i++)
     {
-        printf("ee\r\n");
+       //printf("ee\r\n");
         int start = nd->getChildAtPos(i)->stack_pos;
         if (nd->getChildAtPos(i)->isPointer)
         {
-            printf("ee p\r\n");
+           // printf("ee p\r\n");
             int start = nd->getChildAtPos(i)->stack_pos;
             content.addAfter(string_format("l32i a15,a%d,%d", sav, start - _STACK_SIZE)); // point reg_bnum
             content.addAfter(string_format("s32i a15,a1,%d", start));
         }
         else
         {
-            printf("ee j\r\n");
+           // printf("ee j\r\n");
             for (int j = 0; j < nd->getChildAtPos(i)->getVarType()->size; j++)
             {
                 asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->load[0];
