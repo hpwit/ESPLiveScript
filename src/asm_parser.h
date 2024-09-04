@@ -17,6 +17,9 @@ using namespace std;
 #include "string_function.h"
 #include "asm_parser_LMbin.h"
 #include "asm_external.h"
+#define ALIGN_INSTR 4
+#define ALIGN_DATA 4
+
 bool __parser_debug = false;
 
 uint8_t *binary_data=NULL;
@@ -38,7 +41,8 @@ void addInstr(result_parse_line operande,parsedLines *asm_parsed)
       if(operande.align==true)
       {
         int add_size=0;
-        int op=(_address_instr & 3);
+        int op=(_address_instr % ALIGN_INSTR);
+        /*
           switch(op)
           {
             case 2:
@@ -54,6 +58,9 @@ void addInstr(result_parse_line operande,parsedLines *asm_parsed)
             add_size=0;
             break;
           }
+          */
+         if(op>0)
+         add_size=ALIGN_INSTR-op;
         operande.address+=add_size;
       }
       memcpy(tmp_exec + operande.address, &operande.bincode, operande.size);
@@ -64,6 +71,13 @@ void addInstr(result_parse_line operande,parsedLines *asm_parsed)
     }
     else
     {
+      int add_size=0;
+        int op=(_address_data % ALIGN_DATA);
+        if(op>0)
+        {
+   add_size=ALIGN_DATA-op;
+        _address_data+=add_size;
+        }
       asm_parsed->last()->bincode=_address_data;
       _address_instr+=4;
       memcpy(binary_data+_address_data,operande.getText(),operande.size);
@@ -1063,6 +1077,7 @@ if(binary_data!=NULL)
  _address_data=0;
  _address_instr=0;
 _instr_size=0;
+int _nb_data=0;
 int _size=0;
  for(int i=0;i<_header->size();i++)
  {
@@ -1070,6 +1085,7 @@ int _size=0;
   if(str.compare(0,6,".bytes")==0)
   {
     int h=0;
+    _nb_data++;
     vector<string> v=split(str," ");
     sscanf(v[1].c_str(), "%d", &h);
     _size+=h;
@@ -1094,7 +1110,7 @@ int _nb_not_aligned_label=0;
   }
  }
 
-  _instr_size=_nb_align_label*5+(_content->size()-_nb_not_aligned_label)*3;
+  _instr_size=(_nb_align_label+1)*ALIGN_INSTR+(_content->size()-_nb_not_aligned_label)*3;
   //printf("taille instr %d\r\n",_instr_size);
 
 
@@ -1110,6 +1126,7 @@ int _nb_not_aligned_label=0;
 tmp_exec = (uint8_t *)malloc(_instr_size);
 if(_size>0)
 {
+  _size+=ALIGN_DATA*_nb_data;
  binary_data= (uint8_t *)malloc((_size / 4) * 4 + 4);
 }
   // printf("her:\r\n");

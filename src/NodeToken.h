@@ -2093,8 +2093,8 @@ void _visitprogramNode(NodeToken *nd)
     point_regnum = 4;
     content.begin();
     header.begin();
-   header.addAfter("@_stack:");
- header.addAfter(".bytes 60");
+   //header.addAfter("@_stack:");
+ //header.addAfter(".bytes 60");
     header.addAfter("@_stackr:");
     header.addAfter(".bytes 16");
 
