@@ -152,6 +152,18 @@ public:
         position++;
         // }
     }
+    void addBefore(int pos, string s)
+    {
+        _it = getChildAtPos(pos-1);
+        // printf(" on recupere %d:%s\n",pos,(*__it).c_str());
+        // if((*_it).compare(s)!=0)
+        //{
+        addBefore(s);
+        position--;
+        _it = getChildAtPos(position);
+        position++;
+        // }
+    }
     /*
     void addAfter(string str)
     {
