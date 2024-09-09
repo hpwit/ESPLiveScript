@@ -2267,7 +2267,7 @@ void _visitCallFunctionTemplate(NodeToken *nd,int regbase,bool isExtCall)
     bool saveinstack[5];
     for (int i = 0; i < 5; i++)
     {
-        saveinstack[i] = true;
+        saveinstack[i] = false;
     }
 
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
@@ -2291,10 +2291,10 @@ void _visitCallFunctionTemplate(NodeToken *nd,int regbase,bool isExtCall)
                 save_in_stack = true;
             }
         }
-        //if (i == 0)
-          //  save_in_stack = false;
+        if (i < 1)
+            save_in_stack = false;
 
-      //  saveinstack[i] = save_in_stack;
+        saveinstack[i] = save_in_stack;
         register_numl.duplicate();
         globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
         nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
@@ -2308,10 +2308,14 @@ void _visitCallFunctionTemplate(NodeToken *nd,int regbase,bool isExtCall)
         // translateType(t->getChildAtPos(1)->getChildAtPos(i)->_token->_vartype->_varType,globalType.get(),register_numl.get());
         if (t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType == __float__)
         {
-            content.addAfter(string_format("rfr a%d,f%d", regbase+ i, register_numl.get()));
+           
                         if (save_in_stack == true)
             {
-                content.addAfter(string_format("s32i a%d,a1,%d", regbase+ i, i * 4 + _START_2));
+                content.addAfter(string_format("ssi f%d,a1,%d",register_numl.get() , i * 4 + _START_2));
+            }
+            else
+            {
+                 content.addAfter(string_format("rfr a%d,f%d", regbase+ i, register_numl.get()));
             }
             
         }
