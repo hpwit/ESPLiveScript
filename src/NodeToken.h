@@ -2267,7 +2267,10 @@ void _visitCallFunctionTemplate(NodeToken *nd,int regbase,bool isExtCall)
     bool saveinstack[5];
     for (int i = 0; i < 5; i++)
     {
+        if(isExtCall)
         saveinstack[i] = false;
+        else
+        saveinstack[i] = true;
     }
 
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
@@ -2291,9 +2294,16 @@ void _visitCallFunctionTemplate(NodeToken *nd,int regbase,bool isExtCall)
                 save_in_stack = true;
             }
         }
-        if (i < 1)
+        if(isExtCall)
+        {
+            if(i==0)
             save_in_stack = false;
-
+        }
+        else
+        {
+        if (i < 2 )
+            save_in_stack = false;
+        }
         saveinstack[i] = save_in_stack;
         register_numl.duplicate();
         globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
@@ -3275,7 +3285,7 @@ void _visitreturnNode(NodeToken *nd)
         t = t->parent;
     }
     t = t->getChildAtPos(0);
-    //content.addAfter(string_format("l32r a%d,@_stackr", 8)); // point_regnum
+    content.addAfter(string_format("l32r a%d,@_stackr", 9)); // point_regnum
     for (int i = 0; i < nd->children.size(); i++)
     {
         globalType.push(t->getVarType()->_varType);
@@ -3284,12 +3294,12 @@ void _visitreturnNode(NodeToken *nd)
         register_numl.pop();
         int start = nd->stack_pos + t->getVarType()->total_size;
         int tot = t->getVarType()->size - 1;
-         content.addBefore(content.sp.get(),string_format("l32r a%d,@_stackr", 8));
+        // content.addBefore(content.sp.get(),string_format("l32r a%d,@_stackr", 8));
         for (int j = 0; j < t->getVarType()->size; j++)
         {
             start -= t->getVarType()->sizes[tot - j];
             asmInstruction asmInstr = t->getVarType()->store[tot - j];
-            content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), 8, start)); // point_regnum
+            content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), 9, start)); // point_regnum
         }
         globalType.pop();
     }
