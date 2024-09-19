@@ -4,6 +4,11 @@ using namespace std;
 
 #include <string>
 
+#ifndef _TRIGGER
+#define _TRIGGER 0
+#endif
+
+
 // #include "tokenizer.h"
 
 // #include "asm_parser.h"

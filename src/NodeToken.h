@@ -9,9 +9,6 @@ using namespace std;
 
 #include "tokenizer.h"
 
-#ifndef _TRIGGER
-#define _TRIGGER 5
-#endif
 
 void pushToConsole(string str, bool force)
 {
@@ -2509,10 +2506,18 @@ void _visitcallFunctionNode(NodeToken *nd)
                 nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
                 register_numl.pop();
                 int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE;
+                
+               if(t->type==TokenUserDefinedVariableMemberFunction and i==0)
+                {
+                    //printf("*******onr en ocoi******\r\n");
+                   content.addAfter(content.sp.pop(),string_format("mov a11,a%d",register_numl.get()));
+                }
+               else
+                { 
                 content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", register_numl.get(), save, start)); // point_regnum
                 content.addBefore(string_format("l32r a%d,@_stack_%s", save, nd->getTokenText()));                      // point_regnum
-                                                                                                                        // isPointer=false;
-                // content.addBefore(string_format("l32r a%d,@_stack",save));
+               }                                                                               // isPointer=false;
+                
             }
             else
             {
@@ -2585,7 +2590,7 @@ void _visitcallFunctionNode(NodeToken *nd)
         }
         register_numl.decrease();
     }
-    else
+    else if(v->size >0)
     {
         if(v->_varType==__float__)
         {
