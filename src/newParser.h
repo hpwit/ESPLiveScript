@@ -1494,6 +1494,7 @@ isStructFunction=sav_b;
         if(isStructFunction)
         {
 stack_size = _STACK_SIZE+4;
+current_node->type=TokenUserDefinedVariableMemberFunction;
         }
         else
         {

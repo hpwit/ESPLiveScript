@@ -51,9 +51,9 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 \"mull a14,a14,a14\" \n\
 \"add a14,a14,a13\" \n\
 \"addi a14,a13,1\" \n\
-\"remu a15,a14,a3\" \n\
-\"l32r a4,@_stackr\" \n\
-\"s32i a15,a4,0\" \n\
+\"remu a2,a14,a3\" \n\
+//\"l32r a4,@_stackr\" \n\
+//\"s32i a15,a4,0\" \n\
 \"retw.n\" \n\
 }@";
 
