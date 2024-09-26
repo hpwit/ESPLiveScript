@@ -1,7 +1,7 @@
 #pragma once
 #ifndef __ASM_EXECUTE
 #define __ASM_EXECUTE
-
+#include <vector>
 #ifndef __RUN_CORE
 #define __RUN_CORE 0
 #endif
@@ -45,12 +45,47 @@ static void feedTheDog()
     TIMERG1.wdt_wprotect = 0;                   // write protect
     */
 }
+class ExecutablesClass
+{
+public:
+ExecutablesClass(){}
+
+private:
+vector<Executable> execs;
+};
 class Executable
 {
 
 public:
-    Executable() {}
+    Executable() {
+        exeExist= false;
+    }
+    Executable(executable _executable) {
+        if (_executable.error.error == 0)
+        {
 
+            exeExist = true;
+        }
+        else
+        {
+            exeExist = false;
+        }
+        _executecmd=_executable;
+    }
+    void setExecutable(executable _executable)
+    {
+        _executecmd=_executable;
+                if (_executable.error.error == 0)
+        {
+
+            exeExist = true;
+        }
+        else
+        {
+            exeExist = false;
+        }
+        
+    }
     void createExecutable()
     {
         if (__run_handle != NULL)
@@ -65,7 +100,7 @@ public:
 
         bool othercore = false;
         exeExist = false;
-        freeBinary(&executecmd);
+        freeBinary(&_executecmd);
         
     }
     void setPrekill(void (*function)(), void (*function2)())
@@ -98,7 +133,7 @@ public:
             Serial.printf("Program stopped.\r\n");
 #endif
         }
-         freeBinary(&executecmd);
+         freeBinary(&_executecmd);
     }
 
     void _run(vector<string> args, bool second_core)
@@ -114,7 +149,7 @@ public:
 
             _exe_args df;
             df.args = args;
-            df.exe = executecmd;
+            df.exe = _executecmd;
 
             xTaskCreateUniversal(_run_task, "_run_task", 4096 * 2, &df, 3, (TaskHandle_t *)&__run_handle, __RUN_CORE);
 #ifdef __CONSOLE_ESP32
@@ -135,12 +170,12 @@ public:
     void free()
     {
         exeExist = false;
-        freeBinary(&executecmd);
+        freeBinary(&_executecmd);
     }
 
     void execute(string prog)
     {
-        executeBinary("@_"+prog, executecmd);
+        executeBinary("@_"+prog, _executecmd);
     }
 
     void executeAsTask(string prog)
@@ -153,6 +188,10 @@ public:
 private:
     void (*prekill)() = NULL;
     void (*postkill)() = NULL;
+    executable _executecmd;
+    bool exeExist = false;
+    
+
     // bool exeExist=false;
 };
 Executable SCExecutable = Executable();

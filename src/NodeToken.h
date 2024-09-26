@@ -2516,7 +2516,7 @@ void _visitcallFunctionNode(NodeToken *nd)
                 { 
                 content.addAfter(content.sp.pop(), string_format("s32i a%d,a%d,%d", register_numl.get(), save, start)); // point_regnum
                 content.addBefore(string_format("l32r a%d,@_stack_%s", save, nd->getTokenText()));                      // point_regnum
-               }                                                                               // isPointer=false;
+              }                                                                               // isPointer=false;
                 
             }
             else

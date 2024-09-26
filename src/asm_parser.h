@@ -1531,78 +1531,10 @@ executable createBinary(parsedLines *asm_parsed)
   int last_one = -1;
   int nb_data = 0;
   int i = 0;
-  /*
-  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
-  {
-    if ((*it)->op == opCodeType::data || (*it)->op == opCodeType::number)
-    {
-      nb_data++;
-      last_one = i;
-    }
-    i++;
-  }
-  if (last_one >= 0)
-  {
-    data_size = getInstrAtPos(last_one)->size + getInstrAtPos(last_one)->address; //(*asm_parsed)[last_one].size + (*asm_parsed)[last_one].address;
-  }
-  uint32_t intr_size = getInstrAtPos((*asm_parsed).size() - 1)->size + getInstrAtPos((*asm_parsed).size() - 1)->address; //(*asm_parsed)[(*asm_parsed).size() - 1].address + (*asm_parsed)[(*asm_parsed).size() - 1].size;
-__exe_size=intr_size+ data_size;
-
-#ifdef __CONSOLE_ESP32
-  string d = string_format("Creation of an %d bytes binary and %d bytes data, nb data_label %d", intr_size, data_size, nb_data);
-  LedOS.pushToConsole(d);
-#else
-  printf("Creation of an %d bytes binary and %d bytes data, nb data_label %d\r\n", intr_size, data_size, nb_data);
-#endif
-*/
- // uint8_t *val_tmp = (uint8_t *)malloc((intr_size / 8) * 8 + 8);
-  /*
-  uint8_t *data;
-  if (data_size > 0)
-  {
-   // data = (uint8_t *)malloc((data_size / 4) * 4 + 4);
-    if (data == NULL)
-    {
-      exe.error.error = 1;
-      exe.error.error_message = "Impossible de to create the data";
-      return exe;
-    }
-  }
-  else
-  {
-    data = NULL;
-  }*/
-  // MALLOC_CAP_32BIT ||
-  //  uint32_t *exec = (uint32_t *)heap_caps_aligned_alloc(1, (intr_size / 8) * 8 + 8,  MALLOC_CAP_EXEC );
+  
   uint32_t *exec = (uint32_t *)heap_caps_malloc(_instr_size, MALLOC_CAP_EXEC);
  updateMem();
- /*
-  int h = 0;
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
-  {
-    if ((*it)->op == opCodeType::data || ((*it)->op == opCodeType::number))
-    {
-      // Serial.printf("store data %d at %d\r\n",i,(*asm_parsed)[i].address);
-     // memcpy(data + (*it)->address, (*it)->getText(), (*it)->size);
-    }
-    else
-    {
-      if (i <= last_one)
-      {
-        // printf("address %d  size:%d\r\n",(*asm_parsed)[i].address,(*asm_parsed)[i].size);
-        // memcpy(val_tmp + (*asm_parsed)[i].address, &(*asm_parsed)[i].bincode, (*asm_parsed)[i].size);
-        // h+=4;
-      }
-      else
-      {
-        // Serial.printf("store instr %d at %d \r\n",i,(*asm_parsed)[i].address);
-        // printf("address %d new address%d size %d\r\n",(*asm_parsed)[i].address,(*asm_parsed)[i].address,(*asm_parsed)[i].size);
-        memcpy(val_tmp + (*it)->address, &(*it)->bincode, (*it)->size);
-        // (*asm_parsed)[i].address=(*asm_parsed)[i].address-data_size+nb_data*4;
-      }
-    }
-  }*/
-  // Serial.printf("create  jump \r\n");
+
  error_message_struct error=calculateJump(tmp_exec, asm_parsed);
   if(error.error==1)
   {
@@ -1612,20 +1544,16 @@ __exe_size=intr_size+ data_size;
       all_text.clear();
       return exe;
   }
- // createAbsoluteJump(val_tmp, asm_parsed, (uint32_t)data);
- //Serial.printf("create  jump \r\n");
+
    createAbsoluteJump(tmp_exec, asm_parsed, (uint32_t)binary_data);
- // Serial.printf("copy \r\n");
+
   memcpy(exec, tmp_exec, _instr_size);
-   //Serial.printf("cleaning \r\n");
+
   free(tmp_exec);
-//Serial.printf("free \r\n");
-  // exe.start_function = (uint32_t)(exec + (*asm_parsed)[index].address / 4);
-  // Serial.printf("%d start function(s) found:\r\n", exe.functions.size());
+
   for (int i = 0; i < exe.functions.size(); i++)
   {
-    // exe.functions[i].address = (uint32_t)(exec + (exe.functions[i].address) / 4);
-    // Serial.printf("%2d: %s\t%x\r\n", i, exe.functions[i].name.c_str(), exe.functions[i].address);
+
     exe.functions[i].address = (uint32_t)((exe.functions[i].address) / 4);
   }
   exe.start_program = exec;
@@ -1634,91 +1562,36 @@ __exe_size=intr_size+ data_size;
   return exe;
 }
 
-/*
-executable createExectutable(vector<string> *lines, bool display)
-{
-//vector<result_parse_line> asm_parsed;
-  executable exec;
-  _asm_parsed.clear();
-  error_message_struct err = parseASM(lines, &_asm_parsed);
-  if (err.error == 0)
-  {
-    flagLabel32aligned(&_asm_parsed);
-    createAddress(&_asm_parsed);
-    err = calculateJump(&_asm_parsed);
 
-    if (err.error == 0)
-    {
-
-      exec = createBinary(&_asm_parsed);
-
-      if (exec.error.error == 0)
-      {
-        // createAbsoluteJump(exec.start_program,&asm_parsed);
-        if (display == true)
-        {
-          printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
-          // dumpmem(exec.start_program);
-        }
-
-        replaceExternal("start_program", (void *)exec.start_program);
-        uint32_t dd = (uint32_t)createExternalLinks();
-        exec.links = dd;
-        exec.error.error = 0;
-      }
-      return exec;
-    }
-    else
-    {
-      exec.error = err;
-      return exec;
-    }
-  }
-  else
-  {
-
-    exec.error = err;
-    exec.error.error = 1;
-    return exec;
-  }
-}
-*/
 
 executable createExectutable(Text *_header,Text *_content, bool display)
 {
 
   executable exec;
   _asm_parsed.clear();
-  // printf("max size:%d\r\n",_asm_parsed.max_size());
-  // printf("lines %d\n",lines->size());
+
   __parser_debug=display;
   error_message_struct err = parseASM(_header,_content, &_asm_parsed);
-  // on clean les lignes
+
   _header->clear();
   _content->clear();
 
   if (err.error == 0)
   {
-   //printf("on a parse\r\n");
-    //flagLabel32aligned(&_asm_parsed);
-   //  printf("on a parse2\r\n");
-                                 // createAddress(&_asm_parsed);
-   // printf("on a parse3\r\n");
-   // err = calculateJump(&_asm_parsed);
- //printf("on a parse4\r\n");
+
 
     if (err.error == 0)
     {
-    // printf("tenative creation binaire\r\n");
+
       exec = createBinary(&_asm_parsed);
-// printf("fair creation binaire\r\n");
+
       if (exec.error.error == 0)
       {
-        // createAbsoluteJump(exec.start_program,&asm_parsed);
+
         if (display == true)
         {
           printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
-          // dumpmem(exec.start_program);
+      
         }
 
         replaceExternal("start_program", (void *)exec.start_program);
@@ -1732,7 +1605,7 @@ executable createExectutable(Text *_header,Text *_content, bool display)
     }
     else
     {
-    //  printf("oerrrrrr rrr %s\r\n",err.error_message.c_str());
+  
       exec.error = err;
       _asm_parsed.clear();
       all_text.clear();
@@ -1742,7 +1615,7 @@ executable createExectutable(Text *_header,Text *_content, bool display)
   else
   {
 
-//printf("eero %s\r\n",err.error_message.c_str());
+
     exec.error = err;
     exec.error.error = 1;
     _asm_parsed.clear();
@@ -1753,59 +1626,7 @@ executable createExectutable(Text *_header,Text *_content, bool display)
   all_text.clear();
 }
 
-/*
-executable createExectutable(string script, bool display)
-{
- /// vector<result_parse_line> asm_parsed;
-  executable exec;
-  error_message_struct err = parseASM(script, &_asm_parsed);
-  if (err.error == 0)
-  {
-    flagLabel32aligned(&_asm_parsed);
-    createAddress(&_asm_parsed);
-    err = calculateJump(&_asm_parsed);
 
-    if (err.error == 0)
-    {
-
-      exec = createBinary(&_asm_parsed);
-
-      if (exec.error.error == 0)
-      {
-        // createAbsoluteJump(exec.start_program,&asm_parsed);
-        if (display == true)
-        {
-          printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
-          // dumpmem(exec.start_program);
-        }
-
-        replaceExternal("start_program", (void *)exec.start_program);
-        uint32_t dd = (uint32_t)createExternalLinks();
-        exec.links = dd;
-        exec.error.error = 0;
-      }
-      return exec;
-    }
-    else
-    {
-      exec.error = err;
-      return exec;
-    }
-  }
-  else
-  {
-
-    exec.error = err;
-    exec.error.error = 1;
-    return exec;
-  }
-}
-
-executable createExectutable(string script)
-{
-  return createExectutable(script, false);
-}
-*/
 void executeBinaryAsm(uint32_t *j, uint32_t *c)
 {
 #ifdef __CONSOLE_ESP32
