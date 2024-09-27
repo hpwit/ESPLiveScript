@@ -20,9 +20,9 @@ using namespace std;
 
 #include "NodeToken.h"
 #include "asm_parser.h"
-#ifndef __TEST_DEBUG
+
 #include "execute.h"
-#endif
+
 
 void prettyPrint2(NodeToken nd, string ident)
 {
@@ -143,11 +143,12 @@ public:
 
     Executable compile()
     {
+        Executable results;
         parse();
         if (Error.error)
         {
             pushToConsole(Error.error_message.c_str(), true);
-            return false;
+            return results;
         }
         pushToConsole("***********PARSING DONE*********");
         updateMem();
@@ -179,7 +180,7 @@ public:
         displayStat();
 
         pushToConsole("***********AFTER CLEAN*********");
-        Executable results;
+        
 #ifndef __TEST_DEBUG
         pushToConsole("***********CREATE EXECUTABLE*********");
         executable _executecmd = createExectutable(&header, &content, __parser_debug);
@@ -2329,7 +2330,7 @@ Parser p = Parser();
 
 void kill(Console *cons, vector<string> args)
 {
-    if (__run_handle != NULL)
+    if (SCExecutable.isRunning())
     {
 
         SCExecutable._kill();
@@ -2341,7 +2342,7 @@ void kill(Console *cons, vector<string> args)
 }
 void run(Console *cons, vector<string> args)
 {
-    if (__run_handle != NULL)
+    if (SCExecutable.isRunning())
     {
         LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
@@ -2408,7 +2409,7 @@ void parseasm(Console *cons, vector<string> args)
 }
 void parse_c(Console *cons, vector<string> args)
 {
-    if (__run_handle != NULL)
+    if ( SCExecutable.isRunning())
     {
         LedOS.pushToConsole("Something Already running kill it first ...");
         kill(cons, args);
@@ -2424,9 +2425,9 @@ void parse_c(Console *cons, vector<string> args)
         if (args[args.size() - 1].compare("&") == 0)
             othercore = true;
     }
-    Executable Sce= p.parse_c(&cons->script);
+    SCExecutable= p.parse_c(&cons->script);
     // if (p.parse_c(&cons->script))
-    if (Sce.exeExist)
+    if (SCExecutable.exeExist)
     {
 
         exeExist = true;
@@ -2446,7 +2447,7 @@ void parse_c(Console *cons, vector<string> args)
         else
         {
             LedOS.pushToConsole("Start program", true);
-            Sce.execute("main");
+           SCExecutable.execute("main");
             // executeBinary("main", executecmd);
             LedOS.pushToConsole("Execution done.", true);
         }
@@ -2477,7 +2478,7 @@ class __INIT_PARSER
 public:
     __INIT_PARSER()
     {
-        __run_handle = NULL;
+       // __run_handle = NULL;
         LedOS.addKeywordCommand("compile", parse_c, "Compile and run a program add '&' for run on the second core");
         LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core)");
         LedOS.addKeywordCommand("kill", kill, "Stop a running program");

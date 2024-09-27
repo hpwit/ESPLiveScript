@@ -1062,16 +1062,9 @@ error_message_struct parseASM(Text *_header,Text *_content, parsedLines *asm_par
 optimize(_content);
 //_content->display();
 //printf("optimized done\r\n");
-if(binary_data!=NULL)
-{
-  free(binary_data);
-}
 
 
- if(tmp_exec!=NULL)
- {
-  free(tmp_exec);
- }
+
  tmp_exec=NULL;
  binary_data=NULL;
  _address_data=0;
@@ -1216,6 +1209,11 @@ if(_size>0)
   }
 
   // printf("Done.\r\n");
+  if(main_error.error==1)
+  {
+    free(binary_data);
+    free(tmp_exec);
+  }
   return main_error;
 }
 
@@ -1580,9 +1578,6 @@ executable createExectutable(Text *_header,Text *_content, bool display)
   {
 
 
-    if (err.error == 0)
-    {
-
       exec = createBinary(&_asm_parsed);
 
       if (exec.error.error == 0)
@@ -1599,18 +1594,8 @@ executable createExectutable(Text *_header,Text *_content, bool display)
         exec.links = dd;
         exec.error.error = 0;
       }
-      _asm_parsed.clear();
-      all_text.clear();
-      return exec;
-    }
-    else
-    {
-  
-      exec.error = err;
-      _asm_parsed.clear();
-      all_text.clear();
-      return exec;
-    }
+
+    
   }
   else
   {
@@ -1618,12 +1603,12 @@ executable createExectutable(Text *_header,Text *_content, bool display)
 
     exec.error = err;
     exec.error.error = 1;
-    _asm_parsed.clear();
-    all_text.clear();
-    return exec;
+
+    
   }
   _asm_parsed.clear();
   all_text.clear();
+  return exec;
 }
 
 
