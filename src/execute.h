@@ -101,6 +101,7 @@ public:
     #endif
         bool exeExist;
         bool _isRunning= false;
+        bool isHalted=false;
           _exe_args df;
     Executable() {
         exeExist= false;
@@ -165,7 +166,7 @@ public:
     void suspend()
     {
                 #ifndef __TEST_DEBUG
-        if (_isRunning)
+        if (_isRunning and !isHalted)
         {
 #ifdef __CONSOLE_ESP32
             LedOS.pushToConsole("Halting the program ...", true);
@@ -182,6 +183,7 @@ public:
             }
 
            // _isRunning=false;
+           isHalted =true;
             vTaskDelay(30);
             if (postkill != NULL)
                 postkill();
@@ -200,11 +202,11 @@ public:
     void restart()
     {
           #ifndef __TEST_DEBUG
-        if (_isRunning)
+        if (_isRunning and isHalted)
         {
 
                 vTaskResume(*runningPrograms.getHandleByIndex(__run_handle_index));
-
+            isHalted=false;
         
     }
      #endif
