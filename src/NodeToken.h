@@ -2099,6 +2099,8 @@ void _visitprogramNode(NodeToken *nd)
    
    //  header.addAfter("@_stack:");
     // header.addAfter(".bytes 60");
+    header.addAfter("@__handle_:");
+    header.addAfter(".bytes 4");
     header.addAfter("@_stackr:");
     header.addAfter(".bytes 32");
 

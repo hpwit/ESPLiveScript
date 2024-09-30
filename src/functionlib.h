@@ -6,6 +6,15 @@
 
  list<int> add_on;
 //string division="";
+string _sync="\
+__ASM__ void sync()\n\
+{\n\
+\"entry a1,32\" \n\
+\"l32r a4,@__handle_\" \n\
+\"l32i a10,a4,0\" \n\
+\"callExt a8,_sync\"\n\
+\"retw.n\" \n\
+}@";
 string division="\
 __ASM__ float __div(float a,float b)\n\
 { \n\
@@ -133,8 +142,8 @@ loop();\n\
 ";
 string empty_header="";
 int stdlib_size=5;
-string stdlib[]={"rand","copy","memset","fill","arduino"};
- string * _stdlib[]={&_rand,&_copycode,&_memset,&_fill,&_arduino};
+string stdlib[]={"sync","rand","copy","memset","fill","arduino"};
+ string * _stdlib[]={&_sync,&_rand,&_copycode,&_memset,&_fill,&_arduino};
 string * _stdlib_header[]={&empty_header,&empty_header,&empty_header,&empty_header,&empty_header};
 
 int findLibFunction(string name)

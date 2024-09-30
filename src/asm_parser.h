@@ -1633,7 +1633,7 @@ void executeBinaryAsm(uint32_t *j, uint32_t *c)
   // free(exec);
 }
 
-error_message_struct executeBinary(string function, executable ex)
+error_message_struct executeBinary(string function, executable ex,uint32_t handle)
 {
   error_message_struct res;
   uint32_t toexecute;
@@ -1646,6 +1646,9 @@ error_message_struct executeBinary(string function, executable ex)
 
       //
       ex.functions[i].address = (uint32_t)(ex.start_program + ex.functions[i].address);
+      uint32_t *t=(uint32_t *)ex.data;
+      *t=handle;
+
       executeBinaryAsm(&ex.functions[i].address, &ex.links);
 
       // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), toexecute);
@@ -1660,10 +1663,10 @@ error_message_struct executeBinary(string function, executable ex)
   return res;
 }
 
-error_message_struct executeBinary(executable ex)
+error_message_struct executeBinary(executable ex,uint32_t handle)
 {
 
-  return executeBinary(ex.functions[0].name, ex);
+  return executeBinary(ex.functions[0].name, ex,handle);
 }
 void freeBinary(executable *ex)
 {
