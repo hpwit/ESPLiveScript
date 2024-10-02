@@ -22,28 +22,17 @@ typedef struct
 } _exe_args;
 EventGroupHandle_t xCreatedEventGroup = xEventGroupCreate();
 EventGroupHandle_t xCreatedEventGroup2 = xEventGroupCreate();
-bool resetSync=false;
+bool resetSync = false;
+bool toResetSync = false;
 static void _run_task(void *pvParameters);
 #include "esp_task_wdt.h"
 static void feedTheDog()
 {
-    /*
-    // feed dog 0
-    TIMERG0.wdtwprotect = TIMG_WDT_WKEY_VALUE; // write enable
-    TIMERG0.wdtfeed = 1;                       // feed dog
-    TIMERG0.wdtwprotect = 0;                   // write protect
-    // feed dog 1
-    TIMERG1.wdtwprotect = TIMG_WDT_WKEY_VALUE; // write enable
-    TIMERG1.wdtfeed = 1;                       // feed dog
-    TIMERG1.wdtwprotect = 0;                   // write protect
-
-    if(esp_task_wdt_reset()!=ESP_OK)
-    {
-        printf("impossnlie\r\n");
-    }
-    */
+   
     vTaskDelay(1);
 }
+class Executable;
+static void syncExt(int h);
 class _executablesClass
 {
 public:
@@ -53,10 +42,13 @@ public:
         {
             __run_handles[i] = NULL;
             waitEndShow[i] = NULL;
+            execPtr[i] = NULL;
         }
         nb_concurrent_programs = 0;
+         addExternal("_sync", externalType::function, (void *)syncExt);
+          addExternal("feed", externalType::function, (void *)feedTheDog);
     }
-    int getHandle()
+    int getHandle(Executable *exec)
     {
         if (nb_concurrent_programs < _MAX_PROG_AT_ONCE - 1)
         {
@@ -65,8 +57,9 @@ public:
                 if (__run_handles[i] == NULL)
                 {
                     nb_concurrent_programs++;
-                    printf(" ndb prgh:%d position%d\r\n", nb_concurrent_programs, i);
+                    // printf(" ndb prgh:%d position%d\r\n", nb_concurrent_programs, i);
                     waitEndShow[i] = xSemaphoreCreateBinary();
+                    execPtr[i] = exec;
                     return i;
                 }
             }
@@ -77,6 +70,8 @@ public:
             return 9999;
         }
     }
+    uint32_t getMask();
+    void kill(int handle);
     void suspendAll()
     {
         for (int i = 0; i < _MAX_PROG_AT_ONCE; i++)
@@ -99,9 +94,9 @@ public:
     }
     void freeSync()
     {
-        if(nb_concurrent_programs==0)
-        return;
-         int MASK = (1 << (nb_concurrent_programs)) - 1;
+        if (nb_concurrent_programs == 0)
+            return;
+        uint32_t MASK = getMask();
         xEventGroupSync(xCreatedEventGroup,
                         MASK,
                         MASK,
@@ -129,25 +124,63 @@ public:
         nb_concurrent_programs--;
         __run_handles[i] = NULL;
         waitEndShow[i] = NULL;
+        execPtr[i] = NULL;
     }
     void setFunctionToSync(void (*function)())
     {
-        functionToSync=function;
+        functionToSync = function;
+    }
+
+
+    int getFirstHandle()
+    {
+        for (int i = 0; i < _MAX_PROG_AT_ONCE; i++)
+        {
+            if (__run_handles[i]!=NULL)
+            {
+                return i;
+            }
+        }
+    
+        return _MAX_PROG_AT_ONCE;
+    }
+    void setPrekill(void (*function)(), void (*function2)())
+    {
+        _prekill = function;
+        _postkill = function2;
+    }
+    void prekill()
+    {
+        if (nb_concurrent_programs == 1)
+        {
+            if (_prekill != NULL)
+                _prekill();
+        }
+    }
+    void postkill()
+    {
+        if (nb_concurrent_programs == 1)
+        {
+            if (_postkill != NULL)
+                _postkill();
+        }
     }
 
     // private:
     int nb_concurrent_programs;
     int nb_concurrent_programs_current;
     void (*functionToSync)() = NULL;
-
+    Executable *execPtr[_MAX_PROG_AT_ONCE];
+    void (*_prekill)() = NULL;
+    void (*_postkill)() = NULL;
 };
 _executablesClass runningPrograms = _executablesClass();
 static void syncExt(int h)
 {
     if (resetSync)
-    return;
+        return;
     // printf("on tente %d\r\n",h);
-    int MASK = (1 << (runningPrograms.nb_concurrent_programs)) - 1;
+    uint32_t MASK = runningPrograms.getMask();
     EventBits_t uxReturn;
     uxReturn = xEventGroupSync(xCreatedEventGroup,
                                1 << h,
@@ -155,19 +188,34 @@ static void syncExt(int h)
                                portMAX_DELAY);
 
     // printf("all \r\n");
-        if (resetSync)
-    return;
-    if (h == 0)
+
+    if (h == runningPrograms.getFirstHandle())
     {
         if ((uxReturn & MASK) == MASK)
         {
             xEventGroupClearBits(xCreatedEventGroup, MASK);
-            if(runningPrograms.functionToSync!=NULL)
-            runningPrograms.functionToSync();
+          //  xEventGroupClearBits(xCreatedEventGroup2, MASK);
+
+            if (runningPrograms.functionToSync != NULL)
+            {
+
+
+                runningPrograms.functionToSync();
+                    if (resetSync)
+        return;
+            }
+
             xEventGroupSync(xCreatedEventGroup2,
                             1 << h,
                             MASK,
                             portMAX_DELAY);
+
+        if(toResetSync)
+        {
+            resetSync=true;
+            toResetSync=false;
+        }
+xEventGroupClearBits(xCreatedEventGroup2, MASK);
         }
     }
     else
@@ -191,6 +239,7 @@ public:
     bool exeExist;
     bool _isRunning = false;
     bool isHalted = false;
+    string name="Unknown";
     _exe_args df;
     Executable()
     {
@@ -246,11 +295,7 @@ public:
 
 #endif
     }
-    void setPrekill(void (*function)(), void (*function2)())
-    {
-        prekill = function;
-        postkill = function2;
-    }
+
     void suspend()
     {
 #ifndef __TEST_DEBUG
@@ -261,9 +306,10 @@ public:
 #else
             Serial.printf("Halting the program...\r\n");
 #endif
-            if (prekill != NULL)
-                prekill();
-            vTaskDelay(30);
+            resetSync = true;
+
+            runningPrograms.freeSync();
+            vTaskDelay(10);
             if (__run_handle_index != 9999)
             {
                 vTaskSuspend(*runningPrograms.getHandleByIndex(__run_handle_index));
@@ -271,10 +317,9 @@ public:
 
             // _isRunning=false;
             isHalted = true;
-            vTaskDelay(30);
-            if (postkill != NULL)
-                postkill();
-                // vTaskDelay(20);
+            vTaskDelay(10);
+
+            // vTaskDelay(20);
 #ifdef __CONSOLE_ESP32
             LedOS.pushToConsole("Program Halted.", true);
 #else
@@ -290,9 +335,13 @@ public:
 #ifndef __TEST_DEBUG
         if (_isRunning and isHalted)
         {
+            resetSync = true;
 
+            runningPrograms.freeSync();
+            vTaskDelay(10);
             vTaskResume(*runningPrograms.getHandleByIndex(__run_handle_index));
             isHalted = false;
+            resetSync = false;
         }
 #endif
     }
@@ -306,8 +355,15 @@ public:
 #else
             Serial.printf("Stopping the program...\r\n");
 #endif
-            if (prekill != NULL)
-                prekill();
+printf("old mask %d\r\n",runningPrograms.getMask());
+            toResetSync = true;
+            while(!toResetSync){}
+vTaskDelay(10);
+            runningPrograms.freeSync();
+           // vTaskDelay(10);
+            runningPrograms.suspendAll();
+
+            runningPrograms.prekill();
             vTaskDelay(30);
 
             if (__run_handle_index != 9999)
@@ -317,25 +373,32 @@ public:
 
             _isRunning = false;
             vTaskDelay(30);
-            if (postkill != NULL)
-                postkill();
-                // vTaskDelay(20);
+
+            runningPrograms.postkill();
+            // vTaskDelay(20);
 #ifdef __CONSOLE_ESP32
             LedOS.pushToConsole("Program stopped.", true);
 #else
             Serial.printf("Program stopped.\r\n");
 #endif
-        }
-        delay(10);
+        vTaskDelay(10);
         runningPrograms.removeHandle(__run_handle_index);
+        printf("new mask %d\r\n",runningPrograms.getMask());
+        resetSync = false;
+        toResetSync=false;
+        runningPrograms.restartAll();
+        
         __run_handle_index = 9999;
+        }
+
 
         // freeBinary(&_executecmd);
 #endif
     }
 
-    void _run(vector<string> args, bool second_core)
+    int _run(vector<string> args, bool second_core)
     {
+        __run_handle_index = 9999;
 #ifndef __TEST_DEBUG
         if (_isRunning)
         {
@@ -350,16 +413,19 @@ public:
             df.exe = _executecmd;
             //
             // we free the sync
-        resetSync=true;
-           
-
-            runningPrograms.freeSync();
+            toResetSync = true;
+            while(!resetSync){}
+           // runningPrograms.freeSync();
             vTaskDelay(10);
-             runningPrograms.suspendAll();
+            runningPrograms.suspendAll();
 
-            __run_handle_index = runningPrograms.getHandle();
-             resetSync=false;
-              runningPrograms.restartAll();
+            __run_handle_index = runningPrograms.getHandle(this);
+            _isRunning=true;
+            toResetSync=false;
+                        resetSync=false;
+            runningPrograms.restartAll();
+            //vTaskDelay(10);
+
             if (__run_handle_index == 9999)
             {
 #ifdef __CONSOLE_ESP32
@@ -386,6 +452,7 @@ public:
 #endif
         }
 #endif
+        return __run_handle_index;
     }
     void free()
     {
@@ -452,4 +519,35 @@ static void _run_task(void *pvParameters)
 }
 
 Executable SCExecutable = Executable();
+
+void _executablesClass::kill(int handle_number)
+{
+    if(handle_number>=0 and handle_number<_MAX_PROG_AT_ONCE)
+    {
+    if (execPtr[handle_number] != NULL)
+    {
+        execPtr[handle_number]->_kill();
+    }
+    }
+}
+
+uint32_t _executablesClass::getMask()
+{
+
+    int mask = 0;
+    for (int i = 0; i < _MAX_PROG_AT_ONCE; i++)
+    {
+        if (__run_handles[i] != NULL)
+        {
+            if (execPtr[i]->isRunning() )
+            {
+                mask = mask | (1 << i);
+            }
+        }
+    }
+    return mask;
+}
+
+
+ 
 #endif

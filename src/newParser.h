@@ -23,7 +23,6 @@ using namespace std;
 
 #include "execute.h"
 
-
 void prettyPrint2(NodeToken nd, string ident)
 {
 
@@ -180,7 +179,7 @@ public:
         displayStat();
 
         pushToConsole("***********AFTER CLEAN*********");
-        
+
 #ifndef __TEST_DEBUG
         pushToConsole("***********CREATE EXECUTABLE*********");
         executable _executecmd = createExectutable(&header, &content, __parser_debug);
@@ -2327,27 +2326,60 @@ static void _run_task(void *pvParameters)
 }*/
 Parser p = Parser();
 // Executable consExecutable = Executable();
+vector<Executable> scExecutables;
 
 void kill(Console *cons, vector<string> args)
 {
-    if (SCExecutable.isRunning())
+    if (args.size() == 0)
     {
+        if (SCExecutable.isRunning())
+        {
 
-        SCExecutable._kill();
+            SCExecutable._kill();
+        }
+        else
+        {
+            LedOS.pushToConsole("Nothing is currently running.", true);
+        }
     }
     else
     {
-        LedOS.pushToConsole("Nothing is currently running.", true);
+        int num = 999;
+        sscanf(args[0].c_str(), "%d", &num);
+        if (num > scExecutables.size())
+        {
+            LedOS.pushToConsole("No executable ...");
+        }
+        else
+        {
+            scExecutables[num - 1]._kill();
+        }
     }
 }
 void run(Console *cons, vector<string> args)
 {
-    if (SCExecutable.isRunning())
+    if (args.size() == 0)
     {
-        LedOS.pushToConsole("Something Already running kill it first ...");
-        kill(cons, args);
+        if (SCExecutable.isRunning())
+        {
+            LedOS.pushToConsole("Something Already running kill it first ...");
+            kill(cons, args);
+        }
+        SCExecutable.executeAsTask("main");
     }
-    SCExecutable.executeAsTask("main");
+    else
+    {
+        int num = 999;
+        sscanf(args[0].c_str(), "%d", &num);
+        if (num > scExecutables.size())
+        {
+            LedOS.pushToConsole("No executable ...");
+        }
+        else
+        {
+            scExecutables[num - 1].executeAsTask("main");
+        }
+    }
     // SCExecutable._run(args, true);
 }
 void kill_cEsc(Console *cons)
@@ -2407,12 +2439,53 @@ void parseasm(Console *cons, vector<string> args)
     }
     */
 }
+void compile_c(Console *cons, vector<string> args)
+{
+    Executable _scExec = p.parse_c(&cons->script);
+    _scExec.name=cons->filename;
+    scExecutables.push_back(_scExec);
+}
+void free(Console *cons, vector<string> args)
+{
+    if (args.size() == 0)
+    {
+        if (SCExecutable.isRunning())
+        {
+            SCExecutable._kill();
+        }
+        SCExecutable.free();
+    }
+    else
+    {
+        int num = 999;
+        sscanf(args[0].c_str(), "%d", &num);
+        if (num > scExecutables.size())
+        {
+            LedOS.pushToConsole("No executable ...");
+        }
+        else
+        {
+            if (scExecutables[num - 1].isRunning())
+            {
+                scExecutables[num - 1]._kill();
+            }
+            scExecutables[num - 1].free();
+            vector<Executable>::iterator it=scExecutables.begin();
+            for (int i=0;i<num;i++)
+            {
+                it++;
+            }
+            scExecutables.erase(it);
+        }
+    }
+}
 void parse_c(Console *cons, vector<string> args)
 {
-    if ( SCExecutable.isRunning())
+    if (SCExecutable.isRunning())
     {
         LedOS.pushToConsole("Something Already running kill it first ...");
-        kill(cons, args);
+        vector<string> k;
+        kill(cons, k);
     }
     bool othercore = false;
 
@@ -2425,7 +2498,7 @@ void parse_c(Console *cons, vector<string> args)
         if (args[args.size() - 1].compare("&") == 0)
             othercore = true;
     }
-    SCExecutable= p.parse_c(&cons->script);
+    SCExecutable = p.parse_c(&cons->script);
     // if (p.parse_c(&cons->script))
     if (SCExecutable.exeExist)
     {
@@ -2434,7 +2507,7 @@ void parse_c(Console *cons, vector<string> args)
         if (othercore)
         {
             vector<string> d;
-            d.push_back("main");
+            // d.push_back("main");
             LedOS.pushToConsole("***********START RUN *********");
             run(cons, d);
 
@@ -2447,7 +2520,7 @@ void parse_c(Console *cons, vector<string> args)
         else
         {
             LedOS.pushToConsole("Start program", true);
-           SCExecutable.execute("main");
+            SCExecutable.execute("main");
             // executeBinary("main", executecmd);
             LedOS.pushToConsole("Execution done.", true);
         }
@@ -2473,13 +2546,24 @@ void parsec_cEsc(Console *cons)
     }
 }
 
+void listExec(Console *cons, vector<string> args)
+{
+    for(int i=0;i<scExecutables.size();i++)
+    {
+        LedOS.pushToConsole(string_format(" %2d | %12s isRunning:%d",i+1,scExecutables[i].name.c_str(),scExecutables[i].isRunning()), true);
+    }
+}
+
 class __INIT_PARSER
 {
 public:
     __INIT_PARSER()
     {
-       // __run_handle = NULL;
+        // __run_handle = NULL;
         LedOS.addKeywordCommand("compile", parse_c, "Compile and run a program add '&' for run on the second core");
+        LedOS.addKeywordCommand("comp", compile_c, "Compile  a program");
+         LedOS.addKeywordCommand("list", listExec, "list the programs");
+           LedOS.addKeywordCommand("free", free, "free the binary");
         LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core)");
         LedOS.addKeywordCommand("kill", kill, "Stop a running program");
         LedOS.addKeywordCommand("parseasm", parseasm, "Parse assembly program");
