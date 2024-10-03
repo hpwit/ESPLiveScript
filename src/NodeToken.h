@@ -135,7 +135,7 @@ void updateMem()
 }
 void displayStat()
 {
-    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld exe size:%d time:%dms", __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), __exe_size, (__endtime - __starttime) / 240000), true);
+    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld exe size:%d time:%dms", __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), __exe_size, (__endtime - __starttime) / 240000));
 }
 string _numToBytes(uint32_t __num)
 {
@@ -1239,7 +1239,7 @@ void buildParents(NodeToken *nd)
             if ((*it)->_nodetype == (int)UnknownNode)
             {
                 nd->children.erase(it);
-                printf("klkkmkml\r\n");
+                //printf("klkkmkml\r\n");
             }
             else
             {
@@ -1636,6 +1636,17 @@ void _visitoperatorNode(NodeToken *nd)
         else
         {
             content.addAfter(string_format("addi a%d,a%d,1", register_numl.get(), register_numl.get()));
+        }
+        // return;
+        break;
+            case TokenMinusMinus:
+        if (nd->parent->getChildAtPos(0)->isPointer && nd->parent->getChildAtPos(0)->children.size() == 0)
+        {
+            content.addAfter(string_format("addi a%d,a%d,-%d", register_numl.get(), register_numl.get(), nd->parent->getChildAtPos(0)->getVarType()->total_size));
+        }
+        else
+        {
+            content.addAfter(string_format("addi a%d,a%d,-1", register_numl.get(), register_numl.get()));
         }
         // return;
         break;

@@ -1742,16 +1742,40 @@ int tokenizer(Script *script, bool update, bool increae_line,
         }
         if (c == '-')
         {
+            c2 = script->nextChar();
+            if (c2 == '-')
+            {
+                // token t;
+                // t._vartype = NULL;
+                // t.type = TokenPlusPlus;
+                t = Token(TokenMinusMinus, EOF_VARTYPE, _token_line);
+                if (_for_display)
+                    t.addText("--");
+                 //t.line = _token_line;
+                // t.pos = pos;
+                // _tks.push(t);
+                // nbReadToken++;
+                _tks.push(t);
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                // token t;
+                //  t._vartype = NULL;
+                // t.type = TokenAddition;
+                t = Token(TokenSubstraction, EOF_VARTYPE, _token_line);
+                if (_for_display)
+                    t.addText("-");
+               // t.line = _token_line;
+                // t.pos = pos;
+                // _tks.push(t);
+                _tks.push(t);
+                nbReadToken++;
+                continue;
+            }
             // Token t;
-            t.type = (int)TokenSubstraction;
-            t._vartype = EOF_VARTYPE;
-            if (_for_display)
-                t.addText("-");
-            t.line = _token_line;
-            // t.pos = pos;
-            _tks.push(t);
-            nbReadToken++;
-            continue;
+  
         }
         if (c == ' ')
         {

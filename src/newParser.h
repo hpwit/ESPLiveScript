@@ -788,7 +788,7 @@ public:
                 }
             }
         }
-        if (Match(TokenIdentifier) && Match(TokenPlusPlus, 1))
+        if (Match(TokenIdentifier) && (Match(TokenPlusPlus, 1) or Match(TokenMinusMinus, 1)))
         {
             // NodeAssignement d = NodeAssignement();
             // printf("on est ici %s\r\n",current()->text.c_str());
@@ -2373,7 +2373,7 @@ void run(Console *cons, vector<string> args)
         sscanf(args[0].c_str(), "%d", &num);
         if (num > scExecutables.size())
         {
-            LedOS.pushToConsole("No executable ...");
+            LedOS.pushToConsole("No executable ...",true);
         }
         else
         {
@@ -2442,8 +2442,12 @@ void parseasm(Console *cons, vector<string> args)
 void compile_c(Console *cons, vector<string> args)
 {
     Executable _scExec = p.parse_c(&cons->script);
+    if(_scExec.exeExist)
+    {
     _scExec.name=cons->filename;
     scExecutables.push_back(_scExec);
+    }
+
 }
 void free(Console *cons, vector<string> args)
 {

@@ -10,8 +10,22 @@ using namespace std;
 #define _MAX_PROG_AT_ONCE 10
 #endif
 executable executecmd;
+
+#ifdef __TEST_DEBUG
+typedef struct _TaskHandle_t
+{
+    int h;
+};
+typedef _TaskHandle_t *TaskHandle_t;
+typedef struct _xSemaphoreHandle
+{
+    int h;
+};
+typedef _xSemaphoreHandle *xSemaphoreHandle;
+#endif
 TaskHandle_t __run_handles[_MAX_PROG_AT_ONCE];
 volatile xSemaphoreHandle waitEndShow[_MAX_PROG_AT_ONCE];
+
 ; // string strcompile;
 bool exeExist;
 typedef struct
@@ -20,16 +34,23 @@ typedef struct
     executable exe;
 
 } _exe_args;
+#ifndef __TEST_DEBUG
 EventGroupHandle_t xCreatedEventGroup = xEventGroupCreate();
 EventGroupHandle_t xCreatedEventGroup2 = xEventGroupCreate();
+#endif
 bool resetSync = false;
 bool toResetSync = false;
 static void _run_task(void *pvParameters);
+
+#ifndef __TEST_DEBUG
 #include "esp_task_wdt.h"
+
+#endif
 static void feedTheDog()
 {
-   
+   #ifndef __TEST_DEBUG
     vTaskDelay(1);
+    #endif
 }
 class Executable;
 static void syncExt(int h);
@@ -50,8 +71,10 @@ public:
     }
     int getHandle(Executable *exec)
     {
+       
         if (nb_concurrent_programs < _MAX_PROG_AT_ONCE - 1)
         {
+             #ifndef __TEST_DEBUG
             for (int i = 0; i < _MAX_PROG_AT_ONCE; i++)
             {
                 if (__run_handles[i] == NULL)
@@ -63,6 +86,7 @@ public:
                     return i;
                 }
             }
+            #endif
             return 9999;
         }
         else
@@ -74,6 +98,7 @@ public:
     void kill(int handle);
     void suspendAll()
     {
+        #ifndef __TEST_DEBUG
         for (int i = 0; i < _MAX_PROG_AT_ONCE; i++)
         {
             if (__run_handles[i] != NULL)
@@ -81,9 +106,11 @@ public:
                 vTaskSuspend(__run_handles[i]);
             }
         }
+        #endif
     }
     void restartAll()
     {
+        #ifndef __TEST_DEBUG
         for (int i = 0; i < _MAX_PROG_AT_ONCE; i++)
         {
             if (__run_handles[i] != NULL)
@@ -91,9 +118,11 @@ public:
                 vTaskResume(__run_handles[i]);
             }
         }
+        #endif
     }
     void freeSync()
     {
+        #ifndef __TEST_DEBUG
         if (nb_concurrent_programs == 0)
             return;
         uint32_t MASK = getMask();
@@ -106,6 +135,7 @@ public:
                         MASK,
                         MASK,
                         portMAX_DELAY);
+        #endif
     }
     TaskHandle_t *getHandleByIndex(int i)
     {
@@ -177,6 +207,7 @@ public:
 _executablesClass runningPrograms = _executablesClass();
 static void syncExt(int h)
 {
+    #ifndef __TEST_DEBUG
     if (resetSync)
         return;
     // printf("on tente %d\r\n",h);
@@ -227,15 +258,16 @@ xEventGroupClearBits(xCreatedEventGroup2, MASK);
     }
 
     // printf("release %d\r\n",h);
+    #endif
 }
 
 class Executable
 {
 
 public:
-#ifndef __TEST_DEBUG
+
     int __run_handle_index;
-#endif
+
     bool exeExist;
     bool _isRunning = false;
     bool isHalted = false;
@@ -298,6 +330,8 @@ public:
 
     void suspend()
     {
+
+        #ifndef __TEST_DEBUG
 #ifndef __TEST_DEBUG
         if (_isRunning and !isHalted)
         {
@@ -329,6 +363,7 @@ public:
 
         // freeBinary(&_executecmd);
 #endif
+#endif
     }
     void restart()
     {
@@ -355,7 +390,7 @@ public:
 #else
             Serial.printf("Stopping the program...\r\n");
 #endif
-printf("old mask %d\r\n",runningPrograms.getMask());
+//printf("old mask %d\r\n",runningPrograms.getMask());
             toResetSync = true;
             while(!toResetSync){}
 vTaskDelay(10);
@@ -383,7 +418,7 @@ vTaskDelay(10);
 #endif
         vTaskDelay(10);
         runningPrograms.removeHandle(__run_handle_index);
-        printf("new mask %d\r\n",runningPrograms.getMask());
+       // printf("new mask %d\r\n",runningPrograms.getMask());
         resetSync = false;
         toResetSync=false;
         runningPrograms.restartAll();
@@ -459,7 +494,11 @@ vTaskDelay(10);
 #ifndef __TEST_DEBUG
         if (exeExist)
         {
+            uint32_t memb=esp_get_free_heap_size();
+            printf("Free memory before:%ld\r\n", esp_get_free_heap_size());
             freeBinary(&_executecmd);
+            uint32_t mema=esp_get_free_heap_size();
+            printf("Free memory after:%ld freed:%ld\r\n", mema,mema-memb);
         }
         exeExist = false;
 
@@ -513,7 +552,7 @@ static void _run_task(void *pvParameters)
     pushToConsole("Execution done.", true);
     // exec->__run_handle= NULL;
     exec->_isRunning = false;
-
+ runningPrograms.removeHandle( exec->__run_handle_index);
     vTaskDelete(NULL);
 #endif
 }
