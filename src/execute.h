@@ -40,6 +40,7 @@ EventGroupHandle_t xCreatedEventGroup2 = xEventGroupCreate();
 #endif
 bool resetSync = false;
 bool toResetSync = false;
+bool isSyncalled=false;
 static void _run_task(void *pvParameters);
 
 #ifndef __TEST_DEBUG
@@ -208,6 +209,7 @@ _executablesClass runningPrograms = _executablesClass();
 static void syncExt(int h)
 {
     #ifndef __TEST_DEBUG
+    isSyncalled=true;
     if (resetSync)
         return;
     // printf("on tente %d\r\n",h);
@@ -256,7 +258,7 @@ xEventGroupClearBits(xCreatedEventGroup2, MASK);
                         MASK,
                         portMAX_DELAY);
     }
-
+isSyncalled=true;
     // printf("release %d\r\n",h);
     #endif
 }
@@ -422,7 +424,7 @@ vTaskDelay(10);
         resetSync = false;
         toResetSync=false;
         runningPrograms.restartAll();
-        
+        isSyncalled=false;
         __run_handle_index = 9999;
         }
 
@@ -439,17 +441,23 @@ vTaskDelay(10);
         {
 
             _kill();
+            
         }
 
         if (exeExist == true)
         {
 
+            printf("rrrr\r\n");
             df.args = args;
             df.exe = _executecmd;
             //
             // we free the sync
+            
             toResetSync = true;
+           // vTaskDelay(30);
+           if(isSyncalled)
             while(!resetSync){}
+             printf("rrrr\r\n");
            // runningPrograms.freeSync();
             vTaskDelay(10);
             runningPrograms.suspendAll();
@@ -553,6 +561,7 @@ static void _run_task(void *pvParameters)
     // exec->__run_handle= NULL;
     exec->_isRunning = false;
  runningPrograms.removeHandle( exec->__run_handle_index);
+ isSyncalled=false;
     vTaskDelete(NULL);
 #endif
 }
