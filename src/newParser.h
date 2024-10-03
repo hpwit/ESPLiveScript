@@ -205,6 +205,7 @@ public:
 
         main_script.clear();
         main_script.addContent((char *)division.c_str());
+        main_script.addContent((char *)_sync.c_str());
         main_script.addContent((char *)str->c_str());
         return compile();
     }
@@ -212,6 +213,7 @@ public:
     {
         main_script.clear();
         main_script.addContent((char *)division.c_str());
+        main_script.addContent((char *)_sync.c_str());
         string sc = "";
         for (string s : *_script)
         {
