@@ -7,6 +7,7 @@
  list<int> add_on;
 //string division="";
 string _sync="\
+uint32_t _handle_;\n\
 __ASM__ void sync()\n\
 {\n\
 \"entry a1,32\" \n\
@@ -14,7 +15,8 @@ __ASM__ void sync()\n\
 \"l32i a10,a4,0\" \n\
 \"callExt a8,_sync\"\n\
 \"retw.n\" \n\
-}@";
+}\n\
+@";
 string division="\
 __ASM__ float __div(float a,float b)\n\
 { \n\

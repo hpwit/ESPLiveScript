@@ -204,16 +204,17 @@ public:
     {
 
         main_script.clear();
-        main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)_sync.c_str());
+        main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)str->c_str());
         return compile();
     }
     Executable parse_c(list<string> *_script)
     {
         main_script.clear();
+         main_script.addContent((char *)_sync.c_str());
         main_script.addContent((char *)division.c_str());
-        main_script.addContent((char *)_sync.c_str());
+       
         string sc = "";
         for (string s : *_script)
         {
@@ -2350,7 +2351,7 @@ void kill(Console *cons, vector<string> args)
         sscanf(args[0].c_str(), "%d", &num);
         if (num > scExecutables.size())
         {
-            LedOS.pushToConsole("No executable ...");
+            LedOS.pushToConsole("No executable ...",true);
         }
         else
         {
@@ -2443,11 +2444,14 @@ void parseasm(Console *cons, vector<string> args)
 }
 void compile_c(Console *cons, vector<string> args)
 {
+      pushToConsole("Compiling ...",true);
     Executable _scExec = p.parse_c(&cons->script);
     if(_scExec.exeExist)
     {
+       
     _scExec.name=cons->filename;
     scExecutables.push_back(_scExec);
+     pushToConsole(string_format("Compiling done. Handle number:%d",scExecutables.size()),true);
     }
 
 }
@@ -2477,11 +2481,12 @@ void free(Console *cons, vector<string> args)
             }
             scExecutables[num - 1].free();
             vector<Executable>::iterator it=scExecutables.begin();
-            for (int i=0;i<num;i++)
+            for (int i=0;i<num-1;i++)
             {
                 it++;
             }
             scExecutables.erase(it);
+            
         }
     }
 }
@@ -2568,10 +2573,10 @@ public:
         // __run_handle = NULL;
         LedOS.addKeywordCommand("compile", parse_c, "Compile and run a program add '&' for run on the second core");
         LedOS.addKeywordCommand("comp", compile_c, "Compile  a program");
-         LedOS.addKeywordCommand("list", listExec, "list the programs");
-           LedOS.addKeywordCommand("free", free, "free the binary");
-        LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core)");
-        LedOS.addKeywordCommand("kill", kill, "Stop a running program");
+         LedOS.addKeywordCommand("list", listExec, "list the compiled programs");
+           LedOS.addKeywordCommand("free", free, "free the binary free x will free the program with handle x" );
+        LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core) run x run program with handle x");
+        LedOS.addKeywordCommand("kill", kill, "Stop a running program kill x kill program with handle x");
         LedOS.addKeywordCommand("parseasm", parseasm, "Parse assembly program");
         LedOS.addEscCommand(18, parsec_cEsc, "Compile and execute a program (always second Core)");
         LedOS.addEscCommand(11, kill_cEsc, "Stop a running program");

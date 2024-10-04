@@ -447,7 +447,7 @@ vTaskDelay(10);
         if (exeExist == true)
         {
 
-            printf("rrrr\r\n");
+            //printf("rrrr\r\n");
             df.args = args;
             df.exe = _executecmd;
             //
@@ -457,7 +457,7 @@ vTaskDelay(10);
            // vTaskDelay(30);
            if(isSyncalled)
             while(!resetSync){}
-             printf("rrrr\r\n");
+             //printf("rrrr\r\n");
            // runningPrograms.freeSync();
             vTaskDelay(10);
             runningPrograms.suspendAll();
@@ -500,11 +500,16 @@ vTaskDelay(10);
     void free()
     {
 #ifndef __TEST_DEBUG
+            if(_isRunning)
+            {
+                _kill();
+            }
         if (exeExist)
         {
             uint32_t memb=esp_get_free_heap_size();
             printf("Free memory before:%ld\r\n", esp_get_free_heap_size());
             freeBinary(&_executecmd);
+            _isRunning=false;
             uint32_t mema=esp_get_free_heap_size();
             printf("Free memory after:%ld freed:%ld\r\n", mema,mema-memb);
         }

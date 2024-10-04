@@ -2105,6 +2105,9 @@ void _visitprogramNode(NodeToken *nd)
 {
     // printf("visit program\n");
     point_regnum = 4;
+
+    //content.clear();
+    //header.clear();
     content.begin();
     header.begin();
    
@@ -2847,7 +2850,8 @@ void _visitdefExtGlobalVariableNode(NodeToken *nd)
 }
 void _visitdefGlobalVariableNode(NodeToken *nd)
 {
-
+if(strcmp(nd->getTokenText(),"_handle_")==0)
+return;
     if (safeMode)
     {
         if (nd->isPointer)
