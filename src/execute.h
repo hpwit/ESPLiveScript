@@ -127,6 +127,7 @@ public:
         if (nb_concurrent_programs == 0)
             return;
         uint32_t MASK = getMask();
+         TickType_t xTicksToWait = 2000 / portTICK_PERIOD_MS;
         xEventGroupSync(xCreatedEventGroup,
                         MASK,
                         MASK,
@@ -215,6 +216,7 @@ static void syncExt(int h)
     // printf("on tente %d\r\n",h);
     uint32_t MASK = runningPrograms.getMask();
     EventBits_t uxReturn;
+    TickType_t xTicksToWait = 2000 / portTICK_PERIOD_MS;
     uxReturn = xEventGroupSync(xCreatedEventGroup,
                                1 << h,
                                MASK,
@@ -459,7 +461,7 @@ vTaskDelay(10);
             while(!resetSync){}
              //printf("rrrr\r\n");
            // runningPrograms.freeSync();
-            vTaskDelay(10);
+            vTaskDelay(20);
             runningPrograms.suspendAll();
 
             __run_handle_index = runningPrograms.getHandle(this);
@@ -477,7 +479,11 @@ vTaskDelay(10);
                 Serial.printf("too many programs at once\r\n");
 #endif
             }
-            string taskname = string_format("_run_task_%d", __run_handle_index);
+             string taskname;
+            if(name.compare("Unknow")==0)
+             taskname = string_format("_run_task_%d", __run_handle_index);
+             else
+              taskname= string_format("%s_%d",name.c_str(), __run_handle_index);
             xTaskCreateUniversal(_run_task, taskname.c_str(), 4096 * 2, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), __RUN_CORE);
 
 #ifdef __CONSOLE_ESP32

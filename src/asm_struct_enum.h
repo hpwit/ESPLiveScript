@@ -251,7 +251,7 @@ public:
     void addAfterNoDouble(string s)
     {
 
-        char *str;
+       // char *str;
         if (_it != _texts.end())
         {
 

@@ -505,7 +505,7 @@ public:
             return NULL;
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        memcpy(tmp, &j, sizeof(NodeToken));
+        memcpy((void *)tmp,(void*) &j, sizeof(NodeToken));
 
 
         // tmp->children.shrink_to_fit();
@@ -1336,7 +1336,7 @@ void _visitnumberNode(NodeToken *nd)
         }
         else
         {
-            uint16_t __num = 0;
+            unsigned int __num = 0;
             if (string(nd->getTokenText()).find("x") != string::npos)
             {
                 sscanf(nd->getTokenText(), "%x", &__num);

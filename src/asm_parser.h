@@ -771,7 +771,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
        string name = "";
         for (int i = 0; i < sf.size(); i++)
         {
-          uint16_t __num = 0;
+          unsigned int __num = 0;
           sscanf(sf[i].c_str(), "%x", &__num);
           // printf("%s \r\n",sf[i].c_str());
           name = name + (char)__num;
@@ -1341,7 +1341,7 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
     {
       if (re_sparse.op == opCodeType::label)
       {
-        printf("%8x \t <%s>:\n", re_sparse.address + start_address, re_sparse.getText());
+        printf("%8x \t <%s>:\n",(unsigned int)( re_sparse.address + start_address), re_sparse.getText());
       }
       else
       {
