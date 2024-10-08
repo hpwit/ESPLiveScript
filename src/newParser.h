@@ -25,7 +25,7 @@ using namespace std;
 
 void prettyPrint2(NodeToken nd, string ident)
 {
-
+/*
     printf("%s%s\t isPointer:%d\t asPointer:%d\t", ident.c_str(), nodeTypeNames[nd._nodetype].c_str(), nd.isPointer, nd.asPointer); //, tokenNames[nd._token.type].c_str());
 
     printf("%s\t%s ", tokenNames[nd.type].c_str(), nd.getTokenText());
@@ -52,6 +52,7 @@ void prettyPrint2(NodeToken nd, string ident)
     }
     // }
     // printf("we go back\n");
+    */
 }
 
 class Parser
@@ -316,7 +317,7 @@ public:
             {
                 next();
                 int i = findMember(current_node->_vartype, string(current()->getText()));
-                int pos = 0;
+              //  int pos = 0;
                 varType *v = &_userDefinedTypes[current_node->_vartype];
                 if (i < 0)
                 {
@@ -1382,7 +1383,7 @@ public:
             is_asm = true;
         }
         // resParse result;
-        Token func = *current();
+      // Token func = *current();
 
         main_context.findFunction(current());
         if (search_result != NULL) // if (current_cntx->findFunction(current()) != NULL)
@@ -2035,7 +2036,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
         int memberpos = 0;
         int _start = 0;
         int _pos = 0;
-        int _totalsize = 0;
+      //  int _totalsize = 0;
 
         current_cntx = &main_context;
         current_node = &program;
@@ -2057,7 +2058,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                     memberpos = 0;
                     _start = 0;
                     _pos = 0;
-                    _totalsize = 0;
+                   // _totalsize = 0;
                     usded.varName = current()->getText();
                     struct_name = usded.varName;
 

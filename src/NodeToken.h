@@ -121,7 +121,7 @@ void updateMem()
     UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(loopTaskHandle);
 
     // Print the remaining stack size in bytes
-    if (__startStackMemory - stackHighWaterMark * sizeof(StackType_t) < 0)
+    if (__startStackMemory<stackHighWaterMark * sizeof(StackType_t))
         __startStackMemory = stackHighWaterMark * sizeof(StackType_t);
 
     newdelta = __startStackMemory - stackHighWaterMark * sizeof(StackType_t);
@@ -304,7 +304,7 @@ int findStruct(char *structName)
 uint16_t stringToInt(char *str)
 
 {
-    uint16_t res;
+    uint16_t res=0;
     int i = 0;
     while (str[i] != 0)
     {
@@ -506,10 +506,7 @@ public:
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
         memcpy(tmp, &j, sizeof(NodeToken));
-        for (NodeToken *k : j.children)
-        {
-            // tmp-addChild(k);
-        }
+
 
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
@@ -1339,14 +1336,14 @@ void _visitnumberNode(NodeToken *nd)
         }
         else
         {
-            uint32_t __num = 0;
+            uint16_t __num = 0;
             if (string(nd->getTokenText()).find("x") != string::npos)
             {
                 sscanf(nd->getTokenText(), "%x", &__num);
             }
             else
             {
-                sscanf(nd->getTokenText(), "%d", &__num);
+                sscanf(nd->getTokenText(), "%u", &__num);
             }
             if (__num >= 2048)
             {
@@ -1715,10 +1712,11 @@ void _visitglobalVariableNode(NodeToken *nd)
 {
 
     // printf("comopiline glmobalvar  %s\n",nd->getTokenText());
-    int r_size = 0;
+   // int r_size = 0;
     register_numl.duplicate();
     if (nd->children.size() > 0)
     {
+       // int r_size = 0;
         vector<string> tile;
         int nb = 0;
         string sd = string(nd->getTargetText());
@@ -1727,7 +1725,7 @@ void _visitglobalVariableNode(NodeToken *nd)
             tile = split(sd, " ");
 
             sscanf(tile[0].c_str(), "@%d", &nb);
-            r_size = stringToInt((char *)tile[1].c_str());
+           // r_size = stringToInt((char *)tile[1].c_str());
         }
         if (nb > 1)
         {
@@ -1759,13 +1757,13 @@ void _visitglobalVariableNode(NodeToken *nd)
     }
     varType *v = nd->getVarType();
     int start = nd->stack_pos;
-    uint8_t regnum = 1;
+   // uint8_t regnum = 1;
     if (nd->asPointer or (nd->isPointer)) // && nd->children.size() == 0))
         point_regnum++;
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
-        regnum = point_regnum;
+      //  regnum = point_regnum;
     }
     string body = "";
     // register_numl++;
@@ -1947,7 +1945,7 @@ void _visitlocalVariableNode(NodeToken *nd)
     uint8_t regnum = 1;
     if (nd->asPointer or (nd->isPointer && nd->children.size() == 0))
         point_regnum++;
-    uint8_t save_reg;
+    //uint8_t save_reg;
     // point_regnum++;
     if (nd->isPointer)
     {
@@ -2669,11 +2667,11 @@ void _visitextGlobalVariableNode(NodeToken *nd)
     }
     varType *v = nd->getVarType();
     int start = nd->stack_pos;
-    uint8_t regnum = 1;
+   // uint8_t regnum = 1;
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
-        regnum = point_regnum;
+      //  regnum = point_regnum;
     }
     string body = "";
     // register_numl++;
@@ -2906,7 +2904,7 @@ return;
                 else
                 {
                     __num = 0;
-                    sscanf(ndt->getTokenText(), "%d", &__num);
+                    sscanf(ndt->getTokenText(), "%lu", &__num);
                 }
                 for (int i = 0; i < nd->getVarType()->total_size; i++)
                 {
@@ -3020,7 +3018,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
     register_numl.duplicate();
     varType *v = nd->getVarType();
     int start = nd->stack_pos;
-    uint8_t regnum = 1;
+   // uint8_t regnum = 1;
     // int savreg_num=point_regnum;
     if (nd->asPointer or (nd->isPointer)) // && nd->children.size() == 0))
         point_regnum++;
@@ -3029,7 +3027,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
-        regnum = point_regnum;
+       // regnum = point_regnum;
     }
     string body = "";
     // register_numl++;
@@ -3063,7 +3061,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
     // res.header = number.header + h;
     content.sp.push(content.get());
     content.sp.swap();
-    if (v->size > -1)
+    if (v->size > 0)
         content.putIteratorAtPos(content.sp.get());
     else
         content.putIteratorAtPos(j);
@@ -3376,8 +3374,8 @@ void _visitreturnNode(NodeToken *nd)
             register_numl.duplicate();
             nd->getChildAtPos(i)->visitNode();
             register_numl.pop();
-            int start = nd->stack_pos + t->getVarType()->total_size;
-            int tot = t->getVarType()->size - 1;
+           // int start = nd->stack_pos + t->getVarType()->total_size;
+            //int tot = t->getVarType()->size - 1;
             if(t->getVarType()->_varType==__float__)
             {
         content.addAfter(content.sp.pop(), string_format("mov.s f2,f%d",register_numl.get()));
@@ -3463,7 +3461,7 @@ void _visitUnknownNode(NodeToken *nd) {}
 void optimize(Text *text)
 {
     // return;
-    int regnum;
+   // int regnum;
     for (int regnum = 3; regnum < 11; regnum++)
     {
         // regnum=9;

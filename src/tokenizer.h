@@ -1338,7 +1338,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
 
         if (isIna_zA_Z_(c))
         {
-            v;
+           
             int newpos = pos;
             while (isIna_zA_Z_0_9(c))
             {

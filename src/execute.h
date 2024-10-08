@@ -319,7 +319,7 @@ public:
             _kill();
         }
 
-        bool othercore = false;
+      // bool othercore = false;
 
         if (exeExist)
         {

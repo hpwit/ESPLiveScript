@@ -264,7 +264,7 @@ public:
   {
     error_message_struct error;
     result_parse_operande res;
-    char *endptr = NULL;
+    //char *endptr = NULL;
     error.error = 0;
     s = trim(s);
 
@@ -390,6 +390,10 @@ result_parse_operande operandeParse(string s, operandeType optype)
   {
     return oplabel::parse(s);
   }
+  result_parse_operande res;
+  res.error.error=1;
+  res.error.error_message="Uknown operande";
+  return res;
 }
 
 result_parse_line parseOperandes(string str, int nboperande, operandeType *optypes, int size, uint32_t (*createbin)(uint32_t *val))
@@ -767,10 +771,10 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
        string name = "";
         for (int i = 0; i < sf.size(); i++)
         {
-          char __num = 0;
+          uint16_t __num = 0;
           sscanf(sf[i].c_str(), "%x", &__num);
           // printf("%s \r\n",sf[i].c_str());
-          name = name + __num;
+          name = name + (char)__num;
         }
         if(sf.size()>0)
         ps.addText(name,value);
@@ -1230,7 +1234,7 @@ void createAddress(parsedLines *asm_parsed)
   uint32_t add_data = 0;
   // printf("create address\r\n");
   // vector<result_parse_line>::iterator it = (*asm_parsed).begin();
-  int i = 0;
+ // int i = 0;
   for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
 
@@ -1294,6 +1298,7 @@ void createAddress(parsedLines *asm_parsed)
 }
 void dumpmem(uint32_t *dump)
 {
+  /*
   printf("\n%s", "                   ");
   for (int i = 0; i < 8; i++)
   {
@@ -1320,6 +1325,7 @@ void dumpmem(uint32_t *dump)
     }
   }
   printf("\n\n\n");
+  */
 }
 
 void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
@@ -1354,7 +1360,7 @@ void flagLabel32aligned(parsedLines *asm_parsed)
 #else
   printf("Flag label(s) to align ... ");
 #endif
-  uint32_t add = 0;
+ // uint32_t add = 0;
   // vector<result_parse_line>::iterator it = (*asm_parsed).begin();
   for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
@@ -1525,10 +1531,10 @@ executable createBinary(parsedLines *asm_parsed)
     exe.error.error_message = "No global start function found";
     return exe;
   }
-  int data_size = 0;
-  int last_one = -1;
-  int nb_data = 0;
-  int i = 0;
+ // int data_size = 0;
+  //int last_one = -1;
+  //int nb_data = 0;
+  //int i = 0;
   
   uint32_t *exec = (uint32_t *)heap_caps_malloc(_instr_size, MALLOC_CAP_EXEC);
  updateMem();
@@ -1636,7 +1642,7 @@ void executeBinaryAsm(uint32_t *j, uint32_t *c)
 error_message_struct executeBinary(string function, executable ex,uint32_t handle)
 {
   error_message_struct res;
-  uint32_t toexecute;
+ // uint32_t toexecute;
   res.error = 0;
   for (int i = 0; i < ex.functions.size(); i++)
   {
