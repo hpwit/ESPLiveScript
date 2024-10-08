@@ -2036,7 +2036,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
         int memberpos = 0;
         int _start = 0;
         int _pos = 0;
-      //  int _totalsize = 0;
+      //  int _totalsize = 0; 
 
         current_cntx = &main_context;
         current_node = &program;
