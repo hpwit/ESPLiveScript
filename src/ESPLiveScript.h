@@ -1,3 +1,5 @@
+#ifndef __ESP_LIVE_SCRIPT
+#define __ESP_LIVE_SCRIPT
 #pragma once
 using namespace std;
 using namespace std;
@@ -2785,4 +2787,6 @@ public:
     }
 };
 __INIT_TOKEN _init_token;
+#endif
+
 #endif

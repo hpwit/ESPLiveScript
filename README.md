@@ -25,6 +25,7 @@ Of course proposing an assembly parer is not a really something usable :) so I t
 
 ## C like language
 I have chosen to go for a C like syntax which is closed to JavaScript with stronger typing. I have made a loose adaptation of the language. But you can write thing like this:
+ 
  ```C
  void main()
 {
@@ -44,6 +45,7 @@ resetStat();
     show();
   }
 }
+ ```
 
 ## DYI parser and compiler
 I am not a compiler specialist and I wrote 'by hand' the parser and compiler using no existing grammar.
@@ -56,7 +58,7 @@ As a consequence the scripting language has some limitations.
 
 # Let's code
 
-if you execute the following program:
+If you execute the following program:
 
  ```C
 #include "ESPLiveScript.h"
