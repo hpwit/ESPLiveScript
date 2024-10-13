@@ -412,7 +412,7 @@ public:
                 if (stack_size % 4 != 0)
                     delta = 4 - stack_size % 4;
             }
-            if (nd.getVarType()->_varType == __uint32_t__ || nd.getVarType()->_varType == __float__ || nd.getVarType()->_varType == __CRGB__ || nd.getVarType()->_varType == __CRGBW__)
+            if (nd.getVarType()->_varType == __uint32_t__ || nd.getVarType()->_varType == __float__ || nd.getVarType()->_varType == __CRGB__ ) //|| nd.getVarType()->_varType == __CRGBW__)
             {
                 if (stack_size % 4 != 0)
                 {
@@ -2366,7 +2366,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
                     content.addAfter(string_format("rfr a%d,f%d", regbase + i, register_numl.get()));
                 }
             }
-            else if (t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGB__ or t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)
+            else if (t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGB__ )//or t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)
             {
                 // content.addAfter( content.sp.pop(),string_format("mov a%d,a%d", 10 + i, register_numl.get()));
                 if (t->getChildAtPos(2)->getChildAtPos(i)->_nodetype == numberNode)
@@ -2870,7 +2870,7 @@ void _visitdefGlobalVariableNode(NodeToken *nd)
     else
     {
         _data_sav = "";
-        if (nd->getVarType()->_varType == __CRGB__ or nd->getVarType()->_varType == __CRGBW__)
+        if (nd->getVarType()->_varType == __CRGB__ )//or nd->getVarType()->_varType == __CRGBW__)
         {
             for (NodeToken *ndt : nd->children)
             {
