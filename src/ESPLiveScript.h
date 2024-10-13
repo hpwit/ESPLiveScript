@@ -2437,7 +2437,7 @@ Arguments parseInputArgs(string variables)
     vector<string> ar = split(variables, ",");
     for (int i = 0; i < ar.size(); i++)
     {
-        printf("var %d :%s\n", i, ar[i].c_str());
+       // printf("var %d :%s\n", i, ar[i].c_str());
         if (ar[i].find(".") != -1)
         {
             float j = 0;

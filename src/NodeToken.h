@@ -261,10 +261,10 @@ typedef struct
 
 int findMember(varType *v, string member)
 {
-    printf("zerk %d %s\n", v->size, v->varName.c_str());
+  //  printf("zerk %d %s\n", v->size, v->varName.c_str());
     for (int i = 0; i < v->size; i++)
     {
-        printf("look for %s %s\n", member.c_str(), v->membersNames[i].c_str());
+    //    printf("look for %s %s\n", member.c_str(), v->membersNames[i].c_str());
         if (v->membersNames[i].compare(member) == 0)
         {
             return i;
