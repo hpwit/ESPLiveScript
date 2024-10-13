@@ -2038,11 +2038,16 @@ void _visitdefFunctionNode(NodeToken *nd)
         isStructFunction = true;
     header.addAfter(string_format(".global @_%s", nd->getTokenText()));
     string variables = "";
-    for (int i = 0; i < nd->getChildAtPos(1)->children.size(); i++)
+     if(!isStructFunction)
     {
-        variables = string_format("%s %d", variables.c_str(), nd->getChildAtPos(1)->getChildAtPos(i)->getVarType()->total_size);
+        string variables = "";
+        for (int i = 0; i < nd->getChildAtPos(1)->children.size(); i++)
+        {
+            variables = string_format("%s %d", variables.c_str(), nd->getChildAtPos(1)->getChildAtPos(i)->getVarType()->total_size);
+        }
+        header.addAfter(string_format(".var %d%s", nd->getChildAtPos(1)->children.size(), variables.c_str()));
     }
-    header.addAfter(string_format(".var %d%s", nd->getChildAtPos(1)->children.size(), variables.c_str()));
+
     header.addAfter(string_format("@_stack_%s:", nd->getTokenText()));
     header.addAfter(string_format(".bytes %d", (nd->getChildAtPos(1)->children.size() + 1) * 4));
     content.addAfter(string_format("@_%s:", nd->getTokenText()));
@@ -2366,7 +2371,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
                     content.addAfter(string_format("rfr a%d,f%d", regbase + i, register_numl.get()));
                 }
             }
-            else if (t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGB__ )//or t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)
+            else if (t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGB__ or t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)
             {
                 // content.addAfter( content.sp.pop(),string_format("mov a%d,a%d", 10 + i, register_numl.get()));
                 if (t->getChildAtPos(2)->getChildAtPos(i)->_nodetype == numberNode)
@@ -2870,7 +2875,7 @@ void _visitdefGlobalVariableNode(NodeToken *nd)
     else
     {
         _data_sav = "";
-        if (nd->getVarType()->_varType == __CRGB__ )//or nd->getVarType()->_varType == __CRGBW__)
+        if (nd->getVarType()->_varType == __CRGB__ or nd->getVarType()->_varType == __CRGBW__)
         {
             for (NodeToken *ndt : nd->children)
             {

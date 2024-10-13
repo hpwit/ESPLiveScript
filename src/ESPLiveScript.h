@@ -369,7 +369,7 @@ public:
                 next();
                 int i = 0;
                 varType *v = NULL;
-        /*
+        
                 if (current_node->_vartype == __CRGB__ or current_node->_vartype == __CRGBW__)
                 {
                     i = findMember(current_node->getVarType(), string(current()->getText()));
@@ -383,7 +383,7 @@ public:
                     }
                 }
                else
-                {*/
+                {
                     i = findMember(current_node->_vartype, string(current()->getText()));
                     //  int pos = 0;
                     v = &_userDefinedTypes[current_node->_vartype];
@@ -395,7 +395,7 @@ public:
                         next();
                         return;
                     }
-               // }
+                }
                 // next();
                 // current_node->addTargetText(string(current()->getText()));
                 current_node->type = TokenUserDefinedVariableMember;
