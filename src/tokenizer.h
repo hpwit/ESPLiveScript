@@ -61,7 +61,7 @@ struct varType
     // asmInstruction mul;
     // asmInstruction div;
     // string reg_name;
-    
+
     uint8_t memberSize[20];
     // string vnames[20];
     varTypeEnum types[20];
@@ -93,141 +93,139 @@ string varTypeEnumNames[] = {
 vector<string> userDefinedVarTypeNames;
 
 varType _varTypes[] = {
-    {
-        ._varType = __none__,
-        .varName="",
+    {._varType = __none__,
+     .varName = "",
      ._varSize = 0,
-     .load={},
-     .store={},
-     .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
-    .sizes={},
+     .load = {},
+     .store = {},
+     .membersNames = {},
+     .starts = {},
+     .memberSize = {},
+     .types = {},
+     .sizes = {},
      .size = 0,
-     .total_size = 0
-     },
+     .total_size = 0},
 
     {._varType = __uint8_t__,
-    .varName="",
+     .varName = "",
      ._varSize = 1,
      .load = {l8ui},
      .store = {s8i},
-     .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+     .membersNames = {},
+     .starts = {},
+     .memberSize = {},
+     .types = {},
      .sizes = {1},
      .size = 1,
      .total_size = 1},
     {
         ._varType = __uint16_t__,
-        .varName="",
+        .varName = "",
         ._varSize = 2,
         .load = {l16ui},
         .store = {s16i},
-            .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {2},
         .size = 1,
         .total_size = 2,
     },
     {
         ._varType = __uint32_t__,
-        .varName="",
+        .varName = "",
         ._varSize = 4,
         .load = {l32i},
         .store = {s32i},
-             .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {4},
         .size = 1,
         .total_size = 4,
     },
     {
         ._varType = __int__,
-        .varName="",
+        .varName = "",
         ._varSize = 2,
         .load = {l16si},
         .store = {s16i},
-             .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {2},
         .size = 1,
         .total_size = 2,
     },
     {
         ._varType = __float__,
-        .varName="",
+        .varName = "",
         ._varSize = 4,
         .load = {lsi},
         .store = {ssi},
-             .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {4},
         .size = 1,
         .total_size = 4,
     },
     {
         ._varType = __void__,
-        .varName="",
+        .varName = "",
         ._varSize = 0,
         .load = {},
         .store = {},
-             .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {0},
         .size = 0,
         .total_size = 0,
     },
     {
         ._varType = __CRGB__,
-        .varName="",
+        .varName = "",
         ._varSize = 3,
         .load = {l8ui, l8ui, l8ui},
         .store = {s8i, s8i, s8i},
-             .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+        .membersNames = {"red", "green", "blue"},
+        .starts = {0, 1, 2},
+        .memberSize = {1, 1, 1},
+        .types = {__uint8_t__, __uint8_t__, __uint8_t__},
         .sizes = {1, 1, 1},
         .size = 3,
         .total_size = 3,
     },
     {
         ._varType = __CRGBW__,
-        .varName="",
+        .varName = "",
         ._varSize = 4,
         .load = {l8ui, l8ui, l8ui, l8ui},
         .store = {s8i, s8i, s8i, s8i},
-             .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+        .membersNames = {"red", "green", "blue", "white"},
+        .starts = {0, 1, 2, 3},
+        .memberSize = {1, 1, 1, 1},
+        .types = {__uint8_t__, __uint8_t__, __uint8_t__, __uint8_t__},
         .sizes = {1, 1, 1, 1},
         .size = 4,
         .total_size = 4,
     },
     {
         ._varType = __char__,
-        .varName="",
+        .varName = "",
         ._varSize = 1,
         .load = {l8ui},
         .store = {s8i},
-             .membersNames={},
-     .starts={},
-     .memberSize={},
-     .types={},
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {1},
         .size = 1,
         .total_size = 1,
@@ -1386,7 +1384,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
 
         if (isIna_zA_Z_(c))
         {
-           
+
             int newpos = pos;
             while (isIna_zA_Z_0_9(c))
             {
@@ -1799,7 +1797,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 t = Token(TokenMinusMinus, EOF_VARTYPE, _token_line);
                 if (_for_display)
                     t.addText("--");
-                 //t.line = _token_line;
+                // t.line = _token_line;
                 // t.pos = pos;
                 // _tks.push(t);
                 // nbReadToken++;
@@ -1815,7 +1813,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 t = Token(TokenSubstraction, EOF_VARTYPE, _token_line);
                 if (_for_display)
                     t.addText("-");
-               // t.line = _token_line;
+                // t.line = _token_line;
                 // t.pos = pos;
                 // _tks.push(t);
                 _tks.push(t);
@@ -1823,7 +1821,6 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 continue;
             }
             // Token t;
-  
         }
         if (c == ' ')
         {

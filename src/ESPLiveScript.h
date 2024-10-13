@@ -1,13 +1,20 @@
 #ifndef __ESP_LIVE_SCRIPT
 #define __ESP_LIVE_SCRIPT
 #pragma once
-using namespace std;
-using namespace std;
 
 #include <string>
+#include <variant>
+#include <vector>
+using namespace std;
 
 #ifndef _TRIGGER
 #define _TRIGGER 0
+#endif
+#ifndef __TEST_DEBUG
+using _arguments = std::variant<int, float>;
+typedef std::vector<_arguments> Arguments;
+#else
+typedef int Arguments;
 #endif
 
 // #include "tokenizer.h"
@@ -25,36 +32,75 @@ using namespace std;
 
 #include "execute.h"
 
-void prettyPrint2(NodeToken nd, string ident)
+void prettyPrint(NodeToken *_nd, string ident)
 {
-/*
-    printf("%s%s\t isPointer:%d\t asPointer:%d\t", ident.c_str(), nodeTypeNames[nd._nodetype].c_str(), nd.isPointer, nd.asPointer); //, tokenNames[nd._token.type].c_str());
+    NodeToken nd = *_nd;
+    if (_nd == NULL)
+    {
+        printf("mlqskdlmqskdlomqksdlmfdkqsdlmfk");
+    }
+    // printf("%s%d\n", ident.c_str(), 1);
 
-    printf("%s\t%s ", tokenNames[nd.type].c_str(), nd.getTokenText());
+    printf("%s%s\tisPointer:%d\tasPointer:%d\t", ident.c_str(), nodeTypeNames[nd._nodetype].c_str(), nd.isPointer, nd.asPointer); //, tokenNames[nd._token.type].c_str());
+
+    printf("text:%s\ttokenType:%s\t", nd.getTokenText(), tokenNames[nd.type].c_str());
     // printf("\n");
     if (nd.getVarType() != NULL)
     {
 
-        printf("%s total size:%d stackpos:%d\n", varTypeEnumNames[nd.getVarType()->_varType].c_str(), nd._total_size, nd.stack_pos);
-    }
-    else
-    {
-        printf("\n");
+        if (nd.type == (int)TokenUserDefinedVariable)
+            printf("var name:%s\ttotal size:%d\tstackpos:%d\t", _userDefinedTypes[nd._vartype].varName.c_str(), nd._total_size, nd.stack_pos);
+        else
+
+            printf("var name:%s\ttotal size:%d\tstackpos:%d\t", varTypeEnumNames[nd._vartype].c_str(), nd._total_size, nd.stack_pos);
     }
 
+    printf("target :%s", nd.getTargetText());
+    printf("\n");
+
     ident += "|--";
-    // printf("nb chilrend\t\t%d\n",nd.children.size());
-    // if(nd.children!=NULL)
-    //{
-    for (NodeToken *t : nd.children)
+
+    int i = 0;
+    for (NodeToken *t : _nd->children)
     {
-        // printf("child:%d\n",i);
-        prettyPrint2(*t, ident);
-        //  printf("on finit child:%d\n",i);
+        //  printf("child:%d\n",i);
+        prettyPrint(t, ident);
+        i++;
+        // printf("on finit child:%d\n",i);
     }
-    // }
     // printf("we go back\n");
-    */
+}
+
+void prettyPrint2(NodeToken nd, string ident)
+{
+    /*
+        printf("%s%s\t isPointer:%d\t asPointer:%d\t", ident.c_str(), nodeTypeNames[nd._nodetype].c_str(), nd.isPointer, nd.asPointer); //, tokenNames[nd._token.type].c_str());
+
+        printf("%s\t%s ", tokenNames[nd.type].c_str(), nd.getTokenText());
+        // printf("\n");
+        if (nd.getVarType() != NULL)
+        {
+
+            printf("%s total size:%d stackpos:%d\n", varTypeEnumNames[nd.getVarType()->_varType].c_str(), nd._total_size, nd.stack_pos);
+        }
+        else
+        {
+            printf("\n");
+        }
+
+        ident += "|--";
+        // printf("nb chilrend\t\t%d\n",nd.children.size());
+        // if(nd.children!=NULL)
+        //{
+        for (NodeToken *t : nd.children)
+        {
+            // printf("child:%d\n",i);
+            prettyPrint2(*t, ident);
+            //  printf("on finit child:%d\n",i);
+        }
+        // }
+        // printf("we go back\n");
+        */
 }
 
 class Parser
@@ -155,6 +201,9 @@ public:
         pushToConsole("***********PARSING DONE*********");
         updateMem();
         buildParents(&program);
+#ifdef __TEST_DEBUG
+        prettyPrint(&program, "");
+#endif
         program.visitNode();
         pushToConsole("***********COMPILING DONE*********");
         updateMem();
@@ -215,9 +264,9 @@ public:
     Executable parse_c(list<string> *_script)
     {
         main_script.clear();
-         main_script.addContent((char *)_sync.c_str());
+        main_script.addContent((char *)_sync.c_str());
         main_script.addContent((char *)division.c_str());
-       
+
         string sc = "";
         for (string s : *_script)
         {
@@ -318,15 +367,34 @@ public:
             if (Match(TokenMember) && Match(TokenIdentifier, 1) && !Match(TokenOpenParenthesis, 2))
             {
                 next();
-                int i = findMember(current_node->_vartype, string(current()->getText()));
-              //  int pos = 0;
-                varType *v = &_userDefinedTypes[current_node->_vartype];
-                if (i < 0)
+                int i = 0;
+                varType *v = NULL;
+
+                if (current_node->_vartype == __CRGB__ or current_node->_vartype == __CRGBW__)
                 {
-                    Error.error = 1;
-                    Error.error_message = string_format("Member %s of struct %s does not exists", current()->getText(), v->varName.c_str());
-                    next();
-                    return;
+                    i = findMember(current_node->getVarType(), string(current()->getText()));
+                    v = current_node->getVarType();
+                    if (i < 0)
+                    {
+                        Error.error = 1;
+                        Error.error_message = string_format("Member %s of struct %s does not exists", current()->getText(), v->varName.c_str());
+                        next();
+                        return;
+                    }
+                }
+                else
+                {
+                    i = findMember(current_node->_vartype, string(current()->getText()));
+                    //  int pos = 0;
+                    v = &_userDefinedTypes[current_node->_vartype];
+
+                    if (i < 0)
+                    {
+                        Error.error = 1;
+                        Error.error_message = string_format("Member %s of struct %s does not exists", current()->getText(), v->varName.c_str());
+                        next();
+                        return;
+                    }
                 }
                 // next();
                 // current_node->addTargetText(string(current()->getText()));
@@ -1385,7 +1453,7 @@ public:
             is_asm = true;
         }
         // resParse result;
-      // Token func = *current();
+        // Token func = *current();
 
         main_context.findFunction(current());
         if (search_result != NULL) // if (current_cntx->findFunction(current()) != NULL)
@@ -2038,7 +2106,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
         int memberpos = 0;
         int _start = 0;
         int _pos = 0;
-      //  int _totalsize = 0; 
+        //  int _totalsize = 0;
 
         current_cntx = &main_context;
         current_node = &program;
@@ -2060,7 +2128,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                     memberpos = 0;
                     _start = 0;
                     _pos = 0;
-                   // _totalsize = 0;
+                    // _totalsize = 0;
                     usded.varName = current()->getText();
                     struct_name = usded.varName;
 
@@ -2354,7 +2422,7 @@ void kill(Console *cons, vector<string> args)
         sscanf(args[0].c_str(), "%d", &num);
         if (num > scExecutables.size())
         {
-            LedOS.pushToConsole("No executable ...",true);
+            LedOS.pushToConsole("No executable ...", true);
         }
         else
         {
@@ -2362,28 +2430,69 @@ void kill(Console *cons, vector<string> args)
         }
     }
 }
+
+Arguments parseInputArgs(string variables)
+{
+    Arguments _args;
+    vector<string> ar = split(variables, ",");
+    for (int i = 0; i < ar.size(); i++)
+    {
+        printf("var %d :%s\n", i, ar[i].c_str());
+        if (ar[i].find(".") != -1)
+        {
+            float j = 0;
+            sscanf(ar[i].c_str(), "%f", &j);
+            _args.push_back(j);
+        }
+        else
+        {
+            int j = 0;
+            sscanf(ar[i].c_str(), "%d", &j);
+            _args.push_back(j);
+        }
+    }
+    return _args;
+}
 void run(Console *cons, vector<string> args)
 {
-    if (args.size() == 0)
+    Arguments _args;
+    int progToRun = 999;
+    if (args.size() > 0)
+    {
+        if (args[0].find("(") != -1)
+        {
+            string variables = args[0].substr(1, args[0].size() - 2);
+            _args = parseInputArgs(variables);
+        }
+        else
+        {
+            sscanf(args[0].c_str(), "%d", &progToRun);
+        }
+        if (args.size() > 1)
+        {
+            string variables = args[1].substr(1, args[1].size() - 2);
+            _args = parseInputArgs(variables);
+        }
+        // printf("%s\n\r",args[0].c_str());
+    }
+    if (progToRun == 999)
     {
         if (SCExecutable.isRunning())
         {
             LedOS.pushToConsole("Something Already running kill it first ...");
             kill(cons, args);
         }
-        SCExecutable.executeAsTask("main");
+        SCExecutable.executeAsTask("main", _args);
     }
     else
     {
-        int num = 999;
-        sscanf(args[0].c_str(), "%d", &num);
-        if (num > scExecutables.size())
+        if (progToRun > scExecutables.size())
         {
-            LedOS.pushToConsole("No executable ...",true);
+            LedOS.pushToConsole("No executable ...", true);
         }
         else
         {
-            scExecutables[num - 1].executeAsTask("main");
+            scExecutables[progToRun - 1].executeAsTask("main", _args);
         }
     }
     // SCExecutable._run(args, true);
@@ -2447,16 +2556,15 @@ void parseasm(Console *cons, vector<string> args)
 }
 void compile_c(Console *cons, vector<string> args)
 {
-      pushToConsole("Compiling ...",true);
+    pushToConsole("Compiling ...", true);
     Executable _scExec = p.parse_c(&cons->script);
-    if(_scExec.exeExist)
+    if (_scExec.exeExist)
     {
-       
-    _scExec.name=cons->filename;
-    scExecutables.push_back(_scExec);
-     pushToConsole(string_format("Compiling done. Handle number:%d",scExecutables.size()),true);
-    }
 
+        _scExec.name = cons->filename;
+        scExecutables.push_back(_scExec);
+        pushToConsole(string_format("Compiling done. Handle number:%d", scExecutables.size()), true);
+    }
 }
 void free(Console *cons, vector<string> args)
 {
@@ -2483,13 +2591,12 @@ void free(Console *cons, vector<string> args)
                 scExecutables[num - 1]._kill();
             }
             scExecutables[num - 1].free();
-            vector<Executable>::iterator it=scExecutables.begin();
-            for (int i=0;i<num-1;i++)
+            vector<Executable>::iterator it = scExecutables.begin();
+            for (int i = 0; i < num - 1; i++)
             {
                 it++;
             }
             scExecutables.erase(it);
-            
         }
     }
 }
@@ -2562,9 +2669,9 @@ void parsec_cEsc(Console *cons)
 
 void listExec(Console *cons, vector<string> args)
 {
-    for(int i=0;i<scExecutables.size();i++)
+    for (int i = 0; i < scExecutables.size(); i++)
     {
-        LedOS.pushToConsole(string_format(" %2d | %12s isRunning:%d",i+1,scExecutables[i].name.c_str(),scExecutables[i].isRunning()), true);
+        LedOS.pushToConsole(string_format(" %2d | %12s isRunning:%d", i + 1, scExecutables[i].name.c_str(), scExecutables[i].isRunning()), true);
     }
 }
 
@@ -2576,8 +2683,8 @@ public:
         // __run_handle = NULL;
         LedOS.addKeywordCommand("compile", parse_c, "Compile and run a program add '&' for run on the second core");
         LedOS.addKeywordCommand("comp", compile_c, "Compile  a program");
-         LedOS.addKeywordCommand("list", listExec, "list the compiled programs");
-           LedOS.addKeywordCommand("free", free, "free the binary free x will free the program with handle x" );
+        LedOS.addKeywordCommand("list", listExec, "list the compiled programs");
+        LedOS.addKeywordCommand("free", free, "free the binary free x will free the program with handle x");
         LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core) run x run program with handle x");
         LedOS.addKeywordCommand("kill", kill, "Stop a running program kill x kill program with handle x");
         LedOS.addKeywordCommand("parseasm", parseasm, "Parse assembly program");

@@ -2,6 +2,7 @@
 #ifndef __ASM_EXECUTE
 #define __ASM_EXECUTE
 #include <vector>
+#include <variant>
 #ifndef __RUN_CORE
 #define __RUN_CORE 0
 #endif
@@ -127,7 +128,7 @@ public:
         if (nb_concurrent_programs == 0)
             return;
         uint32_t MASK = getMask();
-       // TickType_t xTicksToWait = 2000 / portTICK_PERIOD_MS;
+        // TickType_t xTicksToWait = 2000 / portTICK_PERIOD_MS;
         xEventGroupSync(xCreatedEventGroup,
                         MASK,
                         MASK,
@@ -215,7 +216,7 @@ static void syncExt(int h)
     // printf("on tente %d\r\n",h);
     uint32_t MASK = runningPrograms.getMask();
     EventBits_t uxReturn;
-   // TickType_t xTicksToWait = 2000 / portTICK_PERIOD_MS;
+    // TickType_t xTicksToWait = 2000 / portTICK_PERIOD_MS;
     uxReturn = xEventGroupSync(xCreatedEventGroup,
                                1 << h,
                                MASK,
@@ -273,11 +274,14 @@ public:
     bool _isRunning = false;
     bool isHalted = false;
     string name = "Unknown";
+    Arguments args;
     _exe_args df;
     Executable()
     {
         exeExist = false;
         __run_handle_index = 9999;
+        // args.clear();
+        // args.shrink_to_fit();
     }
     Executable(executable _executable)
     {
@@ -433,7 +437,7 @@ public:
 #endif
     }
 
-    int _run(vector<string> args, bool second_core)
+    int _run(vector<string> args, bool second_core, int core, Arguments arguments)
     {
         __run_handle_index = 9999;
 #ifndef __TEST_DEBUG
@@ -483,7 +487,7 @@ public:
                 taskname = string_format("_run_task_%d", __run_handle_index);
             else
                 taskname = string_format("%s_%d", name.c_str(), __run_handle_index);
-            xTaskCreateUniversal(_run_task, taskname.c_str(), 4096 * 2, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), __RUN_CORE);
+            xTaskCreateUniversal(_run_task, taskname.c_str(), 4096 * 2, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), core);
 
 #ifdef __CONSOLE_ESP32
             LedOS.pushToConsole("Execution on going CTRL + k to stop", true);
@@ -523,25 +527,76 @@ public:
 #endif
     }
 
-bool isExeExists()
-{
-    return exeExist;
-}
+    bool isExeExists()
+    {
+        return exeExist;
+    }
+#ifndef __TEST_DEBUG
     void execute(string prog)
     {
+        args.clear();
 #ifndef __TEST_DEBUG
-        executeBinary("@_" + prog, _executecmd, 9999);
+        error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, args);
+        if (res.error)
+        {
+            pushToConsole(res.error_message,true);
+        }
 #endif
     }
 
-    void executeAsTask(string prog)
+    void execute(string prog, Arguments arguments)
     {
+        args.clear();
+        for (int i = 0; i < arguments.size(); i++)
+        {
+            args.push_back(arguments[i]);
+        }
 #ifndef __TEST_DEBUG
-        vector<string> args;
-        args.push_back("@_" + prog);
-        _run(args, true);
+        error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, args);
+        if (res.error)
+        {
+            pushToConsole(res.error_message,true);
+        }
 #endif
     }
+
+    void executeAsTask(string prog, int core, Arguments arguments)
+    {
+        args.clear();
+        for (int i = 0; i < arguments.size(); i++)
+        {
+            args.push_back(arguments[i]);
+        }
+#ifndef __TEST_DEBUG
+        if (core == 0 or core == 1)
+        {
+            vector<string> args;
+            args.push_back("@_" + prog);
+            _run(args, true, core, arguments);
+        }
+        else
+        {
+            pushToConsole(string_format("Wrong core number %d should be 0 or 1", core));
+        }
+#endif
+    }
+
+    void executeAsTask(string prog, Arguments arguments)
+    {
+        executeAsTask(prog, __RUN_CORE, arguments);
+    }
+    void executeAsTask(string prog)
+    {
+        args.clear();
+        executeAsTask(prog, __RUN_CORE, args);
+    }
+
+    void executeAsTask(string prog, int core)
+    {
+        args.clear();
+        executeAsTask(prog, core, args);
+    }
+#endif
     bool isRunning()
     {
         return _isRunning;
@@ -565,11 +620,19 @@ static void _run_task(void *pvParameters)
     exec->_isRunning = true;
     if (exec->df.args.size() > 0)
     {
-        executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index);
+        error_message_struct res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec->args);
+        if (res.error)
+        {
+            pushToConsole(res.error_message,true);
+        }
     }
     else
     {
-        executeBinary("@_main", exec->df.exe, exec->__run_handle_index);
+        error_message_struct res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec->args);
+        if (res.error)
+        {
+            pushToConsole(res.error_message,true);
+        }
     }
     pushToConsole("Execution done.", true);
     // exec->__run_handle= NULL;

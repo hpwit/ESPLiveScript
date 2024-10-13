@@ -22,71 +22,68 @@ using namespace std;
 
 bool __parser_debug = false;
 
-uint8_t *binary_data=NULL;
-uint8_t *tmp_exec=NULL;
-int _address_data=0;
-int _address_instr=0;
-int _instr_size=0;
+uint8_t *binary_data = NULL;
+uint8_t *tmp_exec = NULL;
+int _address_data = 0;
+int _address_instr = 0;
+int _instr_size = 0;
 
-//vector<result_parse_line> _asm_parsed;
+// vector<result_parse_line> _asm_parsed;
 parsedLines _asm_parsed;
 
-
-void addInstr(result_parse_line operande,parsedLines *asm_parsed)
+void addInstr(result_parse_line operande, parsedLines *asm_parsed)
 {
-    if (operande.op != opCodeType::data && operande.op != opCodeType::number)
+  if (operande.op != opCodeType::data && operande.op != opCodeType::number)
+  {
+    operande.address = _address_instr;
+
+    if (operande.align == true)
     {
-      operande.address=_address_instr;
-      
-      if(operande.align==true)
-      {
-        int add_size=0;
-        int op=(_address_instr % ALIGN_INSTR);
-        /*
-          switch(op)
-          {
-            case 2:
-            add_size=2;
-            break;
-            case 1:
-            add_size=3;
-            break;
-            case 3:
-            add_size=5;
-            break;
-            default:
-            add_size=0;
-            break;
-          }
-          */
-         if(op>0)
-         add_size=ALIGN_INSTR-op;
-        operande.address+=add_size;
-      }
-      memcpy(tmp_exec + operande.address, &operande.bincode, operande.size);
-     // printf("parseASM instr %d\r\n",operande.address);
-      _address_instr=operande.size+  operande.address;
-      if(operande.op!=opCodeType::standard)
-          asm_parsed->push_back(operande);
-    }
-    else
-    {
-      int add_size=0;
-        int op=(_address_data % ALIGN_DATA);
-        if(op>0)
+      int add_size = 0;
+      int op = (_address_instr % ALIGN_INSTR);
+      /*
+        switch(op)
         {
-   add_size=ALIGN_DATA-op;
-        _address_data+=add_size;
+          case 2:
+          add_size=2;
+          break;
+          case 1:
+          add_size=3;
+          break;
+          case 3:
+          add_size=5;
+          break;
+          default:
+          add_size=0;
+          break;
         }
-      asm_parsed->last()->bincode=_address_data;
-      _address_instr+=4;
-      memcpy(binary_data+_address_data,operande.getText(),operande.size);
-     // printf("parseASM eddr_adta %d\r\n",_address_data);
-      _address_data+=operande.size;
+        */
+      if (op > 0)
+        add_size = ALIGN_INSTR - op;
+      operande.address += add_size;
     }
-
+    memcpy(tmp_exec + operande.address, &operande.bincode, operande.size);
+    // printf("parseASM instr %d\r\n",operande.address);
+    _address_instr = operande.size + operande.address;
+    if (operande.op != opCodeType::standard)
+      asm_parsed->push_back(operande);
+  }
+  else
+  {
+    int add_size = 0;
+    int op = (_address_data % ALIGN_DATA);
+    if (op > 0)
+    {
+      add_size = ALIGN_DATA - op;
+      _address_data += add_size;
+    }
+    asm_parsed->last()->bincode = _address_data;
+    _address_instr += 4;
+    memcpy(binary_data + _address_data, operande.getText(), operande.size);
+    // printf("parseASM eddr_adta %d\r\n",_address_data);
+    _address_data += operande.size;
+  }
 }
-
 
 result_parse_line *getInstrAtPos(int pos)
 {
@@ -264,7 +261,7 @@ public:
   {
     error_message_struct error;
     result_parse_operande res;
-    //char *endptr = NULL;
+    // char *endptr = NULL;
     error.error = 0;
     s = trim(s);
 
@@ -391,8 +388,8 @@ result_parse_operande operandeParse(string s, operandeType optype)
     return oplabel::parse(s);
   }
   result_parse_operande res;
-  res.error.error=1;
-  res.error.error_message="Uknown operande";
+  res.error.error = 1;
+  res.error.error_message = "Uknown operande";
   return res;
 }
 
@@ -419,7 +416,7 @@ result_parse_line parseOperandes(string str, int nboperande, operandeType *optyp
       {
         if (optypes[i] == operandeType::label)
         {
-          result.addText( res.label);
+          result.addText(res.label);
         }
         values[i] = res.value;
       }
@@ -442,11 +439,11 @@ result_parse_line parseOperandes(string str, int nboperande, operandeType *optyp
   return result;
 }
 
-int findLabel(string s,parsedLines *asm_parsed)
+int findLabel(string s, parsedLines *asm_parsed)
 {
   int res = -1;
   int i = 0;
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     if ((*it)->op == opCodeType::label || (*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label)
     {
@@ -468,8 +465,8 @@ int findFunction(string s, vector<result_parse_line> *asm_parsed)
   {
     if ((*it).op == opCodeType::function_declaration)
     {
-      //if ((*it).name.compare(s) == 0)
-      if(strcmp((*it).getText(),s.c_str())==0)
+      // if ((*it).name.compare(s) == 0)
+      if (strcmp((*it).getText(), s.c_str()) == 0)
       {
         return i;
       }
@@ -490,18 +487,18 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     res.size = 0;
 
     res.align = false;
-    res.addText (trim(sp.opcde.substr(0, sp.opcde.find(":"))));
-   // printf("processing label:%s\n",res.getText());
+    res.addText(trim(sp.opcde.substr(0, sp.opcde.find(":"))));
+    // printf("processing label:%s\n",res.getText());
     if (findLabel(string(res.getText()), asm_parsed) != -1)
     {
       asm_Error.error = 1;
       // res.error.error_message = string_format("label %s is already declared in line %d\n", res.name.c_str(), (*asm_parsed)[findLabel(res.name, asm_parsed)].line);
       asm_Error.error_message = string_format("label %s is already declare\n", res.getText());
     }
-  if (sp.opcde.substr(0,2).compare("@_")==0)
-  {
-    res.align=true;
-  }
+    if (sp.opcde.substr(0, 2).compare("@_") == 0)
+    {
+      res.align = true;
+    }
     return res;
   }
   if (sp.opcde.compare("add") == 0)
@@ -768,7 +765,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
         asm_Error.error = 0;
         ps.size = value;
         vector<string> sf = split(suite, " ");
-       string name = "";
+        string name = "";
         for (int i = 0; i < sf.size(); i++)
         {
           unsigned int __num = 0;
@@ -776,8 +773,8 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
           // printf("%s \r\n",sf[i].c_str());
           name = name + (char)__num;
         }
-        if(sf.size()>0)
-        ps.addText(name,value);
+        if (sf.size() > 0)
+          ps.addText(name, value);
         sf.clear();
         return ps;
       }
@@ -809,9 +806,9 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
       ps1->align = true;
       asm_Error.error = 0;
       ps.size = 4;
-      ps.addText( sp.operandes);
-      //printf(".woprd %s\n\r", ps.name.c_str());
-      // ps.name = ps.name + '\n' + '\0';
+      ps.addText(sp.operandes);
+      // printf(".woprd %s\n\r", ps.name.c_str());
+      //  ps.name = ps.name + '\n' + '\0';
     }
     return ps;
     // return parseOperandes(sp.operandes, 1, op_word, 4, bin_word);
@@ -835,7 +832,14 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     ps.op = opCodeType::function_declaration;
     return ps;
   }
-
+  if (sp.opcde.compare(".var") == 0)
+  {
+    result_parse_line ps;
+    ps = parseOperandes(sp.operandes, 1, op_global, 0, NULL);
+    // printf("operandes %s\r\n",ps.getText());
+    ps.op = opCodeType::variable;
+    return ps;
+  }
   if (sp.opcde.compare("callExt") == 0)
   {
     result_parse_line ps;
@@ -856,12 +860,12 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
       int savbin = ps.bincode;
       ps = parseOperandes(string_format("a%d,a2,%d", ps.bincode, i * 4), 3, op_l32i, 3, bin_l32i);
       // ps.debugtxt = "call ext function";
-      //ps.op = opCodeType::external_call;
+      // ps.op = opCodeType::external_call;
       //(*asm_parsed).push_back(ps);
-      addInstr(ps,asm_parsed);
+      addInstr(ps, asm_parsed);
       ps = parseOperandes(string_format("a%d", savbin), 1, op_callx8, 3, bin_callx8);
       // ps.debugtxt=debugsav;
-     // ps.op = opCodeType::external_call;
+      // ps.op = opCodeType::external_call;
     }
     // ps.op=opCodeType::external_call;
     return ps;
@@ -883,7 +887,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
       // string debugsav=ps.debugtxt;
       ps = parseOperandes(string_format("a%d,a2,%d", ps.bincode, i * 4), 3, op_l32i, 3, bin_l32i);
       // ps.debugtxt=debugsav;
-     // ps.op = opCodeType::external_var;
+      // ps.op = opCodeType::external_var;
     }
     return ps;
   }
@@ -905,8 +909,8 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
         ps1->align = true;
         asm_Error.error = 0;
         ps.size = sp.operandes.size() + 2;
-       // ps.name = sp.operandes;
-        ps.addText ( sp.operandes + '\n' + '\0');
+        // ps.name = sp.operandes;
+        ps.addText(sp.operandes + '\n' + '\0');
       }
     }
     else
@@ -1054,65 +1058,58 @@ line splitOpcodeOperande(string s)
   return res;
 }
 
-
-
-
-error_message_struct parseASM(Text *_header,Text *_content, parsedLines *asm_parsed)
+error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_parsed)
 {
   // list<string> lines = *_lines;
   error_message_struct main_error;
   main_error.error = 0;
   main_error.error_message = "";
-optimize(_content);
-//_content->display();
-//printf("optimized done\r\n");
+  optimize(_content);
+  //_content->display();
+  // printf("optimized done\r\n");
 
-
-
- tmp_exec=NULL;
- binary_data=NULL;
- _address_data=0;
- _address_instr=0;
-_instr_size=0;
-int _nb_data=0;
-int _size=0;
- for(int i=0;i<_header->size();i++)
- {
-  string str=_header->textAt(i);
-  if(str.compare(0,6,".bytes")==0)
+  tmp_exec = NULL;
+  binary_data = NULL;
+  _address_data = 0;
+  _address_instr = 0;
+  _instr_size = 0;
+  int _nb_data = 0;
+  int _size = 0;
+  for (int i = 0; i < _header->size(); i++)
   {
-    int h=0;
-    _nb_data++;
-    vector<string> v=split(str," ");
-    sscanf(v[1].c_str(), "%d", &h);
-    _size+=h;
-  }
- }
-// printf("taille %d\r\n",_size);
-int _nb_align_label=0;
-int _nb_not_aligned_label=0;
- for(int i=0;i<_content->size();i++)
- {
-  string str=_header->textAt(i);
-  if(str.compare(0,2,"@_")==0)
-  {
-    _nb_align_label++;
-  }
-  else
-  {
-    if(str.find(":")!=-1)
+    string str = _header->textAt(i);
+    if (str.compare(0, 6, ".bytes") == 0)
     {
-    _nb_not_aligned_label++;
+      int h = 0;
+      _nb_data++;
+      vector<string> v = split(str, " ");
+      sscanf(v[1].c_str(), "%d", &h);
+      _size += h;
     }
   }
- }
+  // printf("taille %d\r\n",_size);
+  int _nb_align_label = 0;
+  int _nb_not_aligned_label = 0;
+  for (int i = 0; i < _content->size(); i++)
+  {
+    string str = _header->textAt(i);
+    if (str.compare(0, 2, "@_") == 0)
+    {
+      _nb_align_label++;
+    }
+    else
+    {
+      if (str.find(":") != -1)
+      {
+        _nb_not_aligned_label++;
+      }
+    }
+  }
 
-  _instr_size=(_nb_align_label+1)*ALIGN_INSTR+(_content->size()-_nb_not_aligned_label)*3;
-  //printf("taille instr %d\r\n",_instr_size);
+  _instr_size = (_nb_align_label + 1) * ALIGN_INSTR + (_content->size() - _nb_not_aligned_label) * 3;
+  // printf("taille instr %d\r\n",_instr_size);
 
-
-
-  _instr_size=(_instr_size / 8) * 8 + 8;
+  _instr_size = (_instr_size / 8) * 8 + 8;
 #ifdef __CONSOLE_ESP32
   string _d = string_format("Creation of an %d bytes binary and %d bytes data", _instr_size, _size);
   LedOS.pushToConsole(_d);
@@ -1120,22 +1117,22 @@ int _nb_not_aligned_label=0;
   printf("Creation of an %d bytes binary and %d bytes data\r\n", _instr_size, _size);
 #endif
 
-tmp_exec = (uint8_t *)malloc(_instr_size);
-if(_size>0)
-{
-  _size+=ALIGN_DATA*_nb_data;
- binary_data= (uint8_t *)malloc((_size / 4) * 4 + 4);
-}
+  tmp_exec = (uint8_t *)malloc(_instr_size);
+  if (_size > 0)
+  {
+    _size += ALIGN_DATA * _nb_data;
+    binary_data = (uint8_t *)malloc((_size / 4) * 4 + 4);
+  }
   // printf("her:\r\n");
 #ifdef __CONSOLE_ESP32
-  string d = string_format("Parsing %d assembly lines ... ", _header->size()+_content->size());
+  string d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size());
   LedOS.pushToConsole(d);
 #else
-  printf("Parsing %d assembly lines ...\r\n ", _header->size()+_content->size());
+  printf("Parsing %d assembly lines ...\r\n ", _header->size() + _content->size());
 #endif
 
   int size = _header->size();
-  int tmp_size=size;
+  int tmp_size = size;
   for (int i = 0; i < size; i++)
   {
 
@@ -1143,7 +1140,7 @@ if(_size>0)
     {
       printf("on parse line: %d : %s\r\n", i, _header->front().c_str());
     }
-   //  printf("on parse line: %d : %s\r\n",i,_header->front().c_str());
+    //  printf("on parse line: %d : %s\r\n",i,_header->front().c_str());
     line res = splitOpcodeOperande(_header->front());
     if (!res.error)
     {
@@ -1152,7 +1149,7 @@ if(_size>0)
       {
         // re_sparse.debugtxt = _lines->front();
       }
-       re_sparse.line = i + 1;
+      re_sparse.line = i + 1;
       // printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
 
       if (asm_Error.error)
@@ -1163,8 +1160,8 @@ if(_size>0)
       else
       {
         // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
-       // asm_parsed->push_back(re_sparse);
-       addInstr(re_sparse,asm_parsed);
+        // asm_parsed->push_back(re_sparse);
+        addInstr(re_sparse, asm_parsed);
         updateMem();
         // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
       }
@@ -1172,48 +1169,48 @@ if(_size>0)
     _header->pop_front();
   }
 
-     size = _content->size();
-  for (int i =tmp_size; i < size+tmp_size; i++)
+  size = _content->size();
+  for (int i = tmp_size; i < size + tmp_size; i++)
   {
     if (__parser_debug)
     {
       printf("on parse line: %d : %s\r\n", i, _content->front().c_str());
     }
-    if(_content->front().compare(" ")!=0)
+    if (_content->front().compare(" ") != 0)
     {
-    // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
-    line res = splitOpcodeOperande(_content->front());
-    if (!res.error)
-    {
-      result_parse_line re_sparse = parseline(res, asm_parsed);
-      if (__parser_debug)
+      // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
+      line res = splitOpcodeOperande(_content->front());
+      if (!res.error)
       {
-        // re_sparse.debugtxt = _lines->front();
-      }
-    //  printf("on parse line: %d : %s\r\n",i,_content->front().c_str());
-       re_sparse.line = i + 1;
-      // printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
+        result_parse_line re_sparse = parseline(res, asm_parsed);
+        if (__parser_debug)
+        {
+          // re_sparse.debugtxt = _lines->front();
+        }
+        //  printf("on parse line: %d : %s\r\n",i,_content->front().c_str());
+        re_sparse.line = i + 1;
+        // printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
 
-      if (asm_Error.error)
-      {
-        main_error.error = 1;
-        main_error.error_message += string_format("line:%d %s\r\n", i, asm_Error.error_message.c_str());
+        if (asm_Error.error)
+        {
+          main_error.error = 1;
+          main_error.error_message += string_format("line:%d %s\r\n", i, asm_Error.error_message.c_str());
+        }
+        else
+        {
+          // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+          // asm_parsed->push_back(re_sparse);
+          addInstr(re_sparse, asm_parsed);
+          updateMem();
+          // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+        }
       }
-      else
-      {
-        // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
-       // asm_parsed->push_back(re_sparse);
-         addInstr(re_sparse,asm_parsed);
-        updateMem();
-        // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
-      }
-    }
     }
     _content->pop_front();
   }
 
   // printf("Done.\r\n");
-  if(main_error.error==1)
+  if (main_error.error == 1)
   {
     free(binary_data);
     free(tmp_exec);
@@ -1234,8 +1231,8 @@ void createAddress(parsedLines *asm_parsed)
   uint32_t add_data = 0;
   // printf("create address\r\n");
   // vector<result_parse_line>::iterator it = (*asm_parsed).begin();
- // int i = 0;
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  // int i = 0;
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
 
     if ((*it)->op != opCodeType::data && (*it)->op != opCodeType::number)
@@ -1244,7 +1241,7 @@ void createAddress(parsedLines *asm_parsed)
       // printf("%s %s\n\r",it->debugtxt.c_str(), it->name.c_str());
       // result_parse_line  *re_sparse=&asmParsed[i];
 
-     (*it)->address = add_instr;
+      (*it)->address = add_instr;
       if ((*it)->align == true)
       {
         // printf("%s %s %d\n\r",it->debugtxt.c_str(), it->name.c_str(),add_instr & 3);
@@ -1273,10 +1270,10 @@ void createAddress(parsedLines *asm_parsed)
           asm_Error.error = 0;
           (*it)->address = add_instr + add_op.size;
           // printf("function not aligned\t %s \t %s\n", it->debugtxt.c_str(), it->name.c_str());
-          //printf("one insert \n");
-         it= asm_parsed->insert(it, add_op);
-           //printf("apres insert \n");
-           it++;
+          // printf("one insert \n");
+          it = asm_parsed->insert(it, add_op);
+          // printf("apres insert \n");
+          it++;
           add_instr = add_instr + add_op.size;
           // add_instr += 4 - (add_instr & 3);
         }
@@ -1287,14 +1284,14 @@ void createAddress(parsedLines *asm_parsed)
     {
       // we suppose that above it's the label
       (*it)->address = add_data;
-      vector<result_parse_line*>::iterator prev_it = it--;
+      vector<result_parse_line *>::iterator prev_it = it--;
       it++;
       (*prev_it)->bincode = add_data;
-      if(it!=asm_parsed->end())
-         add_data += (*it)->size;
+      if (it != asm_parsed->end())
+        add_data += (*it)->size;
     }
   }
-   printf("Done\r\n");
+  printf("Done\r\n");
 }
 void dumpmem(uint32_t *dump)
 {
@@ -1330,7 +1327,7 @@ void dumpmem(uint32_t *dump)
 
 void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
 {
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     result_parse_line re_sparse = *(*it);
     if (asm_Error.error)
@@ -1341,7 +1338,7 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
     {
       if (re_sparse.op == opCodeType::label)
       {
-        printf("%8x \t <%s>:\n",(unsigned int)( re_sparse.address + start_address), re_sparse.getText());
+        printf("%8x \t <%s>:\n", (unsigned int)(re_sparse.address + start_address), re_sparse.getText());
       }
       else
       {
@@ -1353,16 +1350,16 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
 
 void flagLabel32aligned(parsedLines *asm_parsed)
 {
- // return;
+  // return;
 #ifdef __CONSOLE_ESP32
   LedOS.pushToConsole("Flag label(s) to align ... ");
 
 #else
   printf("Flag label(s) to align ... ");
 #endif
- // uint32_t add = 0;
+  // uint32_t add = 0;
   // vector<result_parse_line>::iterator it = (*asm_parsed).begin();
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     if ((*it)->op == opCodeType::jump_32aligned || (*it)->op == opCodeType::function_declaration)
     {
@@ -1380,7 +1377,7 @@ void flagLabel32aligned(parsedLines *asm_parsed)
 #else
   printf("Done.");
 #endif
- //  printf("Done.\r\n");
+  //  printf("Done.\r\n");
 }
 
 error_message_struct calculateJump(parsedLines *asm_parsed)
@@ -1397,8 +1394,8 @@ error_message_struct calculateJump(parsedLines *asm_parsed)
   error.error = 0;
   error.error_message = "";
 
- // return error;
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  // return error;
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     result_parse_line *parse_line = *it;
     if ((parse_line->op == opCodeType::jump) || (parse_line->op == opCodeType::jump_32aligned))
@@ -1419,14 +1416,14 @@ error_message_struct calculateJump(parsedLines *asm_parsed)
       else
       {
         error.error = 1;
-         error.error_message += string_format("line : %d label %s not found\n",parse_line->line, parse_line->getText());
+        error.error_message += string_format("line : %d label %s not found\n", parse_line->line, parse_line->getText());
       }
     }
   }
   // printf("Done.\r\n");
   return error;
 }
-error_message_struct calculateJump(uint8_t *exec,parsedLines *asm_parsed)
+error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
 {
 
 #ifdef __CONSOLE_ESP32
@@ -1439,7 +1436,7 @@ error_message_struct calculateJump(uint8_t *exec,parsedLines *asm_parsed)
   error_message_struct error;
   error.error = 0;
   error.error_message = "";
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     result_parse_line *parse_line = *it;
     if ((parse_line->op == opCodeType::jump) || (parse_line->op == opCodeType::jump_32aligned))
@@ -1450,8 +1447,8 @@ error_message_struct calculateJump(uint8_t *exec,parsedLines *asm_parsed)
         if (parse_line->calculateOfssetJump)
         {
           parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address, getInstrAtPos(index)->address);
-         // printf("line:%d %d\r\n",parse_line->address,parse_line->size);
-        memcpy(exec+parse_line->address, &parse_line->bincode, parse_line->size);
+          // printf("line:%d %d\r\n",parse_line->address,parse_line->size);
+          memcpy(exec + parse_line->address, &parse_line->bincode, parse_line->size);
         }
         else
         {
@@ -1463,7 +1460,7 @@ error_message_struct calculateJump(uint8_t *exec,parsedLines *asm_parsed)
       {
         error.error = 1;
         printf("b ou foune\r\n");
-         error.error_message += string_format("line : %d label %s not found\n",parse_line->line, parse_line->getText());
+        error.error_message += string_format("line : %d label %s not found\n", parse_line->line, parse_line->getText());
       }
     }
   }
@@ -1474,17 +1471,17 @@ error_message_struct calculateJump(uint8_t *exec,parsedLines *asm_parsed)
 void createAbsoluteJump(uint8_t *exec, parsedLines *asm_parsed, uint32_t address)
 {
   int nb_data = 0;
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     if ((*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label)
     {
-    //  it++;
-      //uint32_t content = (*(it))->address + address;
+      //  it++;
+      // uint32_t content = (*(it))->address + address;
       uint32_t content = (*it)->bincode + address;
-    //  it--; // à cause de l'"it++"
+      //  it--; // à cause de l'"it++"
       // printf("on veut mapper address:%s %ld\r\n",(*it)->getText(),(*it)->bincode);
-     // (*it)->address = content;
-    // printf("absoluit line:%d\r\n",nb_data*4);
+      // (*it)->address = content;
+      // printf("absoluit line:%d\r\n",nb_data*4);
       uint32_t *new_adr = (uint32_t *)exec + nb_data; // (*asm_parsed)[i].address / 4;
       // printf("new content %x atr adress %x\n",content,(uint32_t)new_adr);
       nb_data++;
@@ -1501,12 +1498,12 @@ executable createBinary(parsedLines *asm_parsed)
   executable exe;
   exe.error.error = 0;
 
-  for (vector<result_parse_line*>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     if ((*it)->op == opCodeType::function_declaration)
     {
-     // printf("look for %s\n",(*it)->getText());
-      if(*(*it)->getText()=='\0')
+      // printf("look for %s\n",(*it)->getText());
+      if (*(*it)->getText() == '\0')
         continue;
       int index = findLabel(string((*it)->getText()), asm_parsed);
       if (index == -1)
@@ -1518,8 +1515,24 @@ executable createBinary(parsedLines *asm_parsed)
       else
       {
         globalcall gc;
+        vector<result_parse_line *>::iterator it2 = it;
+        it2++;
+        if ((*it2)->op == opCodeType::variable)
+        {
+          string stackstring = string((*it)->getText()).insert(2, "stack_");
+          // printf(" qss %s %ld  %s\r\n",stackstring.c_str(),getInstrAtPos(findLabel(
+          //  stackstring, asm_parsed))->bincode,(*it2)->getText());
+          gc.variableaddress = getInstrAtPos(findLabel( stackstring, asm_parsed))->bincode;
+        }
+        vector<string> args = split(trim(string((*it2)->getText())), " ");
+        int num = 0;
+        sscanf(args[0].c_str(), "%d", &num);
         gc.name = string((*it)->getText());
+        gc.args_num = num;
+
+        gc.variables = string((*it2)->getText());
         gc.address = getInstrAtPos(index)->address; //(*asm_parsed)[index].address;
+
         exe.functions.push_back(gc);
       }
     }
@@ -1531,25 +1544,25 @@ executable createBinary(parsedLines *asm_parsed)
     exe.error.error_message = "No global start function found";
     return exe;
   }
- // int data_size = 0;
-  //int last_one = -1;
-  //int nb_data = 0;
-  //int i = 0;
-  
-  uint32_t *exec = (uint32_t *)heap_caps_malloc(_instr_size, MALLOC_CAP_EXEC);
- updateMem();
+  // int data_size = 0;
+  // int last_one = -1;
+  // int nb_data = 0;
+  // int i = 0;
 
- error_message_struct error=calculateJump(tmp_exec, asm_parsed);
-  if(error.error==1)
+  uint32_t *exec = (uint32_t *)heap_caps_malloc(_instr_size, MALLOC_CAP_EXEC);
+  updateMem();
+
+  error_message_struct error = calculateJump(tmp_exec, asm_parsed);
+  if (error.error == 1)
   {
 
-    exe.error=error;
-          _asm_parsed.clear();
-      all_text.clear();
-      return exe;
+    exe.error = error;
+    _asm_parsed.clear();
+    all_text.clear();
+    return exe;
   }
 
-   createAbsoluteJump(tmp_exec, asm_parsed, (uint32_t)binary_data);
+  createAbsoluteJump(tmp_exec, asm_parsed, (uint32_t)binary_data);
 
   memcpy(exec, tmp_exec, _instr_size);
 
@@ -1566,16 +1579,14 @@ executable createBinary(parsedLines *asm_parsed)
   return exe;
 }
 
-
-
-executable createExectutable(Text *_header,Text *_content, bool display)
+executable createExectutable(Text *_header, Text *_content, bool display)
 {
 
   executable exec;
   _asm_parsed.clear();
 
-  __parser_debug=display;
-  error_message_struct err = parseASM(_header,_content, &_asm_parsed);
+  __parser_debug = display;
+  error_message_struct err = parseASM(_header, _content, &_asm_parsed);
 
   _header->clear();
   _content->clear();
@@ -1583,40 +1594,32 @@ executable createExectutable(Text *_header,Text *_content, bool display)
   if (err.error == 0)
   {
 
+    exec = createBinary(&_asm_parsed);
 
-      exec = createBinary(&_asm_parsed);
+    if (exec.error.error == 0)
+    {
 
-      if (exec.error.error == 0)
+      if (display == true)
       {
-
-        if (display == true)
-        {
-          printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
-      
-        }
-
-        replaceExternal("start_program", (void *)exec.start_program);
-        uint32_t dd = (uint32_t)createExternalLinks();
-        exec.links = dd;
-        exec.error.error = 0;
+        printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
       }
 
-    
+      replaceExternal("start_program", (void *)exec.start_program);
+      uint32_t dd = (uint32_t)createExternalLinks();
+      exec.links = dd;
+      exec.error.error = 0;
+    }
   }
   else
   {
 
-
     exec.error = err;
     exec.error.error = 1;
-
-    
   }
   _asm_parsed.clear();
   all_text.clear();
   return exec;
 }
-
 
 void executeBinaryAsm(uint32_t *j, uint32_t *c)
 {
@@ -1639,10 +1642,10 @@ void executeBinaryAsm(uint32_t *j, uint32_t *c)
   // free(exec);
 }
 
-error_message_struct executeBinary(string function, executable ex,uint32_t handle)
+error_message_struct executeBinary(string function, executable ex, uint32_t handle, Arguments arguments)
 {
   error_message_struct res;
- // uint32_t toexecute;
+  // uint32_t toexecute;
   res.error = 0;
   for (int i = 0; i < ex.functions.size(); i++)
   {
@@ -1652,8 +1655,26 @@ error_message_struct executeBinary(string function, executable ex,uint32_t handl
 
       //
       ex.functions[i].address = (uint32_t)(ex.start_program + ex.functions[i].address);
-      uint32_t *t=(uint32_t *)ex.data;
-      *t=handle;
+      uint32_t *t = (uint32_t *)ex.data;
+      *t = handle;
+      uint8_t *var = (ex.data + ex.functions[i].variableaddress);
+      if (ex.functions[i].args_num == arguments.size())
+      {
+        vector<string> args = split(trim(ex.functions[i].variables), " ");
+        for (int i = 1; i < args.size(); i++)
+        {
+          int _size = 0;
+          sscanf(args[i].c_str(), "%d", &_size);
+          memcpy(var, &arguments[i - 1], _size);
+          var += _size;
+        }
+      }
+      else
+      {
+        res.error = 1;
+        res.error_message = string_format("Expected %d arguments got %d\n", ex.functions[i].args_num, arguments.size());
+        return res;
+      }
 
       executeBinaryAsm(&ex.functions[i].address, &ex.links);
 
@@ -1669,10 +1690,10 @@ error_message_struct executeBinary(string function, executable ex,uint32_t handl
   return res;
 }
 
-error_message_struct executeBinary(executable ex,uint32_t handle)
+error_message_struct executeBinary(executable ex, uint32_t handle)
 {
-
-  return executeBinary(ex.functions[0].name, ex,handle);
+  Arguments args;
+  return executeBinary(ex.functions[0].name, ex, handle, args);
 }
 void freeBinary(executable *ex)
 {
@@ -1690,8 +1711,8 @@ void freeBinary(executable *ex)
     heap_caps_free(ex->data);
   }
   ex->data = NULL;
-  binary_data =NULL;
-  tmp_exec=NULL;
+  binary_data = NULL;
+  tmp_exec = NULL;
 }
 #endif
 #endif

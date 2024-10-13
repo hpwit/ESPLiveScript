@@ -472,6 +472,7 @@ enum class opCodeType
   number,
   number_label,
   data_label,
+  variable,
   not_known
 };
 
@@ -656,6 +657,9 @@ typedef struct
 {
   string name;
   uint32_t address;
+  string variables;
+  uint32_t variableaddress;
+  int args_num;
 } globalcall;
 
 typedef struct
