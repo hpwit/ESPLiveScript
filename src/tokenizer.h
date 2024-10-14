@@ -61,10 +61,11 @@ struct varType
     // asmInstruction mul;
     // asmInstruction div;
     // string reg_name;
-    uint8_t sizes[20];
+
     uint8_t memberSize[20];
     // string vnames[20];
     varTypeEnum types[20];
+    uint8_t sizes[20];
     uint8_t size;
     uint8_t total_size;
 };
@@ -93,93 +94,138 @@ vector<string> userDefinedVarTypeNames;
 
 varType _varTypes[] = {
     {._varType = __none__,
+     .varName = "",
      ._varSize = 0,
+     .load = {},
+     .store = {},
+     .membersNames = {},
+     .starts = {},
+     .memberSize = {},
+     .types = {},
+     .sizes = {},
      .size = 0,
      .total_size = 0},
+
     {._varType = __uint8_t__,
+     .varName = "",
      ._varSize = 1,
      .load = {l8ui},
      .store = {s8i},
-     // .reg_name = "a",
+     .membersNames = {},
+     .starts = {},
+     .memberSize = {},
+     .types = {},
      .sizes = {1},
      .size = 1,
      .total_size = 1},
     {
         ._varType = __uint16_t__,
+        .varName = "",
         ._varSize = 2,
         .load = {l16ui},
         .store = {s16i},
-        // .reg_name = "a",
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {2},
         .size = 1,
         .total_size = 2,
     },
     {
         ._varType = __uint32_t__,
+        .varName = "",
         ._varSize = 4,
         .load = {l32i},
         .store = {s32i},
-        // .reg_name = "a",
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {4},
         .size = 1,
         .total_size = 4,
     },
     {
         ._varType = __int__,
+        .varName = "",
         ._varSize = 2,
         .load = {l16si},
         .store = {s16i},
-        // .reg_name = "a",
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {2},
         .size = 1,
         .total_size = 2,
     },
     {
         ._varType = __float__,
+        .varName = "",
         ._varSize = 4,
         .load = {lsi},
         .store = {ssi},
-        // .reg_name = "f",
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {4},
         .size = 1,
         .total_size = 4,
     },
     {
         ._varType = __void__,
+        .varName = "",
         ._varSize = 0,
         .load = {},
         .store = {},
-        // .reg_name = "a",
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {0},
         .size = 0,
         .total_size = 0,
     },
     {
         ._varType = __CRGB__,
+        .varName = "",
         ._varSize = 3,
         .load = {l8ui, l8ui, l8ui},
         .store = {s8i, s8i, s8i},
-        // .reg_name = "a",
+        .membersNames = {"red", "green", "blue"},
+        .starts = {0, 1, 2},
+        .memberSize = {1, 1, 1},
+        .types = {__uint8_t__, __uint8_t__, __uint8_t__},
         .sizes = {1, 1, 1},
         .size = 3,
         .total_size = 3,
     },
     {
         ._varType = __CRGBW__,
+        .varName = "",
         ._varSize = 4,
         .load = {l8ui, l8ui, l8ui, l8ui},
         .store = {s8i, s8i, s8i, s8i},
-        // .reg_name = "a",
+        .membersNames = {"red", "green", "blue", "white"},
+        .starts = {0, 1, 2, 3},
+        .memberSize = {1, 1, 1, 1},
+        .types = {__uint8_t__, __uint8_t__, __uint8_t__, __uint8_t__},
         .sizes = {1, 1, 1, 1},
         .size = 4,
         .total_size = 4,
     },
     {
         ._varType = __char__,
+        .varName = "",
         ._varSize = 1,
         .load = {l8ui},
         .store = {s8i},
-        // .reg_name = "a",
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
         .sizes = {1},
         .size = 1,
         .total_size = 1,
@@ -298,6 +344,8 @@ enum tokenType
     TokenUserDefinedName,
     TokenUserDefinedVariable,
     TokenMember,
+    TokenUserDefinedVariableMember,
+    TokenUserDefinedVariableMemberFunction,
 
 };
 
@@ -409,6 +457,8 @@ string tokenNames[] = {
     "TokenUserDefinedName",
     "TokenUserDefinedVariable",
     "TokenMember",
+    "TokenUserDefinedVariableMember",
+    "TokenUserDefinedVariableMemberFunction"
 
 #endif
 };
@@ -567,8 +617,6 @@ typedef struct
 
 } token;
 
-
-
 vector<char *> texts;
 
 class Script
@@ -676,6 +724,29 @@ public:
             it = script.insert(it, _next);
         it = script.insert(it, toInsert);
         position = -1;
+    }
+    void insertAtEnd(char *toInsert)
+    {
+        int i = 0;
+        int res = -1;
+        for (vector<char *>::iterator _it = script.begin(); _it != script.end(); _it++)
+        {
+            if (it == _it)
+            {
+                res = i;
+            }
+            else
+            {
+                i++;
+            }
+        }
+        script.insert(script.end(), toInsert);
+        it = script.begin();
+        while (res > 0)
+        {
+            it++;
+            res--;
+        }
     }
 
 private:
@@ -1100,7 +1171,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
     int nbReadToken = 0;
     while (script->nextChar() != EOF_TEXT and nbReadToken < nbMaxTokenToRead)
     {
-        // printf(" nb read :%d:\n",nbReadToken);
+        // printf(" nb read :%c:\n",script->currentChar());
         t.clean();
         v.clear();
         pos++;
@@ -1313,7 +1384,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
 
         if (isIna_zA_Z_(c))
         {
-            v;
+
             int newpos = pos;
             while (isIna_zA_Z_0_9(c))
             {
@@ -1338,9 +1409,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 {
                     t.type = (int)TokenExternal;
                 }
-                if ((t.getType() == TokenKeywordImport or t.getType() ==
-                                                              TokenKeywordDefine) &&
-                    !_for_display)
+                if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
                 {
 
                     nbReadToken--;
@@ -1379,6 +1448,25 @@ int tokenizer(Script *script, bool update, bool increae_line,
 
                             // script->previousChar ();
 
+                            continue;
+                        }
+                    }
+                    else if (prev.getType() == TokenDiese && !_for_display)
+                    {
+                        nbReadToken--;
+                        if (findLibFunction(v) > -1)
+                        {
+
+                            _tks.pop_back();
+                            // printf("token %d\n",_tks.back().type);
+                            all_text.pop();
+
+                            // list_of_token.pop_back();
+                            //  add_on.push_back(findLibFunction(v));
+                            script->insertAtEnd((char *)((*_stdlib[findLibFunction(v)]).c_str()));
+                            // printf("ll%d %s\n",findLibFunction(v),(*_stdlib[findLibFunction(v)]).c_str());
+                            script->nextChar();
+                            // script->previousChar ();
                             continue;
                         }
                     }
@@ -1512,12 +1600,11 @@ int tokenizer(Script *script, bool update, bool increae_line,
             {
                 t.addText("#");
                 // _tks.push(t);
-                _tks.push(t);
-                nbReadToken++;
             }
             // t.line = _token_line;
             //  t.pos = pos;
-
+            _tks.push(t);
+            // nbReadToken++;
             continue;
         }
         if (c == '(')
@@ -1701,16 +1788,39 @@ int tokenizer(Script *script, bool update, bool increae_line,
         }
         if (c == '-')
         {
+            c2 = script->nextChar();
+            if (c2 == '-')
+            {
+                // token t;
+                // t._vartype = NULL;
+                // t.type = TokenPlusPlus;
+                t = Token(TokenMinusMinus, EOF_VARTYPE, _token_line);
+                if (_for_display)
+                    t.addText("--");
+                // t.line = _token_line;
+                // t.pos = pos;
+                // _tks.push(t);
+                // nbReadToken++;
+                _tks.push(t);
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                // token t;
+                //  t._vartype = NULL;
+                // t.type = TokenAddition;
+                t = Token(TokenSubstraction, EOF_VARTYPE, _token_line);
+                if (_for_display)
+                    t.addText("-");
+                // t.line = _token_line;
+                // t.pos = pos;
+                // _tks.push(t);
+                _tks.push(t);
+                nbReadToken++;
+                continue;
+            }
             // Token t;
-            t.type = (int)TokenSubstraction;
-            t._vartype = EOF_VARTYPE;
-            if (_for_display)
-                t.addText("-");
-            t.line = _token_line;
-            // t.pos = pos;
-            _tks.push(t);
-            nbReadToken++;
-            continue;
         }
         if (c == ' ')
         {

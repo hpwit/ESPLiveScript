@@ -6,6 +6,17 @@
 
  list<int> add_on;
 //string division="";
+string _sync="\
+uint32_t _handle_;\n\
+__ASM__ void sync()\n\
+{\n\
+\"entry a1,32\" \n\
+\"l32r a4,@__handle_\" \n\
+\"l32i a10,a4,0\" \n\
+\"callExt a8,_sync\"\n\
+\"retw.n\" \n\
+}\n\
+@";
 string division="\
 __ASM__ float __div(float a,float b)\n\
 { \n\
@@ -42,8 +53,8 @@ string _rand="\
 __ASM__ uint32_t rand(uint32_t mod) \n\
 {\n\
 \"entry a1,56\" \n\
-\"l32r a4,stack\" \n\
-\"l32i a15,a4,0\" \n\
+\"l32r a4,@_stack_rand\" \n\
+\"l32i a3,a4,0\" \n\
 \"rsr a14,234\" \n\
 \"mov a13,a14\" \n\
 \"mull a14,a14,a14\" \n\
@@ -51,9 +62,9 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 \"mull a14,a14,a14\" \n\
 \"add a14,a14,a13\" \n\
 \"addi a14,a13,1\" \n\
-\"remu a15,a14,a15\" \n\
-\"l32r a4,stackr\" \n\
-\"s32i a15,a4,0\" \n\
+\"remu a2,a14,a3\" \n\
+//\"l32r a4,@_stackr\" \n\
+//\"s32i a15,a4,0\" \n\
 \"retw.n\" \n\
 }@";
 
@@ -61,7 +72,7 @@ string _copycode="\
 __ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
 { \n\
    \"entry a1,80\"\n\
-   \"l32r a4,stack\" \n\
+   \"l32r a4,@_stack_copy\" \n\
    \"l32i a5,a4,0\" \n\
    \"l32i a6,a4,4\" \n\
    \"l16ui a7,a4,8\" \n\
@@ -78,7 +89,7 @@ string _memset="\
 __ASM__ void memset(uint8_t *obj,uint8_t val, uint16_t size )\n\
 {\n\
    \"entry a1,80\" \n\
-   \"l32r a4,stack\" \n\
+   \"l32r a4,@_stack_memset\" \n\
    \"l32i a5,a4,0\" \n\
    \"l8ui a6,a4,4\" \n\
    \"l16ui a7,a4,6\" \n\
@@ -102,7 +113,7 @@ string _fill="\
 __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_iteration) \n\
 {\n\
    \"entry a1,80\" \n\
-   \"l32r a4,stack\" \n\
+   \"l32r a4,@_stack_fill\" \n\
    \"l32i a5,a4,0\" \n\
    \"l32i a6,a4,4\" \n\
    \"l8ui a7,a4,8\" \n\
@@ -122,11 +133,20 @@ __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_itera
    \"retw.n\" \n\
 }@";
 
+string _arduino="\n\
+void main(){\n\
+setup();\n\
+while(2>1)\n\
+{\n\
+loop();\n\
+}\n\
+}\n\
+";
 string empty_header="";
-int stdlib_size=4;
-string stdlib[]={"rand","copy","memset","fill"};
- string * _stdlib[]={&_rand,&_copycode,&_memset,&_fill};
-string * _stdlib_header[]={&empty_header,&empty_header,&empty_header,&empty_header};
+int stdlib_size=5;
+string stdlib[]={"sync","rand","copy","memset","fill","arduino"};
+ string * _stdlib[]={&_sync,&_rand,&_copycode,&_memset,&_fill,&_arduino};
+string * _stdlib_header[]={&empty_header,&empty_header,&empty_header,&empty_header,&empty_header};
 
 int findLibFunction(string name)
 {

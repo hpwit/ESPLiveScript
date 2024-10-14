@@ -35,8 +35,8 @@ void addExternal(string name,externalType type, void * ptr)
 
 void replaceExternal(string name, void *ptr)
 {
-     vector<asm_external>::iterator it=external_links.begin();
-     for(it;it<external_links.end();it++)
+   //  vector<asm_external>::iterator it=external_links.begin();
+     for(vector<asm_external>::iterator it=external_links.begin();it<external_links.end();it++)
   {
     if(it->name.compare(name)==0)
     {

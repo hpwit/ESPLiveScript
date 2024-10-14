@@ -152,6 +152,18 @@ public:
         position++;
         // }
     }
+    void addBefore(int pos, string s)
+    {
+        _it = getChildAtPos(pos-1);
+        // printf(" on recupere %d:%s\n",pos,(*__it).c_str());
+        // if((*_it).compare(s)!=0)
+        //{
+        addBefore(s);
+        position--;
+        _it = getChildAtPos(position);
+        position++;
+        // }
+    }
     /*
     void addAfter(string str)
     {
@@ -205,12 +217,27 @@ public:
         }
         position++;
     }
+    string back()
+    {
+              if (_texts.size() > 0)
+            return string(_texts.back());
+        else
+            return "";
+    }
     string front()
     {
         if (_texts.size() > 0)
             return string(_texts.front());
         else
             return "";
+    }
+    string textAt(int pos)
+    {
+      if(pos>0 and pos<_texts.size())
+      {
+        return string(_texts[pos]);
+      }
+      return "";
     }
     void pop_front()
     {
@@ -224,7 +251,7 @@ public:
     void addAfterNoDouble(string s)
     {
 
-        char *str;
+       // char *str;
         if (_it != _texts.end())
         {
 
@@ -256,10 +283,12 @@ public:
     }
     void replaceText(int pos, string str)
     {
-        if (pos > 0 and pos < size())
+        if (pos >= 0 and pos < size())
         {
-            if (_texts[pos] != NULL)
+            if (!isReused(pos))
+            {
                 free(_texts[pos]);
+            }
             char *m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());
             m[str.size()] = 0;
@@ -443,6 +472,7 @@ enum class opCodeType
   number,
   number_label,
   data_label,
+  variable,
   not_known
 };
 
@@ -561,11 +591,15 @@ class parsedLines
     parsed_lines.shrink_to_fit();
   }
 
-void insert(vector<result_parse_line *>::iterator t,result_parse_line op)
+vector<result_parse_line *>::iterator insert(vector<result_parse_line *>::iterator t,result_parse_line op)
 {
   result_parse_line *tmp=(result_parse_line *)malloc(sizeof(result_parse_line));
     memcpy(tmp,&op,sizeof(result_parse_line));
-  parsed_lines.insert(t,tmp);
+  return parsed_lines.insert(t,tmp);
+}
+result_parse_line * last()
+{
+  return parsed_lines.back();
 }
 
   vector<result_parse_line *> parsed_lines;
@@ -623,6 +657,9 @@ typedef struct
 {
   string name;
   uint32_t address;
+  string variables;
+  uint32_t variableaddress;
+  int args_num;
 } globalcall;
 
 typedef struct
