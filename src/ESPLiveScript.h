@@ -611,10 +611,18 @@ public:
         // current_node->copyChildren(search_result);
         current_node->addChild(search_result->getChildAtPos(0));
         current_node->addChild(search_result->getChildAtPos(1));
-
+        
         // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
         nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
-
+        for(int i=0;i<current_node->getChildAtPos(1)->children.size();i++)
+            {
+                if(current_node->getChildAtPos(1)->getChildAtPos(i)->_vartype==__Args__)
+                {
+                    printf("we gor\r\n");
+                    nb_sav_args.pop_back();
+                     nb_sav_args.push_back(999);
+                }
+            }
         // Serial.printf("serial2\r\n");
         // NodeCallFunction function = NodeCallFunction(t);
 
@@ -630,7 +638,7 @@ public:
             return;
         }
 
-        if (nb_sav_args.back() != nb_args.back()) // if (sav_nb_arg != nb_args.back())
+        if (nb_sav_args.back() != nb_args.back() and  nb_sav_args.back()!=999) // if (sav_nb_arg != nb_args.back())
         {
             Error.error = 1;
             // sav_nb_args

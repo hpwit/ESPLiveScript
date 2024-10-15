@@ -44,6 +44,7 @@ enum varTypeEnum
     __CRGB__,
     __CRGBW__,
     __char__,
+    __Args__,
     __userDefined__
 };
 
@@ -85,6 +86,7 @@ string varTypeEnumNames[] = {
     "__CRGB__",
     "__CRGBW__",
     "__char__",
+    "__Args__",
     "__userDefined__",
 #endif
 
@@ -229,12 +231,28 @@ varType _varTypes[] = {
         .sizes = {1},
         .size = 1,
         .total_size = 1,
+    },
+    {
+        ._varType =__Args__,
+        .varName = "",
+        ._varSize = 1,
+        .load = {},
+        .store = {},
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
+        .sizes = {1},
+        .size = 1,
+        .total_size = 1,
+
     }
 
 };
 
 string keywordTypeNames[] = {
 #ifdef __TEST_DEBUG
+    "KeywordVarType",
     "KeywordVarType",
     "KeywordVarType",
     "KeywordVarType",
@@ -262,11 +280,11 @@ string keywordTypeNames[] = {
 
 };
 
-#define nb_keywords 33
-#define nb_typeVariables 10
+#define nb_keywords 34
+#define nb_typeVariables 11
 string keyword_array[nb_keywords] =
     {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB",
-     "CRGBW", "char", "external", "for", "if", "then", "else", "while", "return",
+     "CRGBW", "char", "Args","external", "for", "if", "then", "else", "while", "return",
      "import", "from", "__ASM__",
      "define", "safe_mode", "_header_", "_content_", "and", "or", "continue",
      "break", "fabs", "abs", "save_reg",
@@ -350,6 +368,7 @@ enum tokenType
 };
 
 tokenType __keywordTypes[] = {
+    TokenKeywordVarType,
     TokenKeywordVarType,
     TokenKeywordVarType,
     TokenKeywordVarType,
