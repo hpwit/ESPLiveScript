@@ -10,12 +10,16 @@ using namespace std;
 #ifndef _TRIGGER
 #define _TRIGGER 0
 #endif
+/*
 #ifndef __TEST_DEBUG
 using _arguments = std::variant<int, float>;
 typedef std::vector<_arguments> Arguments;
 #else
 typedef int Arguments;
 #endif
+*/
+
+
 
 // #include "tokenizer.h"
 
@@ -28,10 +32,62 @@ typedef int Arguments;
 #endif
 
 #include "NodeToken.h"
+
+
+
+
+class _arguments
+{
+    public:
+    _arguments()
+    {
+        vartype=__unknown__;
+    }
+        _arguments(int val)
+    {
+        vartype=__int__;
+        intval=val;
+    }
+            _arguments(float val)
+    {
+        vartype=__float__;
+        floatval=val;
+    }
+
+    varTypeEnum vartype;
+    int intval;
+    float floatval;
+};
+
+class Arguments
+{
+    public:
+     Arguments(){}
+     void add(int val)
+     {
+        _args.push_back(_arguments(val));   
+     }
+     void add( float val)
+     {
+        _args.push_back(_arguments(val));
+     }
+     void clear()
+     {
+        _args.clear();
+        _args.shrink_to_fit();
+     }
+     void add(_arguments a)
+     {
+        _args.push_back(a);
+     }
+    int size()
+    {
+        return _args.size();
+    }
+     vector<_arguments> _args;
+};
 #include "asm_parser.h"
-
 #include "execute.h"
-
 void prettyPrint(NodeToken *_nd, string ident)
 {
     NodeToken nd = *_nd;
@@ -2450,13 +2506,13 @@ Arguments parseInputArgs(string variables)
         {
             float j = 0;
             sscanf(ar[i].c_str(), "%f", &j);
-            _args.push_back(j);
+            _args.add(j);
         }
         else
         {
             int j = 0;
             sscanf(ar[i].c_str(), "%d", &j);
-            _args.push_back(j);
+            _args.add(j);
         }
     }
     return _args;

@@ -45,7 +45,8 @@ enum varTypeEnum
     __CRGBW__,
     __char__,
     __Args__,
-    __userDefined__
+    __userDefined__,
+    __unknown__
 };
 
 struct varType
@@ -88,6 +89,7 @@ string varTypeEnumNames[] = {
     "__char__",
     "__Args__",
     "__userDefined__",
+    "__unknown__"
 #endif
 
 };

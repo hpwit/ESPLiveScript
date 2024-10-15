@@ -11,6 +11,7 @@ using namespace std;
 #define _MAX_PROG_AT_ONCE 10
 #endif
 executable executecmd;
+volatile bool useOfSync;
 
 #ifdef __TEST_DEBUG
 typedef struct _TaskHandle_t
@@ -547,9 +548,9 @@ public:
     void execute(string prog, Arguments arguments)
     {
         args.clear();
-        for (int i = 0; i < arguments.size(); i++)
+        for (int i = 0; i < arguments._args.size(); i++)
         {
-            args.push_back(arguments[i]);
+            args.add(arguments._args[i]);
         }
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, args);
@@ -563,16 +564,16 @@ public:
     void executeAsTask(string prog, int core, Arguments arguments)
     {
         args.clear();
-        for (int i = 0; i < arguments.size(); i++)
+        for (int i = 0; i < arguments._args.size(); i++)
         {
-            args.push_back(arguments[i]);
+            args.add(arguments._args[i]);
         }
 #ifndef __TEST_DEBUG
         if (core == 0 or core == 1)
         {
-            vector<string> args;
-            args.push_back("@_" + prog);
-            _run(args, true, core, arguments);
+            vector<string> __args;
+            __args.push_back("@_" + prog);
+            _run(__args, true, core, arguments);
         }
         else
         {

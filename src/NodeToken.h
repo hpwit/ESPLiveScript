@@ -2378,8 +2378,8 @@ bool convert=true;
 _vartype=t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType;
 if(_vartype==__Args__)
 {
-    _vartype=t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
- // content.pop();
+   _vartype=t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
+ //content.pop();
  // content.addAfter(string_format("l32i a15,a8,0"));
 }
            }
@@ -2396,6 +2396,7 @@ if(_vartype==__Args__)
                 else
                 {
                     content.addAfter(string_format("rfr a%d,f%d", regbase + i, register_numl.get()));
+                    
                 }
             }
             else if (t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGB__ or t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)

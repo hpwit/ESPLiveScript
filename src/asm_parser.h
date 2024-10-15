@@ -1658,14 +1658,17 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
       uint32_t *t = (uint32_t *)ex.data;
       *t = handle;
       uint8_t *var = (ex.data + ex.functions[i].variableaddress);
-      if (ex.functions[i].args_num == arguments.size())
+      if (ex.functions[i].args_num == arguments._args.size())
       {
         vector<string> args = split(trim(ex.functions[i].variables), " ");
         for (int i = 1; i < args.size(); i++)
         {
           int _size = 0;
           sscanf(args[i].c_str(), "%d", &_size);
-          memcpy(var, &arguments[i - 1], _size);
+          if(arguments._args[i-1].vartype==__float__)
+               memcpy(var, &arguments._args[i - 1].floatval, _size);
+          else
+           memcpy(var,  &arguments._args[i - 1].intval, _size);
           var += _size;
         }
       }
