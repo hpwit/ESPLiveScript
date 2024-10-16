@@ -56,6 +56,9 @@ Later in this documentation you will see what is possible and not.
 This libray doesn't provide an environment to write scripts. Nevertheless it has been included in:
 - [LedOS](https://github.com/hpwit/ledOS) : 
 
+<img title="Screenshot" alt="Alt text" src="pictures/screen1.png" style="width:400px">
+
+- [Moon Modules](https://github.com/MoonModules/StarLight) : A web environment for led manipulation based on WLED which contains
 
 
 ## Led manipulation oriented
@@ -195,7 +198,7 @@ void loop() {
 
 
 result:
-```C
+```
 ***********PARSING DONE*********
 ***********COMPILING DONE*********
 max used memory: 8468 maxstack:2304  started 265896 free mem:257328 consumed 8568 time:33ms
