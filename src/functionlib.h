@@ -142,6 +142,9 @@ loop();\n\
 }\n\
 }\n\
 ";
+string base_ext_functions="\n\
+external void printf(char * s,Args a);\n\
+";
 string empty_header="";
 int stdlib_size=5;
 string stdlib[]={"sync","rand","copy","memset","fill","arduino"};

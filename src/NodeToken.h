@@ -29,7 +29,7 @@ void pushToConsole(string str)
 }
 
 #define _START_2 32
-#define _STACK_SIZE (_START_2 + 5 * 4)
+#define _STACK_SIZE (_START_2 + 6 * 4)
 string __globalscript;
 uint32_t __startmem;
 uint32_t __maxMemUsage;
@@ -261,10 +261,10 @@ typedef struct
 
 int findMember(varType *v, string member)
 {
-  //  printf("zerk %d %s\n", v->size, v->varName.c_str());
+    //  printf("zerk %d %s\n", v->size, v->varName.c_str());
     for (int i = 0; i < v->size; i++)
     {
-    //    printf("look for %s %s\n", member.c_str(), v->membersNames[i].c_str());
+        //    printf("look for %s %s\n", member.c_str(), v->membersNames[i].c_str());
         if (v->membersNames[i].compare(member) == 0)
         {
             return i;
@@ -412,7 +412,7 @@ public:
                 if (stack_size % 4 != 0)
                     delta = 4 - stack_size % 4;
             }
-            if (nd.getVarType()->_varType == __uint32_t__ || nd.getVarType()->_varType == __float__ || nd.getVarType()->_varType == __CRGB__ ) //|| nd.getVarType()->_varType == __CRGBW__)
+            if (nd.getVarType()->_varType == __uint32_t__ || nd.getVarType()->_varType == __float__ || nd.getVarType()->_varType == __CRGB__) //|| nd.getVarType()->_varType == __CRGBW__)
             {
                 if (stack_size % 4 != 0)
                 {
@@ -488,6 +488,13 @@ public:
         children.push_back(j);
         return j;
     }
+    NodeToken *addChildFront(NodeToken *j)
+    {
+        j->parent = this;
+        // children.push_front(j);
+        children.insert(children.begin(), j);
+        return j;
+    }
     void copyChildren(NodeToken *k)
     {
         for (NodeToken *lm : k->children)
@@ -510,6 +517,23 @@ public:
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
         children.push_back(tmp);
+        return tmp;
+    }
+    NodeToken *addChildFront(NodeToken j)
+    {
+        j.parent = this;
+        NodeToken *tmp = (NodeToken *)malloc(sizeof(NodeToken));
+        if (tmp == NULL)
+        {
+            // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
+            return NULL;
+        }
+        // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
+        memcpy((void *)tmp, (void *)&j, sizeof(NodeToken));
+
+        // tmp->children.shrink_to_fit();
+        // tmp->parent = this;
+        children.insert(children.begin(), tmp);
         return tmp;
     }
     void clear(bool all)
@@ -1284,10 +1308,10 @@ void translateType(varTypeEnum to, varTypeEnum from, int regnum)
         default:
             break;
         }
-        break;    
-   
+        break;
+
     default:
-            switch (from)
+        switch (from)
         {
         case __float__:
             //  content.sp.pop();
@@ -1297,7 +1321,7 @@ void translateType(varTypeEnum to, varTypeEnum from, int regnum)
         default:
             break;
         }
-        break;  
+        break;
         break;
     }
 }
@@ -2062,7 +2086,7 @@ void _visitdefFunctionNode(NodeToken *nd)
         isStructFunction = true;
     header.addAfter(string_format(".global @_%s", nd->getTokenText()));
     string variables = "";
-     if(!isStructFunction)
+    if (!isStructFunction)
     {
         string variables = "";
         for (int i = 0; i < nd->getChildAtPos(1)->children.size(); i++)
@@ -2315,18 +2339,21 @@ void _visitcomparatorNode(NodeToken *nd)
 void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
 {
 
-bool convert=true;
+int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
+    bool convert = true;
     if (nd == NULL)
     {
         return;
     }
-    bool saveinstack[5];
-    for (int i = 0; i < 5; i++)
+    bool saveinstack[20];
+    for (int i = 0; i < 20; i++)
     {
         if (isExtCall)
             saveinstack[i] = false;
         else
             saveinstack[i] = false;
+        if (i >= 4)
+            saveinstack[i] = true;
     }
 
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
@@ -2361,6 +2388,16 @@ bool convert=true;
                 save_in_stack = false;
         }
         saveinstack[i] = save_in_stack;
+        if (i >= 4)
+        {
+            save_in_stack = true;
+            saveinstack[i] = true;
+        }
+        if(i>=6)
+        {
+                        save_in_stack = false;
+            saveinstack[i] = false;
+        }
         if (t->getChildAtPos(2)->getChildAtPos(i)->isPointer)
         {
             register_numl.duplicate();
@@ -2378,44 +2415,45 @@ bool convert=true;
         else
 
         {
-            if(i<t->getChildAtPos(1)->children.size())
+            if (i < t->getChildAtPos(1)->children.size())
             {
-            if(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType==__Args__)
-                convert=false;
-            
-            register_numl.duplicate();
-            globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
-            nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
-            register_numl.pop();
+                if (t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType == __Args__)
+                    convert = false;
+
+                register_numl.duplicate();
+                globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
+                nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
+                register_numl.pop();
             }
             else
             {
-            register_numl.duplicate();
-             globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
-            nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
-            register_numl.pop();
+                register_numl.duplicate();
+                // globalType.push(t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType);
+                nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
+                register_numl.pop();
             }
             if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL and convert)
                 translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
-          varTypeEnum _vartype;
-           if(i<t->getChildAtPos(1)->children.size() )
-           {
-_vartype=t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType;
-if(_vartype==__Args__)
-{
-   _vartype=t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
- /*
- content.pop();
- content.addAfter(string_format("l32i a12,a8"));
-  content.addAfter(string_format("mov a12,a8"));
-  content.addAfter(string_format("addi a8,a8,4"));
-  content.addAfter(string_format("mov a13,a8"));
-  */
-}
-           }
-           else{
-            _vartype=t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
-           }
+            varTypeEnum _vartype;
+            if (i < t->getChildAtPos(1)->children.size())
+            {
+                _vartype = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType;
+                if (_vartype == __Args__)
+                {
+                    _vartype = t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
+                    /*
+                    content.pop();
+                    content.addAfter(string_format("l32i a12,a8"));
+                     content.addAfter(string_format("mov a12,a8"));
+                     content.addAfter(string_format("addi a8,a8,4"));
+                     content.addAfter(string_format("mov a13,a8"));
+                     */
+                }
+            }
+            else
+            {
+                _vartype = t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
+            }
             if (_vartype == __float__)
             {
 
@@ -2426,7 +2464,6 @@ if(_vartype==__Args__)
                 else
                 {
                     content.addAfter(string_format("rfr a%d,f%d", regbase + i, register_numl.get()));
-                    
                 }
             }
             else if (t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGB__ or t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)
@@ -2523,20 +2560,41 @@ if(_vartype==__Args__)
                 }
                 else
                 {
-                    //to change
-                    content.addAfter(string_format("mov a%d,a%d", regbase + i, register_numl.get()));
+                    // to change
+                    if(i>=6)
+                    {
+                            content.addAfter(string_format("s32i a%d,a1,%d",  register_numl.get(),staack_offset));
+                                 staack_offset-=4;      
+                    }
+                    else
+                    {
+                        content.addAfter(string_format("mov a%d,a%d", regbase + i, register_numl.get()));
+                    }
                 }
             }
 
             globalType.pop();
         }
-        content.end();
-        for (int i = 0; i < nd->getChildAtPos(1)->children.size(); i++)
+        
+    }
+    content.end();
+        for (int i = 0; i < nd->getChildAtPos(2)->children.size(); i++)
         {
+            if(i<6)
+            {
             if (saveinstack[i] == true)
             {
-                varType *v = nd->getChildAtPos(1)->getChildAtPos(i)->getVarType();
-                if (t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType == __float__)
+                varType *v;
+                if (i < nd->getChildAtPos(1)->children.size())
+                    v = nd->getChildAtPos(1)->getChildAtPos(i)->getVarType();
+                else
+                    v = nd->getChildAtPos(2)->getChildAtPos(i)->getVarType();
+                    if(v->_varType == __none__)
+                    {
+                        v=&_varTypes[__uint32_t__];
+                    }
+                    
+                if (v->_varType == __float__)
                 {
                     content.addAfter(string_format("l32i a%d,a1,%d", regbase + i, i * 4 + _START_2));
                 }
@@ -2545,8 +2603,8 @@ if(_vartype==__Args__)
                     content.addAfter(string_format("%s %s%d,%s1,%d", asmInstructionsName[v->load[0]].c_str(), getRegType(v->load[0], 0).c_str(), regbase + i, getRegType(v->load[0], 1).c_str(), i * 4 + _START_2));
                 }
             }
+            }
         }
-    }
     if (isExtCall)
     {
         content.addAfter(string_format("callExt a8,%s", nd->getTokenText()));
@@ -2577,9 +2635,9 @@ void _visitcallFunctionNode(NodeToken *nd)
         // return;point_regnum
         int save = 9; // point_regnum;
                       // content.addAfterNoDouble(string_format("l32r a%d,@_stack_%s", save,nd->getTokenText())); // point_regnum
-        if( t->getChildAtPos(1)->children.size()==0 and t->type == TokenUserDefinedVariableMemberFunction )
+        if (t->getChildAtPos(1)->children.size() == 0 and t->type == TokenUserDefinedVariableMemberFunction)
         {
-             content.addAfter(content.sp.pop(), string_format("mov a11,a3"));
+            content.addAfter(content.sp.pop(), string_format("mov a11,a3"));
         }
         for (int i = 0; i < t->getChildAtPos(1)->children.size(); i++)
         {
@@ -2597,13 +2655,13 @@ void _visitcallFunctionNode(NodeToken *nd)
                 if (t->type == TokenUserDefinedVariableMemberFunction and i == 0)
                 {
                     // printf("*******onr en ocoi******\r\n");
-                    if(!isStructFunction)
+                    if (!isStructFunction)
                     {
-                    content.addAfter(content.sp.pop(), string_format("mov a11,a%d", register_numl.get()));
+                        content.addAfter(content.sp.pop(), string_format("mov a11,a%d", register_numl.get()));
                     }
                     else
                     {
-                       // content.pop();
+                        // content.pop();
                         content.addAfter(content.sp.pop(), string_format("mov a11,a3"));
                     }
                 }
@@ -3069,17 +3127,15 @@ void _visitstoreLocalVariableNode(NodeToken *nd)
             if (nd->type == TokenUserDefinedVariableMember or nd->type == TokenUserDefinedVariableMemberFunction)
             {
 
-               if(isStructFunction)
-               {
-                content.addAfter(string_format("addi a%d,a%d,%d", point_regnum, 3, (int)(nd->stack_pos / 1000)));
-               }
-            else
+                if (isStructFunction)
                 {
-                    content.addAfter(string_format("l32i a%d,a1,%d", point_regnum, nd->stack_pos-(int)(nd->stack_pos/1000)*1000));
+                    content.addAfter(string_format("addi a%d,a%d,%d", point_regnum, 3, (int)(nd->stack_pos / 1000)));
+                }
+                else
+                {
+                    content.addAfter(string_format("l32i a%d,a1,%d", point_regnum, nd->stack_pos - (int)(nd->stack_pos / 1000) * 1000));
                     content.addAfter(string_format("addi a%d,a%d,%d", point_regnum, point_regnum, (int)(nd->stack_pos / 1000)));
                 }
-                
-
             }
             else
 

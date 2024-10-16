@@ -314,6 +314,7 @@ public:
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
         main_script.addContent((char *)division.c_str());
+         main_script.addContent((char *)base_ext_functions.c_str());
         main_script.addContent((char *)str->c_str());
         return compile();
     }
@@ -322,7 +323,7 @@ public:
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
         main_script.addContent((char *)division.c_str());
-
+    main_script.addContent((char *)base_ext_functions.c_str());
         string sc = "";
         for (string s : *_script)
         {
@@ -1993,7 +1994,22 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
         }
         else if (Match(TokenString))
         {
-            current_node->addChild(NodeToken(current(), stringNode));
+            NodeToken nd;//=NodeToken();
+            nd._nodetype=defGlobalVariableNode;
+            nd.type=TokenKeywordVarType;
+            
+            nd._vartype=__char__;
+            nd.isPointer = true;
+            nd.textref = all_text.addText(string_format("local_string_%d",for_if_num));
+            for_if_num++;
+
+           // nd.addChild(NodeToken(current(), stringNode));
+            current_cntx->addVariable(nd);
+           NodeToken * f= program.addChildFront(nd);
+           f->addChild(NodeToken(current(), stringNode));
+            nd._nodetype=globalVariableNode;
+           // nd.children.clear();
+            current_node->addChild(nd);
             next();
             return;
         }
@@ -2959,5 +2975,21 @@ public:
 };
 __INIT_TOKEN _init_token;
 #endif
-
+void artiPrintf(char const * format, ...)
+{
+    va_list argp;
+  va_start(argp, format);
+  vprintf(format,argp);
+  printf("\r\n");
+  va_end(argp);
+}
+class INIT_PARSER
+{
+    public:
+    INIT_PARSER()
+    {
+         addExternal("printf", externalType::function, ( void *)artiPrintf);
+    }
+};
+INIT_PARSER initialization_parser;
 #endif
