@@ -1387,7 +1387,7 @@ error_message_struct calculateJump(parsedLines *asm_parsed)
   LedOS.pushToConsole("alculating jumps ...");
 
 #else
-  printf("Calculating jumps ... ");
+  //printf("Calculating jumps ... ");
 #endif
 
   error_message_struct error;
@@ -1430,7 +1430,7 @@ error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
   LedOS.pushToConsole("alculating jumps 2...");
 
 #else
-  printf("Calculating jumps2 ... ");
+ // printf("Calculating jumps2 ... ");
 #endif
 
   error_message_struct error;

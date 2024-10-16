@@ -1,13 +1,20 @@
 #include "ESPLiveScript.h"
 
 string script="\
-void main()\n\
+int fact(int h)\n\
 {\n\
-for(int i=0;i<20;i++)\n\
-    {\n\
-        printf(\"i:%2d  3*i:%2d\",i,3*i);\n\
-    }\n\
+   if(h==1)\n\
+   {  \n\
+     return 1;\n\
+   }  \n\
+  return h*fact(h-1);\n\
+}\n\
+\n\
+void main(int g)\n\
+{  \n\
+   printf(\"factorial of %d is %d\",g,fact(g));\n\
 }";
+
 void setup() {
   // put your setup code here, to run once:
 Serial.begin(115200);
@@ -16,7 +23,9 @@ Parser p;
 Executable exec=p.parseScript(&script);
 if(exec.isExeExists())
 {
- exec.execute("main");
+  Arguments args;
+  args.add(6);
+ exec.execute("main",args);
 }
 
 }
