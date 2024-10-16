@@ -1273,7 +1273,31 @@ void translateType(varTypeEnum to, varTypeEnum from, int regnum)
             break;
         }
         break;
+    case __uint8_t__:
+        switch (from)
+        {
+        case __float__:
+            //  content.sp.pop();
+            content.addAfterNoDouble(string_format("trunc.s a%d,f%d,0", regnum, regnum));
+            // content.sp.push(content.get());
+            break;
+        default:
+            break;
+        }
+        break;    
+   
     default:
+            switch (from)
+        {
+        case __float__:
+            //  content.sp.pop();
+            content.addAfterNoDouble(string_format("trunc.s a%d,f%d,0", regnum, regnum));
+            // content.sp.push(content.get());
+            break;
+        default:
+            break;
+        }
+        break;  
         break;
     }
 }
@@ -2367,6 +2391,7 @@ bool convert=true;
             else
             {
             register_numl.duplicate();
+             globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
             nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
             register_numl.pop();
             }
@@ -2379,8 +2404,13 @@ _vartype=t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType;
 if(_vartype==__Args__)
 {
    _vartype=t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
- //content.pop();
- // content.addAfter(string_format("l32i a15,a8,0"));
+ /*
+ content.pop();
+ content.addAfter(string_format("l32i a12,a8"));
+  content.addAfter(string_format("mov a12,a8"));
+  content.addAfter(string_format("addi a8,a8,4"));
+  content.addAfter(string_format("mov a13,a8"));
+  */
 }
            }
            else{
@@ -2493,6 +2523,7 @@ if(_vartype==__Args__)
                 }
                 else
                 {
+                    //to change
                     content.addAfter(string_format("mov a%d,a%d", regbase + i, register_numl.get()));
                 }
             }
