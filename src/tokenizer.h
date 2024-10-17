@@ -1153,7 +1153,7 @@ bool isIn0_9_x_b(unsigned char c)
 bool _for_display = false;
 
 int _token_line;
-int _sav_token_line;
+int _sav_token_line=0;
 list<token>::iterator _index_token;
 int tokenizer(Script *script, bool update, bool increae_line,
               int nbMaxTokenToRead)
@@ -1749,7 +1749,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     c2 = script->nextChar();
                 }
                 // str=str+'\0';
-                c2 = script->previousChar();
+               // c2 = script->previousChar();
                 if (_for_display)
                     t.addText(str);
                 t.line = _token_line;
@@ -1879,11 +1879,33 @@ int tokenizer(Script *script, bool update, bool increae_line,
             v += c;
             c = script->nextChar();
             pos++;
-            while (c != '"' && c != EOF_TEXT)
+        while (c != '"' && c != EOF_TEXT)
             {
+                      if (! _for_display)
+            {
+                char c2=script->nextChar();
+                if(c=='\\' and c2== 'n')
+                {
+                    c='\x0d';
+                    v+=c;
+                      c='\x0a';
+                    v+=c;    
+                    c = script->nextChar();              
+                }
+                else
+                {
                 v += c;
-                c = script->nextChar();
+                c=c2;
+                }
+               
                 pos++;
+            }
+            else
+            {
+                v+=c;
+                 c = script->nextChar();  
+                 pos++;
+            } 
             }
             // script->previousChar(); //on revient un caractere en arriere
             // pos--;

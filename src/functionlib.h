@@ -15,8 +15,7 @@ __ASM__ void sync()\n\
 \"l32i a10,a4,0\" \n\
 \"callExt a8,_sync\"\n\
 \"retw.n\" \n\
-}\n\
-@";
+}@";
 string division="\
 __ASM__ float __div(float a,float b)\n\
 { \n\
@@ -144,7 +143,7 @@ loop();\n\
 ";
 string base_ext_functions="\n\
 external void printf(char * s,Args a);\n\
-";
+@";
 string empty_header="";
 int stdlib_size=5;
 string stdlib[]={"sync","rand","copy","memset","fill","arduino"};

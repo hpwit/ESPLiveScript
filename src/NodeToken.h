@@ -1025,6 +1025,8 @@ f_error_struct Error;
 Stack<NodeToken> nodeTokenList;
 Stack<string> targetList;
 list<NodeToken *> sav_token;
+list<NodeToken *> change_type;
+NodeToken *lasttype;
 list<NodeToken *> _node_token_stack;
 NodeToken _uniquesave;
 void copyPrty(NodeToken *from, NodeToken *to)

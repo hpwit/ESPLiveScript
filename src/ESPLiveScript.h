@@ -248,6 +248,7 @@ public:
     Executable compile()
     {
         Executable results;
+        _sav_token_line=1;
         parse();
         if (Error.error)
         {
@@ -1726,6 +1727,12 @@ public:
         // NodeToken *sav_pa = current_node;
         // Serial.printf("eee  term1\r\n");
         sav_token.push_back(current_node);
+        NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+        nd._vartype=__none__;
+        current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
         // Serial.printf("eee  term\r\n");
         parseTerm();
         // Serial.printf("exit  term\r\n");
@@ -1766,6 +1773,9 @@ public:
         // next();
         current_node = sav_token.back();
         sav_token.pop_back();
+        lasttype=change_type.back();
+       // printf("last type:%d\n",lasttype->_vartype);
+        change_type.pop_back();
         // current_node = sav_pa;
         // printf("exit expr");
         Error.error = 0;
@@ -1803,8 +1813,10 @@ public:
 
             // NodeNumber g = NodeNumber(current());
             current_node->addChild(NodeToken(current(), numberNode));
+            if(current()->_vartype==__float__)
+                change_type.back()->_vartype=current()->_vartype;
             next();
-
+            
             Error.error = 0;
             // result._nd = g;
             // printf("exit factor\n");
@@ -1865,7 +1877,13 @@ public:
         else if (Match(TokenOpenParenthesis))
         {
             next();
+           // printf("one est icic\n\r");
             parseExpr();
+            if(lasttype->_vartype==__float__)
+            {
+                change_type.back()->_vartype=__float__;
+            }
+
             if (Error.error == 1)
             {
                 return;
@@ -1927,6 +1945,8 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
             bool sav_b = isStructFunction;
             isStructFunction = false;
             parseFunctionCall();
+            if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
+            change_type.back()->_vartype=__float__;
             isStructFunction = sav_b;
             return;
         }
@@ -2980,7 +3000,7 @@ void artiPrintf(char const * format, ...)
     va_list argp;
   va_start(argp, format);
   vprintf(format,argp);
-  printf("\r\n");
+  //printf("\r\n");
   va_end(argp);
 }
 class INIT_PARSER

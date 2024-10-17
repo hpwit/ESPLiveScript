@@ -54,11 +54,11 @@ Later in this documentation you will see what is possible and not.
 
 ## Not a development environment
 This libray doesn't provide an environment to write scripts. Nevertheless it has been included in:
-- [LedOS](https://github.com/hpwit/ledOS) : 
+- [LedOS](https://github.com/hpwit/ledOS) : an environment in a console terminal to edit, save and execute programs
 
 <img title="Screenshot" alt="Alt text" src="pictures/screen1.png" style="width:400px">
 
-- [Moon Modules](https://github.com/MoonModules/StarLight) : A web environment for led manipulation based on WLED which contains
+- [Moon Modules](https://github.com/MoonModules/StarLight) : A web environment for led manipulation based on WLED which contains several modules (artnet, DMX, powerful mapping tool ....) [Live Scripts doc](https://ewowi.github.io/StarDocs/UserMod/UserModLiveScripts)
 
 
 ## Led manipulation oriented
@@ -184,8 +184,14 @@ Executable exec=p.parseScript(&script);
 if(exec.isExeExists())
 {
   Arguments args;
-  args.add(6);
- exec.execute("main",args);
+  args.add(5);
+  exec.execute("main",args);
+  args.clear();
+   args.add(6);
+  exec.execute("main",args);
+   args.clear();
+   args.add(7);
+  exec.execute("main",args);
 }
 
 }
@@ -208,6 +214,19 @@ max used memory: 8468 maxstack:2304  started 265896 free mem:262196 consumed 370
 Creation of an 272 bytes binary and 90 bytes data
 Parsing 98 assembly lines ...
 max used memory: 8468 maxstack:2304  started 265896 free mem:264808 consumed 1088 time:121ms
- factorial of 6 is 720
+factorial of 5 is 120
+factorial of 6 is 720
+factorial of 7 is 5040
  ```
 
+## Interaction with pre compiled functions
+
+### Calling 'pre compiled' functions from ESPScript
+
+With the ESPScript is not able to code everything with the same efficiency as the espressif compiler plus it doesn't gfive you accès to WiFi, bluetooth, SPI, I2C, ... Futhermore, it will not be concievable to rewrite functions like the one the the FastLED library or any other library. Hence the ESPScript can call pre-compiled functions.
+
+
+### Access to 'pre compiled' variables
+
+
+### 
