@@ -2685,7 +2685,10 @@ void _visitcallFunctionNode(NodeToken *nd)
                 for (int j = 0; j < t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size; j++)
                 {
                     if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL)
+                    {
                         translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
+                        content.sp.push(content.get());
+                    }
                     else
                     {
                         //   translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_varType, register_numl.get());
@@ -3013,7 +3016,7 @@ void _visitdefGlobalVariableNode(NodeToken *nd)
                 for (NodeToken *ndtc : ndt->children)
                 {
                     int __num = 0;
-                    sscanf(ndtc->getTokenText(), "%d", &__num);
+                    sscanf(ndtc->getChildAtPos(0)->getTokenText(), "%d", &__num);
                     _data_sav = _data_sav + " " + string_format("%02x", __num);
                 }
             }
@@ -3574,13 +3577,19 @@ void _visitchangeTypeNode(NodeToken *nd)
     for (int i = 0; i < nd->children.size(); i++)
     {
 
-        // register_numl.duplicate();
+        //register_numl.duplicate();
         nd->getChildAtPos(i)->visitNode();
         // f = f + g.f;
         // h = h + g.header;
-        // register_numl.pop();
+         
         if (nd->getChildAtPos(i)->getVarType() != NULL)
+        {
+            //register_numl.pop();
+            if(strlen (nd->getChildAtPos(i)->getTokenText())>0)
             translateType(globalType.get(), nd->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
+            else
+translateType(globalType.get(), nd->getChildAtPos(i)->getVarType()->_varType, register_numl.get()+1);
+        }
         else
         {
             // translateType(globalType.get(), nd->getChildAtPos(i)->_token->_varType, register_numl.get());

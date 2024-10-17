@@ -1748,10 +1748,13 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     str = str + c2; // string_format("%s%c", t.getText(), c2);
                     c2 = script->nextChar();
                 }
-                // str=str+'\0';
+                 str=str+'\0';
                // c2 = script->previousChar();
                 if (_for_display)
+                {
+                    c2 = script->previousChar();
                     t.addText(str);
+                }
                 t.line = _token_line;
                 // t.pos = pos;
                 if (increae_line)

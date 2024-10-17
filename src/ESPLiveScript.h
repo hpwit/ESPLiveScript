@@ -1731,6 +1731,10 @@ public:
         nd._nodetype=changeTypeNode;
         nd.type=TokenKeywordVarType;
         nd._vartype=__none__;
+        if(current_node->_nodetype==changeTypeNode and strlen(current_node->getTokenText())>0)
+        {
+            nd._vartype=current_node->_vartype;
+        }
         current_node=current_node->addChild(nd);
         change_type.push_back(current_node);
         // Serial.printf("eee  term\r\n");
@@ -1931,6 +1935,8 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
         else if (Match(TokenIdentifier) && !Match(TokenOpenParenthesis, 1))
         {
             getVariable(false);
+                        if(current_node->getChildAtPos(current_node->children.size()-1)->_vartype==__float__)
+            change_type.back()->_vartype=__float__;
             if (Error.error == 1)
             {
                 // next();
