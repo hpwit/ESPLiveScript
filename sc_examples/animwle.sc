@@ -1,3 +1,12 @@
+//Original Code from Zranger1 adapted
+//https://github.com/zranger1/PixelblazePatterns/blob/master/2D_and_3D/mandelbrot2D.js
+// Reference:
+// https://mathworld.wolfram.com/MandelbrotSet.html
+// Version  Author        Date        
+//  1.0.0    JEM(ZRanger1) 12/08/2020  
+
+save_reg
+//safe_mode
 external void show();
 external CRGB leds[12288];
 external CRGB hsv(int h, int s, int v);
@@ -6,8 +15,8 @@ external void display(int h);
 external void resetStat();
 external void clear();
 define maxIterations 15
-define width 64
-define height 64
+define width 128
+define height 96
 define scale 0.5
 uint32_t __deltamillis[1];
 
@@ -16,18 +25,18 @@ uint32_t __baseTime[1];
 __ASM__ uint32_t millis()
 {
    "entry a1,32"
-   "l32r a5,__baseTime"
+   "l32r a5,@___baseTime"
    "l32i a14,a5,0"
    "rsr a13,234"
-   "l32r a4,__deltamillis"
+   "l32r a4,@___deltamillis"
    "s32i a13,a4,0"
    "sub a13,a13,a14"
    "movi a14,240"
    "quou a13,a13,a14"
    "movi a14,1000"
-   "quou a13,a13,a14"
-   "l32r a4,stackr"
-   "s32i a13,a4,0"
+   "quou a2,a13,a14"
+  // "l32r a4,@_stackr"
+   //"s32i a13,a4,0"
    "retw.n"
 }
     
@@ -43,13 +52,13 @@ float fY;
 // timers used to animate movement and color
 float t1;
 float t2;
-int iter;
+uint32_t iter;
 // UI
 
 float fmod(float a, float b)
 {
 
-  int tmp = (float)(a / b);
+  int tmp = a / b;
     //float res=a-b*tmp;
 //  return res;
     return a-b*tmp;
@@ -121,7 +130,7 @@ void render2D(int x1, int y1)
 
   if (iter < maxIterations)
   {
-    leds[128 * y1 + x1] = hsv((float)((t2 + (iter / maxIterations)) * 255), 255, 255);
+    leds[128 * y1 + x1] = hsv((t2 +(float)(iter / maxIterations)) * 255, 255, 255);
   }
   else
   {
@@ -146,6 +155,6 @@ resetStat();
         render2D(i, j);
       }
     }
-    show();
+    sync();
   }
 }

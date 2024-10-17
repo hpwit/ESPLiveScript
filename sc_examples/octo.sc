@@ -1,5 +1,6 @@
-import memset
+//import memset
 save_reg
+//safe_mode
 external CRGB *leds;
 external void show();
 external CRGB hsv(uint8_t h,uint8_t s,uint8_t v);
@@ -7,12 +8,13 @@ external uint8_t sin8(uint8_t a);
 external float hypot(float x,float y);
 external float atan2(float x,float y);
 external void resetStat();
-define LED_COLS 32
-define LED_ROWS 32
-define NUM_LEDS 4096
-define PI 3.14529
+define LED_COLS 128
+define LED_ROWS 96
+define NUM_LEDS 12288
+define PI 3.1415926535
 define panel_width 128
 define speed 1
+define nb_branches 5
 uint8_t C_X ;
 uint8_t C_Y;
 uint8_t mapp;
@@ -52,12 +54,18 @@ resetStat();
     for (uint8_t y = 0; y < LED_ROWS; y++) {
       uint8_t angle = rMapAngle[x*LED_ROWS+y];
       uint8_t radius = rMapRadius[x*LED_ROWS+y];
+//      leds[y*panel_width+x] = hsv(t + radius, 255, h);
+  //   int j=t*4-radius;
+//     j=sin8(j);
 
-      leds[y*panel_width+x] = hsv(t + radius, 255, sin8(t*4+sin8(t * 4 - radius)+angle*5));
+    //  int h=j+angle*nb_branches+t*4;
+   //   h=sin8(h);
+     leds[y*panel_width+x] = hsv(t + radius, 255, sin8(t*4+sin8(t * 4 - radius)+angle*nb_branches));
       
+ //   leds[y*panel_width+x] = hsv(t + radius, 255, h);
     }
   }
-  show();
+  sync();
   t=t+speed;
   }
   //delay(16);
