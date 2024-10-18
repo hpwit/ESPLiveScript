@@ -2437,8 +2437,10 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
             if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL and convert)
                 translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
             varTypeEnum _vartype;
+            NodeToken *l;
             if (i < t->getChildAtPos(1)->children.size())
             {
+                l=t->getChildAtPos(1);
                 _vartype = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType;
                 if (_vartype == __Args__)
                 {
@@ -2454,8 +2456,10 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
             }
             else
             {
+                l=t->getChildAtPos(2);
                 _vartype = t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
             }
+    
             if (_vartype == __float__)
             {
 
@@ -2468,10 +2472,10 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
                     content.addAfter(string_format("rfr a%d,f%d", regbase + i, register_numl.get()));
                 }
             }
-            else if (t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGB__ or t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)
+            else if (l->getChildAtPos(i)->getVarType()->_varType == __CRGB__ or l->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)
             {
                 // content.addAfter( content.sp.pop(),string_format("mov a%d,a%d", 10 + i, register_numl.get()));
-                if (t->getChildAtPos(2)->getChildAtPos(i)->_nodetype == numberNode)
+                if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == numberNode)
                 {
 
                     if (save_in_stack == true)
@@ -2495,14 +2499,14 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
                 else
                 {
 
-                    for (int k = 0; k < t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->size; k++)
+                    for (int k = 0; k < t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->getVarType()->size; k++)
                     {
                         // content.addAfter(string_format("mov a15,a10"));
                         // content.addAfter(content.sp.pop(),string_format("slli a%d,a%d,%d", 10+i,register_numl.get(),  k* 8));
                         // register_numl--;
                         content.pop();
                     }
-                    if (t->getChildAtPos(2)->getChildAtPos(i)->_nodetype == callFunctionNode)
+                    if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == callFunctionNode)
                     {
                         if (save_in_stack == true)
                         {
@@ -2514,7 +2518,7 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
                             content.addAfter(content.sp.pop(), string_format("l32i a%d,a8,0", 10 + i));
                         }
                     }
-                    if (t->getChildAtPos(2)->getChildAtPos(i)->_nodetype == extCallFunctionNode)
+                    if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == extCallFunctionNode)
                     {
                         if (save_in_stack == true)
                         {
@@ -2526,7 +2530,7 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
                             content.addAfter(content.sp.pop(), string_format("mov a%d,a10", regbase + i));
                         }
                     }
-                    else if (t->getChildAtPos(2)->getChildAtPos(i)->_nodetype == localVariableNode)
+                    else if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == localVariableNode)
                     {
                         if (save_in_stack == true)
                         {
@@ -2538,7 +2542,7 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
                             content.addAfter(content.sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(2)->getChildAtPos(i)->stack_pos));
                         }
                     }
-                    else if (t->getChildAtPos(2)->getChildAtPos(i)->_nodetype == globalVariableNode)
+                    else if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == globalVariableNode)
                     {
                         // tobe done
                         if (save_in_stack == true)
