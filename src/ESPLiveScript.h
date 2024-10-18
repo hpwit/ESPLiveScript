@@ -1855,7 +1855,10 @@ public:
             // on a (float) ....;
             next();
             //   NodeChangeType d=NodeChangeType(current());
+
             current_node = current_node->addChild(NodeToken(current(), changeTypeNode));
+            if(change_type.size()>0)
+                change_type.back()->_vartype=current()->_vartype;
             next(); //)
             next(); //(
             next();
