@@ -2534,12 +2534,12 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
                     {
                         if (save_in_stack == true)
                         {
-                            content.addAfter(content.sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(2)->getChildAtPos(i)->stack_pos));
+                            content.addAfter(content.sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->stack_pos));
                             content.addAfter(string_format("s32i a%d,a1,%d", regbase + i, i * 4 + _START_2));
                         }
                         else
                         {
-                            content.addAfter(content.sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(2)->getChildAtPos(i)->stack_pos));
+                            content.addAfter(content.sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->stack_pos));
                         }
                     }
                     else if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == globalVariableNode)
