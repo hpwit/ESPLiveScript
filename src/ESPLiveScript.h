@@ -518,12 +518,13 @@ public:
                 isStructFunction = true;
 
                 parseFunctionCall();
-                current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
-                isStructFunction = false;
+
                 if (Error.error)
                 {
                     return;
                 }
+                                current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
+                isStructFunction = false;
                 Error.error = 0;
                 return;
             }
@@ -1954,6 +1955,10 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
             bool sav_b = isStructFunction;
             isStructFunction = false;
             parseFunctionCall();
+            if(Error.error)
+            {
+                return;
+            }
             if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
             change_type.back()->_vartype=__float__;
             isStructFunction = sav_b;

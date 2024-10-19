@@ -2683,6 +2683,7 @@ void _visitcallFunctionNode(NodeToken *nd)
                 globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
                 register_numl.duplicate();
                 nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
+                
                 register_numl.pop();
                 int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE + t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->total_size;
                 int tot = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1;
