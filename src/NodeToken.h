@@ -2143,11 +2143,12 @@ void _visitstatementNode(NodeToken *nd)
     // printf("visit statement\n");
     register_numr.clear();
     register_numl.clear();
+    /*
     register_numl.push(15);
     register_numr.push(15);
 
     register_numl.push(15);
-    register_numr.push(15);
+    register_numr.push(15); */
     for (int i = 0; i < nd->children.size(); i++)
     {
 
