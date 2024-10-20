@@ -2370,11 +2370,14 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
     // printf("number of arg %s %d\r\n", nd->getTokenText(), nd->findMaxArgumentSize());
     for (int i = t->getChildAtPos(2)->children.size() - 1; i >= 0; i--)
     {
+        //register_numl.push(15);
+        //register_numl.push(15);
         // printf("***number of arg %d %d\r\n", i, nd->getChildAtPos(2)->getChildAtPos(i)->findMaxArgumentSize());
         bool save_in_stack = false;
+        
         for (int j = 0; j < i; j++)
         {
-            if (nd->getChildAtPos(2)->getChildAtPos(j)->findMaxArgumentSize() - 1 >= i)
+            if (nd->getChildAtPos(2)->getChildAtPos(j)->getChildAtPos(0)->findMaxArgumentSize() - 1 >= i)
             {
                 save_in_stack = true;
             }
@@ -2383,6 +2386,8 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
         {
             if (i == 0)
                 save_in_stack = false;
+               // if(i>=1)
+               // save_in_stack = true;
         }
         else
         {
@@ -2883,7 +2888,7 @@ void _visitextCallFunctionNode(NodeToken *nd)
         content.sp.push(content.get());
         // globalType.push(__float__);
     }
-    else
+    else if(v->size>1)
     {
         for (int i = 0; i < v->size; i++)
         {
@@ -2893,6 +2898,12 @@ void _visitextCallFunctionNode(NodeToken *nd)
             start += v->sizes[i];
             content.sp.push(content.get());
         }
+    }
+
+    else
+    {
+        content.addAfter(string_format("mov a%d,a10",register_numl.get()));
+        content.sp.push(content.get());
     }
     register_numl.decrease();
 }

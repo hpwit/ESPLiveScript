@@ -751,6 +751,7 @@ public:
         isPointer = false;
         sav_token.clear();
         Error.error = 0;
+       current_node= current_node->addChild(NodeToken(statementNode));
 // asPointer =false;
 // resParse result;
 // NodeStatement statement;
@@ -765,6 +766,7 @@ public:
         {
             current_node->addChild(NodeToken(current(), stringNode));
             next();
+            current_node=current_node->parent; //
             return;
         }
         else if (Match(TokenKeywordBreak))
@@ -781,6 +783,7 @@ public:
             {
                 current_node->addChild(NodeToken(c, breakNode));
                 next();
+                current_node=current_node->parent; //
                 return;
             }
             else
@@ -804,6 +807,7 @@ public:
             {
                 current_node->addChild(NodeToken(c, continueNode));
                 next();
+                current_node=current_node->parent; //
                 return;
             }
             else
@@ -820,6 +824,7 @@ public:
             {
                 current_node->addChild(NodeToken(returnNode));
                 next();
+                current_node=current_node->parent; //
                 return;
             }
             else
@@ -837,6 +842,7 @@ public:
                     current_node = current_node->parent;
                     // res._nd = var;
                     next();
+                    current_node=current_node->parent; //
                     return;
                 }
                 else
@@ -847,58 +853,7 @@ public:
                 }
             }
         }
-        /*
-        else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifier, 2)  && Match(TokenOpenParenthesis, 3))
-            {
-                 current_cntx->findVariable(current(), false);
-                        if (search_result == NULL)
-        {
-
-
-            Error.error = 1;
-            Error.error_message = string_format("impossible to find declaraiton for %s %s", current()->getText(), linepos().c_str());
-            next();
-            return;
-        }
-                next();
-                next();
-                current()->addText(string_format("%s.%s",search_result->getVarType()->varName.c_str() ,current()->getText()));
-                NodeToken nd=*search_result;
-                nd._nodetype=globalVariableNode;
-                 nd.isPointer=true;
-                 nodeTokenList.push(nd);
-                isStructFunction=true;
-
-                 parseFunctionCall();
-                 isStructFunction=false;
-                 if (Error.error)
-            {
-                return;
-            }
-            else
-            {
-                if (Match(TokenSemicolon))
-                {
-                    Error.error = 0;
-                    // current_node->addChild(res._nd);
-                    // current_node=current_node->parent;
-                    // result._nd = res._nd;
-                    next();
-                    return;
-                }
-                else
-                {
-                    Error.error = 1;
-                    Error.error_message = string_format("Expected ; %s", linepos().c_str());
-                    next();
-                    return;
-                }
-            }
-
-                 next();
-                return;
-
-            }*/
+        
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
             bool sav_b = isStructFunction;
@@ -918,6 +873,7 @@ public:
                     // current_node=current_node->parent;
                     // result._nd = res._nd;
                     next();
+                    current_node=current_node->parent; //
                     return;
                 }
                 else
@@ -961,6 +917,7 @@ public:
             }
             Error.error = 0;
             next();
+            current_node=current_node->parent; //
             return;
         }
         else if (Match(TokenStar) && Match(TokenIdentifier, 1))
@@ -989,6 +946,7 @@ public:
                 // current_node=current_node->parent;
                 current_node = current_node->parent;
                 next();
+                current_node=current_node->parent; //
                 return;
             }
             if (Match(TokenEqual))
@@ -1014,6 +972,7 @@ public:
                 // current_node=current_node->parent;
                 current_node = current_node->parent;
                 next();
+                current_node=current_node->parent; //
                 return;
             }
             else
@@ -1061,6 +1020,7 @@ public:
             current_cntx = current_cntx->parent;
             current_node = current_node->parent;
             //  current_node=current_node->parent;
+            current_node=current_node->parent; //
             return;
         }
         else if (Match(TokenKeywordWhile))
@@ -1112,6 +1072,7 @@ public:
                 current_node = current_node->parent;
                 sav_t.pop_back();
                 //  current_node=current_node->parent;
+                current_node=current_node->parent; //
                 return;
             }
             else
@@ -1172,6 +1133,7 @@ public:
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
                 //  current_node=current_node->parent;
+                current_node=current_node->parent; //
                 return;
             }
             else
@@ -1255,6 +1217,7 @@ public:
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
                 //  current_node=current_node->parent;
+                current_node=current_node->parent; //
                 return;
             }
             else
@@ -1303,6 +1266,7 @@ public:
                 // current_node = current_node->parent;
                 // _uniquesave->text=current_cntx->variables.back().text;
                 next();
+                current_node=current_node->parent; //
                 return;
             }
 
@@ -1351,6 +1315,7 @@ public:
                 // current_node->addChild(ndsmt);
                 current_node = current_node->parent;
                 next();
+                current_node=current_node->parent; //
                 return;
             }
             else
@@ -1360,6 +1325,7 @@ public:
                 return;
             }
 
+            current_node=current_node->parent; //
             return;
         }
         else
