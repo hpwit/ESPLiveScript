@@ -2689,6 +2689,7 @@ void _visitcallFunctionNode(NodeToken *nd)
                 int tot = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1;
                 for (int j = 0; j < t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size; j++)
                 {
+                    /*
                     if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL)
                     {
                         translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
@@ -2698,6 +2699,7 @@ void _visitcallFunctionNode(NodeToken *nd)
                     {
                         //   translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_varType, register_numl.get());
                     }
+                    */
                     start -= t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->sizes[tot - j];
                     asmInstruction asmInstr = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->store[tot - j];
                     // content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), point_regnum, start));

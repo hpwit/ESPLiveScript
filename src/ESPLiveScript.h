@@ -755,6 +755,7 @@ public:
 // resParse result;
 // NodeStatement statement;
 // current_node=current_node->addChild(statement);
+current_node->addChild(NodeToken(statementNode));
 #ifndef __TEST_DEBUG
         // printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
 #endif
