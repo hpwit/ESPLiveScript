@@ -860,6 +860,7 @@ Script main_script;
 NodeToken program = NodeToken(programNode);
 NodeToken *current_node;
 NodeToken *search_result;
+NodeToken *tmp_sav;
 vector<NodeToken> _functions;
 class Context
 {
@@ -1026,6 +1027,7 @@ Stack<NodeToken> nodeTokenList;
 Stack<string> targetList;
 list<NodeToken *> sav_token;
 list<NodeToken *> change_type;
+NodeToken * lastFunctionType;
 NodeToken *lasttype;
 list<NodeToken *> _node_token_stack;
 NodeToken _uniquesave;
@@ -1749,7 +1751,7 @@ void _visitoperatorNode(NodeToken *nd)
         }
         content.addAfter(string_format("%s %s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get()));
         content.sp.pop();
-        content.sp.push(content.get());
+       content.sp.push(content.get());
         // return;
     default:
         // return;
@@ -2625,6 +2627,9 @@ int staack_offset=(nd->getChildAtPos(2)->children.size()-7)*4;
     return;
 }
 
+
+
+
 void _visitcallFunctionNode(NodeToken *nd)
 {
     // printf("compiling  call function %s\n",nd->getTokenText());
@@ -2689,24 +2694,25 @@ void _visitcallFunctionNode(NodeToken *nd)
                 int tot = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1;
                 for (int j = 0; j < t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size; j++)
                 {
-                    /*
+                    
                     if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL)
                     {
                         translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
-                        content.sp.push(content.get());
+                        content.sp.pop();
+                                              content.sp.push(content.get());
                     }
                     else
                     {
                         //   translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->_token->_varType, register_numl.get());
                     }
-                    */
+                    
                     start -= t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->sizes[tot - j];
                     asmInstruction asmInstr = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->store[tot - j];
                     // content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), point_regnum, start));
                     int sav;
-                    if (j == t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1)
-                        sav = content.sp.get();
-                    content.addAfter(content.sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), save, start));
+                   // if (j == t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1)
+                        sav = content.get();
+                    content.addAfter(content.sp.pop(),string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), save, start));
                     if (j == t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1)
                     {
                         // content.sp.push(content.get());
@@ -2750,7 +2756,7 @@ void _visitcallFunctionNode(NodeToken *nd)
             content.addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), 8, start)); // point_regnum
             // register_numl--;
             start += v->sizes[i];
-            content.sp.push(content.get());
+           // content.sp.push(content.get());
         }
         register_numl.decrease();
     }
@@ -2764,6 +2770,7 @@ void _visitcallFunctionNode(NodeToken *nd)
         {
             content.addAfter(string_format("mov a%d,a10", register_numl.get()));
         }
+       // content.sp.push(content.get());
         content.sp.push(content.get());
         register_numl.decrease();
     }
@@ -3023,7 +3030,7 @@ void _visitdefGlobalVariableNode(NodeToken *nd)
                 for (NodeToken *ndtc : ndt->children)
                 {
                     int __num = 0;
-                    sscanf(ndtc->getChildAtPos(0)->getTokenText(), "%d", &__num);
+                    sscanf(ndtc->getTokenText(), "%d", &__num);
                     _data_sav = _data_sav + " " + string_format("%02x", __num);
                 }
             }
@@ -3528,15 +3535,18 @@ void _visitreturnNode(NodeToken *nd)
             register_numl.duplicate();
             nd->getChildAtPos(i)->visitNode();
             register_numl.pop();
+             translateType(t->getVarType()->_varType,  nd->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
             // int start = nd->stack_pos + t->getVarType()->total_size;
             // int tot = t->getVarType()->size - 1;
             if (t->getVarType()->_varType == __float__)
             {
-                content.addAfter(content.sp.pop(), string_format("mov.s f2,f%d", register_numl.get()));
+            //content.addAfter(content.sp.pop(), string_format("mov.s f2,f%d", register_numl.get()));
+                content.addAfter( string_format("mov.s f2,f%d", register_numl.get()));
             }
             else
             {
-                content.addAfter(content.sp.pop(), string_format("mov a2,a%d", register_numl.get()));
+               // content.addAfter(content.sp.pop(), string_format("mov a2,a%d", register_numl.get()));
+                 content.addAfter( string_format("mov a2,a%d", register_numl.get()));
             }
 
             globalType.pop();
@@ -3584,8 +3594,11 @@ void _visitchangeTypeNode(NodeToken *nd)
     for (int i = 0; i < nd->children.size(); i++)
     {
 
-        //register_numl.duplicate();
+    register_numl.duplicate();
         nd->getChildAtPos(i)->visitNode();
+
+
+    register_numl.pop();
         // f = f + g.f;
         // h = h + g.header;
          
@@ -3595,12 +3608,13 @@ void _visitchangeTypeNode(NodeToken *nd)
             if(strlen (nd->getChildAtPos(i)->getTokenText())>0)
             translateType(globalType.get(), nd->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
             else
-translateType(globalType.get(), nd->getChildAtPos(i)->getVarType()->_varType, register_numl.get()+1);
+translateType(globalType.get(), nd->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
         }
         else
         {
             // translateType(globalType.get(), nd->getChildAtPos(i)->_token->_varType, register_numl.get());
         }
+        register_numl.decrease();
     }
     // varTypeEnum s = globalType.pop();
     globalType.pop();

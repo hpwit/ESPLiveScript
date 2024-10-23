@@ -105,10 +105,10 @@ void prettyPrint(NodeToken *_nd, string ident)
     {
 
         if (nd.type == (int)TokenUserDefinedVariable)
-            printf("var name:%s\ttotal size:%d\tstackpos:%d\t", _userDefinedTypes[nd._vartype].varName.c_str(), nd._total_size, nd.stack_pos);
+            printf("var name:%s\t total size:%d\tstackpos:%d\t", _userDefinedTypes[nd._vartype].varName.c_str(), nd._total_size, nd.stack_pos);
         else
 
-            printf("var name:%s\ttotal size:%d\tstackpos:%d\t", varTypeEnumNames[nd._vartype].c_str(), nd._total_size, nd.stack_pos);
+            printf("var type:%s\ttotal size:%d\tstackpos:%d\t", varTypeEnumNames[nd._vartype].c_str(), nd._total_size, nd.stack_pos);
     }
 
     printf("target :%s", nd.getTargetText());
@@ -273,6 +273,7 @@ public:
         sav_t.shrink_to_fit();
         main_context.clear();
         targetList.clear();
+        change_type.clear();
         sav_token.clear();
         _node_token_stack.clear();
         for (NodeToken h : _functions)
@@ -295,6 +296,7 @@ public:
         results.setExecutable(_executecmd);
         content.clear();
         header.clear();
+        change_type.clear();
         updateMem();
         displayStat();
         if (_executecmd.error.error == 1)
@@ -529,6 +531,7 @@ public:
                 return;
             }
             Error.error = 0;
+            tmp_sav=current_node;
             current_node = current_node->parent;
             // res._nd = var;
             // next();
@@ -586,12 +589,20 @@ public:
         }
         // nb_argument = 1;
         // Serial.printf("lkklqdqsdksmdkqsd\r\n");
+        NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+        nd._vartype=__none__;
+    current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
         parseExpr();
         // Serial.printf("lkklqdqsdksm excut dkqsd\r\n");
         if (Error.error)
         {
             return;
         }
+        current_node=current_node->parent;
+        change_type.pop_back();
         // arg.addChild(res._nd);
         while (Match(TokenComma))
         {
@@ -600,11 +611,19 @@ public:
             nb_args.pop_back();
             nb_args.push_back(__sav_arg + 1);
             // nb_argument++;
+            NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+        nd._vartype=__none__;
+    current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
             parseExpr();
             if (Error.error)
             {
                 return;
             }
+                    current_node=current_node->parent;
+        change_type.pop_back();
             // arg.addChild(res._nd);
         }
         if (!Match(TokenCloseParenthesis))
@@ -669,6 +688,8 @@ public:
         current_node = current_node->addChild(res);
         // current_node->copyChildren(search_result);
         current_node->addChild(search_result->getChildAtPos(0));
+        if(search_result->getChildAtPos(0)->_vartype ==__float__ and change_type.size()>0)
+        change_type.back()->_vartype=__float__;
         current_node->addChild(search_result->getChildAtPos(1));
         
         // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
@@ -827,6 +848,21 @@ current_node->addChild(NodeToken(statementNode));
             {
                 current_node = current_node->addChild(NodeToken(returnNode));
                 // next();
+                NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+        nd.setTokenText("yevbs");
+        nd._vartype=__none__;
+               if(lasttype!=NULL)
+               {
+                if(lasttype->_vartype==__float__)
+                {
+                    nd._vartype=__float__;
+                }
+               }
+        
+    current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
                 parseExpr();
                 if (Error.error)
                 {
@@ -837,6 +873,9 @@ current_node->addChild(NodeToken(statementNode));
                     Error.error = 0;
                     current_node = current_node->parent;
                     // res._nd = var;
+
+                    current_node = current_node->parent;
+                    change_type.pop_back();
                     next();
                     return;
                 }
@@ -994,6 +1033,16 @@ current_node->addChild(NodeToken(statementNode));
             }
             if (Match(TokenEqual))
             {
+                      NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+       nd.setTokenText("yves");
+        if(tmp_sav->_vartype==__float__)
+        nd._vartype=__float__;
+        else
+        nd._vartype=__none__;
+    current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
                 next();
                 parseExpr();
                 if (Error.error)
@@ -1012,8 +1061,10 @@ current_node->addChild(NodeToken(statementNode));
                 // current_node->addChild(right._nd);
                 Error.error = 0;
                 // result._nd = nd;
-                // current_node=current_node->parent;
-                current_node = current_node->parent;
+                current_node=current_node->parent;
+                current_node = current_node->parent; //new expr
+
+             change_type.pop_back();
                 next();
                 return;
             }
@@ -1292,7 +1343,7 @@ current_node->addChild(NodeToken(statementNode));
             // printf("111&&&&&&&dddddddddd&&&&qssdqsdqsd& %s\n", nodeTypeNames[var._nodetype].c_str());
             // string var_name = nd._token->text;
             // pritnf()
-            current_cntx->addVariable(nodeTokenList.get());
+           current_cntx->addVariable(nodeTokenList.get());
 
             if (Match(TokenSemicolon))
             {
@@ -1310,7 +1361,7 @@ current_node->addChild(NodeToken(statementNode));
             if (Match(TokenEqual))
             {
                 //  NodeStatement ndsmt;
-                current_node->addChild(nodeTokenList.get());
+                tmp_sav= current_node->addChild(nodeTokenList.get());
                 // NodeAssignement nd;
                 current_node = current_node->addChild(NodeToken(assignementNode));
                 next();
@@ -1329,6 +1380,16 @@ current_node->addChild(NodeToken(statementNode));
                 }
                 current_node->addChild(_uniquesave); // createNodeLocalVariableForStore(nodeTokenList.pop()));
                 // _uniquesave->text=current_cntx->variables.back().text;
+                                  NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+        nd.setTokenText("yevbs");
+                if(tmp_sav->_vartype==__float__)
+        nd._vartype=__float__;
+        else
+        nd._vartype=__none__;
+    current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
                 parseExpr();
 
                 if (Error.error)
@@ -1351,6 +1412,9 @@ current_node->addChild(NodeToken(statementNode));
                 // result._nd = ndsmt;
                 // current_node->addChild(ndsmt);
                 current_node = current_node->parent;
+
+                 current_node = current_node->parent; //new expr
+                 change_type.pop_back();
                 next();
                 return;
             }
@@ -1506,6 +1570,7 @@ current_node->addChild(NodeToken(statementNode));
     void parseDefFunction()
     {
 
+
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
@@ -1539,7 +1604,11 @@ current_node->addChild(NodeToken(statementNode));
             //   function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
-            current_node->addChild(nodeTokenList.pop());
+            lasttype= current_node->addChild(nodeTokenList.pop());
+           
+           
+           
+            lasttype=current_node;
             // current_cntx->parent->addFunction(current_node);
             // main_context.addFunction(current_node);
         }
@@ -1550,7 +1619,10 @@ current_node->addChild(NodeToken(statementNode));
             //   function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
-            current_node->addChild(nodeTokenList.pop());
+           lasttype=  current_node->addChild(nodeTokenList.pop());
+
+
+           // lasttype=current_node;
             // current_cntx->parent->addFunction(current_node);
         }
         else
@@ -1560,7 +1632,10 @@ current_node->addChild(NodeToken(statementNode));
             //  function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
-            current_node->addChild(nodeTokenList.pop());
+            lasttype= current_node->addChild(nodeTokenList.pop());
+
+
+            //lasttype=current_node;
             // current_cntx->parent->addFunction(current_node);
             //  main_context.addFunction(current_node);
         }
@@ -1728,7 +1803,9 @@ current_node->addChild(NodeToken(statementNode));
     {
         // NodeToken *sav_pa = current_node;
         // Serial.printf("eee  term1\r\n");
+        
         sav_token.push_back(current_node);
+        /*
         NodeToken nd;
         nd._nodetype=changeTypeNode;
         nd.type=TokenKeywordVarType;
@@ -1739,6 +1816,7 @@ current_node->addChild(NodeToken(statementNode));
         }
         current_node=current_node->addChild(nd);
         change_type.push_back(current_node);
+        */
         // Serial.printf("eee  term\r\n");
         parseTerm();
         // Serial.printf("exit  term\r\n");
@@ -1779,9 +1857,9 @@ current_node->addChild(NodeToken(statementNode));
         // next();
         current_node = sav_token.back();
         sav_token.pop_back();
-        lasttype=change_type.back();
+      //  lasttype=change_type.back();
        // printf("last type:%d\n",lasttype->_vartype);
-        change_type.pop_back();
+       // change_type.pop_back();
         // current_node = sav_pa;
         // printf("exit expr");
         Error.error = 0;
@@ -1819,8 +1897,11 @@ current_node->addChild(NodeToken(statementNode));
 
             // NodeNumber g = NodeNumber(current());
             current_node->addChild(NodeToken(current(), numberNode));
+            if(change_type.size()>0)
+            {
             if(current()->_vartype==__float__)
                 change_type.back()->_vartype=current()->_vartype;
+            }
             next();
             
             Error.error = 0;
@@ -1859,11 +1940,24 @@ current_node->addChild(NodeToken(statementNode));
             //   NodeChangeType d=NodeChangeType(current());
 
             current_node = current_node->addChild(NodeToken(current(), changeTypeNode));
-            if(change_type.size()>0)
-                change_type.back()->_vartype=current()->_vartype;
+            
+           // change_type.push_back(current_node);
+            
+           // if(change_type.size()>0)
+            //    change_type.back()->_vartype=current()->_vartype;
             next(); //)
             next(); //(
             next();
+            NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+        if(current_node->_vartype == __float__)
+        nd._vartype=__float__;
+        else
+         nd._vartype=__none__;
+    current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
+
             parseExpr();
             if (Error.error == 1)
             {
@@ -1873,7 +1967,11 @@ current_node->addChild(NodeToken(statementNode));
             {
                 next();
                 Error.error = 0;
-                current_node = current_node->parent;
+               // current_node = current_node->parent;
+
+                current_node=current_node->parent;
+                current_node=current_node->parent;
+              //  change_type.pop_back();
                 return;
             }
             else
@@ -1888,10 +1986,10 @@ current_node->addChild(NodeToken(statementNode));
             next();
            // printf("one est icic\n\r");
             parseExpr();
-            if(lasttype->_vartype==__float__)
-            {
-                change_type.back()->_vartype=__float__;
-            }
+           // if(lasttype->_vartype==__float__)
+           // {
+           //     change_type.back()->_vartype=__float__;
+           // }
 
             if (Error.error == 1)
             {
@@ -1940,8 +2038,13 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
         else if (Match(TokenIdentifier) && !Match(TokenOpenParenthesis, 1))
         {
             getVariable(false);
-                        if(current_node->getChildAtPos(current_node->children.size()-1)->_vartype==__float__)
+               //         if(current_node->getChildAtPos(current_node->children.size()-1)->_vartype==__float__)
+            //change_type.back()->_vartype=__float__;
+            if(change_type.size()>0)
+            {
+            if(tmp_sav->_vartype ==__float__)
             change_type.back()->_vartype=__float__;
+            }
             if (Error.error == 1)
             {
                 // next();
@@ -1960,8 +2063,8 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
             {
                 return;
             }
-            if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
-            change_type.back()->_vartype=__float__;
+           // if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
+           // change_type.back()->_vartype=__float__;
             isStructFunction = sav_b;
             return;
         }
