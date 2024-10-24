@@ -2278,6 +2278,9 @@ void _visitcomparatorNode(NodeToken *nd)
             {
             case TokenLessThan:
                 compop = "olt.s"; // greater or equal
+                //                                h = numl;
+               // numl = leftl;
+              //  leftl = h;
                 //  content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
                 compo2="bt";
                 break;
@@ -2291,14 +2294,15 @@ void _visitcomparatorNode(NodeToken *nd)
                 break;
             case TokenMoreOrEqualThan:
                 compop = "ole.s"; // less then
-                compo2="bt";
-                                h = numl;
+                                   h = numl;
                 numl = leftl;
                 leftl = h;
+                compo2="bt";
+   
                 break;
             case TokenMoreThan:
                 compop = "olt.s"; // not equal
-                h = numl;
+                                   h = numl;
                 numl = leftl;
                 leftl = h;
                 compo2="bt";
@@ -2323,10 +2327,7 @@ void _visitcomparatorNode(NodeToken *nd)
              case TokenLessThan:
                 compop = "olt.s"; // greater or equal
                 //  content.addAfter( string_format("%s_end:\n",nd->target.c_str()));               
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                compo2="bt";
+                compo2="bf";
                 break;
             case TokenDoubleEqual:
                 compop = "oeq.s"; // not equal
@@ -2338,18 +2339,22 @@ compo2="bt";
                 break;
             case TokenMoreOrEqualThan:
                 compop = "ole.s"; // less then
-compo2="bt";
+                   h = numl;
+                numl = leftl;
+                leftl = h;
+compo2="bf";
                 break;
             case TokenMoreThan:
                 compop = "olt.s"; // not equal
-    compo2="bt";
+                                h = numl;
+                numl = leftl;
+                leftl = h;
+    compo2="bf";
                 break;
             case TokenLessOrEqualThan:
                 compop = "ole.s"; // not equal
 compo2="bf";
-                h = numl;
-                numl = leftl;
-                leftl = h;
+
                 //compo2="bt";
                 break;
             default:
