@@ -414,6 +414,29 @@ uint32_t bin_abss(uint32_t *values)
 }
 
 
+operandeType op_floatco[3]={operandeType::boolregisters,operandeType::floatregisters,operandeType::floatregisters};
+uint32_t bin_olts(uint32_t *values)
+{
+    return 0x00 + (((values[2] << 4) & 0x00F0)) +(((values[1] << 8) & 0x00F00))+(((values[0] << 12) & 0x00F000))+0x4B0000 ;
+}
+uint32_t bin_oles(uint32_t *values)
+{
+    return 0x00 + (((values[2] << 4) & 0x00F0)) +(((values[1] << 8) & 0x00F00))+(((values[0] << 12) & 0x00F000))+0x6B0000 ;
+}
+uint32_t bin_oeqs(uint32_t *values)
+{
+    return 0x00 + (((values[2] << 4) & 0x00F0)) +(((values[1] << 8) & 0x00F00))+(((values[0] << 12) & 0x00F000))+0x2B0000 ;
+}
+operandeType op_jumpfloat[2]={operandeType::boolregisters,operandeType::label};
+uint32_t bin_bt(uint32_t *values)
+{
+    return 0x1076+(((values[0] << 8) & 0x00F00));
+}
+uint32_t bin_bf(uint32_t *values)
+{
+    return 0x0076+(((values[0] << 8) & 0x00F00));
+}
+
 operandeType op_call8[2] = {operandeType::label};
 uint32_t bin_call8(uint32_t *values)
 {

@@ -741,22 +741,39 @@ public:
         current_node = current_node->addChild(NodeToken(current(), comparatorNode));
 
         // res._nd=NodeToken();
+
+        NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+         nd._vartype=__none__;
+    current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
+
         parseExpr();
         if (Error.error)
         {
             return;
         }
         // token *t=current();
+       // current_node->type = current()->type;
+        current_node=current_node->parent;
         current_node->type = current()->type;
+         change_type.pop_back();
         // current_node->ad
         next();
+              nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+         nd._vartype=__none__;
+    current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
         parseExpr();
         if (Error.error)
         {
             return;
         }
         next();
-
+     current_node=current_node->parent;
+         change_type.pop_back();
         current_node->setTargetText(targetList.pop());
         // cn.target=target;
         // cn.addChild(left._nd);
@@ -1971,7 +1988,7 @@ current_node->addChild(NodeToken(statementNode));
 
                 current_node=current_node->parent;
                 current_node=current_node->parent;
-              //  change_type.pop_back();
+                change_type.pop_back();
                 return;
             }
             else
@@ -3121,12 +3138,21 @@ void artiPrintf(char const * format, ...)
   //printf("\r\n");
   va_end(argp);
 }
+void artiPrintfln(char const * format, ...)
+{
+    va_list argp;
+  va_start(argp, format);
+  vprintf(format,argp);
+  printf("\r\n");
+  va_end(argp);
+}
 class INIT_PARSER
 {
     public:
     INIT_PARSER()
     {
          addExternal("printf", externalType::function, ( void *)artiPrintf);
+         addExternal("printfln", externalType::function, ( void *)artiPrintfln);
     }
 };
 INIT_PARSER initialization_parser;

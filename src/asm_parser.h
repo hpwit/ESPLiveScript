@@ -189,6 +189,40 @@ public:
     return res;
   }
 };
+class opBooleanRegister
+{
+public:
+  static result_parse_operande parse(std::string s)
+  {
+    error_message_struct error;
+    result_parse_operande res;
+    char *endptr = NULL;
+    error.error = 0;
+    s = trim(s);
+    if (s.at(0) == 'b')
+    {
+
+      string s2 = s.substr(1, s.size());
+      if (s2.size() > 0)
+      {
+        int value = strtol(s2.c_str(), &endptr, 10);
+        if (*endptr == 0)
+        {
+          if (value >= 0 and value <= 15)
+          {
+            res.value = value;
+            res.error = error;
+            return res;
+          }
+        }
+      }
+    }
+    error.error_message = string_format("Unknown register %s\n", s.c_str());
+    error.error = 1;
+    res.error = error;
+    return res;
+  }
+};
 
 class opHex
 {
@@ -293,6 +327,7 @@ result_parse_operande operandeParse(string s, operandeType optype)
 
   if (optype == operandeType::boolregisters)
   {
+    return opBooleanRegister::parse(s);
   }
 
   if (optype == operandeType::l0_255)
@@ -551,6 +586,52 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
 
     return ps;
   }
+ if (sp.opcde.compare("bt") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 2, op_jumpfloat, 3, bin_bt);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
+   if (sp.opcde.compare("bf") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 2, op_jumpfloat, 3, bin_bf);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
+   if (sp.opcde.compare("olt.s") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_floatco, 3, bin_olts);
+   // ps.op = opCodeType::jump;
+   // ps.calculateOfssetJump = jump_bge;
+
+    return ps;
+  }
+   if (sp.opcde.compare("oeq.s") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_floatco, 3, bin_oeqs);
+   // ps.op = opCodeType::jump;
+   // ps.calculateOfssetJump = jump_bge;
+
+    return ps;
+  }
+     if (sp.opcde.compare("ole.s") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_floatco, 3, bin_oles);
+   // ps.op = opCodeType::jump;
+   // ps.calculateOfssetJump = jump_bge;
+
+    return ps;
+  }
+
   if (sp.opcde.compare("blt") == 0)
   {
 
