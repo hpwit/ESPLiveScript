@@ -1,4 +1,4 @@
-external CRGB * leds;
+external CRGB *leds;
 external void show();
 external void clear();
 external CRGB hsv(int h, int s, int v);
@@ -8,11 +8,12 @@ external void resetStat();
 external void dp(float h);
 import rand
 define nb_balls 100
-define rmax 8
-define rmin 8
+define rmax 6
+define rmin 4
 define width 128
 define height 96
 define panel_width 128 
+int slider1;
 struct ball {
    float vx;
    float vy;
@@ -23,7 +24,7 @@ struct ball {
    void drawBall( )
 {
    int startx = xc - r;
-   int r2 =r * r;
+   float r2 =r * r;
    float r4=r^4;
    int starty = yc - r;
    int _xc=xc;
@@ -34,7 +35,7 @@ struct ball {
       {
          int v;
 
-          int distance = (i - xc)^2+(j-yc)^2;
+          float distance = (i - xc)^2+(j-yc)^2;
   
          if (distance <= r2)
          {
@@ -58,25 +59,25 @@ struct ball {
 //return;   
    xc = xc + vx;
    yc = yc + vy;
-   if ((int)(xc) >= (int)(width - r - 1))
+   if (xc >= width - r - 1)
    {
-      xc =width - r - 1;
+      xc =width - r - 1.1;
        vx = -vx;
    }
-   if ((int)(xc) < (int)(r + 1))
+   if (xc < r + 1)
    {
-      xc=r + 1;
+      xc=r + 1.1;
       vx = -vx;
 
    }
-   if ((int)(yc) >= (int)(height - r - 1))
+   if (yc >= height - r - 1)
    {
-      yc=height - r - 1;
+      yc=height - r - 1.1;
       vy = -vy;
    }
-   if ((int)(yc) < (int)(r + 1))
+   if (yc < r + 1)
    {
-      yc = r + 1;
+      yc = r + 1.1;
       vy = -vy;
     }
 
@@ -86,6 +87,20 @@ struct ball {
 }
 
 
+void updateParams(int num)
+{
+num=slider1;
+ if(num>nb_balls)
+   {
+      
+      num=nb_balls;
+   }
+   if(num<=0)
+   {
+      num=1;
+   }
+}
+
 ball Balls[nb_balls];
 ball tmpball;
 
@@ -93,9 +108,9 @@ void init()
 {
    for(int i=0;i<nb_balls;i++)
    {
-      tmpball.vx = rand(300)/255+0.7;
-//      dp(tmpball.vx);
-      tmpball.vy = rand(280)/255+0.5;
+      tmpball.vx = rand(300)/255+0.5;
+      dp(tmpball.vx);
+      tmpball.vy = rand(280)/255+0.3;
       tmpball.r = (rmax-rmin)*(rand(280)/180) +rmin;
       tmpball.xc = width/2*(rand(280)/255+0.3)+15;
       tmpball.yc = height/2*(rand(280)/255+0.3)+15;
@@ -107,6 +122,7 @@ void init()
 
 void main(int num)
 {
+//int num=10;
 resetStat();
 
 //cc=CRGB(255,0,0);
@@ -128,15 +144,16 @@ init();
            leds[i+panel_width*j]=hsv(i+h+j,255,180);
         }
      }
+     updateParams(2);
       for (int i = 0; i < num; i++)
       {
 
        
 //tmpball=Balls[i];
 //tmpball.drawBall();
-//tmpball.updateBall();
+Balls[i].updateBall();
 //Balls[i]=tmpball;
- Balls[i].updateBall();
+// Balls[i].drawBall();
   //       Balls[i].drawBall();
         //  updatetmpballall(i);
         // drawBall(1,1,1,CRGB(255,255,255));

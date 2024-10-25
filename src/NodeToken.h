@@ -2265,7 +2265,7 @@ void _visitcomparatorNode(NodeToken *nd)
 
     //////printf("compare %s %s\n",tokenNames[nd->_token->type ].c_str(),nd->_token->text.c_str());
     string compop = "";
-    string compo2="";
+    string compo2 = "";
     // to compose
     int h;
 
@@ -2279,43 +2279,43 @@ void _visitcomparatorNode(NodeToken *nd)
             case TokenLessThan:
                 compop = "olt.s"; // greater or equal
                 //                                h = numl;
-               // numl = leftl;
-              //  leftl = h;
+                // numl = leftl;
+                //  leftl = h;
                 //  content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
-                compo2="bt";
+                compo2 = "bt";
                 break;
             case TokenDoubleEqual:
                 compop = "oeq.s"; // not equal
-                compo2="bt";
+                compo2 = "bt";
                 break;
             case TokenNotEqual:
                 compop = "oeq.s"; // equal
-                compo2="bf";
+                compo2 = "bf";
                 break;
             case TokenMoreOrEqualThan:
                 compop = "ole.s"; // less then
-                                   h = numl;
+                h = numl;
                 numl = leftl;
                 leftl = h;
-                compo2="bt";
-   
+                compo2 = "bt";
+
                 break;
             case TokenMoreThan:
                 compop = "olt.s"; // not equal
-                                   h = numl;
+                h = numl;
                 numl = leftl;
                 leftl = h;
-                compo2="bt";
+                compo2 = "bt";
                 break;
             case TokenLessOrEqualThan:
                 compop = "ole.s"; // not equal
-                compo2="bt";
+                compo2 = "bt";
                 break;
             default:
                 break;
             }
-            content.addAfter(string_format("%s b0,f%d,f%d",compop.c_str(),numl, leftl));
-            content.addAfter(string_format("%s b0,%s_if", compo2.c_str(),nd->getTargetText()));
+            content.addAfter(string_format("%s b0,f%d,f%d", compop.c_str(), numl, leftl));
+            content.addAfter(string_format("%s b0,%s_if", compo2.c_str(), nd->getTargetText()));
             content.addAfter(string_format("j %s_end", nd->getTargetText()));
             content.addAfter(string_format("%s_if:", nd->getTargetText()));
             register_numl.increase();
@@ -2324,45 +2324,45 @@ void _visitcomparatorNode(NodeToken *nd)
         {
             switch (nd->type)
             {
-             case TokenLessThan:
+            case TokenLessThan:
                 compop = "olt.s"; // greater or equal
-                //  content.addAfter( string_format("%s_end:\n",nd->target.c_str()));               
-                compo2="bf";
+                //  content.addAfter( string_format("%s_end:\n",nd->target.c_str()));
+                compo2 = "bf";
                 break;
             case TokenDoubleEqual:
                 compop = "oeq.s"; // not equal
-  compo2="bf";
+                compo2 = "bf";
                 break;
             case TokenNotEqual:
                 compop = "oeq.s"; // equal
-compo2="bt";
+                compo2 = "bt";
                 break;
             case TokenMoreOrEqualThan:
                 compop = "ole.s"; // less then
-                   h = numl;
+                h = numl;
                 numl = leftl;
                 leftl = h;
-compo2="bf";
+                compo2 = "bf";
                 break;
             case TokenMoreThan:
                 compop = "olt.s"; // not equal
-                                h = numl;
+                h = numl;
                 numl = leftl;
                 leftl = h;
-    compo2="bf";
+                compo2 = "bf";
                 break;
             case TokenLessOrEqualThan:
                 compop = "ole.s"; // not equal
-compo2="bf";
+                compo2 = "bf";
 
-                //compo2="bt";
+                // compo2="bt";
                 break;
             default:
                 break;
             }
-            content.addAfter(string_format("%s b0,f%d,f%d",compop.c_str(),numl, leftl));
-            content.addAfter(string_format("%s b0,%s_end", compo2.c_str(),nd->getTargetText()));
-           // content.addAfter(string_format("%s a%d,a%d,%s_end", compop.c_str(), numl, leftl, nd->getTargetText()));
+            content.addAfter(string_format("%s b0,f%d,f%d", compop.c_str(), numl, leftl));
+            content.addAfter(string_format("%s b0,%s_end", compo2.c_str(), nd->getTargetText()));
+            // content.addAfter(string_format("%s a%d,a%d,%s_end", compop.c_str(), numl, leftl, nd->getTargetText()));
 
             // content.addAfter(_compare.back()+1,string_format("j %s_end", nd->target.c_str()));
             // content.addAfter(_compare.back()+2,string_format("%s_if:", nd->target.c_str()));
@@ -2454,6 +2454,8 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
 
     int staack_offset = (nd->getChildAtPos(2)->children.size() - 7) * 4;
     bool convert = true;
+    bool isArg = false;
+    int nbfloat = 0;
     if (nd == NULL)
     {
         return;
@@ -2556,6 +2558,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
                 if (_vartype == __Args__)
                 {
                     _vartype = t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
+                    isArg = true;
                     /*
                     content.pop();
                     content.addAfter(string_format("l32i a12,a8"));
@@ -2574,13 +2577,19 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
             if (_vartype == __float__)
             {
 
-                if (save_in_stack == true)
+                if (isArg)
                 {
-                    content.addAfter(string_format("ssi f%d,a1,%d", register_numl.get(), i * 4 + _START_2));
                 }
                 else
                 {
-                    content.addAfter(string_format("rfr a%d,f%d", regbase + i, register_numl.get()));
+                    if (save_in_stack == true)
+                    {
+                        content.addAfter(string_format("ssi f%d,a1,%d", register_numl.get(), i * 4 + _START_2));
+                    }
+                    else
+                    {
+                        content.addAfter(string_format("rfr a%d,f%d", regbase + i, register_numl.get()));
+                    }
                 }
             }
             else if (l->getChildAtPos(i)->getVarType()->_varType == __CRGB__ or l->getChildAtPos(i)->getVarType()->_varType == __CRGBW__)
