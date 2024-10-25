@@ -2584,20 +2584,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                     return;
                 }
             }
-            /*
-            #ifndef __MEM_PARSER
-            if (current_node->children.size()>1)
-            {
-                buildParents(current_node->getChildAtPos(current_node->children.size()-1));
-                current_node->getChildAtPos(current_node->children.size()-1)->visitNode();
-                current_node->getChildAtPos(current_node->children.size()-1)->clear();
-                //  current_cntx->clear();
-                _node_token_stack.clear();
-                // printf("after clean function %s\n",current_node->getTokenText());
-                updateMem();
-            }
-#endif
-*/
+
         }
         Error.error = 0;
 
@@ -2606,33 +2593,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
 };
 
 #ifdef __CONSOLE_ESP32
-/*
-static volatile TaskHandle_t __run_handle = NULL;
-executable executecmd;
-// string strcompile;
-bool exeExist;
-typedef struct
-{
-    vector<string> args;
-    executable exe;
-} _exe_args;
 
-static void _run_task(void *pvParameters)
-{
-
-    _exe_args *_fg = ((_exe_args *)pvParameters);
-    if (_fg->args.size() > 0)
-    {
-        executeBinary(_fg->args[0], _fg->exe);
-    }
-    else
-    {
-        executeBinary("main", _fg->exe);
-    }
-    LedOS.pushToConsole("Execution done.", true, true);
-    __run_handle = NULL;
-    vTaskDelete(NULL);
-}*/
 Parser p = Parser();
 // Executable consExecutable = Executable();
 vector<Executable> scExecutables;
@@ -3151,8 +3112,8 @@ class INIT_PARSER
     public:
     INIT_PARSER()
     {
-         addExternal("printf", externalType::function, ( void *)artiPrintf);
-         addExternal("printfln", externalType::function, ( void *)artiPrintfln);
+     addExternal("printf", externalType::function, ( void *)artiPrintf);
+      addExternal("printfln", externalType::function, ( void *)artiPrintfln);
     }
 };
 INIT_PARSER initialization_parser;

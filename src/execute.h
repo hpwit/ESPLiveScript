@@ -674,4 +674,123 @@ uint32_t _executablesClass::getMask()
     return mask;
 }
 
+
+class _ScriptRuntime
+{
+void addExe(Executable df)
+{
+    if(df.name.size()>0)
+    {
+    _scExecutables.push_back(df);
+    }
+    else
+    {
+        pushToConsole("please add a name to the executable",true);
+    }
+}
+void addExe(Executable df,string name)
+{
+  df.name=name;
+    addExe(df);
+}
+Executable * findExecutable(string name)
+{
+    for(int i=0;i<_scExecutables.size();i++)
+    {
+        if(_scExecutables[i].name.compare(name)==0)
+        {
+            return &_scExecutables[i];
+        }
+    }
+    pushToConsole(string_format("Executable %s not found",name.c_str()),true);
+    return NULL;
+}
+void execute(string name)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->execute("main");
+    }
+}
+void execute(string name,Arguments arguments)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->execute("main",arguments);
+    }
+}
+
+void executeAsTask(string name,Arguments arguments)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->executeAsTask("main",arguments);
+    }
+}
+void executeAsTask(string name)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->executeAsTask("main");
+    }
+}
+void executeAsTask(string name,int core,Arguments args)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->executeAsTask("main",core,args);
+    }
+}
+void executeAsTask(string name,int core)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->executeAsTask("main",core);
+    }
+}
+void kill(string name)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        if(exec->_isRunning())
+            exec->_kill();
+    }
+}
+
+void deleteExe(string name)
+{
+        Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        free(name);
+        for(vector<Executable>::iterator it = _scExecutables.begin();it!= _scExecutables.end();it++)
+        {
+            if((*it).name.compare(name)==0)
+            {
+                _scExecutables.erase(it);
+            }
+        }
+    }
+}
+void free(string name)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->free();
+    }
+}
+
+
+vector<Executable> _scExecutables;
+}:
+_ScriptRuntime scriptRuntime;
+
 #endif

@@ -933,7 +933,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     if (i == -1)
     {
       asm_Error.error = 1;
-      asm_Error.error_message = string_format("External variable %s not found\n", ps.getText());
+      asm_Error.error_message = string_format("External function %s not found\n", ps.getText());
     }
     else
     {

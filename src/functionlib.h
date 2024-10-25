@@ -143,6 +143,7 @@ loop();\n\
 ";
 string base_ext_functions="\n\
 external void printf(char * s,Args a);\n\
+external void printfln(char * s,Args a);\n\
 @";
 string empty_header="";
 int stdlib_size=5;
