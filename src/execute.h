@@ -36,6 +36,13 @@ typedef struct
     executable exe;
 
 } _exe_args;
+typedef struct 
+{
+    string name;
+    bool isRunning;
+} exeInfo;
+
+
 #ifndef __TEST_DEBUG
 EventGroupHandle_t xCreatedEventGroup = xEventGroupCreate();
 EventGroupHandle_t xCreatedEventGroup2 = xEventGroupCreate();
@@ -677,6 +684,8 @@ uint32_t _executablesClass::getMask()
 
 class _ScriptRuntime
 {
+    public:
+    _ScriptRuntime(){}
 void addExe(Executable df)
 {
     if(df.name.size()>0)
@@ -759,7 +768,7 @@ void kill(string name)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
-        if(exec->_isRunning())
+        if(exec->isRunning())
             exec->_kill();
     }
 }
@@ -774,7 +783,10 @@ void deleteExe(string name)
         {
             if((*it).name.compare(name)==0)
             {
+                //pushToConsole("get it");
                 _scExecutables.erase(it);
+               // pushToConsole("get it2");
+                return;
             }
         }
     }
@@ -788,9 +800,17 @@ void free(string name)
     }
 }
 
+void listExec()
+{
+    for (int i = 0; i < _scExecutables.size(); i++)
+    {
+        pushToConsole(string_format(" %2d | %12s isRunning:%d", i + 1, _scExecutables[i].name.c_str(), _scExecutables[i].isRunning()), true);
+    }
+}
+
 
 vector<Executable> _scExecutables;
-}:
+};
 _ScriptRuntime scriptRuntime;
 
 #endif

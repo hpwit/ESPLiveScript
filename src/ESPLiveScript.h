@@ -2609,21 +2609,12 @@ void kill(Console *cons, vector<string> args)
         }
         else
         {
-            LedOS.pushToConsole("Nothing is currently running.", true);
+            pushToConsole("Nothing is currently running.", true);
         }
     }
     else
     {
-        int num = 999;
-        sscanf(args[0].c_str(), "%d", &num);
-        if (num > scExecutables.size())
-        {
-            LedOS.pushToConsole("No executable ...", true);
-        }
-        else
-        {
-            scExecutables[num - 1]._kill();
-        }
+scriptRuntime.kill(args[0]);
     }
 }
 
@@ -2652,7 +2643,7 @@ Arguments parseInputArgs(string variables)
 void run(Console *cons, vector<string> args)
 {
     Arguments _args;
-    int progToRun = 999;
+    string progToRun="";
     if (args.size() > 0)
     {
         if (args[0].find("(") != -1)
@@ -2662,7 +2653,7 @@ void run(Console *cons, vector<string> args)
         }
         else
         {
-            sscanf(args[0].c_str(), "%d", &progToRun);
+            progToRun=args[0];
         }
         if (args.size() > 1)
         {
@@ -2671,7 +2662,7 @@ void run(Console *cons, vector<string> args)
         }
         // printf("%s\n\r",args[0].c_str());
     }
-    if (progToRun == 999)
+    if (progToRun.size()==0)
     {
         if (SCExecutable.isRunning())
         {
@@ -2682,6 +2673,8 @@ void run(Console *cons, vector<string> args)
     }
     else
     {
+        scriptRuntime.executeAsTask(progToRun,_args);
+        /*
         if (progToRun > scExecutables.size())
         {
             LedOS.pushToConsole("No executable ...", true);
@@ -2690,6 +2683,7 @@ void run(Console *cons, vector<string> args)
         {
             scExecutables[progToRun - 1].executeAsTask("main", _args);
         }
+        */
     }
     // SCExecutable._run(args, true);
 }
@@ -2758,7 +2752,7 @@ void compile_c(Console *cons, vector<string> args)
     {
 
         _scExec.name = cons->filename;
-        scExecutables.push_back(_scExec);
+         scriptRuntime.addExe(_scExec);
         pushToConsole(string_format("Compiling done. Handle number:%d", scExecutables.size()), true);
     }
 }
@@ -2774,26 +2768,7 @@ void free(Console *cons, vector<string> args)
     }
     else
     {
-        int num = 999;
-        sscanf(args[0].c_str(), "%d", &num);
-        if (num > scExecutables.size())
-        {
-            LedOS.pushToConsole("No executable ...");
-        }
-        else
-        {
-            if (scExecutables[num - 1].isRunning())
-            {
-                scExecutables[num - 1]._kill();
-            }
-            scExecutables[num - 1].free();
-            vector<Executable>::iterator it = scExecutables.begin();
-            for (int i = 0; i < num - 1; i++)
-            {
-                it++;
-            }
-            scExecutables.erase(it);
-        }
+        scriptRuntime.deleteExe(args[0]);
     }
 }
 void parse_c(Console *cons, vector<string> args)
@@ -2865,10 +2840,7 @@ void parsec_cEsc(Console *cons)
 
 void listExec(Console *cons, vector<string> args)
 {
-    for (int i = 0; i < scExecutables.size(); i++)
-    {
-        LedOS.pushToConsole(string_format(" %2d | %12s isRunning:%d", i + 1, scExecutables[i].name.c_str(), scExecutables[i].isRunning()), true);
-    }
+   scriptRuntime.listExec();
 }
 
 class __INIT_PARSER
