@@ -860,6 +860,7 @@ void killAndFreeRunningProgram()
     {
         kill(_scExecutables[i].name);
          free(_scExecutables[i].name);
+         deleteExe(_scExecutables[i].name);
 
     }
    } 
