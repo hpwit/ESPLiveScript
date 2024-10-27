@@ -317,6 +317,17 @@ public:
             exeExist = false;
         }
     }
+    bool isFunctionInExecutable(string name)
+    {
+        for(int i=0;i<_executecmd.functions.size();i++)
+        {
+            if(_executecmd.functions[i].name.compare(name)==0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     void createExecutable()
     {
 #ifndef __TEST_DEBUG
@@ -722,12 +733,28 @@ void execute(string name)
         exec->execute("main");
     }
 }
+void execute(string name,string function)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->execute(function);
+    }
+}
 void execute(string name,Arguments arguments)
 {
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
         exec->execute("main",arguments);
+    }
+}
+void execute(string name,string function,Arguments arguments)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->execute(function,arguments);
     }
 }
 
@@ -745,6 +772,23 @@ void executeAsTask(string name)
     if(exec!=NULL)
     {
         exec->executeAsTask("main");
+    }
+}
+
+void executeAsTask(string name,string function,Arguments arguments)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->executeAsTask(function,arguments);
+    }
+}
+void executeAsTask(string name,string function)
+{
+    Executable *exec=findExecutable(name);
+    if(exec!=NULL)
+    {
+        exec->executeAsTask(function);
     }
 }
 void executeAsTask(string name,int core,Arguments args)
