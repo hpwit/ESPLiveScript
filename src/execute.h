@@ -852,6 +852,18 @@ void listExec()
     }
 }
 
+void killAndFreeRunningProgram()
+{
+    for(int i=0;i<_scExecutables.size();i++)
+   {
+    if(_scExecutables[i].isRunning())
+    {
+        kill(_scExecutables[i].name);
+         free(_scExecutables[i].name);
+
+    }
+   } 
+}
 
 vector<Executable> _scExecutables;
 };
