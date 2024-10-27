@@ -730,7 +730,9 @@ void execute(string name)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->execute("main");
+        #endif
     }
 }
 void execute(string name,string function)
@@ -738,7 +740,9 @@ void execute(string name,string function)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->execute(function);
+        #endif
     }
 }
 void execute(string name,Arguments arguments)
@@ -746,7 +750,10 @@ void execute(string name,Arguments arguments)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+
+        #ifndef __TEST_DEBUG
         exec->execute("main",arguments);
+        #endif
     }
 }
 void execute(string name,string function,Arguments arguments)
@@ -754,7 +761,9 @@ void execute(string name,string function,Arguments arguments)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->execute(function,arguments);
+        #endif
     }
 }
 
@@ -763,7 +772,9 @@ void executeAsTask(string name,Arguments arguments)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->executeAsTask("main",arguments);
+        #endif
     }
 }
 void executeAsTask(string name)
@@ -771,7 +782,9 @@ void executeAsTask(string name)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->executeAsTask("main");
+        #endif
     }
 }
 
@@ -780,7 +793,9 @@ void executeAsTask(string name,string function,Arguments arguments)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->executeAsTask(function,arguments);
+        #endif
     }
 }
 void executeAsTask(string name,string function)
@@ -788,7 +803,9 @@ void executeAsTask(string name,string function)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->executeAsTask(function);
+        #endif
     }
 }
 void executeAsTask(string name,int core,Arguments args)
@@ -796,7 +813,9 @@ void executeAsTask(string name,int core,Arguments args)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->executeAsTask("main",core,args);
+        #endif
     }
 }
 void executeAsTask(string name,int core)
@@ -804,7 +823,9 @@ void executeAsTask(string name,int core)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->executeAsTask("main",core);
+        #endif
     }
 }
 void kill(string name)
@@ -812,8 +833,10 @@ void kill(string name)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         if(exec->isRunning())
             exec->_kill();
+        #endif
     }
 }
 
@@ -840,7 +863,9 @@ void free(string name)
     Executable *exec=findExecutable(name);
     if(exec!=NULL)
     {
+        #ifndef __TEST_DEBUG
         exec->free();
+        #endif
     }
 }
 
