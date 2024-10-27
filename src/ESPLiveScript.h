@@ -1989,7 +1989,7 @@ current_node->addChild(NodeToken(statementNode));
                 current_node=current_node->parent;
                 current_node=current_node->parent;
 
-                current_node=current_node->parent;
+                //current_node=current_node->parent;
                 change_type.pop_back();
                 return;
             }
