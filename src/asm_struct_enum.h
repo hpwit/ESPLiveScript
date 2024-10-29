@@ -669,6 +669,9 @@ typedef struct
   uint32_t *start_program = NULL;
   uint8_t *data = NULL;
   uint32_t links;
+  uint32_t binary_size;
+  uint32_t data_size;
+  uint32_t total_size;
 
 } executable;
 

@@ -27,6 +27,7 @@ uint8_t *tmp_exec = NULL;
 int _address_data = 0;
 int _address_instr = 0;
 int _instr_size = 0;
+int _data_size=0;
 
 // vector<result_parse_line> _asm_parsed;
 parsedLines _asm_parsed;
@@ -1154,6 +1155,7 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
   _address_data = 0;
   _address_instr = 0;
   _instr_size = 0;
+  _data_size =0;
   int _nb_data = 0;
   int _size = 0;
   for (int i = 0; i < _header->size(); i++)
@@ -1203,6 +1205,7 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
   {
     _size += ALIGN_DATA * _nb_data;
     binary_data = (uint8_t *)malloc((_size / 4) * 4 + 4);
+    _data_size=(_size / 4) * 4 + 4;
   }
   // printf("her:\r\n");
 #ifdef __CONSOLE_ESP32
@@ -1656,6 +1659,8 @@ executable createBinary(parsedLines *asm_parsed)
   }
   exe.start_program = exec;
   exe.data = binary_data;
+  exe.binary_size=_instr_size;
+  exe.data_size=_data_size;
 
   return exe;
 }
