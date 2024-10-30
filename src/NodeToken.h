@@ -3557,7 +3557,14 @@ void _visitifNode(NodeToken *nd)
 
     register_numl.duplicate();
     // printf("oo2bis\n");
+    if(nd->children.size()>2)
+    {
+ nd->getChildAtPos(2)->visitNode();
+    }
+    else
+    {
     nd->getChildAtPos(1)->visitNode();
+    }
     register_numl.pop();
     // printf("oo2\n");
 
@@ -3581,7 +3588,14 @@ void _visitelseNode(NodeToken *nd)
     // register_numl.duplicate();
 
     register_numl.duplicate();
+    if(nd->children.size()>1)
+    {
+ nd->getChildAtPos(1)->visitNode();
+    }
+    else
+    {
     nd->getChildAtPos(0)->visitNode();
+    }
     register_numl.pop();
 
     content.addAfter(string_format("%s:", nd->getTargetText()));

@@ -87,10 +87,6 @@ for(int i=0;i<20;i++)\n\
         printf(\"i:%2d 3xi:%2d\",i,3*i);\n\
     }\n\
 }";
-void displayfunction(int h)
-{
-  Serial.printf("coming from ESPLiveScript :%d\n",h);
-}
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);

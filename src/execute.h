@@ -884,6 +884,14 @@ public:
         }
     }
 
+        vector<exe_info> getListExecutables()
+        {
+            vector<exe_info> res;
+            for(int i=0;i<_scExecutables.size();i++)
+            {
+                    res.push_back(getExecutableInfo(i));
+            }
+        }
     void killAndFreeRunningProgram()
     {
         for (int i = 0; i < _scExecutables.size(); i++)
@@ -906,7 +914,25 @@ public:
             inf.data_size = f->_executecmd.data_size;
             inf.binary_size = f->_executecmd.binary_size;
             inf.total_size = f->_executecmd.data_size + f->_executecmd.binary_size;
-            inf.isRunning - f->_isRunning;
+            inf.isRunning = f->_isRunning;
+            inf.name = f->name;
+        }
+        return inf;
+    }
+    exe_info getExecutableInfo(int pos)
+    {
+       exe_info inf;
+        if(pos<0 or pos>=_scExecutables.size())
+        {
+                return inf;
+        }
+          Executable *f =&_scExecutables[pos];
+        if (f != NULL)
+        {
+            inf.data_size = f->_executecmd.data_size;
+            inf.binary_size = f->_executecmd.binary_size;
+            inf.total_size = f->_executecmd.data_size + f->_executecmd.binary_size;
+            inf.isRunning = f->_isRunning;
             inf.name = f->name;
         }
         return inf;
