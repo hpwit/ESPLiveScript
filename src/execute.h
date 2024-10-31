@@ -891,6 +891,7 @@ public:
             {
                     res.push_back(getExecutableInfo(i));
             }
+            return res;
         }
     void killAndFreeRunningProgram()
     {
