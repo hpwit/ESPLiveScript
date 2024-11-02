@@ -325,7 +325,7 @@ old value:15 new value:17
 9:27
 ```
 
-### Safe mode and arrays
+## Safe mode and arrays
 
 Let's consider the following Use case:
 
@@ -361,3 +361,60 @@ void main()
     array[i]=200;
   }
 }
+```
+
+you will get
+
+```
+***********PARSING DONE*********
+***********COMPILING DONE*********
+max used memory: 7988 maxstack:2112  started 265528 free mem:257492 consumed 8036 time:32ms
+max used memory: 7988 maxstack:2112  started 265528 free mem:262424 consumed 3104 time:44ms
+***********AFTER CLEAN*********
+***********CREATE EXECUTABLE*********
+Creation of an 232 bytes binary and 60 bytes data
+Parsing 82 assembly lines ...
+max used memory: 7988 maxstack:2112  started 265528 free mem:264784 consumed 744 time:111ms
+Overflow error line 0 max size: 10 got 11
+```
+
+NB: As the check will be done everytime a write is done then it will slow the script down.
+
+## Variables types
+
+Here are the default types:
+ * `uint8_t`
+ * `char`
+ * `int`: be careful it's int over 2 bytes
+ * `uint16_t`
+ * `uint32_t`
+ * `float`
+ * `CRGB`
+ * `CRGBW`
+
+### Structures
+
+You can define new types call `struct`
+
+example:
+```C
+struct new_type
+{
+  int l;
+  float k;
+}
+```
+ 
+The structures cna have methods
+
+```C
+struct new_type
+{
+  int l;
+  float h;
+  void display()
+  {
+    printf("l :%d\n",l);
+  }
+}
+```
