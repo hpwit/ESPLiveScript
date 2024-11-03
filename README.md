@@ -16,7 +16,6 @@ This is indeed due do the large number of pixels needed to be calculated for my 
  
 **So I have decided also give it a go. Can I also conceive a 'language' to program led animations.**
  
-# Paste Your Document In Here
 
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
@@ -509,8 +508,8 @@ example:
 ```C
 struct new_type
 {
-  int l;
   float k;
+  int l;
 }
 ```
  
@@ -519,8 +518,8 @@ The structures can have methods
 ```C
 struct new_type
 {
-  int l;
   float h;
+  int l;
   void display()
   {
     printf("l :%d\n",l);
@@ -592,3 +591,10 @@ max used memory: 11060 maxstack:1836  started 265840 free mem:263380 consumed 24
 from structure:9
 from structure:23
 ```
+NB 1: the functions needs to be in order i.e you cannot all a function which has not be defined previously. (for the moment)
+
+NB 2: for the moment you need to order the variable by order of size. Here is the order of priority:
+  - `float, uint32_t`
+  - `int, uint16_t`
+  - `uint8_t, CRGB, CRGBW`
+
