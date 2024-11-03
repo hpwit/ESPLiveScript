@@ -5,7 +5,7 @@ void main()\n\
 {\n\
 for(int i=0;i<20;i++)\n\
     {\n\
-        printf(\"i:%2d  3*i:%2d\",i,3*i);\n\
+        printfln(\"i:%2d  3*i:%2d\",i,3*i);\n\
     }\n\
 }";
 void setup() {

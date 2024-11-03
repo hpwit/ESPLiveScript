@@ -3112,6 +3112,9 @@ void artiPrintfln(char const *format, ...)
     printf("\r\n");
     va_end(argp);
 }
+ void showError(int line, uint32_t size, uint32_t got) {
+  pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
+}
 class INIT_PARSER
 {
 public:
@@ -3119,6 +3122,7 @@ public:
     {
         addExternal("printf", externalType::function, (void *)artiPrintf);
         addExternal("printfln", externalType::function, (void *)artiPrintfln);
+        addExternal("error", externalType::function, (void *)&showError);
     }
 };
 INIT_PARSER initialization_parser;

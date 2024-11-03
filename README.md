@@ -84,7 +84,7 @@ void main()\n\
 {\n\
 for(int i=0;i<20;i++)\n\
     {\n\
-        printf(\"i:%2d 3xi:%2d\",i,3*i);\n\
+        printfln(\"i:%2d 3xi:%2d\",i,3*i);\n\
     }\n\
 }";
 void setup() {
@@ -168,7 +168,7 @@ int fact(int h)\n\
 \n\
 void main(int g)\n\
 {  \n\
-   printf(\"factorial of %d is %d\",g,fact(g));\n\
+   printfln(\"factorial of %d is %d\",g,fact(g));\n\
 }";
 
 void setup() {
@@ -217,12 +217,204 @@ factorial of 7 is 5040
 
 ## Interaction with pre compiled functions
 
-### Calling 'pre compiled' functions from ESPScript
+### Calling/accessing 'pre compiled' functions/variables from ESPScript
 
-With the ESPScript is not able to code everything with the same efficiency as the espressif compiler plus it doesn't gfive you accès to WiFi, bluetooth, SPI, I2C, ... Futhermore, it will not be concievable to rewrite functions like the one the the FastLED library or any other library. Hence the ESPScript can call pre-compiled functions.
+With the ESPScript is not able to code everything with the same efficiency as the espressif compiler plus it doesn't gfive you accès to WiFi, bluetooth, SPI, I2C, ... Futhermore, it will not be concievable to rewrite functions like the one the the FastLED library or any other library. Hence the ESPScript can call pre-compiled functions. In other case you can need to access a 'precompile' variable which is changed by another process for instance.
 
 
 ### Access to 'pre compiled' variables
+You need in your sketch that your variable needs to be accessible from the scripts:
+```
+addExternal("name_of_the_variable_int_the_script", externalType::value, (void *)&address_to_the_variable);
+```
 
+In your script you need to declare your variable as external:
+```
+external type name_of_the_variable_int_the_script;
+```
+You  read and write the variables. 
+NB: a variable can also be an array.
 
-### 
+Example:
+```C
+#include "ESPLiveScript.h"
+
+string script="\
+external int value;\n\
+external uint16_t *array;\n\
+//external uint16_t array[10]; is the same \n\
+void fillArray()\n\
+{\n\
+  for(int i=0;i<10;i++)\n\
+  {\n\
+    array[i]=i*3;\n\
+  }\n\
+}\n\
+void change()\n\
+{\n\
+value=value+2;\n\
+}\n\
+void main()\n\
+{  \n\
+   printfln(\"value: %d \",value);\n\
+}";
+
+int variable=0;
+uint16_t _array[10];
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(115200);
+
+Parser p;
+addExternal("value", externalType::value, (void *)&variable);
+addExternal("array", externalType::value, (void *)_array);
+Executable exec=p.parseScript(&script);
+if(exec.isExeExists())
+{
+  
+ variable=5;
+ exec.execute("main");
+  variable=240;
+ exec.execute("main");
+ variable=15;
+ printf("old value:%d ",variable);
+ exec.execute("change");
+ printf("new value:%d\n",variable);
+ exec.execute("fillArray");
+ for (int i=0;i<10;i++)
+ {
+  printf("%d:%d\n",i,_array[i]);
+ }
+}
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+```
+
+NB: here we did call three different functions all defined in the script.
+
+Result:
+```
+***********PARSING DONE*********
+***********COMPILING DONE*********
+max used memory: 9172 maxstack:2112  started 265376 free mem:256100 consumed 9276 time:40ms
+max used memory: 9172 maxstack:2112  started 265376 free mem:261868 consumed 3508 time:52ms
+***********AFTER CLEAN*********
+***********CREATE EXECUTABLE*********
+Creation of an 264 bytes binary and 75 bytes data
+
+Parsing 99 assembly lines ...
+
+max used memory: 9172 maxstack:2112  started 265376 free mem:264168 consumed 1208 time:129ms
+ value: 5 
+value: 240 
+old value:15 new value:17
+0:0
+1:3
+2:6
+3:9
+4:12
+5:15
+6:18
+7:21
+8:24
+9:27
+```
+
+## Safe mode and arrays
+
+Let's consider the following Use case:
+
+In your c++ code
+```C
+uint16_t _array[10];
+addExternal("array", externalType::value, (void *)_array);
+```
+
+and the script
+```C
+external uint16_t *array; //or external uint16_t array[10];
+
+void main()
+{
+  for(int i=0;i<200;i++)
+  {
+    array[i]=200;
+  }
+}
+```
+the script will write out of bounds of the array with unintended consequences.
+
+To avoid this you can use the safemode:
+```C
+safe_mode
+external uint16_t array[10];
+
+void main()
+{
+  for(int i=0;i<200;i++)
+  {
+    array[i]=200;
+  }
+}
+```
+
+you will get
+
+```
+***********PARSING DONE*********
+***********COMPILING DONE*********
+max used memory: 7988 maxstack:2112  started 265528 free mem:257492 consumed 8036 time:32ms
+max used memory: 7988 maxstack:2112  started 265528 free mem:262424 consumed 3104 time:44ms
+***********AFTER CLEAN*********
+***********CREATE EXECUTABLE*********
+Creation of an 232 bytes binary and 60 bytes data
+Parsing 82 assembly lines ...
+max used memory: 7988 maxstack:2112  started 265528 free mem:264784 consumed 744 time:111ms
+Overflow error line 0 max size: 10 got 11
+```
+
+NB: As the check will be done everytime a write is done then it will slow the script down.
+
+## Variables types
+
+Here are the default types:
+ * `uint8_t`
+ * `char`
+ * `int`: be careful it's int over 2 bytes
+ * `uint16_t`
+ * `uint32_t`
+ * `float`
+ * `CRGB`
+ * `CRGBW`
+
+### Structures
+
+You can define new types call `struct`
+
+example:
+```C
+struct new_type
+{
+  int l;
+  float k;
+}
+```
+ 
+The structures cna have methods
+
+```C
+struct new_type
+{
+  int l;
+  float h;
+  void display()
+  {
+    printf("l :%d\n",l);
+  }
+}
+```
