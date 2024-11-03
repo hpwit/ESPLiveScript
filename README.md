@@ -16,6 +16,29 @@ This is indeed due do the large number of pixels needed to be calculated for my 
  
 **So I have decided also give it a go. Can I also conceive a 'language' to program led animations.**
  
+# Paste Your Document In Here
+
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
+
+- [Which Language ?](#which-language-)
+   * [C like language](#c-like-language)
+   * [DYI parser and compiler](#dyi-parser-and-compiler)
+   * [Not a development environment](#not-a-development-environment)
+   * [Led manipulation oriented](#led-manipulation-oriented)
+- [Let's code](#lets-code)
+   * [The function you call can have input parameters](#the-function-you-call-can-have-input-parameters)
+   * [Interaction with pre compiled functions](#interaction-with-pre-compiled-functions)
+      + [Calling/accessing 'pre compiled' functions/variables from ESPScript](#callingaccessing-pre-compiled-functionsvariables-from-espscript)
+      + [Access to 'pre compiled' variables](#access-to-pre-compiled-variables)
+      + [Calling 'pre-compiled' functions](#calling-pre-compiled-functions)
+   * [Safe mode and arrays](#safe-mode-and-arrays)
+   * [Variables types](#variables-types)
+      + [Structures](#structures)
+
+<!-- TOC end -->
+
+ 
+<!-- TOC --><a name="which-language-"></a>
 # Which Language ?
 Being old school, I know that assembly language is the way to get the most of performance out of a CPU (given that your skills at writing ML are quite good of course). So I've tried to duplicate the same program directly assembly (still using arduino) and it worked great.
  
@@ -23,6 +46,7 @@ So I wrote an assembly language compiler as well as a small terminal interface t
 
 Of course proposing an assembly parer is not a really something usable :) so I took my chance at writing a compiler which will produce assembly languages for the esp32 xtensa CPU. 
 
+<!-- TOC --><a name="c-like-language"></a>
 ## C like language
 I have chosen to go for a C like syntax which is closed to JavaScript with stronger typing. I have made a loose adaptation of the language. But you can write thing like this:
  
@@ -47,11 +71,13 @@ resetStat();
 }
  ```
 
+<!-- TOC --><a name="dyi-parser-and-compiler"></a>
 ## DYI parser and compiler
 I am not a compiler specialist and I wrote 'by hand' the parser and compiler using no existing grammar. Please do not throw me into the fire for this. The entire exercice has been a learning experience also and the result is not half cooked (according to me).
 
 Later in this documentation you will see what is possible and not.
 
+<!-- TOC --><a name="not-a-development-environment"></a>
 ## Not a development environment
 This libray doesn't provide an environment to write scripts. Nevertheless it has been included in:
 - [LedOS](https://github.com/hpwit/ledOS) : an environment in a console terminal to edit, save and execute programs
@@ -61,10 +87,12 @@ This libray doesn't provide an environment to write scripts. Nevertheless it has
 - [Moon Modules](https://github.com/MoonModules/StarLight) : A web environment for led manipulation based on WLED which contains several modules (artnet, DMX, powerful mapping tool ....) [Live Scripts doc](https://ewowi.github.io/StarDocs/UserMod/UserModLiveScripts)
 
 
+<!-- TOC --><a name="led-manipulation-oriented"></a>
 ## Led manipulation oriented
 Even if the language is made to be of general application, the target of this language is targeted at creating led animations.
 As a consequence the scripting language has some limitations that 
 
+<!-- TOC --><a name="lets-code"></a>
 # Let's code
 
  ## First light :)
@@ -140,6 +168,7 @@ i:19 3*i:57
 **NB: if you have several functions it the same script you can call any of the function**
 
 
+<!-- TOC --><a name="the-function-you-call-can-have-input-parameters"></a>
 ## The function you call can have input parameters
 
 To add parameter to the exection call
@@ -215,13 +244,16 @@ factorial of 6 is 720
 factorial of 7 is 5040
  ```
 
+<!-- TOC --><a name="interaction-with-pre-compiled-functions"></a>
 ## Interaction with pre compiled functions
 
+<!-- TOC --><a name="callingaccessing-pre-compiled-functionsvariables-from-espscript"></a>
 ### Calling/accessing 'pre compiled' functions/variables from ESPScript
 
 With the ESPScript is not able to code everything with the same efficiency as the espressif compiler plus it doesn't gfive you accès to WiFi, bluetooth, SPI, I2C, ... Futhermore, it will not be concievable to rewrite functions like the one the the FastLED library or any other library. Hence the ESPScript can call pre-compiled functions. In other case you can need to access a 'precompile' variable which is changed by another process for instance.
 
 
+<!-- TOC --><a name="access-to-pre-compiled-variables"></a>
 ### Access to 'pre compiled' variables
 You need in your sketch that your variable needs to be accessible from the scripts:
 ```
@@ -325,6 +357,81 @@ old value:15 new value:17
 9:27
 ```
 
+<!-- TOC --><a name="calling-pre-compiled-functions"></a>
+### Calling 'pre-compiled' functions
+You can call 'core' functions which would be to complicated to reproduced in scripting (like fft , showing leds ...)
+
+```
+addExternal("funtion name", externalType::function, (void *)function);
+```
+In your script you need to declare your variable as external:
+```
+external type function_name;
+```
+
+Example
+```C
+#include "ESPLiveScript.h"
+
+string script="\
+external float calc(int h);\n\
+external void displayfloat(float nb);\n\
+void main()\n\
+{\n\
+ float h=calc(52);\n\
+ displayfloat(h);\n\
+}";
+
+void displayfloat(float nb)
+{
+  printf("from pre-compiled %f\n",nb);
+}
+
+float calcul(int pos)
+{
+  return (float)(pos/34.0);
+}
+
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(115200);
+
+  addExternal("calc", externalType::function, (void *)calcul);
+  addExternal("displayfloat", externalType::function, (void *)displayfloat);
+Parser p;
+Executable exec=p.parseScript(&script);
+
+if(exec.isExeExists())
+{
+ exec.execute("main");
+}
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+```
+
+Result:
+```
+***********PARSING DONE*********
+***********COMPILING DONE*********
+max used memory: 7572 maxstack:1964  started 265984 free mem:258484 consumed 7500 time:28ms
+max used memory: 7572 maxstack:1964  started 265984 free mem:263600 consumed 2384 time:40ms
+***********AFTER CLEAN*********
+***********CREATE EXECUTABLE*********
+Creation of an 160 bytes binary and 56 bytes data
+
+Parsing 59 assembly lines ...
+
+max used memory: 7572 maxstack:1964  started 265984 free mem:265124 consumed 860 time:92ms
+from pre-compiled 1.529412
+```
+
+
+<!-- TOC --><a name="safe-mode-and-arrays"></a>
 ## Safe mode and arrays
 
 Let's consider the following Use case:
@@ -380,6 +487,7 @@ Overflow error line 0 max size: 10 got 11
 
 NB: As the check will be done everytime a write is done then it will slow the script down.
 
+<!-- TOC --><a name="variables-types"></a>
 ## Variables types
 
 Here are the default types:
@@ -392,6 +500,7 @@ Here are the default types:
  * `CRGB`
  * `CRGBW`
 
+<!-- TOC --><a name="structures"></a>
 ### Structures
 
 You can define new types call `struct`
@@ -405,7 +514,7 @@ struct new_type
 }
 ```
  
-The structures cna have methods
+The structures can have methods
 
 ```C
 struct new_type
@@ -417,4 +526,69 @@ struct new_type
     printf("l :%d\n",l);
   }
 }
+```
+NB: not like in a class you do not have constructor or destructor (at least not yet :) ).
+
+Example:
+```C
+#include "ESPLiveScript.h"
+
+string script="\
+struct new_type\n\
+{\n\
+  float f;\n\
+  int index;\n\
+  void display(int multi)\n\
+  {\n\
+    printfln(\"from structure:%d\",multi);\n\
+  }\n\
+  void func2() \n\
+  {\n\
+    display(f*index);\n\
+  }\n\
+}\n\
+\n\
+new_type var;\n\
+void main()\n\
+{\n\
+ var.f=0.8;\n\
+ var.index=12;\n\
+ var.func2();\n\
+ var.display(23);\n\
+}";
+
+
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(115200);
+
+Parser p;
+Executable exec=p.parseScript(&script);
+if(exec.isExeExists())
+{
+ exec.execute("main");
+}
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+```
+
+Result:
+```
+***********PARSING DONE*********
+***********COMPILING DONE*********
+max used memory: 11060 maxstack:1836  started 265840 free mem:254916 consumed 10924 time:40ms
+max used memory: 11060 maxstack:1836  started 265840 free mem:260924 consumed 4916 time:52ms
+***********AFTER CLEAN*********
+***********CREATE EXECUTABLE*********
+Creation of an 312 bytes binary and 104 bytes data
+Parsing 114 assembly lines ...
+max used memory: 11060 maxstack:1836  started 265840 free mem:263380 consumed 2460 time:147ms
+
+from structure:9
+from structure:23
 ```
