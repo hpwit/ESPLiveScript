@@ -24,15 +24,20 @@ This is indeed due do the large number of pixels needed to be calculated for my 
    * [DYI parser and compiler](#dyi-parser-and-compiler)
    * [Not a development environment](#not-a-development-environment)
    * [Led manipulation oriented](#led-manipulation-oriented)
-- [Let's code](#lets-code)
-   * [The function you call can have input parameters](#the-function-you-call-can-have-input-parameters)
-   * [Interaction with pre compiled functions](#interaction-with-pre-compiled-functions)
-      + [Calling/accessing 'pre compiled' functions/variables from ESPScript](#callingaccessing-pre-compiled-functionsvariables-from-espscript)
-      + [Access to 'pre compiled' variables](#access-to-pre-compiled-variables)
-      + [Calling 'pre-compiled' functions](#calling-pre-compiled-functions)
-   * [Safe mode and arrays](#safe-mode-and-arrays)
-   * [Variables types](#variables-types)
-      + [Structures](#structures)
+
+- [First Light](#first-light)
+  * [Deleting an executable](#deleting-an-executable)
+- [The function you call can have input parameters](#the-function-you-call-can-have-input-parameters)
+- [Interaction with pre compiled functions](#interaction-with-pre-compiled-functions)
+  * [Calling/accessing 'pre compiled' functions/variables from ESPScript](#callingaccessing-pre-compiled-functionsvariables-from-espscript)
+  * [Access to 'pre compiled' variables](#access-to-pre-compiled-variables)
+  * [Calling 'pre-compiled' functions](#calling-pre-compiled-functions)
+- [Safe mode and arrays](#safe-mode-and-arrays)
+- [Variables types](#variables-types)
+  * [Structures](#structures)
+- [What you can do with the language](#what-you-can-do-with-the-language)
+  * [Use of define](#use-of-define)
+  * [Limitation of testing](#limitation-of-testing)
 
 <!-- TOC end -->
 
@@ -91,10 +96,9 @@ This libray doesn't provide an environment to write scripts. Nevertheless it has
 Even if the language is made to be of general application, the target of this language is targeted at creating led animations.
 As a consequence the scripting language has some limitations that 
 
-<!-- TOC --><a name="lets-code"></a>
-# Let's code
 
- ## First light :)
+<!-- TOC --><a name="first-light"></a>
+# First light :)
 
 - To create a new instance of a parser : ``Parser _parser;`` 
 - To parse a script and create an executable : ``Executable exec=_parser.parseScript(&script);``
@@ -166,9 +170,12 @@ i:19 3*i:57
 
 **NB: if you have several functions it the same script you can call any of the function**
 
+## Deleting an executable
+
+To delete an executable hence freeing the used memory by the binary use: `exec.free()`
 
 <!-- TOC --><a name="the-function-you-call-can-have-input-parameters"></a>
-## The function you call can have input parameters
+# The function you call can have input parameters
 
 To add parameter to the exection call
 ```C
@@ -244,16 +251,16 @@ factorial of 7 is 5040
  ```
 
 <!-- TOC --><a name="interaction-with-pre-compiled-functions"></a>
-## Interaction with pre compiled functions
+# Interaction with pre compiled functions
 
 <!-- TOC --><a name="callingaccessing-pre-compiled-functionsvariables-from-espscript"></a>
-### Calling/accessing 'pre compiled' functions/variables from ESPScript
+## Calling/accessing 'pre compiled' functions/variables from ESPScript
 
 With the ESPScript is not able to code everything with the same efficiency as the espressif compiler plus it doesn't gfive you accès to WiFi, bluetooth, SPI, I2C, ... Futhermore, it will not be concievable to rewrite functions like the one the the FastLED library or any other library. Hence the ESPScript can call pre-compiled functions. In other case you can need to access a 'precompile' variable which is changed by another process for instance.
 
 
 <!-- TOC --><a name="access-to-pre-compiled-variables"></a>
-### Access to 'pre compiled' variables
+## Access to 'pre compiled' variables
 You need in your sketch that your variable needs to be accessible from the scripts:
 ```
 addExternal("name_of_the_variable_int_the_script", externalType::value, (void *)&address_to_the_variable);
@@ -357,7 +364,7 @@ old value:15 new value:17
 ```
 
 <!-- TOC --><a name="calling-pre-compiled-functions"></a>
-### Calling 'pre-compiled' functions
+## Calling 'pre-compiled' functions
 You can call 'core' functions which would be to complicated to reproduced in scripting (like fft , showing leds ...)
 
 ```
@@ -431,7 +438,7 @@ from pre-compiled 1.529412
 
 
 <!-- TOC --><a name="safe-mode-and-arrays"></a>
-## Safe mode and arrays
+# Safe mode and arrays
 
 Let's consider the following Use case:
 
@@ -487,7 +494,7 @@ Overflow error line 0 max size: 10 got 11
 NB: As the check will be done everytime a write is done then it will slow the script down.
 
 <!-- TOC --><a name="variables-types"></a>
-## Variables types
+# Variables types
 
 Here are the default types:
  * `uint8_t`
@@ -500,7 +507,7 @@ Here are the default types:
  * `CRGBW`
 
 <!-- TOC --><a name="structures"></a>
-### Structures
+## Structures
 
 You can define new types call `struct`
 
@@ -591,10 +598,104 @@ max used memory: 11060 maxstack:1836  started 265840 free mem:263380 consumed 24
 from structure:9
 from structure:23
 ```
-NB 1: the functions needs to be in order i.e you cannot all a function which has not be defined previously. (for the moment)
+NB 1: you can have arrays of structure : `new_type arr[10] `
 
-NB 2: for the moment you need to order the variable by order of size. Here is the order of priority:
+NB 2: the functions needs to be in order i.e you cannot all a function which has not be defined previously. (for the moment)
+
+NB 3: Due to some memory alignment concern, for the moment you need to order the variable by order of size. Here is the order of size:
   - `float, uint32_t`
   - `int, uint16_t`
   - `uint8_t, CRGB, CRGBW`
+
+
+i.e :
+```
+struct varname
+{
+char c;
+uint16_t k;
+float h;
+}
+
+will not work. you need to arrange your data as such
+
+struct varname
+{
+  float h;
+  uint16_t k;
+  char c;
+}
+```
+
+# What you can do with the language
+
+Like any normal language you can have:
+- loops (`while` , `for`)
+- `break` , `continue`
+- testing : `if` ,`else`
+- `++` : for integers and pointers
+- pointers
+- `^` for power
+- `>>` and `<<`
+- type convertion `(float)` , `(int)`
+    NB: the convertion float <-> int is automatic
+- arrays (multidimensional arrays are work in progress)
+- `define` : see below
+- predefined functions:
+  * `printf` , `pritnfln` only for intergers for now.
+  * `fabs`, `abs` other to come
+
+## Use of define
+
+More or less like in C you can have pre-process instructions with a limited scope for now
+
+```
+define TOKEN 25
+
+if(i<TOKEN)
+{
+  ...
+}
+
+vill be compiled as
+
+if(i<25)
+{
+  ...
+}
+```
+Of course you can have this
+```
+define p printf
+...
+p("here %d\n",25);
+```
+
+NB: there is no macro yet
+
+## Limitation of testing
+
+For the moment you cannot write combination of test in the same `if`:
+
+`if( a<b and c>d)` is not possible yet. You will have to have the tests in two separate `if`
+
+
+# Running scripts in the background
+
+You have the possibility of running scripts as task in the background (interesting when you want several tasks at once):
+
+- `exec.executeAsTask("function_name")`
+- `exec.executeAsTask("function_name",arguments)`
+- `exec.executeAsTask("function_name", __RUN_CORE, args)`
+
+When using this you can also do the following
+
+- `exec.suspend()`
+- `exec.estart()`
+- `exec.kill()`
+
+## How to cope with several binaries
+
+
+
 

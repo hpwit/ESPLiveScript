@@ -2638,7 +2638,7 @@ void kill(Console *cons, vector<string> args)
         if (SCExecutable.isRunning())
         {
 
-            SCExecutable._kill();
+            SCExecutable.kill();
         }
         else
         {
@@ -2795,7 +2795,7 @@ void free(Console *cons, vector<string> args)
     {
         if (SCExecutable.isRunning())
         {
-            SCExecutable._kill();
+            SCExecutable.kill();
         }
         SCExecutable.free();
     }

@@ -347,7 +347,7 @@ public:
 #else
             Serial.printf("Something Already running kill it first ...\r\n");
 #endif
-            _kill();
+            kill();
         }
 
         // bool othercore = false;
@@ -413,7 +413,7 @@ public:
         }
 #endif
     }
-    void _kill()
+    void kill()
     {
 #ifndef __TEST_DEBUG
         if (_isRunning)
@@ -472,7 +472,7 @@ public:
         if (_isRunning)
         {
 
-            _kill();
+            kill();
         }
 
         if (exeExist == true)
@@ -539,7 +539,7 @@ public:
 #ifndef __TEST_DEBUG
         if (_isRunning)
         {
-            _kill();
+            kill();
         }
         if (exeExist)
         {
@@ -678,7 +678,7 @@ void _executablesClass::kill(int handle_number)
     {
         if (execPtr[handle_number] != NULL)
         {
-            execPtr[handle_number]->_kill();
+            execPtr[handle_number]->kill();
         }
     }
 }
@@ -842,7 +842,7 @@ public:
         {
 #ifndef __TEST_DEBUG
             if (exec->isRunning())
-                exec->_kill();
+                exec->kill();
 #endif
         }
     }
