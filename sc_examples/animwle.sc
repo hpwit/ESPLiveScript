@@ -5,8 +5,10 @@
 // Version  Author        Date        
 //  1.0.0    JEM(ZRanger1) 12/08/2020  
 
+
 save_reg
 //safe_mode
+//import sync
 external void show();
 external CRGB leds[12288];
 external CRGB hsv(int h, int s, int v);
@@ -15,8 +17,8 @@ external void display(int h);
 external void resetStat();
 external void clear();
 define maxIterations 15
-define width 128
-define height 96
+define width 64
+define height 48
 define scale 0.5
 uint32_t __deltamillis[1];
 
@@ -130,11 +132,11 @@ void render2D(int x1, int y1)
 
   if (iter < maxIterations)
   {
-    leds[128 * y1 + x1] = hsv((t2 +(float)(iter / maxIterations)) * 255, 255, 255);
+    leds[128 * y1 + x1] = hsv((t2 + iter / maxIterations )* 255, 255, 255);
   }
   else
   {
-    leds[128 * y1 + x1] = CRGB(0, 0, 0);
+    leds[128 *y1 + x1] = CRGB(0, 0, 0);
   } 
 }
 
@@ -155,6 +157,7 @@ resetStat();
         render2D(i, j);
       }
     }
-    sync();
+   // show();
+   sync();
   }
 }

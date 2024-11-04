@@ -13,6 +13,8 @@ The results were quite a let down in term of performance. For a simple rainbow a
 *  3 fps: for Lua script
  
 This is indeed due do the large number of pixels needed to be calculated for my panel. Hence none of these language will make the cut for me.
+
+In the sc_examples directory you will find examples of complexe scripts.
  
 **So I have decided also give it a go. Can I also conceive a 'language' to program led animations.**
  
@@ -27,19 +29,31 @@ This is indeed due do the large number of pixels needed to be calculated for my 
 
 - [First Light](#first-light)
   * [Deleting an executable](#deleting-an-executable)
+
 - [The function you call can have input parameters](#the-function-you-call-can-have-input-parameters)
+
 - [Interaction with pre compiled functions](#interaction-with-pre-compiled-functions)
   * [Calling/accessing 'pre compiled' functions/variables from ESPScript](#callingaccessing-pre-compiled-functionsvariables-from-espscript)
   * [Access to 'pre compiled' variables](#access-to-pre-compiled-variables)
   * [Calling 'pre-compiled' functions](#calling-pre-compiled-functions)
 - [Safe mode and arrays](#safe-mode-and-arrays)
+
 - [Variables types](#variables-types)
   * [Structures](#structures)
+
 - [What you can do with the language](#what-you-can-do-with-the-language)
   * [Use of define](#use-of-define)
   * [Limitation of testing](#limitation-of-testing)
 
+- [Running scripts in the background](#running-scripts-in-the-background)
+  * [How to cope with several binaries](#how-to-cope-with-several-binaries)
+  * [Task synchronization](#task-synchronization)
+  * [Pre and post kill](#pre-and-post-kill)
+
+- [Conclusion](#conclusion)
+
 <!-- TOC end -->
+
 
  
 <!-- TOC --><a name="which-language-"></a>
@@ -691,10 +705,144 @@ You have the possibility of running scripts as task in the background (interesti
 When using this you can also do the following
 
 - `exec.suspend()`
+- `bool exec.isRunning()`
 - `exec.estart()`
-- `exec.kill()`
+- `exec.kill()` : will not delete the binary hence will not free the memory use `exec.free()`
 
 ## How to cope with several binaries
+
+When you deal with several binaries, it could get complicated to follow a lot of different variables.
+You can 'register' your executable in the Script runtime:
+
+`scriptRuntime.addExe(executable exec,string exename)`
+
+```C
+string script1="...";
+string scrip2="...";
+
+ Executable exec=p.parseScript(&script1);
+ if(exec.isExeExists())
+{
+  scriptRuntime.addExe(exec,"script1");
+}
+exec=p.parseScript(&script2);
+ if(exec.isExeExists())
+{
+  scriptRuntime.addExe(exec,"script2");
+}
+
+...
+
+scriptRuntime.execute("script1");
+scriptRuntime.execute("script2");
+```
+
+Here are all the functions of the scriptRuntime:
+- `scriptRuntime.addExe(executable exec,string exename)`
+- `scriptRuntime.excute(string execname)` : the runtime will execute the "main" function by default
+- `scriptRuntime.excute(string execname,string function_name)`
+- `scriptRuntime.excute(string execname,Arguments args)`:: the runtime will execute the "main" function by default
+- `scriptRuntime.excute(string execname,Arguments args,string function_name)`
+- `scriptRuntime.excuteAsTask(string execname)`: : the runtime will execute the "main" function by default
+- `scriptRuntime.excuteAsTask(string execname,string function_name)`
+- `scriptRuntime.excuteAsTask(string execname,Arguments args)`: the runtime will execute the "main" function by default
+- `scriptRuntime.excuteAsTask(string execname,Arguments args,string function_name)`
+- `scriptRuntime.excuteAsTask(string execname,Arguments args)` : the runtime will execute the "main" function by default
+- `scriptRuntime.excuteAsTask(string execname,int core,Arguments args)` : the runtime will execute the "main" function by default
+- `scriptRuntime.kill(string execname)` : this will not free the memory
+- `scriptRuntime.deleteExe(string execname)` : will free the memory of the binary
+- `Executable *findExecutable(string execname)`
+- `vector<exe_info> scriptRuntime.getListExecutables()` : will list all the executables:
+- `exe_info getExecutableInfo(string execname)`
+  * exe_info:
+    + `uint16_t data_size`
+    + `uint16_t binary_size`
+    + `uint16_t total_size`
+    + `bool isRunning`
+    + `string name`
+
+## Tasks synchronization
+As discussed earlier  this scripting language aims at being used primarily for leds animations. when you have several scripts running at the same time it is important to synchronize the script to avoid artifacts:
+![Sync](/pictures/VideoToGif_GIF.GIF)
+
+
+Let's say that you need to synchronize the show function which is an 'pre-compiled' function.
+in your C/C++ program add this:
+```C
+void show()
+{
+  ...
+  driver.showPixel();
+  ...
+}
+
+
+string script1="
+...
+
+while(2>1)
+{
+rainbow();
+sync(); //put this instead of show();
+}";
+string script2="
+...
+
+while(2>1)
+{
+gameoflife();
+sync(); //put this instead of show();
+}";
+void setup()
+{
+runningPrograms.setFunctionToSync(show);
+Parser p;
+scriptRuntime.addExe(p.parseScript(&script1,"exe1"));
+scriptRuntime.addExe(p.parseScript(&script2,"exe2"));
+scriptRuntime.executeAsTask("exe1");
+scriptRuntime.executeAsTask("exe2");
+}
+
+```
+
+## Pre and post kill
+When you kill a task you cannot control where exactly in the program it will be stopped. As a consequence it could be stopped when calling an external function with interupts or calling another background task.
+
+For instance in the case of the I2SClockLessDriver and the I2SVirtualClocklessDriver it is necessary to stop the driver from displaying anything before killing the script.
+
+this is done as such :
+```C
+void pre() {
+  driver.__enableDriver = false;
+  while (driver.isDisplaying) {};
+}
+
+void post() {
+  driver.__enableDriver = true;
+}
+
+..
+void setup()
+{
+  ...
+ runningPrograms.setPrekill(pre, post);
+ ...
+}
+```
+
+# Conclusion
+
+This is my first try at creating such a thing. You can see a video of me talking about it [live on youtube](https://www.youtube.com/watch?v=iOzKHQxdNJM) where I use the compiler with ledOS.
+
+Please have a look at [Starlight](https://github.com/MoonModules/StarLight/commit/42cb1b8db689b097774bf7640c768d880337567c)
+
+I will add an issue for all the functionalities you want to see added in the; compiler.
+
+As always enjoy and have fun.
+
+
+
+
 
 
 
