@@ -10,12 +10,14 @@ using namespace std;
 #ifndef _TRIGGER
 #define _TRIGGER 0
 #endif
+/*
 #ifndef __TEST_DEBUG
 using _arguments = std::variant<int, float>;
 typedef std::vector<_arguments> Arguments;
 #else
 typedef int Arguments;
 #endif
+*/
 
 // #include "tokenizer.h"
 
@@ -28,10 +30,59 @@ typedef int Arguments;
 #endif
 
 #include "NodeToken.h"
+
+class _arguments
+{
+public:
+    _arguments()
+    {
+        vartype = __unknown__;
+    }
+    _arguments(int val)
+    {
+        vartype = __int__;
+        intval = val;
+    }
+    _arguments(float val)
+    {
+        vartype = __float__;
+        floatval = val;
+    }
+
+    varTypeEnum vartype;
+    int intval;
+    float floatval;
+};
+
+class Arguments
+{
+public:
+    Arguments() {}
+    void add(int val)
+    {
+        _args.push_back(_arguments(val));
+    }
+    void add(float val)
+    {
+        _args.push_back(_arguments(val));
+    }
+    void clear()
+    {
+        _args.clear();
+        _args.shrink_to_fit();
+    }
+    void add(_arguments a)
+    {
+        _args.push_back(a);
+    }
+    int size()
+    {
+        return _args.size();
+    }
+    vector<_arguments> _args;
+};
 #include "asm_parser.h"
-
 #include "execute.h"
-
 void prettyPrint(NodeToken *_nd, string ident)
 {
     NodeToken nd = *_nd;
@@ -49,10 +100,10 @@ void prettyPrint(NodeToken *_nd, string ident)
     {
 
         if (nd.type == (int)TokenUserDefinedVariable)
-            printf("var name:%s\ttotal size:%d\tstackpos:%d\t", _userDefinedTypes[nd._vartype].varName.c_str(), nd._total_size, nd.stack_pos);
+            printf("var name:%s\t total size:%d\tstackpos:%d\t", _userDefinedTypes[nd._vartype].varName.c_str(), nd._total_size, nd.stack_pos);
         else
 
-            printf("var name:%s\ttotal size:%d\tstackpos:%d\t", varTypeEnumNames[nd._vartype].c_str(), nd._total_size, nd.stack_pos);
+            printf("var type:%s\ttotal size:%d\tstackpos:%d\t", varTypeEnumNames[nd._vartype].c_str(), nd._total_size, nd.stack_pos);
     }
 
     printf("target :%s", nd.getTargetText());
@@ -192,6 +243,7 @@ public:
     Executable compile()
     {
         Executable results;
+        _sav_token_line = 1;
         parse();
         if (Error.error)
         {
@@ -216,6 +268,7 @@ public:
         sav_t.shrink_to_fit();
         main_context.clear();
         targetList.clear();
+        change_type.clear();
         sav_token.clear();
         _node_token_stack.clear();
         for (NodeToken h : _functions)
@@ -238,6 +291,7 @@ public:
         results.setExecutable(_executecmd);
         content.clear();
         header.clear();
+        change_type.clear();
         updateMem();
         displayStat();
         if (_executecmd.error.error == 1)
@@ -258,6 +312,7 @@ public:
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
         main_script.addContent((char *)division.c_str());
+        main_script.addContent((char *)base_ext_functions.c_str());
         main_script.addContent((char *)str->c_str());
         return compile();
     }
@@ -266,7 +321,7 @@ public:
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
         main_script.addContent((char *)division.c_str());
-
+        main_script.addContent((char *)base_ext_functions.c_str());
         string sc = "";
         for (string s : *_script)
         {
@@ -369,7 +424,7 @@ public:
                 next();
                 int i = 0;
                 varType *v = NULL;
-        
+
                 if (current_node->_vartype == __CRGB__ or current_node->_vartype == __CRGBW__)
                 {
                     i = findMember(current_node->getVarType(), string(current()->getText()));
@@ -382,7 +437,7 @@ public:
                         return;
                     }
                 }
-               else
+                else
                 {
                     i = findMember(current_node->_vartype, string(current()->getText()));
                     //  int pos = 0;
@@ -460,16 +515,18 @@ public:
                 isStructFunction = true;
 
                 parseFunctionCall();
-                current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
-                isStructFunction = false;
+
                 if (Error.error)
                 {
                     return;
                 }
+                current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
+                isStructFunction = false;
                 Error.error = 0;
                 return;
             }
             Error.error = 0;
+            tmp_sav = current_node;
             current_node = current_node->parent;
             // res._nd = var;
             // next();
@@ -527,12 +584,20 @@ public:
         }
         // nb_argument = 1;
         // Serial.printf("lkklqdqsdksmdkqsd\r\n");
+        NodeToken nd;
+        nd._nodetype = changeTypeNode;
+        nd.type = TokenKeywordVarType;
+        nd._vartype = __none__;
+        current_node = current_node->addChild(nd);
+        change_type.push_back(current_node);
         parseExpr();
         // Serial.printf("lkklqdqsdksm excut dkqsd\r\n");
         if (Error.error)
         {
             return;
         }
+        current_node = current_node->parent;
+        change_type.pop_back();
         // arg.addChild(res._nd);
         while (Match(TokenComma))
         {
@@ -541,11 +606,19 @@ public:
             nb_args.pop_back();
             nb_args.push_back(__sav_arg + 1);
             // nb_argument++;
+            NodeToken nd;
+            nd._nodetype = changeTypeNode;
+            nd.type = TokenKeywordVarType;
+            nd._vartype = __none__;
+            current_node = current_node->addChild(nd);
+            change_type.push_back(current_node);
             parseExpr();
             if (Error.error)
             {
                 return;
             }
+            current_node = current_node->parent;
+            change_type.pop_back();
             // arg.addChild(res._nd);
         }
         if (!Match(TokenCloseParenthesis))
@@ -610,11 +683,21 @@ public:
         current_node = current_node->addChild(res);
         // current_node->copyChildren(search_result);
         current_node->addChild(search_result->getChildAtPos(0));
+        if (search_result->getChildAtPos(0)->_vartype == __float__ and change_type.size() > 0)
+            change_type.back()->_vartype = __float__;
         current_node->addChild(search_result->getChildAtPos(1));
 
         // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
         nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
+        for (int i = 0; i < current_node->getChildAtPos(1)->children.size(); i++)
+        {
+            if (current_node->getChildAtPos(1)->getChildAtPos(i)->_vartype == __Args__)
+            {
 
+                nb_sav_args.pop_back();
+                nb_sav_args.push_back(999);
+            }
+        }
         // Serial.printf("serial2\r\n");
         // NodeCallFunction function = NodeCallFunction(t);
 
@@ -630,7 +713,7 @@ public:
             return;
         }
 
-        if (nb_sav_args.back() != nb_args.back()) // if (sav_nb_arg != nb_args.back())
+        if (nb_sav_args.back() != nb_args.back() and nb_sav_args.back() != 999) // if (sav_nb_arg != nb_args.back())
         {
             Error.error = 1;
             // sav_nb_args
@@ -653,22 +736,39 @@ public:
         current_node = current_node->addChild(NodeToken(current(), comparatorNode));
 
         // res._nd=NodeToken();
+
+        NodeToken nd;
+        nd._nodetype = changeTypeNode;
+        nd.type = TokenKeywordVarType;
+        nd._vartype = __none__;
+        current_node = current_node->addChild(nd);
+        change_type.push_back(current_node);
+
         parseExpr();
         if (Error.error)
         {
             return;
         }
         // token *t=current();
+        // current_node->type = current()->type;
+        current_node = current_node->parent;
         current_node->type = current()->type;
+        change_type.pop_back();
         // current_node->ad
         next();
+        nd._nodetype = changeTypeNode;
+        nd.type = TokenKeywordVarType;
+        nd._vartype = __none__;
+        current_node = current_node->addChild(nd);
+        change_type.push_back(current_node);
         parseExpr();
         if (Error.error)
         {
             return;
         }
         next();
-
+        current_node = current_node->parent;
+        change_type.pop_back();
         current_node->setTargetText(targetList.pop());
         // cn.target=target;
         // cn.addChild(left._nd);
@@ -684,10 +784,11 @@ public:
         isPointer = false;
         sav_token.clear();
         Error.error = 0;
-// asPointer =false;
-// resParse result;
-// NodeStatement statement;
-// current_node=current_node->addChild(statement);
+        // asPointer =false;
+        // resParse result;
+        // NodeStatement statement;
+        // current_node=current_node->addChild(statement);
+        current_node->addChild(NodeToken(statementNode));
 #ifndef __TEST_DEBUG
         // printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
 #endif
@@ -759,6 +860,21 @@ public:
             {
                 current_node = current_node->addChild(NodeToken(returnNode));
                 // next();
+                NodeToken nd;
+                nd._nodetype = changeTypeNode;
+                nd.type = TokenKeywordVarType;
+                nd.setTokenText("yevbs");
+                nd._vartype = __none__;
+                if (lasttype != NULL)
+                {
+                    if (lasttype->_vartype == __float__)
+                    {
+                        nd._vartype = __float__;
+                    }
+                }
+
+                current_node = current_node->addChild(nd);
+                change_type.push_back(current_node);
                 parseExpr();
                 if (Error.error)
                 {
@@ -769,6 +885,9 @@ public:
                     Error.error = 0;
                     current_node = current_node->parent;
                     // res._nd = var;
+
+                    current_node = current_node->parent;
+                    change_type.pop_back();
                     next();
                     return;
                 }
@@ -926,6 +1045,16 @@ public:
             }
             if (Match(TokenEqual))
             {
+                NodeToken nd;
+                nd._nodetype = changeTypeNode;
+                nd.type = TokenKeywordVarType;
+                nd.setTokenText("yves");
+                if (tmp_sav->_vartype == __float__)
+                    nd._vartype = __float__;
+                else
+                    nd._vartype = __none__;
+                current_node = current_node->addChild(nd);
+                change_type.push_back(current_node);
                 next();
                 parseExpr();
                 if (Error.error)
@@ -944,8 +1073,10 @@ public:
                 // current_node->addChild(right._nd);
                 Error.error = 0;
                 // result._nd = nd;
-                // current_node=current_node->parent;
                 current_node = current_node->parent;
+                current_node = current_node->parent; // new expr
+
+                change_type.pop_back();
                 next();
                 return;
             }
@@ -978,10 +1109,22 @@ public:
             current_node = current_node->addChild(NodeToken(current(), elseNode, targetList.pop()));
             next();
 
-            parseBlockStatement();
-            if (Error.error)
+ if (Match(TokenOpenCurlyBracket))
             {
-                return;
+                parseBlockStatement();
+                if (Error.error)
+                {
+                    return;
+                }
+            }
+            else
+            {
+               //next();
+                parseStatement();
+                 if (Error.error)
+                {
+                    return;
+                }               
             }
 
             // current_node->target=target;
@@ -1088,13 +1231,23 @@ public:
                 }
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
-
+                 if (Match(TokenOpenCurlyBracket))
+            {
                 parseBlockStatement();
                 if (Error.error)
                 {
                     return;
                 }
-
+            }
+            else
+            {
+               //next();
+                parseStatement();
+                 if (Error.error)
+                {
+                    return;
+                }               
+            }
                 // current_node->target=target;
 
                 // resParse result;
@@ -1242,7 +1395,7 @@ public:
             if (Match(TokenEqual))
             {
                 //  NodeStatement ndsmt;
-                current_node->addChild(nodeTokenList.get());
+                tmp_sav = current_node->addChild(nodeTokenList.get());
                 // NodeAssignement nd;
                 current_node = current_node->addChild(NodeToken(assignementNode));
                 next();
@@ -1260,7 +1413,17 @@ public:
                     _uniquesave._nodetype = (int)storeGlobalVariableNode;
                 }
                 current_node->addChild(_uniquesave); // createNodeLocalVariableForStore(nodeTokenList.pop()));
-                // _uniquesave->text=current_cntx->variables.back().text;
+                                                     // _uniquesave->text=current_cntx->variables.back().text;
+                NodeToken nd;
+                nd._nodetype = changeTypeNode;
+                nd.type = TokenKeywordVarType;
+                nd.setTokenText("yevbs");
+                if (tmp_sav->_vartype == __float__)
+                    nd._vartype = __float__;
+                else
+                    nd._vartype = __none__;
+                current_node = current_node->addChild(nd);
+                change_type.push_back(current_node);
                 parseExpr();
 
                 if (Error.error)
@@ -1283,6 +1446,9 @@ public:
                 // result._nd = ndsmt;
                 // current_node->addChild(ndsmt);
                 current_node = current_node->parent;
+
+                current_node = current_node->parent; // new expr
+                change_type.pop_back();
                 next();
                 return;
             }
@@ -1471,7 +1637,9 @@ public:
             //   function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
-            current_node->addChild(nodeTokenList.pop());
+            lasttype = current_node->addChild(nodeTokenList.pop());
+
+            lasttype = current_node;
             // current_cntx->parent->addFunction(current_node);
             // main_context.addFunction(current_node);
         }
@@ -1482,7 +1650,9 @@ public:
             //   function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
-            current_node->addChild(nodeTokenList.pop());
+            lasttype = current_node->addChild(nodeTokenList.pop());
+
+            // lasttype=current_node;
             // current_cntx->parent->addFunction(current_node);
         }
         else
@@ -1492,9 +1662,11 @@ public:
             //  function.addChild(arguments._nd);
 
             current_node = current_node->addChild(function);
-            current_node->addChild(nodeTokenList.pop());
-            // current_cntx->parent->addFunction(current_node);
-            //  main_context.addFunction(current_node);
+            lasttype = current_node->addChild(nodeTokenList.pop());
+
+            // lasttype=current_node;
+            //  current_cntx->parent->addFunction(current_node);
+            //   main_context.addFunction(current_node);
         }
         // on ajoute un nouveau contexte
 
@@ -1660,7 +1832,20 @@ public:
     {
         // NodeToken *sav_pa = current_node;
         // Serial.printf("eee  term1\r\n");
+
         sav_token.push_back(current_node);
+        /*
+        NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+        nd._vartype=__none__;
+        if(current_node->_nodetype==changeTypeNode and strlen(current_node->getTokenText())>0)
+        {
+            nd._vartype=current_node->_vartype;
+        }
+        current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
+        */
         // Serial.printf("eee  term\r\n");
         parseTerm();
         // Serial.printf("exit  term\r\n");
@@ -1701,6 +1886,9 @@ public:
         // next();
         current_node = sav_token.back();
         sav_token.pop_back();
+        //  lasttype=change_type.back();
+        // printf("last type:%d\n",lasttype->_vartype);
+        // change_type.pop_back();
         // current_node = sav_pa;
         // printf("exit expr");
         Error.error = 0;
@@ -1738,6 +1926,11 @@ public:
 
             // NodeNumber g = NodeNumber(current());
             current_node->addChild(NodeToken(current(), numberNode));
+            if (change_type.size() > 0)
+            {
+                if (current()->_vartype == __float__)
+                    change_type.back()->_vartype = current()->_vartype;
+            }
             next();
 
             Error.error = 0;
@@ -1774,10 +1967,26 @@ public:
             // on a (float) ....;
             next();
             //   NodeChangeType d=NodeChangeType(current());
+
             current_node = current_node->addChild(NodeToken(current(), changeTypeNode));
+
+            // change_type.push_back(current_node);
+
+            // if(change_type.size()>0)
+            //    change_type.back()->_vartype=current()->_vartype;
             next(); //)
             next(); //(
             next();
+            NodeToken nd;
+            nd._nodetype = changeTypeNode;
+            nd.type = TokenKeywordVarType;
+            if (current_node->_vartype == __float__)
+                nd._vartype = __float__;
+            else
+                nd._vartype = __none__;
+            current_node = current_node->addChild(nd);
+            change_type.push_back(current_node);
+
             parseExpr();
             if (Error.error == 1)
             {
@@ -1787,7 +1996,13 @@ public:
             {
                 next();
                 Error.error = 0;
+                // current_node = current_node->parent;
+
                 current_node = current_node->parent;
+                current_node = current_node->parent;
+
+                // current_node=current_node->parent;
+                change_type.pop_back();
                 return;
             }
             else
@@ -1800,7 +2015,13 @@ public:
         else if (Match(TokenOpenParenthesis))
         {
             next();
+            // printf("one est icic\n\r");
             parseExpr();
+            // if(lasttype->_vartype==__float__)
+            // {
+            //     change_type.back()->_vartype=__float__;
+            // }
+
             if (Error.error == 1)
             {
                 return;
@@ -1848,6 +2069,13 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
         else if (Match(TokenIdentifier) && !Match(TokenOpenParenthesis, 1))
         {
             getVariable(false);
+            //         if(current_node->getChildAtPos(current_node->children.size()-1)->_vartype==__float__)
+            // change_type.back()->_vartype=__float__;
+            if (change_type.size() > 0)
+            {
+                if (tmp_sav->_vartype == __float__)
+                    change_type.back()->_vartype = __float__;
+            }
             if (Error.error == 1)
             {
                 // next();
@@ -1862,6 +2090,12 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
             bool sav_b = isStructFunction;
             isStructFunction = false;
             parseFunctionCall();
+            if (Error.error)
+            {
+                return;
+            }
+            // if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
+            // change_type.back()->_vartype=__float__;
             isStructFunction = sav_b;
             return;
         }
@@ -1929,7 +2163,22 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
         }
         else if (Match(TokenString))
         {
-            current_node->addChild(NodeToken(current(), stringNode));
+            NodeToken nd; //=NodeToken();
+            nd._nodetype = defGlobalVariableNode;
+            nd.type = TokenKeywordVarType;
+
+            nd._vartype = __char__;
+            nd.isPointer = true;
+            nd.textref = all_text.addText(string_format("local_string_%d", for_if_num));
+            for_if_num++;
+
+            // nd.addChild(NodeToken(current(), stringNode));
+            current_cntx->addVariable(nd);
+            NodeToken *f = program.addChildFront(nd);
+            f->addChild(NodeToken(current(), stringNode));
+            nd._nodetype = globalVariableNode;
+            // nd.children.clear();
+            current_node->addChild(nd);
             next();
             return;
         }
@@ -2272,6 +2521,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                         copyPrty(&t, &nd);
 
                         current_node = program.addChild(nd);
+                        tmp_sav=current_node;
                         current_cntx->addVariable(nd);
                         if (Match(TokenSemicolon))
                         {
@@ -2339,6 +2589,25 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                             // _tks.position = __sav_pos;
                             current_node = current_node->parent;
                         }
+                        else if (Match(TokenEqual) and Match(TokenNumber,1))
+                        {
+                            next();
+                             current_node->addChild(NodeToken(current(), numberNode));
+                             next();
+                              if (!Match(TokenSemicolon))
+                            {
+
+                                Error.error = 1;
+                                Error.error_message = string_format("Expected ; %s", linepos().c_str());
+                                next();
+                                return;
+                            }
+                            next();
+                             current_node = current_node->parent;
+                            Error.error = 0;
+
+                            
+                        }
                     }
                 }
                 else
@@ -2349,20 +2618,6 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                     return;
                 }
             }
-            /*
-            #ifndef __MEM_PARSER
-            if (current_node->children.size()>1)
-            {
-                buildParents(current_node->getChildAtPos(current_node->children.size()-1));
-                current_node->getChildAtPos(current_node->children.size()-1)->visitNode();
-                current_node->getChildAtPos(current_node->children.size()-1)->clear();
-                //  current_cntx->clear();
-                _node_token_stack.clear();
-                // printf("after clean function %s\n",current_node->getTokenText());
-                updateMem();
-            }
-#endif
-*/
         }
         Error.error = 0;
 
@@ -2371,33 +2626,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
 };
 
 #ifdef __CONSOLE_ESP32
-/*
-static volatile TaskHandle_t __run_handle = NULL;
-executable executecmd;
-// string strcompile;
-bool exeExist;
-typedef struct
-{
-    vector<string> args;
-    executable exe;
-} _exe_args;
 
-static void _run_task(void *pvParameters)
-{
-
-    _exe_args *_fg = ((_exe_args *)pvParameters);
-    if (_fg->args.size() > 0)
-    {
-        executeBinary(_fg->args[0], _fg->exe);
-    }
-    else
-    {
-        executeBinary("main", _fg->exe);
-    }
-    LedOS.pushToConsole("Execution done.", true, true);
-    __run_handle = NULL;
-    vTaskDelete(NULL);
-}*/
 Parser p = Parser();
 // Executable consExecutable = Executable();
 vector<Executable> scExecutables;
@@ -2409,25 +2638,16 @@ void kill(Console *cons, vector<string> args)
         if (SCExecutable.isRunning())
         {
 
-            SCExecutable._kill();
+            SCExecutable.kill();
         }
         else
         {
-            LedOS.pushToConsole("Nothing is currently running.", true);
+            pushToConsole("Nothing is currently running.", true);
         }
     }
     else
     {
-        int num = 999;
-        sscanf(args[0].c_str(), "%d", &num);
-        if (num > scExecutables.size())
-        {
-            LedOS.pushToConsole("No executable ...", true);
-        }
-        else
-        {
-            scExecutables[num - 1]._kill();
-        }
+        scriptRuntime.kill(args[0]);
     }
 }
 
@@ -2437,18 +2657,18 @@ Arguments parseInputArgs(string variables)
     vector<string> ar = split(variables, ",");
     for (int i = 0; i < ar.size(); i++)
     {
-       // printf("var %d :%s\n", i, ar[i].c_str());
+        // printf("var %d :%s\n", i, ar[i].c_str());
         if (ar[i].find(".") != -1)
         {
             float j = 0;
             sscanf(ar[i].c_str(), "%f", &j);
-            _args.push_back(j);
+            _args.add(j);
         }
         else
         {
             int j = 0;
             sscanf(ar[i].c_str(), "%d", &j);
-            _args.push_back(j);
+            _args.add(j);
         }
     }
     return _args;
@@ -2456,7 +2676,7 @@ Arguments parseInputArgs(string variables)
 void run(Console *cons, vector<string> args)
 {
     Arguments _args;
-    int progToRun = 999;
+    string progToRun = "";
     if (args.size() > 0)
     {
         if (args[0].find("(") != -1)
@@ -2466,7 +2686,7 @@ void run(Console *cons, vector<string> args)
         }
         else
         {
-            sscanf(args[0].c_str(), "%d", &progToRun);
+            progToRun = args[0];
         }
         if (args.size() > 1)
         {
@@ -2475,7 +2695,7 @@ void run(Console *cons, vector<string> args)
         }
         // printf("%s\n\r",args[0].c_str());
     }
-    if (progToRun == 999)
+    if (progToRun.size() == 0)
     {
         if (SCExecutable.isRunning())
         {
@@ -2486,6 +2706,8 @@ void run(Console *cons, vector<string> args)
     }
     else
     {
+        scriptRuntime.executeAsTask(progToRun, _args);
+        /*
         if (progToRun > scExecutables.size())
         {
             LedOS.pushToConsole("No executable ...", true);
@@ -2494,6 +2716,7 @@ void run(Console *cons, vector<string> args)
         {
             scExecutables[progToRun - 1].executeAsTask("main", _args);
         }
+        */
     }
     // SCExecutable._run(args, true);
 }
@@ -2562,7 +2785,7 @@ void compile_c(Console *cons, vector<string> args)
     {
 
         _scExec.name = cons->filename;
-        scExecutables.push_back(_scExec);
+        scriptRuntime.addExe(_scExec);
         pushToConsole(string_format("Compiling done. Handle number:%d", scExecutables.size()), true);
     }
 }
@@ -2572,32 +2795,13 @@ void free(Console *cons, vector<string> args)
     {
         if (SCExecutable.isRunning())
         {
-            SCExecutable._kill();
+            SCExecutable.kill();
         }
         SCExecutable.free();
     }
     else
     {
-        int num = 999;
-        sscanf(args[0].c_str(), "%d", &num);
-        if (num > scExecutables.size())
-        {
-            LedOS.pushToConsole("No executable ...");
-        }
-        else
-        {
-            if (scExecutables[num - 1].isRunning())
-            {
-                scExecutables[num - 1]._kill();
-            }
-            scExecutables[num - 1].free();
-            vector<Executable>::iterator it = scExecutables.begin();
-            for (int i = 0; i < num - 1; i++)
-            {
-                it++;
-            }
-            scExecutables.erase(it);
-        }
+        scriptRuntime.deleteExe(args[0]);
     }
 }
 void parse_c(Console *cons, vector<string> args)
@@ -2669,10 +2873,7 @@ void parsec_cEsc(Console *cons)
 
 void listExec(Console *cons, vector<string> args)
 {
-    for (int i = 0; i < scExecutables.size(); i++)
-    {
-        LedOS.pushToConsole(string_format(" %2d | %12s isRunning:%d", i + 1, scExecutables[i].name.c_str(), scExecutables[i].isRunning()), true);
-    }
+    scriptRuntime.listExec();
 }
 
 class __INIT_PARSER
@@ -2895,5 +3096,34 @@ public:
 };
 __INIT_TOKEN _init_token;
 #endif
-
+void artiPrintf(char const *format, ...)
+{
+    va_list argp;
+    va_start(argp, format);
+    vprintf(format, argp);
+    // printf("\r\n");
+    va_end(argp);
+}
+void artiPrintfln(char const *format, ...)
+{
+    va_list argp;
+    va_start(argp, format);
+    vprintf(format, argp);
+    printf("\r\n");
+    va_end(argp);
+}
+ void showError(int line, uint32_t size, uint32_t got) {
+  pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
+}
+class INIT_PARSER
+{
+public:
+    INIT_PARSER()
+    {
+        addExternal("printf", externalType::function, (void *)artiPrintf);
+        addExternal("printfln", externalType::function, (void *)artiPrintfln);
+        addExternal("error", externalType::function, (void *)&showError);
+    }
+};
+INIT_PARSER initialization_parser;
 #endif

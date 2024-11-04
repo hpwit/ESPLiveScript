@@ -45,6 +45,8 @@ std::string string_format( const std::string& format, Args ... args )
 
 }
 
+
+
 std::string trim(std::string s)
 
 {

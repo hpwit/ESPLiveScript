@@ -27,6 +27,7 @@ uint8_t *tmp_exec = NULL;
 int _address_data = 0;
 int _address_instr = 0;
 int _instr_size = 0;
+int _data_size=0;
 
 // vector<result_parse_line> _asm_parsed;
 parsedLines _asm_parsed;
@@ -189,6 +190,40 @@ public:
     return res;
   }
 };
+class opBooleanRegister
+{
+public:
+  static result_parse_operande parse(std::string s)
+  {
+    error_message_struct error;
+    result_parse_operande res;
+    char *endptr = NULL;
+    error.error = 0;
+    s = trim(s);
+    if (s.at(0) == 'b')
+    {
+
+      string s2 = s.substr(1, s.size());
+      if (s2.size() > 0)
+      {
+        int value = strtol(s2.c_str(), &endptr, 10);
+        if (*endptr == 0)
+        {
+          if (value >= 0 and value <= 15)
+          {
+            res.value = value;
+            res.error = error;
+            return res;
+          }
+        }
+      }
+    }
+    error.error_message = string_format("Unknown register %s\n", s.c_str());
+    error.error = 1;
+    res.error = error;
+    return res;
+  }
+};
 
 class opHex
 {
@@ -293,6 +328,7 @@ result_parse_operande operandeParse(string s, operandeType optype)
 
   if (optype == operandeType::boolregisters)
   {
+    return opBooleanRegister::parse(s);
   }
 
   if (optype == operandeType::l0_255)
@@ -551,6 +587,52 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
 
     return ps;
   }
+ if (sp.opcde.compare("bt") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 2, op_jumpfloat, 3, bin_bt);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
+   if (sp.opcde.compare("bf") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 2, op_jumpfloat, 3, bin_bf);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
+   if (sp.opcde.compare("olt.s") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_floatco, 3, bin_olts);
+   // ps.op = opCodeType::jump;
+   // ps.calculateOfssetJump = jump_bge;
+
+    return ps;
+  }
+   if (sp.opcde.compare("oeq.s") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_floatco, 3, bin_oeqs);
+   // ps.op = opCodeType::jump;
+   // ps.calculateOfssetJump = jump_bge;
+
+    return ps;
+  }
+     if (sp.opcde.compare("ole.s") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_floatco, 3, bin_oles);
+   // ps.op = opCodeType::jump;
+   // ps.calculateOfssetJump = jump_bge;
+
+    return ps;
+  }
+
   if (sp.opcde.compare("blt") == 0)
   {
 
@@ -852,7 +934,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     if (i == -1)
     {
       asm_Error.error = 1;
-      asm_Error.error_message = string_format("External variable %s not found\n", ps.getText());
+      asm_Error.error_message = string_format("External function %s not found\n", ps.getText());
     }
     else
     {
@@ -1073,6 +1155,7 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
   _address_data = 0;
   _address_instr = 0;
   _instr_size = 0;
+  _data_size =0;
   int _nb_data = 0;
   int _size = 0;
   for (int i = 0; i < _header->size(); i++)
@@ -1122,6 +1205,7 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
   {
     _size += ALIGN_DATA * _nb_data;
     binary_data = (uint8_t *)malloc((_size / 4) * 4 + 4);
+    _data_size=(_size / 4) * 4 + 4;
   }
   // printf("her:\r\n");
 #ifdef __CONSOLE_ESP32
@@ -1387,7 +1471,7 @@ error_message_struct calculateJump(parsedLines *asm_parsed)
   LedOS.pushToConsole("alculating jumps ...");
 
 #else
-  printf("Calculating jumps ... ");
+  //printf("Calculating jumps ... ");
 #endif
 
   error_message_struct error;
@@ -1430,7 +1514,7 @@ error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
   LedOS.pushToConsole("alculating jumps 2...");
 
 #else
-  printf("Calculating jumps2 ... ");
+ // printf("Calculating jumps2 ... ");
 #endif
 
   error_message_struct error;
@@ -1575,6 +1659,8 @@ executable createBinary(parsedLines *asm_parsed)
   }
   exe.start_program = exec;
   exe.data = binary_data;
+  exe.binary_size=_instr_size;
+  exe.data_size=_data_size;
 
   return exe;
 }
@@ -1658,14 +1744,17 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
       uint32_t *t = (uint32_t *)ex.data;
       *t = handle;
       uint8_t *var = (ex.data + ex.functions[i].variableaddress);
-      if (ex.functions[i].args_num == arguments.size())
+      if (ex.functions[i].args_num == arguments._args.size())
       {
         vector<string> args = split(trim(ex.functions[i].variables), " ");
         for (int i = 1; i < args.size(); i++)
         {
           int _size = 0;
           sscanf(args[i].c_str(), "%d", &_size);
-          memcpy(var, &arguments[i - 1], _size);
+          if(arguments._args[i-1].vartype==__float__)
+               memcpy(var, &arguments._args[i - 1].floatval, _size);
+          else
+           memcpy(var,  &arguments._args[i - 1].intval, _size);
           var += _size;
         }
       }

@@ -1,4 +1,5 @@
-save_reg
+//save_reg
+//safe_mode
 external void show();
 external CRGB *leds;
 external CRGB hsv(int h, int s, int v);
@@ -27,7 +28,7 @@ __ASM__ void setTime()
 {
    "entry a1,32"
    "rsr a14,234"
-   "l32r a5,__baseTime"
+   "l32r a5,@___baseTime"
    "s32i a14,a5,0"
    "retw.n"
 }
@@ -35,33 +36,33 @@ uint32_t __deltamillis[1];
 __ASM__ uint32_t millis()
 {
    "entry a1,32"
-   "l32r a5,__baseTime"
+   "l32r a5,@___baseTime"
    "l32i a14,a5,0"
    "rsr a13,234"
-   "l32r a4,__deltamillis"
+   "l32r a4,@___deltamillis"
    "s32i a13,a4,0"
    "sub a13,a13,a14"
    "movi a14,240"
    "quou a13,a13,a14"
    "movi a14,1000"
-   "quou a13,a13,a14"
-   "l32r a4,stackr"
-   "s32i a13,a4,0"
+   "quou a2,a13,a14"
+ //  "l32r a4,@_stackr"
+  // "s32i a13,a4,0"
    "retw.n"
 }
 __ASM__ uint32_t elapseMillis()
 {
    "entry a1,32"
-   "l32r a5,__deltamillis"
+   "l32r a5,@___deltamillis"
    "l32i a14,a5,0"
    "rsr a13,234"
    "sub a13,a13,a14"
    "movi a14,240"
    "quou a13,a13,a14"
    "movi a14,1000"
-   "quou a13,a13,a14"
-   "l32r a4,stackr"
-   "s32i a13,a4,0"
+   "quou a2,a13,a14"
+ //  "l32r a4,@_stackr"
+//   "s32i a13,a4,0"
    "retw.n"
 }
 
@@ -126,7 +127,8 @@ float y0=y/height/scale -0.5;
 
  float  dx = abs(sin(nSquares*log(x0 * sx + y0 * sy) + atan2(y0,x0) - t1));
   
- leds[128 * y + x]=hsv((float)((t2 + x0*sx + y0*sy)*255), 255, (float)((dx * dx * dx)*255));
+// leds[128 * y + x]=hsv((float)((t2 + x0*sx + y0*sy)*255), 255, (float)((dx * dx * dx)*255));
+leds[128 * y + x]=hsv((t2 + x0*sx + y0*sy)*255, 255,(dx * dx * dx)*255);
 }
 
 void main()
@@ -144,6 +146,6 @@ resetStat();
         render2D(i, j);
       }
     }
-    show();
+    sync();
   }
 }

@@ -131,6 +131,9 @@ public:
         int pos = findText((char *)str.c_str());
         if (pos > -1)
         {
+                    #ifdef __TEST_DEBUG
+        printf(" find text:%d %s\r\n",pos,str.c_str());
+        #endif
             return pos;
         }
         char *m = (char *)malloc(str.size() + 1);
@@ -138,6 +141,9 @@ public:
         m[str.size()] = 0;
         _texts.push_back(m);
         position++;
+        #ifdef __TEST_DEBUG
+        printf(" addtext:%d %s\r\n",_texts.size(),str.c_str());
+        #endif
         return _texts.size() - 1;
     }
     void addAfter(int pos, string s)
@@ -669,6 +675,9 @@ typedef struct
   uint32_t *start_program = NULL;
   uint8_t *data = NULL;
   uint32_t links;
+  uint32_t binary_size;
+  uint32_t data_size;
+  uint32_t total_size;
 
 } executable;
 

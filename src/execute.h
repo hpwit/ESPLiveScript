@@ -11,6 +11,7 @@ using namespace std;
 #define _MAX_PROG_AT_ONCE 10
 #endif
 executable executecmd;
+volatile bool useOfSync;
 
 #ifdef __TEST_DEBUG
 typedef struct _TaskHandle_t
@@ -23,7 +24,17 @@ typedef struct _xSemaphoreHandle
     int h;
 };
 typedef _xSemaphoreHandle *xSemaphoreHandle;
+
+
 #endif
+typedef struct
+{
+    uint16_t data_size;
+    uint16_t binary_size;
+    uint16_t total_size;
+    bool isRunning;
+    string name;
+} exe_info;
 TaskHandle_t __run_handles[_MAX_PROG_AT_ONCE];
 volatile xSemaphoreHandle waitEndShow[_MAX_PROG_AT_ONCE];
 
@@ -35,6 +46,12 @@ typedef struct
     executable exe;
 
 } _exe_args;
+typedef struct
+{
+    string name;
+    bool isRunning;
+} exeInfo;
+
 #ifndef __TEST_DEBUG
 EventGroupHandle_t xCreatedEventGroup = xEventGroupCreate();
 EventGroupHandle_t xCreatedEventGroup2 = xEventGroupCreate();
@@ -309,6 +326,17 @@ public:
             exeExist = false;
         }
     }
+    bool isFunctionInExecutable(string name)
+    {
+        for (int i = 0; i < _executecmd.functions.size(); i++)
+        {
+            if (_executecmd.functions[i].name.compare(name) == 0)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     void createExecutable()
     {
 #ifndef __TEST_DEBUG
@@ -319,7 +347,7 @@ public:
 #else
             Serial.printf("Something Already running kill it first ...\r\n");
 #endif
-            _kill();
+            kill();
         }
 
         // bool othercore = false;
@@ -385,7 +413,7 @@ public:
         }
 #endif
     }
-    void _kill()
+    void kill()
     {
 #ifndef __TEST_DEBUG
         if (_isRunning)
@@ -444,7 +472,7 @@ public:
         if (_isRunning)
         {
 
-            _kill();
+            kill();
         }
 
         if (exeExist == true)
@@ -511,7 +539,7 @@ public:
 #ifndef __TEST_DEBUG
         if (_isRunning)
         {
-            _kill();
+            kill();
         }
         if (exeExist)
         {
@@ -539,7 +567,7 @@ public:
         error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, args);
         if (res.error)
         {
-            pushToConsole(res.error_message,true);
+            pushToConsole(res.error_message, true);
         }
 #endif
     }
@@ -547,15 +575,15 @@ public:
     void execute(string prog, Arguments arguments)
     {
         args.clear();
-        for (int i = 0; i < arguments.size(); i++)
+        for (int i = 0; i < arguments._args.size(); i++)
         {
-            args.push_back(arguments[i]);
+            args.add(arguments._args[i]);
         }
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, args);
         if (res.error)
         {
-            pushToConsole(res.error_message,true);
+            pushToConsole(res.error_message, true);
         }
 #endif
     }
@@ -563,16 +591,16 @@ public:
     void executeAsTask(string prog, int core, Arguments arguments)
     {
         args.clear();
-        for (int i = 0; i < arguments.size(); i++)
+        for (int i = 0; i < arguments._args.size(); i++)
         {
-            args.push_back(arguments[i]);
+            args.add(arguments._args[i]);
         }
 #ifndef __TEST_DEBUG
         if (core == 0 or core == 1)
         {
-            vector<string> args;
-            args.push_back("@_" + prog);
-            _run(args, true, core, arguments);
+            vector<string> __args;
+            __args.push_back("@_" + prog);
+            _run(__args, true, core, arguments);
         }
         else
         {
@@ -602,7 +630,6 @@ public:
         return _isRunning;
     }
 
-private:
     void (*prekill)() = NULL;
     void (*postkill)() = NULL;
     executable _executecmd;
@@ -623,7 +650,7 @@ static void _run_task(void *pvParameters)
         error_message_struct res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec->args);
         if (res.error)
         {
-            pushToConsole(res.error_message,true);
+            pushToConsole(res.error_message, true);
         }
     }
     else
@@ -631,7 +658,7 @@ static void _run_task(void *pvParameters)
         error_message_struct res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec->args);
         if (res.error)
         {
-            pushToConsole(res.error_message,true);
+            pushToConsole(res.error_message, true);
         }
     }
     pushToConsole("Execution done.", true);
@@ -651,7 +678,7 @@ void _executablesClass::kill(int handle_number)
     {
         if (execPtr[handle_number] != NULL)
         {
-            execPtr[handle_number]->_kill();
+            execPtr[handle_number]->kill();
         }
     }
 }
@@ -672,5 +699,247 @@ uint32_t _executablesClass::getMask()
     }
     return mask;
 }
+
+class _ScriptRuntime
+{
+public:
+    _ScriptRuntime() {}
+    void addExe(Executable df)
+    {
+        if (df.name.size() > 0)
+        {
+            _scExecutables.push_back(df);
+        }
+        else
+        {
+            pushToConsole("please add a name to the executable", true);
+        }
+    }
+    void addExe(Executable df, string name)
+    {
+        df.name = name;
+        addExe(df);
+    }
+    Executable *findExecutable(string name)
+    {
+        for (int i = 0; i < _scExecutables.size(); i++)
+        {
+            if (_scExecutables[i].name.compare(name) == 0)
+            {
+                return &_scExecutables[i];
+            }
+        }
+        pushToConsole(string_format("Executable %s not found", name.c_str()), true);
+        return NULL;
+    }
+    void execute(string name)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->execute("main");
+#endif
+        }
+    }
+    void execute(string name, string function)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->execute(function);
+#endif
+        }
+    }
+    void execute(string name, Arguments arguments)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+
+#ifndef __TEST_DEBUG
+            exec->execute("main", arguments);
+#endif
+        }
+    }
+    void execute(string name, string function, Arguments arguments)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->execute(function, arguments);
+#endif
+        }
+    }
+
+    void executeAsTask(string name, Arguments arguments)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->executeAsTask("main", arguments);
+#endif
+        }
+    }
+    void executeAsTask(string name)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->executeAsTask("main");
+#endif
+        }
+    }
+
+    void executeAsTask(string name, string function, Arguments arguments)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->executeAsTask(function, arguments);
+#endif
+        }
+    }
+    void executeAsTask(string name, string function)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->executeAsTask(function);
+#endif
+        }
+    }
+    void executeAsTask(string name, int core, Arguments args)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->executeAsTask("main", core, args);
+#endif
+        }
+    }
+    void executeAsTask(string name, int core)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->executeAsTask("main", core);
+#endif
+        }
+    }
+    void kill(string name)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            if (exec->isRunning())
+                exec->kill();
+#endif
+        }
+    }
+
+    void deleteExe(string name)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+            free(name);
+            for (vector<Executable>::iterator it = _scExecutables.begin(); it != _scExecutables.end(); it++)
+            {
+                if ((*it).name.compare(name) == 0)
+                {
+                    // pushToConsole("get it");
+                    _scExecutables.erase(it);
+                    // pushToConsole("get it2");
+                    return;
+                }
+            }
+        }
+    }
+    void free(string name)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+            exec->free();
+#endif
+        }
+    }
+
+    void listExec()
+    {
+        for (int i = 0; i < _scExecutables.size(); i++)
+        {
+            pushToConsole(string_format(" %2d | %12s isRunning:%d", i + 1, _scExecutables[i].name.c_str(), _scExecutables[i].isRunning()), true);
+        }
+    }
+
+        vector<exe_info> getListExecutables()
+        {
+            vector<exe_info> res;
+            for(int i=0;i<_scExecutables.size();i++)
+            {
+                    res.push_back(getExecutableInfo(i));
+            }
+            return res;
+        }
+    void killAndFreeRunningProgram()
+    {
+        for (int i = 0; i < _scExecutables.size(); i++)
+        {
+            if (_scExecutables[i].isRunning())
+            {
+                kill(_scExecutables[i].name);
+                free(_scExecutables[i].name);
+                deleteExe(_scExecutables[i].name);
+            }
+        }
+    }
+    exe_info getExecutableInfo(string name)
+    {
+        Executable *f = findExecutable(name);
+
+        exe_info inf;
+        if (f != NULL)
+        {
+            inf.data_size = f->_executecmd.data_size;
+            inf.binary_size = f->_executecmd.binary_size;
+            inf.total_size = f->_executecmd.data_size + f->_executecmd.binary_size;
+            inf.isRunning = f->_isRunning;
+            inf.name = f->name;
+        }
+        return inf;
+    }
+    exe_info getExecutableInfo(int pos)
+    {
+       exe_info inf;
+        if(pos<0 or pos>=_scExecutables.size())
+        {
+                return inf;
+        }
+          Executable *f =&_scExecutables[pos];
+        if (f != NULL)
+        {
+            inf.data_size = f->_executecmd.data_size;
+            inf.binary_size = f->_executecmd.binary_size;
+            inf.total_size = f->_executecmd.data_size + f->_executecmd.binary_size;
+            inf.isRunning = f->_isRunning;
+            inf.name = f->name;
+        }
+        return inf;
+    }
+    vector<Executable> _scExecutables;
+};
+_ScriptRuntime scriptRuntime;
 
 #endif

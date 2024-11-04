@@ -44,7 +44,9 @@ enum varTypeEnum
     __CRGB__,
     __CRGBW__,
     __char__,
-    __userDefined__
+    __Args__,
+    __userDefined__,
+    __unknown__
 };
 
 struct varType
@@ -85,7 +87,9 @@ string varTypeEnumNames[] = {
     "__CRGB__",
     "__CRGBW__",
     "__char__",
+    "__Args__",
     "__userDefined__",
+    "__unknown__"
 #endif
 
 };
@@ -229,12 +233,28 @@ varType _varTypes[] = {
         .sizes = {1},
         .size = 1,
         .total_size = 1,
+    },
+    {
+        ._varType =__Args__,
+        .varName = "",
+        ._varSize = 1,
+        .load = {},
+        .store = {},
+        .membersNames = {},
+        .starts = {},
+        .memberSize = {},
+        .types = {},
+        .sizes = {1},
+        .size = 1,
+        .total_size = 1,
+
     }
 
 };
 
 string keywordTypeNames[] = {
 #ifdef __TEST_DEBUG
+    "KeywordVarType",
     "KeywordVarType",
     "KeywordVarType",
     "KeywordVarType",
@@ -262,11 +282,11 @@ string keywordTypeNames[] = {
 
 };
 
-#define nb_keywords 33
-#define nb_typeVariables 10
+#define nb_keywords 34
+#define nb_typeVariables 11
 string keyword_array[nb_keywords] =
     {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB",
-     "CRGBW", "char", "external", "for", "if", "then", "else", "while", "return",
+     "CRGBW", "char", "Args","external", "for", "if", "then", "else", "while", "return",
      "import", "from", "__ASM__",
      "define", "safe_mode", "_header_", "_content_", "and", "or", "continue",
      "break", "fabs", "abs", "save_reg",
@@ -350,6 +370,7 @@ enum tokenType
 };
 
 tokenType __keywordTypes[] = {
+    TokenKeywordVarType,
     TokenKeywordVarType,
     TokenKeywordVarType,
     TokenKeywordVarType,
@@ -1132,7 +1153,7 @@ bool isIn0_9_x_b(unsigned char c)
 bool _for_display = false;
 
 int _token_line;
-int _sav_token_line;
+int _sav_token_line=0;
 list<token>::iterator _index_token;
 int tokenizer(Script *script, bool update, bool increae_line,
               int nbMaxTokenToRead)
@@ -1727,10 +1748,13 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     str = str + c2; // string_format("%s%c", t.getText(), c2);
                     c2 = script->nextChar();
                 }
-                // str=str+'\0';
-                c2 = script->previousChar();
+                 str=str+'\0';
+               // c2 = script->previousChar();
                 if (_for_display)
+                {
+                    c2 = script->previousChar();
                     t.addText(str);
+                }
                 t.line = _token_line;
                 // t.pos = pos;
                 if (increae_line)
@@ -1858,11 +1882,33 @@ int tokenizer(Script *script, bool update, bool increae_line,
             v += c;
             c = script->nextChar();
             pos++;
-            while (c != '"' && c != EOF_TEXT)
+        while (c != '"' && c != EOF_TEXT)
             {
+                      if (! _for_display)
+            {
+                char c2=script->nextChar();
+                if(c=='\\' and c2== 'n')
+                {
+                    c='\x0d';
+                    v+=c;
+                      c='\x0a';
+                    v+=c;    
+                    c = script->nextChar();              
+                }
+                else
+                {
                 v += c;
-                c = script->nextChar();
+                c=c2;
+                }
+               
                 pos++;
+            }
+            else
+            {
+                v+=c;
+                 c = script->nextChar();  
+                 pos++;
+            } 
             }
             // script->previousChar(); //on revient un caractere en arriere
             // pos--;
