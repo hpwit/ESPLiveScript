@@ -122,10 +122,10 @@ void init()
 
 void main(int num)
 {
-//int num=10;
+
 resetStat();
 
-//cc=CRGB(255,0,0);
+
 
 init();
 
@@ -136,7 +136,7 @@ init();
   
    while (h > 0)
    {
-//      clear();
+
      for(int i=0;i<width;i++)
      {
         for(int j=0;j<height;j++)
@@ -148,15 +148,9 @@ init();
       for (int i = 0; i < num; i++)
       {
 
-       
-//tmpball=Balls[i];
-//tmpball.drawBall();
+
+
 Balls[i].updateBall();
-//Balls[i]=tmpball;
-// Balls[i].drawBall();
-  //       Balls[i].drawBall();
-        //  updatetmpballall(i);
-        // drawBall(1,1,1,CRGB(255,255,255));
       }
 
       sync();

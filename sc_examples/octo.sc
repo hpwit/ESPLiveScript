@@ -1,4 +1,4 @@
-//import memset
+
 save_reg
 //safe_mode
 external CRGB *leds;
@@ -31,9 +31,9 @@ for (int x = -C_X; x < C_X + (LED_COLS % 2); x++) {
       for (int y = -C_Y; y < C_Y + (LED_ROWS % 2); y++) {
 
           float h=128*(atan2(y, x)/PI);
-        rMapAngle[(x + C_X) *LED_ROWS+y + C_Y]= (int)(h);
+        rMapAngle[(x + C_X) *LED_ROWS+y + C_Y]= h;
        h=hypot(x,y)*mapp;
-         rMapRadius[(x + C_X)*LED_ROWS +y + C_Y] = (int)(h); //thanks Sutaburosu
+         rMapRadius[(x + C_X)*LED_ROWS +y + C_Y] = h; //thanks Sutaburosu
       }
     }
 }
@@ -49,20 +49,14 @@ resetStat();
   while(2>1)
   {
   
- // memset(leds,0,4096*3);
+
   for (uint8_t x = 0; x < LED_COLS; x++) {
     for (uint8_t y = 0; y < LED_ROWS; y++) {
       uint8_t angle = rMapAngle[x*LED_ROWS+y];
       uint8_t radius = rMapRadius[x*LED_ROWS+y];
-//      leds[y*panel_width+x] = hsv(t + radius, 255, h);
-  //   int j=t*4-radius;
-//     j=sin8(j);
 
-    //  int h=j+angle*nb_branches+t*4;
-   //   h=sin8(h);
      leds[y*panel_width+x] = hsv(t + radius, 255, sin8(t*4+sin8(t * 4 - radius)+angle*nb_branches));
-      
- //   leds[y*panel_width+x] = hsv(t + radius, 255, h);
+
     }
   }
   sync();

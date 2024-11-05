@@ -13,9 +13,50 @@ The results were quite a let down in term of performance. For a simple rainbow a
 *  3 fps: for Lua script
  
 This is indeed due do the large number of pixels needed to be calculated for my panel. Hence none of these language will make the cut for me.
+
+In the sc_examples directory you will find examples of complexe scripts.
  
 **So I have decided also give it a go. Can I also conceive a 'language' to program led animations.**
  
+
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
+
+- [Which Language ?](#which-language-)
+   * [C like language](#c-like-language)
+   * [DYI parser and compiler](#dyi-parser-and-compiler)
+   * [Not a development environment](#not-a-development-environment)
+   * [Led manipulation oriented](#led-manipulation-oriented)
+
+- [First Light](#first-light)
+  * [Deleting an executable](#deleting-an-executable)
+
+- [The function you call can have input parameters](#the-function-you-call-can-have-input-parameters)
+
+- [Interaction with pre compiled functions](#interaction-with-pre-compiled-functions)
+  * [Calling/accessing 'pre compiled' functions/variables from ESPScript](#callingaccessing-pre-compiled-functionsvariables-from-espscript)
+  * [Access to 'pre compiled' variables](#access-to-pre-compiled-variables)
+  * [Calling 'pre-compiled' functions](#calling-pre-compiled-functions)
+- [Safe mode and arrays](#safe-mode-and-arrays)
+
+- [Variables types](#variables-types)
+  * [Structures](#structures)
+
+- [What you can do with the language](#what-you-can-do-with-the-language)
+  * [Use of define](#use-of-define)
+  * [Limitation of testing](#limitation-of-testing)
+
+- [Running scripts in the background](#running-scripts-in-the-background)
+  * [How to cope with several binaries](#how-to-cope-with-several-binaries)
+  * [Task synchronization](#task-synchronization)
+  * [Pre and post kill](#pre-and-post-kill)
+
+- [Conclusion](#conclusion)
+
+<!-- TOC end -->
+
+
+ 
+<!-- TOC --><a name="which-language-"></a>
 # Which Language ?
 Being old school, I know that assembly language is the way to get the most of performance out of a CPU (given that your skills at writing ML are quite good of course). So I've tried to duplicate the same program directly assembly (still using arduino) and it worked great.
  
@@ -23,6 +64,7 @@ So I wrote an assembly language compiler as well as a small terminal interface t
 
 Of course proposing an assembly parer is not a really something usable :) so I took my chance at writing a compiler which will produce assembly languages for the esp32 xtensa CPU. 
 
+<!-- TOC --><a name="c-like-language"></a>
 ## C like language
 I have chosen to go for a C like syntax which is closed to JavaScript with stronger typing. I have made a loose adaptation of the language. But you can write thing like this:
  
@@ -47,11 +89,13 @@ resetStat();
 }
  ```
 
+<!-- TOC --><a name="dyi-parser-and-compiler"></a>
 ## DYI parser and compiler
 I am not a compiler specialist and I wrote 'by hand' the parser and compiler using no existing grammar. Please do not throw me into the fire for this. The entire exercice has been a learning experience also and the result is not half cooked (according to me).
 
 Later in this documentation you will see what is possible and not.
 
+<!-- TOC --><a name="not-a-development-environment"></a>
 ## Not a development environment
 This libray doesn't provide an environment to write scripts. Nevertheless it has been included in:
 - [LedOS](https://github.com/hpwit/ledOS) : an environment in a console terminal to edit, save and execute programs
@@ -61,13 +105,14 @@ This libray doesn't provide an environment to write scripts. Nevertheless it has
 - [Moon Modules](https://github.com/MoonModules/StarLight) : A web environment for led manipulation based on WLED which contains several modules (artnet, DMX, powerful mapping tool ....) [Live Scripts doc](https://ewowi.github.io/StarDocs/UserMod/UserModLiveScripts)
 
 
+<!-- TOC --><a name="led-manipulation-oriented"></a>
 ## Led manipulation oriented
 Even if the language is made to be of general application, the target of this language is targeted at creating led animations.
 As a consequence the scripting language has some limitations that 
 
-# Let's code
 
- ## First light :)
+<!-- TOC --><a name="first-light"></a>
+# First light :)
 
 - To create a new instance of a parser : ``Parser _parser;`` 
 - To parse a script and create an executable : ``Executable exec=_parser.parseScript(&script);``
@@ -139,8 +184,12 @@ i:19 3*i:57
 
 **NB: if you have several functions it the same script you can call any of the function**
 
+## Deleting an executable
 
-## The function you call can have input parameters
+To delete an executable hence freeing the used memory by the binary use: `exec.free()`
+
+<!-- TOC --><a name="the-function-you-call-can-have-input-parameters"></a>
+# The function you call can have input parameters
 
 To add parameter to the exection call
 ```C
@@ -215,14 +264,17 @@ factorial of 6 is 720
 factorial of 7 is 5040
  ```
 
-## Interaction with pre compiled functions
+<!-- TOC --><a name="interaction-with-pre-compiled-functions"></a>
+# Interaction with pre compiled functions
 
-### Calling/accessing 'pre compiled' functions/variables from ESPScript
+<!-- TOC --><a name="callingaccessing-pre-compiled-functionsvariables-from-espscript"></a>
+## Calling/accessing 'pre compiled' functions/variables from ESPScript
 
 With the ESPScript is not able to code everything with the same efficiency as the espressif compiler plus it doesn't gfive you accès to WiFi, bluetooth, SPI, I2C, ... Futhermore, it will not be concievable to rewrite functions like the one the the FastLED library or any other library. Hence the ESPScript can call pre-compiled functions. In other case you can need to access a 'precompile' variable which is changed by another process for instance.
 
 
-### Access to 'pre compiled' variables
+<!-- TOC --><a name="access-to-pre-compiled-variables"></a>
+## Access to 'pre compiled' variables
 You need in your sketch that your variable needs to be accessible from the scripts:
 ```
 addExternal("name_of_the_variable_int_the_script", externalType::value, (void *)&address_to_the_variable);
@@ -325,7 +377,82 @@ old value:15 new value:17
 9:27
 ```
 
-## Safe mode and arrays
+<!-- TOC --><a name="calling-pre-compiled-functions"></a>
+## Calling 'pre-compiled' functions
+You can call 'core' functions which would be to complicated to reproduced in scripting (like fft , showing leds ...)
+
+```
+addExternal("funtion name", externalType::function, (void *)function);
+```
+In your script you need to declare your variable as external:
+```
+external type function_name;
+```
+
+Example
+```C
+#include "ESPLiveScript.h"
+
+string script="\
+external float calc(int h);\n\
+external void displayfloat(float nb);\n\
+void main()\n\
+{\n\
+ float h=calc(52);\n\
+ displayfloat(h);\n\
+}";
+
+void displayfloat(float nb)
+{
+  printf("from pre-compiled %f\n",nb);
+}
+
+float calcul(int pos)
+{
+  return (float)(pos/34.0);
+}
+
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(115200);
+
+  addExternal("calc", externalType::function, (void *)calcul);
+  addExternal("displayfloat", externalType::function, (void *)displayfloat);
+Parser p;
+Executable exec=p.parseScript(&script);
+
+if(exec.isExeExists())
+{
+ exec.execute("main");
+}
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+```
+
+Result:
+```
+***********PARSING DONE*********
+***********COMPILING DONE*********
+max used memory: 7572 maxstack:1964  started 265984 free mem:258484 consumed 7500 time:28ms
+max used memory: 7572 maxstack:1964  started 265984 free mem:263600 consumed 2384 time:40ms
+***********AFTER CLEAN*********
+***********CREATE EXECUTABLE*********
+Creation of an 160 bytes binary and 56 bytes data
+
+Parsing 59 assembly lines ...
+
+max used memory: 7572 maxstack:1964  started 265984 free mem:265124 consumed 860 time:92ms
+from pre-compiled 1.529412
+```
+
+
+<!-- TOC --><a name="safe-mode-and-arrays"></a>
+# Safe mode and arrays
 
 Let's consider the following Use case:
 
@@ -380,7 +507,8 @@ Overflow error line 0 max size: 10 got 11
 
 NB: As the check will be done everytime a write is done then it will slow the script down.
 
-## Variables types
+<!-- TOC --><a name="variables-types"></a>
+# Variables types
 
 Here are the default types:
  * `uint8_t`
@@ -392,7 +520,8 @@ Here are the default types:
  * `CRGB`
  * `CRGBW`
 
-### Structures
+<!-- TOC --><a name="structures"></a>
+## Structures
 
 You can define new types call `struct`
 
@@ -400,21 +529,321 @@ example:
 ```C
 struct new_type
 {
-  int l;
   float k;
+  int l;
 }
 ```
  
-The structures cna have methods
+The structures can have methods
 
 ```C
 struct new_type
 {
-  int l;
   float h;
+  int l;
   void display()
   {
     printf("l :%d\n",l);
   }
 }
 ```
+NB: not like in a class you do not have constructor or destructor (at least not yet :) ).
+
+Example:
+```C
+#include "ESPLiveScript.h"
+
+string script="\
+struct new_type\n\
+{\n\
+  float f;\n\
+  int index;\n\
+  void display(int multi)\n\
+  {\n\
+    printfln(\"from structure:%d\",multi);\n\
+  }\n\
+  void func2() \n\
+  {\n\
+    display(f*index);\n\
+  }\n\
+}\n\
+\n\
+new_type var;\n\
+void main()\n\
+{\n\
+ var.f=0.8;\n\
+ var.index=12;\n\
+ var.func2();\n\
+ var.display(23);\n\
+}";
+
+
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(115200);
+
+Parser p;
+Executable exec=p.parseScript(&script);
+if(exec.isExeExists())
+{
+ exec.execute("main");
+}
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+```
+
+Result:
+```
+***********PARSING DONE*********
+***********COMPILING DONE*********
+max used memory: 11060 maxstack:1836  started 265840 free mem:254916 consumed 10924 time:40ms
+max used memory: 11060 maxstack:1836  started 265840 free mem:260924 consumed 4916 time:52ms
+***********AFTER CLEAN*********
+***********CREATE EXECUTABLE*********
+Creation of an 312 bytes binary and 104 bytes data
+Parsing 114 assembly lines ...
+max used memory: 11060 maxstack:1836  started 265840 free mem:263380 consumed 2460 time:147ms
+
+from structure:9
+from structure:23
+```
+NB 1: you can have arrays of structure : `new_type arr[10] `
+
+NB 2: the functions needs to be in order i.e you cannot all a function which has not be defined previously. (for the moment)
+
+NB 3: Due to some memory alignment concern, for the moment you need to order the variable by order of size. Here is the order of size:
+  - `float, uint32_t`
+  - `int, uint16_t`
+  - `uint8_t, CRGB, CRGBW`
+
+
+i.e :
+```
+struct varname
+{
+char c;
+uint16_t k;
+float h;
+}
+
+will not work. you need to arrange your data as such
+
+struct varname
+{
+  float h;
+  uint16_t k;
+  char c;
+}
+```
+
+# What you can do with the language
+
+Like any normal language you can have:
+- loops (`while` , `for`)
+- `break` , `continue`
+- testing : `if` ,`else`
+- `++` : for integers and pointers
+- pointers
+- `^` for power
+- `>>` and `<<`
+- type convertion `(float)` , `(int)`
+    NB: the convertion float <-> int is automatic
+- arrays (multidimensional arrays are work in progress)
+- `define` : see below
+- predefined functions:
+  * `printf` , `pritnfln` only for intergers for now.
+  * `fabs`, `abs` other to come
+
+## Use of define
+
+More or less like in C you can have pre-process instructions with a limited scope for now
+
+```
+define TOKEN 25
+
+if(i<TOKEN)
+{
+  ...
+}
+
+vill be compiled as
+
+if(i<25)
+{
+  ...
+}
+```
+Of course you can have this
+```
+define p printf
+...
+p("here %d\n",25);
+```
+
+NB: there is no macro yet
+
+## Limitation of testing
+
+For the moment you cannot write combination of test in the same `if`:
+
+`if( a<b and c>d)` is not possible yet. You will have to have the tests in two separate `if`
+
+
+# Running scripts in the background
+
+You have the possibility of running scripts as task in the background (interesting when you want several tasks at once):
+
+- `exec.executeAsTask("function_name")`
+- `exec.executeAsTask("function_name",arguments)`
+- `exec.executeAsTask("function_name", __RUN_CORE, args)`
+
+When using this you can also do the following
+
+- `exec.suspend()`
+- `bool exec.isRunning()`
+- `exec.estart()`
+- `exec.kill()` : will not delete the binary hence will not free the memory use `exec.free()`
+
+## How to cope with several binaries
+
+When you deal with several binaries, it could get complicated to follow a lot of different variables.
+You can 'register' your executable in the Script runtime:
+
+`scriptRuntime.addExe(executable exec,string exename)`
+
+```C
+string script1="...";
+string scrip2="...";
+
+ Executable exec=p.parseScript(&script1);
+ if(exec.isExeExists())
+{
+  scriptRuntime.addExe(exec,"script1");
+}
+exec=p.parseScript(&script2);
+ if(exec.isExeExists())
+{
+  scriptRuntime.addExe(exec,"script2");
+}
+
+...
+
+scriptRuntime.execute("script1");
+scriptRuntime.execute("script2");
+```
+
+Here are all the functions of the scriptRuntime:
+- `scriptRuntime.addExe(executable exec,string exename)`
+- `scriptRuntime.excute(string execname)` : the runtime will execute the "main" function by default
+- `scriptRuntime.excute(string execname,string function_name)`
+- `scriptRuntime.excute(string execname,Arguments args)`:: the runtime will execute the "main" function by default
+- `scriptRuntime.excute(string execname,Arguments args,string function_name)`
+- `scriptRuntime.excuteAsTask(string execname)`: : the runtime will execute the "main" function by default
+- `scriptRuntime.excuteAsTask(string execname,string function_name)`
+- `scriptRuntime.excuteAsTask(string execname,Arguments args)`: the runtime will execute the "main" function by default
+- `scriptRuntime.excuteAsTask(string execname,Arguments args,string function_name)`
+- `scriptRuntime.excuteAsTask(string execname,Arguments args)` : the runtime will execute the "main" function by default
+- `scriptRuntime.excuteAsTask(string execname,int core,Arguments args)` : the runtime will execute the "main" function by default
+- `scriptRuntime.kill(string execname)` : this will not free the memory
+- `scriptRuntime.deleteExe(string execname)` : will free the memory of the binary
+- `Executable *findExecutable(string execname)`
+- `vector<exe_info> scriptRuntime.getListExecutables()` : will list all the executables:
+- `exe_info getExecutableInfo(string execname)`
+  * exe_info:
+    + `uint16_t data_size`
+    + `uint16_t binary_size`
+    + `uint16_t total_size`
+    + `bool isRunning`
+    + `string name`
+
+## Tasks synchronization
+As discussed earlier  this scripting language aims at being used primarily for leds animations. when you have several scripts running at the same time it is important to synchronize the script to avoid artifacts:
+![Sync](/pictures/VideoToGif_GIF.GIF)
+
+
+Let's say that you need to synchronize the show function which is an 'pre-compiled' function.
+in your C/C++ program add this:
+```C
+void show()
+{
+  ...
+  driver.showPixel();
+  ...
+}
+
+
+string script1="
+...
+
+while(2>1)
+{
+rainbow();
+sync(); //put this instead of show();
+}";
+string script2="
+...
+
+while(2>1)
+{
+gameoflife();
+sync(); //put this instead of show();
+}";
+void setup()
+{
+runningPrograms.setFunctionToSync(show);
+Parser p;
+scriptRuntime.addExe(p.parseScript(&script1,"exe1"));
+scriptRuntime.addExe(p.parseScript(&script2,"exe2"));
+scriptRuntime.executeAsTask("exe1");
+scriptRuntime.executeAsTask("exe2");
+}
+
+```
+
+## Pre and post kill
+When you kill a task you cannot control where exactly in the program it will be stopped. As a consequence it could be stopped when calling an external function with interupts or calling another background task.
+
+For instance in the case of the I2SClockLessDriver and the I2SVirtualClocklessDriver it is necessary to stop the driver from displaying anything before killing the script.
+
+this is done as such :
+```C
+void pre() {
+  driver.__enableDriver = false;
+  while (driver.isDisplaying) {};
+}
+
+void post() {
+  driver.__enableDriver = true;
+}
+
+..
+void setup()
+{
+  ...
+ runningPrograms.setPrekill(pre, post);
+ ...
+}
+```
+
+# Conclusion
+
+This is my first try at creating such a thing. You can see a video of me talking about it [live on youtube](https://www.youtube.com/watch?v=iOzKHQxdNJM) where I use the compiler with ledOS.
+
+Please have a look at [Starlight](https://github.com/MoonModules/StarLight/commit/42cb1b8db689b097774bf7640c768d880337567c)
+
+I will add an issue for all the functionalities you want to see added in the; compiler.
+
+As always enjoy and have fun.
+
+
+
+
+
+
+
+
