@@ -247,17 +247,17 @@ public:
         parse();
         if (Error.error)
         {
-            pushToConsole(Error.error_message.c_str(), true);
+            pushToConsoleForce("%s\r\n", Error.error_message.c_str());
             return results;
         }
-        pushToConsole("***********PARSING DONE*********");
+        pushToConsole("***********PARSING DONE*********\r\n");
         updateMem();
         buildParents(&program);
 #ifdef __TEST_DEBUG
         prettyPrint(&program, "");
 #endif
         program.visitNode();
-        pushToConsole("***********COMPILING DONE*********");
+        pushToConsole("***********COMPILING DONE*********\r\n");
         updateMem();
         displayStat();
         main_script.clear();
@@ -283,10 +283,10 @@ public:
         updateMem();
         displayStat();
 
-        pushToConsole("***********AFTER CLEAN*********");
+        pushToConsole("***********AFTER CLEAN*********\r\n");
 
 #ifndef __TEST_DEBUG
-        pushToConsole("***********CREATE EXECUTABLE*********");
+        pushToConsole("***********CREATE EXECUTABLE*********\r\n");
         executable _executecmd = createExectutable(&header, &content, __parser_debug);
         results.setExecutable(_executecmd);
         content.clear();
@@ -299,7 +299,7 @@ public:
             // exeExist = false;
             // Serial.printf(termColor.Red);
 
-            pushToConsole(_executecmd.error.error_message.c_str(), true);
+            pushToConsoleForce("%s\r\n", _executecmd.error.error_message.c_str());
         }
 
 #endif
@@ -2642,7 +2642,7 @@ void kill(Console *cons, vector<string> args)
         }
         else
         {
-            pushToConsole("Nothing is currently running.", true);
+            pushToConsoleForce("Nothing is currently running.\r\n");
         }
     }
     else
@@ -2699,7 +2699,7 @@ void run(Console *cons, vector<string> args)
     {
         if (SCExecutable.isRunning())
         {
-            LedOS.pushToConsole("Something Already running kill it first ...");
+            pushToConsole("Something Already running kill it first ...\r\n");
             kill(cons, args);
         }
         SCExecutable.executeAsTask("main", _args);
@@ -2710,7 +2710,7 @@ void run(Console *cons, vector<string> args)
         /*
         if (progToRun > scExecutables.size())
         {
-            LedOS.pushToConsole("No executable ...", true);
+            pushToConsoleForce("No executable ...\r\n");
         }
         else
         {
@@ -2752,7 +2752,7 @@ void parseasm(Console *cons, vector<string> args)
         {
             vector<string> d;
             d.push_back("main");
-            LedOS.pushToConsole("***********START RUN *********");
+            pushToConsole("***********START RUN *********\r\n");
             run(cons, d);
             if (cons->cmode == keyword)
             {
@@ -2762,31 +2762,31 @@ void parseasm(Console *cons, vector<string> args)
         }
         else
         {
-            LedOS.pushToConsole("***********START RUN*********");
-            LedOS.pushToConsole("Execution asm ...", true);
+            pushToConsole("***********START RUN*********\r\n");
+            pushToConsoleForce("Execution asm ...\r\n");
             executeBinary("main", executecmd);
-            LedOS.pushToConsole("Execution done.", true, true);
+            pushToConsoleForce("Execution done.\r\n");
         }
     }
     else
     {
         exeExist = false;
         // Serial.printf(termColor.Red);
-        LedOS.pushToConsole(executecmd.error.error_message.c_str());
+        pushToConsole("%s\r\n", executecmd.error.error_message.c_str());
         // Serial.printf(config.ESC_RESET);
     }
     */
 }
 void compile_c(Console *cons, vector<string> args)
 {
-    pushToConsole("Compiling ...", true);
+    pushToConsoleForce("Compiling ...\r\n");
     Executable _scExec = p.parse_c(&cons->script);
     if (_scExec.exeExist)
     {
 
         _scExec.name = cons->filename;
         scriptRuntime.addExe(_scExec);
-        pushToConsole(string_format("Compiling done. Handle number:%d", scExecutables.size()), true);
+        pushToConsoleforce("Compiling done. Handle number:%d\r\n", scExecutables.size());
     }
 }
 void free(Console *cons, vector<string> args)
@@ -2808,14 +2808,14 @@ void parse_c(Console *cons, vector<string> args)
 {
     if (SCExecutable.isRunning())
     {
-        LedOS.pushToConsole("Something Already running kill it first ...");
+        pushToConsole("Something Already running kill it first ...\r\n");
         vector<string> k;
         kill(cons, k);
     }
     bool othercore = false;
 
     SCExecutable.free();
-    LedOS.pushToConsole("Compiling ...", true);
+    pushToConsoleForce("Compiling ...\r\n");
     if (args.size() > 0)
     {
         if (args[0].compare("&") != 0)
@@ -2833,7 +2833,7 @@ void parse_c(Console *cons, vector<string> args)
         {
             vector<string> d;
             // d.push_back("main");
-            LedOS.pushToConsole("***********START RUN *********");
+            pushToConsole("***********START RUN *********\r\n");
             run(cons, d);
 
             if (cons->cmode == keyword)
@@ -2844,10 +2844,10 @@ void parse_c(Console *cons, vector<string> args)
         }
         else
         {
-            LedOS.pushToConsole("Start program", true);
+            pushToConsoleForce("Start program\r\n");
             SCExecutable.execute("main");
             // executeBinary("main", executecmd);
-            LedOS.pushToConsole("Execution done.", true);
+            pushToConsoleForce("Execution done.\r\n");
         }
     }
 
@@ -3113,7 +3113,7 @@ void artiPrintfln(char const *format, ...)
     va_end(argp);
 }
  void showError(int line, uint32_t size, uint32_t got) {
-  pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
+  pushToConsoleForce("Overflow error  max size: %d got %d\r\n", size, got);
 }
 class INIT_PARSER
 {

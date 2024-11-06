@@ -10,24 +10,6 @@ using namespace std;
 
 #include "tokenizer.h"
 
-void pushToConsole(string str, bool force)
-{
-#ifdef __CONSOLE_ESP32
-    LedOS.pushToConsole(str, force);
-#else
-#ifndef __TEST_DEBUG
-    Serial.printf("%s\r\n", str.c_str());
-#else
-    printf("%s\r\n", str.c_str());
-#endif
-#endif
-}
-
-void pushToConsole(string str)
-{
-    pushToConsole(str, false);
-}
-
 #define _START_2 32
 #define _STACK_SIZE (_START_2 + 6 * 4)
 string __globalscript;
@@ -135,7 +117,7 @@ void updateMem()
 }
 void displayStat()
 {
-    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms", __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
+    pushToConsole("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms\r\n", __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000);
 }
 string _numToBytes(uint32_t __num)
 {

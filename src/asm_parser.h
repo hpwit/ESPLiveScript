@@ -1193,12 +1193,7 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
   // printf("taille instr %d\r\n",_instr_size);
 
   _instr_size = (_instr_size / 8) * 8 + 8;
-#ifdef __CONSOLE_ESP32
-  string _d = string_format("Creation of an %d bytes binary and %d bytes data", _instr_size, _size);
-  LedOS.pushToConsole(_d);
-#else
-  printf("Creation of an %d bytes binary and %d bytes data\r\n", _instr_size, _size);
-#endif
+  pushToConsole("Creation of an %d bytes binary and %d bytes data\r\n", _instr_size, _size);
 
   tmp_exec = (uint8_t *)malloc(_instr_size);
   if (_size > 0)
@@ -1208,12 +1203,7 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
     _data_size=(_size / 4) * 4 + 4;
   }
   // printf("her:\r\n");
-#ifdef __CONSOLE_ESP32
-  string d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size());
-  LedOS.pushToConsole(d);
-#else
-  printf("Parsing %d assembly lines ...\r\n ", _header->size() + _content->size());
-#endif
+  pushToConsole("Parsing %d assembly lines ...\r\n ", _header->size() + _content->size());
 
   int size = _header->size();
   int tmp_size = size;
@@ -1435,12 +1425,7 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
 void flagLabel32aligned(parsedLines *asm_parsed)
 {
   // return;
-#ifdef __CONSOLE_ESP32
-  LedOS.pushToConsole("Flag label(s) to align ... ");
-
-#else
-  printf("Flag label(s) to align ... ");
-#endif
+  pushToConsole("Flag label(s) to align ...\r\n");
   // uint32_t add = 0;
   // vector<result_parse_line>::iterator it = (*asm_parsed).begin();
   for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
@@ -1455,24 +1440,13 @@ void flagLabel32aligned(parsedLines *asm_parsed)
       }
     }
   }
-#ifdef __CONSOLE_ESP32
-  LedOS.pushToConsole("Done. ");
-
-#else
-  printf("Done.");
-#endif
-  //  printf("Done.\r\n");
+  pushToConsole("Done.\r\n");
 }
 
 error_message_struct calculateJump(parsedLines *asm_parsed)
 {
 
-#ifdef __CONSOLE_ESP32
-  LedOS.pushToConsole("alculating jumps ...");
-
-#else
-  //printf("Calculating jumps ... ");
-#endif
+  pushToConsole("Calculating jumps ...\r\n");
 
   error_message_struct error;
   error.error = 0;
@@ -1510,12 +1484,7 @@ error_message_struct calculateJump(parsedLines *asm_parsed)
 error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
 {
 
-#ifdef __CONSOLE_ESP32
-  LedOS.pushToConsole("alculating jumps 2...");
-
-#else
- // printf("Calculating jumps2 ... ");
-#endif
+  pushToConsole("Calculating jumps2...\r\n");
 
   error_message_struct error;
   error.error = 0;
@@ -1709,22 +1678,15 @@ executable createExectutable(Text *_header, Text *_content, bool display)
 
 void executeBinaryAsm(uint32_t *j, uint32_t *c)
 {
-#ifdef __CONSOLE_ESP32
-  string s = string_format("Executing asm code @%x", j);
-  LedOS.pushToConsole(s, false);
-#else
-  // printf("Executing asm code ...\r\n");
-#endif
+  pushToConsole("Executing asm code ...\r\n");
+
   asm volatile("l32i a10,%1,0\n\t"
                "l32i a15,%0,0\n\t"
                "callx8 a15"
                : : "r"(j), "r"(c)
                :);
-#ifdef __CONSOLE_ESP32
-  // LedOS.pushToConsole("Execution Done.",true);
-#else
-  // printf("Execution Done.\n");
-#endif
+
+  // pushToConsoleForce("Execution Done.\r\n");
   // free(exec);
 }
 
