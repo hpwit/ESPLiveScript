@@ -256,6 +256,7 @@ public:
         }
         pushToConsole("***********PARSING DONE*********");
         updateMem();
+           displayStat();
         buildParents(&program);
 #ifdef __TEST_DEBUG
         printf("herer\n\r");
@@ -300,7 +301,8 @@ change_type.shrink_to_fit();
         displayStat();
 
         pushToConsole("***********AFTER CLEAN*********");
-
+    updateMem();
+        displayStat();
 #ifndef __TEST_DEBUG
         pushToConsole("***********CREATE EXECUTABLE*********");
         executable _executecmd = createExectutable(&header, &content, __parser_debug);
@@ -318,6 +320,7 @@ change_type.shrink_to_fit();
             pushToConsole(_executecmd.error.error_message.c_str(), true);
         }
 
+printf("%d \n",sizeof(NodeToken));
 #endif
         return results;
     }
