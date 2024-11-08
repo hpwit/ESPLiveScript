@@ -888,7 +888,7 @@ children = new (tmp)vector<NodeToken *>;
     bool isPointer = false;
     bool asPointer = false;
     uint8_t _nodetype = (int)UnknownNode;
-
+    uint8_t chidren_size=0;
     uint8_t type = (int)TokenUnknown;
     uint8_t _vartype = EOF_VARTYPE;
 };
