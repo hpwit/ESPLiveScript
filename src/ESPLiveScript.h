@@ -2786,7 +2786,7 @@ void compile_c(Console *cons, vector<string> args)
 
         _scExec.name = cons->filename;
         scriptRuntime.addExe(_scExec);
-        pushToConsoleforce("Compiling done. Handle number:%d\r\n", scExecutables.size());
+        pushToConsoleForce("Compiling done. Handle number:%d\r\n", scExecutables.size());
     }
 }
 void free(Console *cons, vector<string> args)
