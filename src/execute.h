@@ -535,7 +535,7 @@ public:
         error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, args);
         if (res.error)
         {
-            pushToConsoleForce("%s\r\n", res.error_message.c_str());
+            pushToConsoleForce(string_format("%s\r\n", res.error_message.c_str()).c_str());
         }
 #endif
     }
@@ -551,7 +551,7 @@ public:
         error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, args);
         if (res.error)
         {
-            pushToConsoleForce("%s\r\n", res.error_message.c_str());
+            pushToConsoleForce(string_format("%s\r\n", res.error_message.c_str()).c_str());
         }
 #endif
     }
@@ -618,7 +618,7 @@ static void _run_task(void *pvParameters)
         error_message_struct res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec->args);
         if (res.error)
         {
-            pushToConsoleForce("%s\r\n", res.error_message.c_str());
+            pushToConsoleForce(string_format("%s\r\n", res.error_message.c_str()).c_str());
         }
     }
     else
@@ -626,7 +626,7 @@ static void _run_task(void *pvParameters)
         error_message_struct res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec->args);
         if (res.error)
         {
-            pushToConsoleForce("%s\r\n", res.error_message.c_str());
+            pushToConsoleForce(string_format("%s\r\n", res.error_message.c_str()).c_str());
         }
     }
     pushToConsoleForce("Execution done.\r\n");
@@ -697,7 +697,7 @@ public:
                 return &_scExecutables[i];
             }
         }
-        pushToConsoleForce("Executable %s not found\r\n", name.c_str());
+        pushToConsoleForce(string_format("Executable %s not found\r\n", name.c_str()).c_str());
         return NULL;
     }
     void execute(string name)

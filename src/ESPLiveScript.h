@@ -247,7 +247,7 @@ public:
         parse();
         if (Error.error)
         {
-            pushToConsoleForce("%s\r\n", Error.error_message.c_str());
+            pushToConsoleForce(string_format("%s\r\n", Error.error_message.c_str()).c_str());
             return results;
         }
         pushToConsole("***********PARSING DONE*********\r\n");
@@ -299,7 +299,7 @@ public:
             // exeExist = false;
             // Serial.printf(termColor.Red);
 
-            pushToConsoleForce("%s\r\n", _executecmd.error.error_message.c_str());
+            pushToConsoleForce(string_format("%s\r\n", _executecmd.error.error_message.c_str()).c_str());
         }
 
 #endif
@@ -2772,7 +2772,7 @@ void parseasm(Console *cons, vector<string> args)
     {
         exeExist = false;
         // Serial.printf(termColor.Red);
-        pushToConsole("%s\r\n", executecmd.error.error_message.c_str());
+        pushToConsole(string_format("%s\r\n", executecmd.error.error_message.c_str()).c_str());
         // Serial.printf(config.ESC_RESET);
     }
     */
