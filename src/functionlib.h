@@ -4,6 +4,43 @@
 #ifndef __FUNCTION_LIB
 #define __FUNCTION_LIB
 
+//pushToConsole with force argument
+void pushToConsole(bool force, const char * format, ...) {
+   va_list args;
+   va_start(args, format);
+
+   #ifdef __CONSOLE_ESP32
+   LedOS.pushToConsole(string_format(format, args), force);
+   #elif defined(EXTPRINTF)
+      EXTPRINTF(format, args);
+   #else
+      #ifndef __TEST_DEBUG
+         Serial.printf(format, args);
+      #else
+         printf(format, args);
+      #endif
+   #endif
+
+   va_end(args);
+}
+
+//pushToConsole no force (default)
+void pushToConsole(const char * format, ...) {
+   va_list args;
+   va_start(args, format);
+   pushToConsole(false, format, args);
+   va_end(args);
+}
+
+//pushToConsole using force
+void pushToConsoleForce(const char * format, ...) {
+   va_list args;
+   va_start(args, format);
+   pushToConsole(true, format, args);
+   va_end(args);
+}
+
+
  list<int> add_on;
 //string division="";
 string _sync="\
