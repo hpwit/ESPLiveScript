@@ -2990,12 +2990,20 @@ void _visitextCallFunctionNode(NodeToken *nd)
     }
     else
     {
+        if(v->size>1)
+        {
         for (int i = 0; i < v->size; i++)
         {
             // content.addAfter(string_format("mov a15,a10"));
             content.addAfter(string_format("extui a%d,a%d,%d,%d", register_numl.get(), 10, start * 8, v->sizes[i] * 8));
             // register_numl--;
             start += v->sizes[i];
+            content.sp.push(content.get());
+        }
+        }
+        else
+        {
+            content.addAfter(string_format("mov a%d,a10",register_numl.get()));
             content.sp.push(content.get());
         }
     }

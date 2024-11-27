@@ -102,7 +102,7 @@ This libray doesn't provide an environment to write scripts. Nevertheless it has
 
 <img title="Screenshot" alt="Alt text" src="pictures/screen1.png" style="width:400px">
 
-- [Moon Modules](https://github.com/MoonModules/StarLight) : A web environment for led manipulation based on WLED which contains several modules (artnet, DMX, powerful mapping tool ....) [Live Scripts doc](https://ewowi.github.io/StarDocs/UserMod/UserModLiveScripts)
+- [MoonModules StarLight](https://github.com/MoonModules/StarLight) : Web enabled ESP32 application for LED manipulation based on WLED which contains several modules (artnet, DMX, powerful mapping tool ....) [Live Scripts doc](https://ewowi.github.io/StarDocs/UserMod/UserModLiveScripts)
 
 
 <!-- TOC --><a name="led-manipulation-oriented"></a>
