@@ -45,6 +45,7 @@ enum varTypeEnum
     __CRGBW__,
     __char__,
     __Args__,
+    __bool__,
     __userDefined__,
     __unknown__
 };
@@ -88,6 +89,7 @@ string varTypeEnumNames[] = {
     "__CRGBW__",
     "__char__",
     "__Args__",
+    "__bool__",
     "__userDefined__",
     "__unknown__"
 #endif
@@ -248,7 +250,19 @@ varType _varTypes[] = {
         .size = 1,
         .total_size = 1,
 
-    }
+    },
+     {._varType = __bool__,
+     .varName = "",
+     ._varSize = 1,
+     .load = {l8ui},
+     .store = {s8i},
+     .membersNames = {},
+     .starts = {},
+     .memberSize = {},
+     .types = {},
+     .sizes = {1},
+     .size = 1,
+     .total_size = 1},
 
 };
 
@@ -366,6 +380,8 @@ enum tokenType
     TokenMember,
     TokenUserDefinedVariableMember,
     TokenUserDefinedVariableMemberFunction,
+    TokenDoubleUppersand,
+    TokenDoubleOr
 
 };
 
@@ -404,6 +420,7 @@ tokenType __keywordTypes[] = {
     TokenKeywordSaveReg,
     TokenKeywordSaveRegAbs,
     TokenKeywordStruct,
+    
 
 };
 
@@ -479,7 +496,9 @@ string tokenNames[] = {
     "TokenUserDefinedVariable",
     "TokenMember",
     "TokenUserDefinedVariableMember",
-    "TokenUserDefinedVariableMemberFunction"
+    "TokenUserDefinedVariableMemberFunction",
+    "TokenDoubleUppersand",
+    "TokenDoubleOr"
 
 #endif
 };
@@ -591,7 +610,10 @@ const char *tokenFormat[] = {
     termColor.LMagenta, // TokenKeywordStruct,
     termColor.Cyan,     // TokenUserDefinedName,
     termColor.Green,    // TokenUserDefinedVariable,
-    termColor.BWhite,   // TokenMember
+    termColor.BWhite,   // TokenMember,
+    termColor.BWhite,   // TokenDoubleUppersand,
+    termColor.BWhite,   // TokenDoubleOr,
+
 };
 
 /*
@@ -1598,18 +1620,36 @@ int tokenizer(Script *script, bool update, bool increae_line,
         }
         if (c == '&')
         {
-            // token t;
-            // t.type = TokenUppersand;
-            // t._vartype = NULL;
-            t = Token(TokenUppersand, EOF_VARTYPE, _token_line);
-            if (_for_display)
-                t.addText("&");
-            // t.line = _token_line;
-            //  t.pos = pos;
-            //_tks.push(t);
-            _tks.push(t);
-            nbReadToken++;
-            continue;
+            c2 = script->nextChar();
+            if (c2 == '&')
+            {
+                t = Token(TokenDoubleUppersand, EOF_VARTYPE);
+                // t._vartype = NULL;
+                // t.type = TokenDoubleEqual;
+                if (_for_display)
+                    t.addText("&&");
+                t.line = _token_line;
+                // t.pos = pos;
+                _tks.push(t);
+                nbReadToken++;
+
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                // token t;
+                //  t._vartype = NULL;
+                //  t.type = TokenEqual;
+                //  t.line = _token_line;
+                t = Token(TokenUppersand, EOF_VARTYPE, _token_line);
+                // t.pos = pos;
+                if (_for_display)
+                    t.addText("&");
+                _tks.push(t);
+                nbReadToken++;
+                continue;
+            }
         }
         if (c == '#')
         {
@@ -2028,6 +2068,39 @@ int tokenizer(Script *script, bool update, bool increae_line,
             _tks.push(t);
             nbReadToken++;
             continue;
+        }
+        if (c == '|')
+        {
+            c2 = script->nextChar();
+            if (c2 == '||')
+            {
+                t = Token(TokenDoubleOr, EOF_VARTYPE);
+                // t._vartype = NULL;
+                // t.type = TokenDoubleEqual;
+                if (_for_display)
+                    t.addText("||");
+                t.line = _token_line;
+                // t.pos = pos;
+                _tks.push(t);
+                nbReadToken++;
+
+                continue;
+            }
+            else
+            {
+                script->previousChar();
+                // token t;
+                //  t._vartype = NULL;
+                //  t.type = TokenEqual;
+                //  t.line = _token_line;
+                t = Token(TokenKeywordOr, EOF_VARTYPE, _token_line);
+                // t.pos = pos;
+                if (_for_display)
+                    t.addText("|");
+                _tks.push(t);
+                nbReadToken++;
+                continue;
+            }
         }
         if (c == ',')
         {

@@ -153,6 +153,12 @@ uint32_t bin_bnez(uint32_t *values)
     return 0x56 + (((values[0] << 8) & 0xF00));
     // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
 }
+uint32_t bin_beqz(uint32_t *values)
+{
+
+    return 0x16 + (((values[0] << 8) & 0xF00));
+    // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
 uint32_t jump_bnez(uint32_t value, uint32_t current_address, uint32_t destination_address)
 {
     uint32_t dif = destination_address - current_address - 4;

@@ -578,6 +578,15 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
 
     return ps;
   }
+    if (sp.opcde.compare("beqz") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 2, op_bnez, 3, bin_beqz);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_bnez;
+
+    return ps;
+  }
   if (sp.opcde.compare("j") == 0)
   {
 
