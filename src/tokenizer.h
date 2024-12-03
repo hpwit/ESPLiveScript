@@ -278,6 +278,7 @@ string keywordTypeNames[] = {
     "KeywordVarType",
     "KeywordVarType",
     "KeywordVarType",
+    "KeywordVarType",
     "KeywordExternalVar",
     "KeywordFor",
     "KeywordIf",
@@ -296,11 +297,11 @@ string keywordTypeNames[] = {
 
 };
 
-#define nb_keywords 34
-#define nb_typeVariables 11
+#define nb_keywords 35
+#define nb_typeVariables 12
 string keyword_array[nb_keywords] =
     {"none", "uint8_t", "uint16_t", "uint32_t", "int", "float", "void", "CRGB",
-     "CRGBW", "char", "Args","external", "for", "if", "then", "else", "while", "return",
+     "CRGBW", "char", "Args","bool","external", "for", "if", "then", "else", "while", "return",
      "import", "from", "__ASM__",
      "define", "safe_mode", "_header_", "_content_", "and", "or", "continue",
      "break", "fabs", "abs", "save_reg",
@@ -381,11 +382,14 @@ enum tokenType
     TokenUserDefinedVariableMember,
     TokenUserDefinedVariableMemberFunction,
     TokenDoubleUppersand,
-    TokenDoubleOr
+    TokenDoubleOr,
+    TokenQuestionMark,
+    TokenColon
 
 };
 
 tokenType __keywordTypes[] = {
+    TokenKeywordVarType,
     TokenKeywordVarType,
     TokenKeywordVarType,
     TokenKeywordVarType,
@@ -498,7 +502,9 @@ string tokenNames[] = {
     "TokenUserDefinedVariableMember",
     "TokenUserDefinedVariableMemberFunction",
     "TokenDoubleUppersand",
-    "TokenDoubleOr"
+    "TokenDoubleOr",
+    "TokenQuestionMark",
+    "TokenColon"
 
 #endif
 };
@@ -1623,7 +1629,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
             c2 = script->nextChar();
             if (c2 == '&')
             {
-                t = Token(TokenDoubleUppersand, EOF_VARTYPE);
+                t = Token(TokenKeywordAnd, EOF_VARTYPE);
                 // t._vartype = NULL;
                 // t.type = TokenDoubleEqual;
                 if (_for_display)
@@ -1977,7 +1983,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
         if (c == '?')
         {
             // Token t;
-            t.type = (int)TokenUnknown;
+            t.type = (int)TokenQuestionMark;
             if (_for_display)
                 t.addText("?");
             t.line = _token_line;
@@ -2045,7 +2051,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
         if (c == ':')
         {
             // Token t;
-            t.type = (int)TokenUnknown;
+            t.type = (int)TokenColon;
             if (_for_display)
                 t.addText(":");
             t.line = _token_line;
@@ -2074,7 +2080,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
             c2 = script->nextChar();
             if (c2 == '||')
             {
-                t = Token(TokenDoubleOr, EOF_VARTYPE);
+                t = Token(TokenKeywordOr, EOF_VARTYPE);
                 // t._vartype = NULL;
                 // t.type = TokenDoubleEqual;
                 if (_for_display)

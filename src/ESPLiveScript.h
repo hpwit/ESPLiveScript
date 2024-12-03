@@ -736,40 +736,34 @@ public:
         current_node = current_node->addChild(NodeToken(current(), comparatorNode));
 
         // res._nd=NodeToken();
-/*
-        NodeToken nd;
-        nd._nodetype = changeTypeNode;
-        nd.type = TokenKeywordVarType;
-        nd._vartype = __none__;
-        current_node = current_node->addChild(nd);
-        change_type.push_back(current_node);
 
-        parseExpr();
-        if (Error.error)
-        {
-            return;
-        }
-        // token *t=current();
-        // current_node->type = current()->type;
-        current_node = current_node->parent;
-        current_node->type = current()->type;
-        change_type.pop_back();
-        // current_node->ad
-        next();
-        nd._nodetype = changeTypeNode;
-        nd.type = TokenKeywordVarType;
-        nd._vartype = __none__;
-        current_node = current_node->addChild(nd);
-        change_type.push_back(current_node);
-        parseExpr();
-        if (Error.error)
-        {
-            return;
-        }
-        next();
-        current_node = current_node->parent;
-        change_type.pop_back();*/
-        
+        /*
+                parseExpr();
+                if (Error.error)
+                {
+                    return;
+                }
+                // token *t=current();
+                // current_node->type = current()->type;
+                current_node = current_node->parent;
+                current_node->type = current()->type;
+                change_type.pop_back();
+                // current_node->ad
+                next();
+                nd._nodetype = changeTypeNode;
+                nd.type = TokenKeywordVarType;
+                nd._vartype = __none__;
+                current_node = current_node->addChild(nd);
+                change_type.push_back(current_node);
+                parseExpr();
+                if (Error.error)
+                {
+                    return;
+                }
+                next();
+                current_node = current_node->parent;
+                change_type.pop_back();*/
+
         current_node->setTargetText(targetList.pop());
         parseExpr();
         // cn.target=target;
@@ -778,6 +772,7 @@ public:
         next();
         Error.error = 0;
         current_node = current_node->parent;
+        // current_node = current_node->parent;
         return;
     }
     void parseStatement()
@@ -1111,7 +1106,7 @@ public:
             current_node = current_node->addChild(NodeToken(current(), elseNode, targetList.pop()));
             next();
 
- if (Match(TokenOpenCurlyBracket))
+            if (Match(TokenOpenCurlyBracket))
             {
                 parseBlockStatement();
                 if (Error.error)
@@ -1121,12 +1116,12 @@ public:
             }
             else
             {
-               //next();
+                // next();
                 parseStatement();
-                 if (Error.error)
+                if (Error.error)
                 {
                     return;
-                }               
+                }
             }
 
             // current_node->target=target;
@@ -1165,7 +1160,7 @@ public:
 
                 // printf(" *************** on parse comp/n");
                 parseComparaison();
-               // parseExpr();
+                // parseExpr();
                 if (Error.error)
                 {
                     return;
@@ -1173,7 +1168,7 @@ public:
                 // targetList.pop();
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
-               // next();
+                // next();
                 parseBlockStatement();
                 if (Error.error)
                 {
@@ -1234,23 +1229,23 @@ public:
                 }
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
-                 if (Match(TokenOpenCurlyBracket))
-            {
-                parseBlockStatement();
-                if (Error.error)
+                if (Match(TokenOpenCurlyBracket))
                 {
-                    return;
+                    parseBlockStatement();
+                    if (Error.error)
+                    {
+                        return;
+                    }
                 }
-            }
-            else
-            {
-               //next();
-                parseStatement();
-                 if (Error.error)
+                else
                 {
-                    return;
-                }               
-            }
+                    // next();
+                    parseStatement();
+                    if (Error.error)
+                    {
+                        return;
+                    }
+                }
                 // current_node->target=target;
 
                 // resParse result;
@@ -1831,34 +1826,44 @@ public:
         return;
     }
 
-void parseExpr()
+    void parseExpr()
     {
 
         sav_token.push_back(current_node);
-;
+        ;
         parseExprAddMinus();
         if (Error.error == 1)
         {
             return;
         }
-        while (Match(TokenDoubleEqual) || Match(TokenLessOrEqualThan) || Match(TokenLessThan) || Match(TokenMoreOrEqualThan) ||Match(TokenMoreThan))
+        while (Match(TokenDoubleEqual) || Match(TokenLessOrEqualThan) || Match(TokenLessThan) || Match(TokenMoreOrEqualThan) || Match(TokenMoreThan))
         {
 
             // token *op = current();
-                        targetList.push(string_format("label_%d", for_if_num));
+            targetList.push(string_format("label_%d", for_if_num));
             //=target;
             for_if_num++;
             sav_t.push_back(*current());
             next();
             _node_token_stack.push_back(current_node->children.back());
-            
+
             current_node->children.pop_back();
             current_node = current_node->addChild(NodeToken(testNode));
+            // current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+            current_node->type = sav_t.back().type;
+            current_node->setTargetText(targetList.pop());
+            NodeToken nd;
+            nd._nodetype = changeTypeNode;
+            nd.type = TokenKeywordVarType;
+            nd._vartype = findfloat(_node_token_stack.back());
+            current_node = current_node->addChild(nd);
+            change_type.push_back(current_node);
             current_node->addChild(_node_token_stack.back());
             _node_token_stack.pop_back();
-            current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
-            current_node->type=sav_t.back().type;
-             current_node->setTargetText(targetList.pop());
+            current_node = current_node->parent;
+            current_node = current_node->addChild(nd);
+            // current_node->type=sav_t.back().type;
+            change_type.push_back(current_node);
             sav_t.pop_back();
             parseExprAddMinus();
             if (Error.error == 1)
@@ -1866,6 +1871,8 @@ void parseExpr()
                 return;
             }
             current_node = current_node->parent;
+            current_node = current_node->parent;
+            change_type.pop_back();
         }
 
         current_node = sav_token.back();
@@ -1878,7 +1885,7 @@ void parseExpr()
     {
 
         sav_token.push_back(current_node);
-;
+        ;
         parseTerm();
         if (Error.error == 1)
         {
@@ -1891,7 +1898,7 @@ void parseExpr()
             sav_t.push_back(*current());
             next();
             _node_token_stack.push_back(current_node->children.back());
-            
+
             current_node->children.pop_back();
             current_node = current_node->addChild(NodeToken(binOpNode));
             current_node->addChild(_node_token_stack.back());
@@ -1958,7 +1965,7 @@ void parseExpr()
             return;
         }
 
-        else if (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand) || Match(TokenKeywordFabs) || Match(TokenKeywordAbs))
+        else if (Match(TokenNot) || Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand) || Match(TokenKeywordFabs) || Match(TokenKeywordAbs))
         {
             // token *t = current();
             // NodeUnitary g = NodeUnitary();
@@ -2539,7 +2546,7 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                         copyPrty(&t, &nd);
 
                         current_node = program.addChild(nd);
-                        tmp_sav=current_node;
+                        tmp_sav = current_node;
                         current_cntx->addVariable(nd);
                         if (Match(TokenSemicolon))
                         {
@@ -2607,12 +2614,12 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                             // _tks.position = __sav_pos;
                             current_node = current_node->parent;
                         }
-                        else if (Match(TokenEqual) and Match(TokenNumber,1))
+                        else if (Match(TokenEqual) and Match(TokenNumber, 1))
                         {
                             next();
-                             current_node->addChild(NodeToken(current(), numberNode));
-                             next();
-                              if (!Match(TokenSemicolon))
+                            current_node->addChild(NodeToken(current(), numberNode));
+                            next();
+                            if (!Match(TokenSemicolon))
                             {
 
                                 Error.error = 1;
@@ -2621,10 +2628,8 @@ else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifi
                                 return;
                             }
                             next();
-                             current_node = current_node->parent;
+                            current_node = current_node->parent;
                             Error.error = 0;
-
-                            
                         }
                     }
                 }
@@ -3130,8 +3135,9 @@ void artiPrintfln(char const *format, ...)
     printf("\r\n");
     va_end(argp);
 }
- void showError(int line, uint32_t size, uint32_t got) {
-  pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
+void showError(int line, uint32_t size, uint32_t got)
+{
+    pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
 }
 class INIT_PARSER
 {

@@ -321,6 +321,7 @@ public:
     void putIteratorAtPos(int pos)
     {
         _it = getChildAtPos(pos);
+        //position=pos-1;
     }
     void end()
     {
@@ -411,6 +412,7 @@ public:
     }
     int get()
     {
+
         return position - 1;
     }
     void begin()
