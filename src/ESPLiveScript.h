@@ -1874,9 +1874,79 @@ if(Match(TokenQuestionMark))
 
     void parseExpr()
     {
+              // Serial.printf("eee  term1\r\n");
 
         sav_token.push_back(current_node);
-        ;
+        /*
+        NodeToken nd;
+        nd._nodetype=changeTypeNode;
+        nd.type=TokenKeywordVarType;
+        nd._vartype=__none__;
+        if(current_node->_nodetype==changeTypeNode and strlen(current_node->getTokenText())>0)
+        {
+            nd._vartype=current_node->_vartype;
+        }
+        current_node=current_node->addChild(nd);
+        change_type.push_back(current_node);
+        */
+        // Serial.printf("eee  term\r\n");
+        parseExprConditionnal();
+        // Serial.printf("exit  term\r\n");
+        if (Error.error == 1)
+        {
+            return;
+        }
+        while (Match(TokenDoubleUppersand) || Match(TokenDoubleOr))
+        {
+
+            // token *op = current();
+            sav_t.push_back(*current());
+            next();
+            // NodeBinOperator nodeopt;
+            /*
+                        NodeToken d = current_node->children.back();
+                        current_node->children.pop_back();
+                        current_node = current_node->addChild(NodeBinOperator());
+                        current_node->addChild(d);
+            */
+            _node_token_stack.push_back(current_node->children.back());
+            // NodeToken d = current_node->children.back();
+            current_node->children.pop_back();
+            current_node = current_node->addChild(NodeToken(binOpNode));
+            current_node->addChild(_node_token_stack.back());
+            _node_token_stack.pop_back();
+            // current_node->parent->children.remove(current_node->parent->children.back());
+                        if((&sav_t.back())->type ==  TokenDoubleUppersand)
+                (&sav_t.back())->type =TokenKeywordAnd;
+            else
+             (&sav_t.back())->type =TokenKeywordOr;
+            current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+
+            sav_t.pop_back();
+            parseExprConditionnal();
+            if (Error.error == 1)
+            {
+                return;
+            }
+            current_node = current_node->parent;
+            // left._nd = NodeBinOperator(left._nd, opt, right._nd);
+        }
+        // next();
+        current_node = sav_token.back();
+        sav_token.pop_back();
+        //  lasttype=change_type.back();
+        // printf("last type:%d\n",lasttype->_vartype);
+        // change_type.pop_back();
+        // current_node = sav_pa;
+        // printf("exit expr");
+        Error.error = 0;
+        return;
+    
+    }
+    void parseExprConditionnal()
+    {
+
+        sav_token.push_back(current_node);
         parseExprAddMinus();
         if (Error.error == 1)
         {

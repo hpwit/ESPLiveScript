@@ -1635,7 +1635,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
             c2 = script->nextChar();
             if (c2 == '&')
             {
-                t = Token(TokenKeywordAnd, EOF_VARTYPE);
+                t = Token(TokenDoubleUppersand, EOF_VARTYPE);
                 // t._vartype = NULL;
                 // t.type = TokenDoubleEqual;
                 if (_for_display)
@@ -2086,7 +2086,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
             c2 = script->nextChar();
             if (c2 == '||')
             {
-                t = Token(TokenKeywordOr, EOF_VARTYPE);
+                t = Token(TokenDoubleOr, EOF_VARTYPE);
                 // t._vartype = NULL;
                 // t.type = TokenDoubleEqual;
                 if (_for_display)
