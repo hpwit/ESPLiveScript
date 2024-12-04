@@ -3147,7 +3147,15 @@ void _visitforNode(NodeToken *nd)
     _compare.push_back(content.get());
 
     register_numl.duplicate();
-    nd->getChildAtPos(3)->visitNode();
+         if (nd->children.size() > 4)
+    {
+         nd->getChildAtPos(3)->visitNode();
+        nd->getChildAtPos(4)->visitNode();
+    }
+    else
+    {
+        nd->getChildAtPos(3)->visitNode();
+    }
     register_numl.pop();
 
     content.addAfter(string_format("%s_continue:", nd->getTargetText()));
@@ -3813,6 +3821,7 @@ void _visitifNode(NodeToken *nd)
 
     if (nd->children.size() > 2)
     {
+         nd->getChildAtPos(1)->visitNode();
         nd->getChildAtPos(2)->visitNode();
     }
     else
@@ -3869,7 +3878,15 @@ void _visitwhileNode(NodeToken *nd)
     // content.addAfter(  string_format("%s:\n",nd->target.c_str()));
 
     register_numl.duplicate();
-    nd->getChildAtPos(1)->visitNode();
+        if (nd->children.size() > 2)
+    {
+          nd->getChildAtPos(1)->visitNode();
+        nd->getChildAtPos(2)->visitNode();
+    }
+    else
+    {
+        nd->getChildAtPos(1)->visitNode();
+    }
     register_numl.pop();
 
     content.addAfter(string_format("j %s_while", nd->getTargetText()));

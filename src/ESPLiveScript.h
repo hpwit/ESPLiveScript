@@ -1169,10 +1169,22 @@ public:
                 ////printf("on a parse %s\n",comparator._nd._token->text.c_str());
                 // printf(" *************** on parse inc/n");
                 // next();
-                parseBlockStatement();
-                if (Error.error)
+                if (Match(TokenOpenCurlyBracket))
                 {
-                    return;
+                    parseBlockStatement();
+                    if (Error.error)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    // next();
+                    parseStatement();
+                    if (Error.error)
+                    {
+                        return;
+                    }
                 }
 
                 // current_node->target=target;
@@ -1323,10 +1335,22 @@ public:
                     return;
                 }
                 current_node = current_node->parent;
-                parseBlockStatement();
-                if (Error.error)
+                if (Match(TokenOpenCurlyBracket))
                 {
-                    return;
+                    parseBlockStatement();
+                    if (Error.error)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    // next();
+                    parseStatement();
+                    if (Error.error)
+                    {
+                        return;
+                    }
                 }
 
                 // current_node->target=target;
