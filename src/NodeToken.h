@@ -200,6 +200,7 @@ enum nodeType
     continueNode,
     breakNode,
     testNode,
+    ternaryIfNode,
     UnknownNode
 
 };
@@ -248,6 +249,7 @@ string nodeTypeNames[] =
         "continueNode",
         "breakNode",
         "testNode",
+        "ternaryIfNode",
         "UnknownNode"
 
 #endif
@@ -363,6 +365,7 @@ void _visitimportNode(NodeToken *nd);
 void _visitcontinueNode(NodeToken *nd);
 void _visitbreakNode(NodeToken *nd);
 void _visittestNode(NodeToken *nd);
+void _visitternaryIfNode(NodeToken *nd);
 void _visitUnknownNode(NodeToken *nd);
 
 class NodeToken
@@ -841,6 +844,10 @@ public:
         case testNode:
             _visittestNode(this);
             break;
+
+        case ternaryIfNode:
+        _visitternaryIfNode(this);
+        break;
         case UnknownNode:
             _visitUnknownNode(this);
             break;
@@ -2288,7 +2295,34 @@ void _visitassignementNode(NodeToken *nd)
     register_numr.push(15);
     register_numr.push(15);
 }
+void _visitternaryIfNode(NodeToken *nd)
+{
+   
+    content.addAfter(string_format("beqz a15,%s",nd->getTargetText()));
+        register_numr.clear();
+    register_numl.clear();
+    register_numl.push(15);
+    register_numr.push(15);
 
+    register_numl.push(15);
+    register_numr.push(15);
+    register_numl.duplicate();
+    nd->getChildAtPos(0)->visitNode();
+    register_numl.pop();
+    content.addAfter(string_format("j %s_end",nd->getTargetText()));
+    content.addAfter(string_format("%s:",nd->getTargetText()));
+    register_numr.clear();
+    register_numl.clear();
+    register_numl.push(15);
+    register_numr.push(15);
+
+    register_numl.push(15);
+    register_numr.push(15);
+    register_numl.duplicate();
+    nd->getChildAtPos(1)->visitNode();
+    register_numl.pop();
+content.addAfter(string_format("%s_end:",nd->getTargetText()));
+}
 void _visittestNode(NodeToken *nd)
 {
 
@@ -2943,7 +2977,7 @@ void _visitcallFunctionNode(NodeToken *nd)
     // printf("compiling  call function %s\n",nd->getTokenText());
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
 
-    if (t->getChildAtPos(1)->children.size() >= 0)
+    if (t->getChildAtPos(1)->children.size() >= _TRIGGER)
     { //  printf("token type %d\r\n",nd->_link->getChildAtPos(0)->_token->_vartype->_varType);
         // printf("we ar ehere\n");
         if (t == NULL)
@@ -3250,7 +3284,7 @@ void _visitinputArgumentsNode(NodeToken *nd)
     if (nd->children.size() < 1)
         return;
     int sav = 9;
-    if (nd->children.size() > _TRIGGER)
+    if (nd->children.size() >= _TRIGGER)
     {                                                                                                    // point_regnum;
         content.addAfterNoDouble(string_format("l32r a%d,@_stack_%s", sav, nd->parent->getTokenText())); // point_regnum
                                                                                                          // content.addAfterNoDouble(string_format("l32r a%d,@_stack", sav));

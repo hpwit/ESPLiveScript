@@ -163,7 +163,7 @@ public:
 
     string linepos()
     {
-        string f = string_format(" at line:%d", current()->line); //, current()->pos);
+        string f = string_format(" at line:%d position:%d", current()->line, current()->pos);
         return f;
     }
     int size()
@@ -1450,6 +1450,7 @@ public:
                 next();
                 return;
             }
+   
             else
             {
                 Error.error = 1;
@@ -1461,10 +1462,34 @@ public:
         }
         else
         {
+            parseExpr();
+                       
+                if (Error.error)
+                {
+                    return;
+                }
+
+                if (!Match(TokenSemicolon) && !Match(TokenCloseParenthesis))
+                {
+                    Error.error = 1;
+                    Error.error_message = string_format("Expected ici ; %s", linepos().c_str());
+                    // next();
+                    return;
+                }
+                                current_node = current_node->parent; // new expr
+
+                change_type.pop_back();
+                next();
+                return;
+        }
+        /*
+        else
+        {
             Error.error = 1;
-            Error.error_message = string_format(" Unexpected %s  %s", current()->getText(), linepos().c_str());
+            Error.error_message = string_format(" statetenUnexpected %s  %s", current()->getText(), linepos().c_str());
             return;
         }
+        */
     }
 
     void parseBlockStatement()
@@ -1793,6 +1818,27 @@ public:
         {
             return;
         }
+if(Match(TokenQuestionMark))
+        {
+            next();
+            current_node=current_node->addChild(NodeToken(ternaryIfNode));
+            current_node->addTargetText(string_format("label_tern_%d",for_if_num));
+            for_if_num++;
+            parseExprAddMinus();
+                    if(Match(TokenColon))
+        {
+            next();
+            
+            parseExprAddMinus();
+        }
+        else
+        {
+                Error.error = 1;
+                Error.error_message = string_format("Expected : %s", linepos().c_str());
+        }
+        current_node=current_node->parent;
+        }
+
         while (Match(TokenStar) || Match(TokenSlash) || Match(TokenModulo) || Match(TokenKeywordOr) || Match(TokenKeywordAnd) || Match(TokenPower))
         {
             // token *op = current();
@@ -2065,32 +2111,9 @@ public:
                 return;
             }
         }
-        /*
-else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifier, 2)  && Match(TokenOpenParenthesis, 3))
-            {
-                 current_cntx->findVariable(current(), false);
-                        if (search_result == NULL)
-        {
-
-
-            Error.error = 1;
-            Error.error_message = string_format("impossible to find declaraiton for %s %s", current()->getText(), linepos().c_str());
-            next();
-            return;
-        }
-                next();
-                next();
-                current()->addText(string_format("%s.%s",search_result->getTokenText() ,current()->getText()));
-                NodeToken nd=*search_result;
-                nd._nodetype=globalVariableNode;
-                 nd.isPointer=true;
-                 nodeTokenList.push(nd);
-                isStructFunction=true;
-                 parseFunctionCall();
-                 isStructFunction=false;
-                return;
-
-            }*/
+        
+       
+       
         else if (Match(TokenIdentifier) && !Match(TokenOpenParenthesis, 1))
         {
             getVariable(false);
