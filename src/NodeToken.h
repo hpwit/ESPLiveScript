@@ -1034,7 +1034,7 @@ public:
 };
 Context main_context;
 Context *current_cntx;
-f_error_struct Error;
+error_message_struct Error;
 
 Stack<NodeToken> nodeTokenList;
 Stack<string> targetList;
@@ -1069,6 +1069,31 @@ varTypeEnum findfloat(NodeToken *nd)
                 if (findfloat(child) == __float__)
                 {
                     return __float__;
+                }
+            }
+            return __none__;
+        }
+        else
+        {
+            return __none__;
+        }
+    }
+}
+varTypeEnum finduint32_t(NodeToken *nd)
+{
+    if (nd->_vartype == __uint32_t__)
+    {
+        return __uint32_t__;
+    }
+    else
+    {
+        if (nd->children.size() > 0)
+        {
+            for (NodeToken *child : nd->children)
+            {
+                if (findfloat(child) == __uint32_t__)
+                {
+                    return __uint32_t__;
                 }
             }
             return __none__;
@@ -1709,7 +1734,11 @@ void _visitoperatorNode(NodeToken *nd)
         }
         else
         {
+           // asmInstr = quou;
+            if (l==__uint32_t__ || r==__uint32_t__)
             asmInstr = quou;
+            else
+            asmInstr = quos;
             content.addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get()));
         }
         // return;
@@ -2332,6 +2361,9 @@ void _visittestNode(NodeToken *nd)
         nd->getChildAtPos(1)->_vartype = __float__;
     if (nd->getChildAtPos(1)->_vartype == __float__)
         nd->getChildAtPos(0)->_vartype = __float__;
+         string _add="";
+    if(nd->getChildAtPos(0)->_vartype==__uint32_t__ ||nd->getChildAtPos(1)->_vartype==__uint32_t__ )
+        _add="u";
     // register_numl.duplicate();
     nd->getChildAtPos(0)->visitNode();
     // register_numl.pop();
@@ -2435,7 +2467,7 @@ void _visittestNode(NodeToken *nd)
             break;
         }
 
-        content.addAfter(string_format("%s a%d,a%d,%s_end", compop.c_str(), numl, leftl, nd->getTargetText()));
+        content.addAfter(string_format("%s%s a%d,a%d,%s_end", compop.c_str(),_add.c_str() ,numl, leftl, nd->getTargetText()));
         content.addAfter(string_format("movi a%d,1", h));
         content.addAfter(string_format("j %s_end_", nd->getTargetText()));
         content.addAfter(string_format("%s_end:", nd->getTargetText()));
@@ -2482,6 +2514,9 @@ void _visitcomparatorNode(NodeToken *nd)
     if (nd->getChildAtPos(1)->_vartype == __float__)
         nd->getChildAtPos(0)->_vartype = __float__;
     // register_numl.duplicate();
+    string _add="";
+    if(nd->getChildAtPos(0)->_vartype==__uint32_t__ ||nd->getChildAtPos(1)->_vartype==__uint32_t__ )
+        _add="u";
     nd->getChildAtPos(0)->visitNode();
     // register_numl.pop();
 
@@ -2631,7 +2666,7 @@ void _visitcomparatorNode(NodeToken *nd)
             default:
                 break;
             }
-            content.addAfter(string_format("%s a%d,a%d,%s_if", compop.c_str(), numl, leftl, nd->getTargetText()));
+            content.addAfter(string_format("%s%s a%d,a%d,%s_if", compop.c_str(),_add.c_str(), numl, leftl, nd->getTargetText()));
             content.addAfter(string_format("j %s_end", nd->getTargetText()));
             content.addAfter(string_format("%s_if:", nd->getTargetText()));
             register_numl.increase();
@@ -2668,7 +2703,7 @@ void _visitcomparatorNode(NodeToken *nd)
             default:
                 break;
             }
-            content.addAfter(string_format("%s a%d,a%d,%s_end", compop.c_str(), numl, leftl, nd->getTargetText()));
+            content.addAfter(string_format("%s%s a%d,a%d,%s_end", compop.c_str(), _add.c_str(),numl, leftl, nd->getTargetText()));
             // content.addAfter(_compare.back()+1,string_format("j %s_end", nd->target.c_str()));
             // content.addAfter(_compare.back()+2,string_format("%s_if:", nd->target.c_str()));
             register_numl.increase();

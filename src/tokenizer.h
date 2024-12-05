@@ -155,16 +155,16 @@ varType _varTypes[] = {
     {
         ._varType = __int__,
         .varName = "",
-        ._varSize = 2,
-        .load = {l16si},
-        .store = {s16i},
+        ._varSize = 4,
+        .load = {l32i},
+        .store = {s32i},
         .membersNames = {},
         .starts = {},
         .memberSize = {},
         .types = {},
-        .sizes = {2},
+        .sizes = {4},
         .size = 1,
-        .total_size = 2,
+        .total_size = 4,
     },
     {
         ._varType = __float__,
@@ -1075,7 +1075,7 @@ Token transNumber(string str)
     else
     {
 
-        Token t = Token(TokenNumber, (int)__uint32_t__);
+        Token t = Token(TokenNumber, (int)__int__);
         t.addText(str);
         return t;
     }

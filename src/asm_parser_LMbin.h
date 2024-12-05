@@ -100,7 +100,10 @@ uint32_t bin_quou(uint32_t *values)
 {
     return (((values[2] << 4) & 0xF0)) + (((values[1] << 8) & 0xF00)) + (((values[0] << 12) & 0xF000)) + 0xC20000;
 }
-
+uint32_t bin_quos(uint32_t *values)
+{
+    return (((values[2] << 4) & 0xF0)) + (((values[1] << 8) & 0xF00)) + (((values[0] << 12) & 0xF000)) + 0xD20000;
+}
 
 uint32_t bin_sub(uint32_t *values)
 {
@@ -173,6 +176,13 @@ uint32_t bin_blt(uint32_t *values)
 
     // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
 }
+uint32_t bin_bltu(uint32_t *values)
+{
+
+    return 0x7 + (((values[1] << 4) & 0xF0)) + (((values[0] << 8) & 0xF00)) + 0x3000;
+
+    // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
 uint32_t jump_blt(uint32_t value, uint32_t current_address, uint32_t destination_address)
 {
     uint32_t dif = destination_address - current_address - 4;
@@ -185,6 +195,13 @@ uint32_t bin_bge(uint32_t *values)
 {
 
     return 0x7 + (((values[1] << 4) & 0xF0)) + (((values[0] << 8) & 0xF00)) + 0xa000;
+
+    // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
+uint32_t bin_bgeu(uint32_t *values)
+{
+
+    return 0x7 + (((values[1] << 4) & 0xF0)) + (((values[0] << 8) & 0xF00)) + 0xb000;
 
     // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
 }

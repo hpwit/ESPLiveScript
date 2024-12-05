@@ -164,6 +164,8 @@ public:
     string linepos()
     {
         string f = string_format(" at line:%d position:%d", current()->line, current()->pos);
+        Error.line=current()->line;
+        Error.pos=current()->pos;
         return f;
     }
     int size()
@@ -247,7 +249,8 @@ public:
         parse();
         if (Error.error)
         {
-            pushToConsole(Error.error_message.c_str(), true);
+           // pushToConsole(Error.error_message.c_str(), true);
+            results.error=Error;
             return results;
         }
         pushToConsole("***********PARSING DONE*********");
@@ -289,6 +292,7 @@ public:
         pushToConsole("***********CREATE EXECUTABLE*********");
         executable _executecmd = createExectutable(&header, &content, __parser_debug);
         results.setExecutable(_executecmd);
+        results.error=_executecmd.error;
         content.clear();
         header.clear();
         change_type.clear();
@@ -299,7 +303,7 @@ public:
             // exeExist = false;
             // Serial.printf(termColor.Red);
 
-            pushToConsole(_executecmd.error.error_message.c_str(), true);
+           // pushToConsole(_executecmd.error.error_message.c_str(), true);
         }
 
 #endif
@@ -683,8 +687,20 @@ public:
         current_node = current_node->addChild(res);
         // current_node->copyChildren(search_result);
         current_node->addChild(search_result->getChildAtPos(0));
-        if (search_result->getChildAtPos(0)->_vartype == __float__ and change_type.size() > 0)
-            change_type.back()->_vartype = __float__;
+       // if (search_result->getChildAtPos(0)->_vartype == __float__ and change_type.size() > 0)
+         //   change_type.back()->_vartype = __float__;
+
+                       if (change_type.size() > 0)
+            {
+                if(change_type.back()->_vartype!=__float__)
+                {
+                    if (search_result->getChildAtPos(0)->_vartype == __float__ || search_result->getChildAtPos(0)->_vartype== __uint32_t__ )
+                    {
+                        change_type.back()->_vartype = search_result->getChildAtPos(0)->_vartype;
+                    }
+                }
+           
+            } 
         current_node->addChild(search_result->getChildAtPos(1));
 
         // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
@@ -864,10 +880,13 @@ public:
                 nd._vartype = __none__;
                 if (lasttype != NULL)
                 {
+                    nd._vartype=lasttype->_vartype;
+                    /*
                     if (lasttype->_vartype == __float__)
                     {
                         nd._vartype = __float__;
                     }
+                    */
                 }
 
                 current_node = current_node->addChild(nd);
@@ -1046,10 +1065,13 @@ public:
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
                 nd.setTokenText("yves");
+                nd._vartype=tmp_sav->_vartype;
+                /*
                 if (tmp_sav->_vartype == __float__)
                     nd._vartype = __float__;
                 else
                     nd._vartype = __none__;
+                */
                 current_node = current_node->addChild(nd);
                 change_type.push_back(current_node);
                 next();
@@ -1440,10 +1462,13 @@ public:
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
                 nd.setTokenText("yevbs");
+                 nd._vartype = tmp_sav->_vartype;
+                /*
                 if (tmp_sav->_vartype == __float__)
                     nd._vartype = __float__;
                 else
                     nd._vartype = __none__;
+                    */
                 current_node = current_node->addChild(nd);
                 change_type.push_back(current_node);
                 parseExpr();
@@ -1996,11 +2021,16 @@ if(Match(TokenQuestionMark))
             nd._nodetype = changeTypeNode;
             nd.type = TokenKeywordVarType;
             nd._vartype = findfloat(_node_token_stack.back());
+            if(nd._vartype!=__float__)
+            {
+                nd._vartype = finduint32_t(_node_token_stack.back());
+            }
             current_node = current_node->addChild(nd);
             change_type.push_back(current_node);
             current_node->addChild(_node_token_stack.back());
             _node_token_stack.pop_back();
             current_node = current_node->parent;
+            nd._vartype=__none__;
             current_node = current_node->addChild(nd);
             // current_node->type=sav_t.back().type;
             change_type.push_back(current_node);
@@ -2025,7 +2055,7 @@ if(Match(TokenQuestionMark))
     {
 
         sav_token.push_back(current_node);
-        ;
+        
         parseTerm();
         if (Error.error == 1)
         {
@@ -2093,8 +2123,17 @@ if(Match(TokenQuestionMark))
             current_node->addChild(NodeToken(current(), numberNode));
             if (change_type.size() > 0)
             {
+                if(change_type.back()->_vartype!=__float__)
+                {
+                    if (current()->_vartype == __float__ || current()->_vartype == __uint32_t__ )
+                    {
+                        change_type.back()->_vartype = current()->_vartype;
+                    }
+                }
+                /*
                 if (current()->_vartype == __float__)
                     change_type.back()->_vartype = current()->_vartype;
+                    */
             }
             next();
 
@@ -2145,10 +2184,13 @@ if(Match(TokenQuestionMark))
             NodeToken nd;
             nd._nodetype = changeTypeNode;
             nd.type = TokenKeywordVarType;
+            nd._vartype=current_node->_vartype;
+            /*
             if (current_node->_vartype == __float__)
                 nd._vartype = __float__;
             else
                 nd._vartype = __none__;
+                */
             current_node = current_node->addChild(nd);
             change_type.push_back(current_node);
 
@@ -2215,8 +2257,17 @@ if(Match(TokenQuestionMark))
             // change_type.back()->_vartype=__float__;
             if (change_type.size() > 0)
             {
+                if(change_type.back()->_vartype!=__float__)
+                {
+                    if (tmp_sav->_vartype == __float__ || tmp_sav->_vartype == __uint32_t__ )
+                    {
+                        change_type.back()->_vartype = tmp_sav->_vartype;
+                    }
+                }
+                /*
                 if (tmp_sav->_vartype == __float__)
                     change_type.back()->_vartype = __float__;
+                    */
             }
             if (Error.error == 1)
             {
@@ -2407,7 +2458,7 @@ if(Match(TokenQuestionMark))
             {
                 j++;
                 // Token num = *current();
-                if (current()->getVarType()->_varType == __uint32_t__)
+                if (current()->getVarType()->_varType == __int__)
                 {
                     var._total_size *= stringToInt(current()->getText());
                     sizestr = sizestr + " " + string(current()->getText());
@@ -2424,7 +2475,7 @@ if(Match(TokenQuestionMark))
                 while (Match(TokenComma))
                 {
                     next();
-                    if (current()->getVarType()->_varType == __uint32_t__)
+                    if (current()->getVarType()->_varType == __int__)
                     {
                         j++;
                         var._total_size *= stringToInt(current()->getText());
@@ -2928,6 +2979,10 @@ void compile_c(Console *cons, vector<string> args)
         scriptRuntime.addExe(_scExec);
         pushToConsole(string_format("Compiling done. Handle number:%d", scExecutables.size()), true);
     }
+    else
+    {
+        pushToConsole(_scExec.error.error_message);
+    }
 }
 void free(Console *cons, vector<string> args)
 {
@@ -2990,7 +3045,10 @@ void parse_c(Console *cons, vector<string> args)
             LedOS.pushToConsole("Execution done.", true);
         }
     }
-
+    else
+    {
+         LedOS.pushToConsole(SCExecutable.error.error_message, true);
+    }
     __parser_debug = false;
 }
 

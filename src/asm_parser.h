@@ -549,6 +549,10 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   {
     return parseOperandes(sp.operandes, 3, op_quou, 3, bin_quou);
   }
+   if (sp.opcde.compare("quos") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_quou, 3, bin_quos);
+  }
   if (sp.opcde.compare("add.n") == 0)
   {
     return parseOperandes(sp.operandes, 3, op_add, 2, bin_add_n);
@@ -651,6 +655,15 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
 
     return ps;
   }
+    if (sp.opcde.compare("bltu") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_blt, 3, bin_bltu);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
   if (sp.opcde.compare("bge") == 0)
   {
 
@@ -660,6 +673,16 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
 
     return ps;
   }
+      if (sp.opcde.compare("bgeu") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_bge, 3, bin_bgeu);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_bge;
+
+    return ps;
+  }
+  
   if (sp.opcde.compare("beq") == 0)
   {
 
@@ -670,6 +693,24 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     return ps;
   }
   if (sp.opcde.compare("bne") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_bne, 3, bin_bne);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_bne;
+
+    return ps;
+  }
+    if (sp.opcde.compare("bequ") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_beq, 3, bin_beq);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_beq;
+
+    return ps;
+  }
+  if (sp.opcde.compare("bneu") == 0)
   {
 
     result_parse_line ps = parseOperandes(sp.operandes, 3, op_bne, 3, bin_bne);
