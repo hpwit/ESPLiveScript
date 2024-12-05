@@ -1077,6 +1077,19 @@ Token transNumber(string str)
     // t;
     // t.float_value=0;
     // t.int_value=0;
+                if(_tks.size()>1)
+            {
+                if(_tks.back().type==TokenSubstraction)
+                {
+                    tokenType subtype= (tokenType)_tks.getTokenAtPos(_tks.size()-2)->type;
+                if( subtype==TokenEqual ||subtype==TokenDoubleEqual ||  subtype==TokenLessOrEqualThan  ||  subtype==TokenDoubleEqual||  subtype==TokenMoreThan  ||  subtype==TokenMoreOrEqualThan  ||  subtype==TokenNotEqual ||  subtype==TokenStarEqual  ||  subtype==TokenPlusEqual   || subtype==TokenOpenParenthesis)
+                {
+                        str="-"+str;
+                        _tks.pop_back();
+                }
+                }
+
+            }
     if (str.find(".") != string::npos)
     {
 
@@ -1258,7 +1271,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 t.line = _token_line;
                 t.pos = pos;
                 _tks.push(t);
-                nbReadToken++;
+               // nbReadToken++;
 
                 continue;
             }
@@ -1274,7 +1287,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 if (_for_display)
                     t.addText("=");
                 _tks.push(t);
-                nbReadToken++;
+               // nbReadToken++;
                 continue;
             }
         }
@@ -1293,7 +1306,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 // t.line = _token_line;
                 t.pos = pos;
                 _tks.push(t);
-                nbReadToken++;
+               // nbReadToken++;
                 continue;
             }
             else if (c2 == '<')
@@ -1343,7 +1356,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 t.pos = pos;
                 //_tks.push(t);
                 _tks.push(t);
-                nbReadToken++;
+                //nbReadToken++;
                 continue;
             }
             else if (c2 == '>')
@@ -1374,7 +1387,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     t.addText(">");
                 // _tks.push(t);
                 _tks.push(t);
-                nbReadToken++;
+               // nbReadToken++;
                 continue;
             }
         }
@@ -1393,7 +1406,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 t.pos = pos;
                 //_tks.push(t);
                 _tks.push(t);
-                nbReadToken++;
+               /// nbReadToken++;
                 continue;
             }
             else
@@ -1616,7 +1629,9 @@ int tokenizer(Script *script, bool update, bool increae_line,
             t.line = _token_line;
             t.pos = pos;
             //_tks.push(t);
-            _tks.push(t);
+
+            
+                _tks.push(t);
             nbReadToken++;
             pos = newpos - 1;
             continue;
@@ -1667,7 +1682,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 t.line = _token_line;
                 t.pos = pos;
                 _tks.push(t);
-                nbReadToken++;
+               // nbReadToken++;
 
                 continue;
             }
@@ -1716,7 +1731,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
             t.pos = pos;
             //_tks.push(t);
             _tks.push(t);
-            nbReadToken++;
+           // nbReadToken++;
             continue;
         }
         if (c == '%')
@@ -1944,7 +1959,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 t.pos = pos;
                 // _tks.push(t);
                 _tks.push(t);
-                nbReadToken++;
+                //nbReadToken++;
                 continue;
             }
             // Token t;

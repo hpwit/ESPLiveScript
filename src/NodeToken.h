@@ -1451,17 +1451,12 @@ void _visitnumberNode(NodeToken *nd)
             local_var_num++;
             register_numl.decrease();
         }
-        else
+        else if(string(nd->getTokenText()).find("x") != string::npos)
         {
             unsigned int __num = 0;
-            if (string(nd->getTokenText()).find("x") != string::npos)
-            {
+
                 sscanf(nd->getTokenText(), "%x", &__num);
-            }
-            else
-            {
-                sscanf(nd->getTokenText(), "%u", &__num);
-            }
+
             if (__num >= 2048)
             {
                 header.addAfter(string_format("@_%s_%d:", "local_var", local_var_num));
@@ -1496,7 +1491,48 @@ void _visitnumberNode(NodeToken *nd)
                 content.sp.push(content.get());
                 register_numl.decrease();
             }
-        };
+        }
+        else
+        {
+             int __num = 0;
+
+                sscanf(nd->getTokenText(), "%d", &__num);
+            
+            if (__num >= 2048 or  __num<=-2047)
+            {
+                header.addAfter(string_format("@_%s_%d:", "local_var", local_var_num));
+                string val = ".bytes 4";
+                uint8_t c = __num & 0xff;
+                val = val + " " + string_format("%02x", c);
+                // val=val+'A';
+                __num = __num / 256;
+                c = __num & 0xff;
+                val = val + " " + string_format("%02x", c);
+                // val=val+'A';
+                __num = __num / 256;
+                c = __num & 0xff;
+                val = val + " " + string_format("%02x", c);
+                // val=val+'A';
+                __num = __num / 256;
+                c = __num & 0xff;
+                val = val + " " + string_format("%02x", c);
+                // val=val+'A';
+                header.addAfter(val);
+                // point_regnum++;
+                content.addAfter(string_format("l32r a%d,@_%s_%d", 8, "local_var", local_var_num));
+                content.addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), 8));
+                content.sp.push(content.get());
+                // point_regnum--;
+                local_var_num++;
+                register_numl.decrease();
+            }
+            else
+            {
+                content.addAfter(string_format("movi a%d,%d", register_numl.get(), __num)); // nd->_token->text.c_str()));
+                content.sp.push(content.get());
+                register_numl.decrease();
+            }
+        }
     }
 }
 
