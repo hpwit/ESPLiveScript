@@ -419,7 +419,7 @@ public:
                 if (stack_size % 4 != 0)
                     delta = 4 - stack_size % 4;
             }
-            if (nd.getVarType()->_varType == __uint32_t__ || nd.getVarType()->_varType == __float__ || nd.getVarType()->_varType == __CRGB__) //|| nd.getVarType()->_varType == __CRGBW__)
+            if (nd.getVarType()->_varType == __uint32_t__ || nd.getVarType()->_varType == __float__ || nd.getVarType()->_varType == __CRGB__|| nd.getVarType()->_varType == __int__) //|| nd.getVarType()->_varType == __CRGBW__)
             {
                 if (stack_size % 4 != 0)
                 {
@@ -429,7 +429,7 @@ public:
                         delta = nd.getVarType()->_varSize - stack_size % 4 + 1;
                 }
             }
-            else if (nd.getVarType()->_varType == __uint16_t__ || nd.getVarType()->_varType == __int__)
+            else if (nd.getVarType()->_varType == __uint16_t__ )
             {
                 if (stack_size % 2 != 0)
                 {
