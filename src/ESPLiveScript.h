@@ -1040,9 +1040,12 @@ public:
         else if (Match(TokenIdentifier))
         {
             // NodeAssignement nd;
+           
             current_node = current_node->addChild(NodeToken(assignementNode));
             getVariable(true);
-
+            NodeToken d=NodeToken(current_node->getChildAtPos(0));
+           
+            nodeTokenList.push(d);
             _asPointer = false;
             isPointer = false;
             if (Error.error)
@@ -1057,10 +1060,12 @@ public:
                 // current_node=current_node->parent;
                 current_node = current_node->parent;
                 next();
+                nodeTokenList.pop();
                 return;
             }
             if (Match(TokenEqual))
             {
+                nodeTokenList.pop();
                 NodeToken nd;
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
@@ -1099,6 +1104,75 @@ public:
                 next();
                 return;
             }
+            else if(Match(TokenPlusEqual) || Match(TokenMinusEqual) ||Match(TokenStarEqual) || Match(TokenSlashEqual))
+            {
+                sav_t.push_back(*current());
+                NodeToken nd;
+                nd._nodetype = changeTypeNode;
+                nd.type = TokenKeywordVarType;
+                nd.setTokenText("yves");
+                nd._vartype=tmp_sav->_vartype;
+                
+                current_node = current_node->addChild(nd);
+                change_type.push_back(current_node);
+                next();
+                current_node=current_node->addChild(NodeToken(binOpNode));
+                NodeToken *d=current_node->addChild(nodeTokenList.pop());
+               switch(d->_nodetype)
+               {
+                case storeExtGlocalVariableNode:
+                d->_nodetype=extGlobalVariableNode;
+                break;
+                case storeGlobalVariableNode:
+                d->_nodetype=globalVariableNode;
+                break;
+                case storeLocalVariableNode:
+                d->_nodetype=localVariableNode;
+                break;
+               }
+               Token t=sav_t.back();
+               switch (t.type)
+               {
+                case TokenPlusEqual:
+                t.type=TokenAddition;
+                break;
+                case TokenMinusEqual:
+                t.type=TokenSubstraction;
+                break;
+                case TokenStarEqual:
+                t.type=TokenStar;
+                break;
+                case TokenSlashEqual:
+                t.type=TokenSlash;
+                break;
+               }
+                current_node->addChild(NodeToken(&t,operatorNode));
+              sav_t.pop_back();
+
+                parseExprAddMinus();
+                if(Error.error)
+                {
+                    return;
+                }
+                if (Match(TokenSemicolon))
+            {
+                Error.error = 0;
+                // result._nd = nd;
+                 current_node=current_node->parent;
+                  current_node=current_node->parent;
+                current_node = current_node->parent;
+                next();
+               // nodeTokenList.pop();
+                return;
+            }
+                else
+                {
+                    Error.error = 1;
+                Error.error_message = string_format("Expected ; %s", linepos().c_str());
+                return;
+                }
+            }
+   
             else
             {
                 Error.error = 1;
@@ -1499,7 +1573,7 @@ public:
                 next();
                 return;
             }
-   
+
             else
             {
                 Error.error = 1;

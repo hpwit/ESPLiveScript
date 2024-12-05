@@ -458,7 +458,9 @@ public:
         _vartype = nd->_vartype;
         _nodetype = tt;
         isPointer = nd->isPointer;
+        asPointer=nd->asPointer;
         _total_size = nd->_total_size;
+        stack_pos= nd->stack_pos;
         target = nd->target;
     }
     NodeToken(NodeToken *nd)
@@ -469,7 +471,9 @@ public:
         _vartype = nd->_vartype;
         _nodetype = nd->_nodetype;
         isPointer = nd->isPointer;
+        asPointer=nd->asPointer;
         _total_size = nd->_total_size;
+       stack_pos= nd->stack_pos;
         target = nd->target;
     }
     NodeToken(string _target, nodeType tt)
@@ -1526,7 +1530,7 @@ void _visitbinOpNode(NodeToken *nd)
     // if (nd->getChildAtPos(1)->visitNode != NULL)
     nd->getChildAtPos(1)->visitNode();
     register_numl.pop();
-    if (nd->getChildAtPos(1)->type == TokenAddition || nd->getChildAtPos(1)->type == TokenSubstraction)
+    if (nd->getChildAtPos(1)->type == TokenAddition || nd->getChildAtPos(1)->type == TokenSubstraction )
     {
         register_numl.increase();
     }
