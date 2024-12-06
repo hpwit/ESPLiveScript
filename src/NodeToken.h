@@ -2367,28 +2367,34 @@ void _visitassignementNode(NodeToken *nd)
 void _visitternaryIfNode(NodeToken *nd)
 {
    
-    content.addAfter(string_format("beqz a15,%s",nd->getTargetText()));
-        register_numr.clear();
+    register_numl.duplicate();
+    nd->getChildAtPos(0)->visitNode();
+    register_numl.pop();
+    content.addAfter(string_format("beqz a%d,%s",register_numl.get(),nd->getTargetText()));
+    /*
+            register_numr.clear();
     register_numl.clear();
     register_numl.push(15);
     register_numr.push(15);
 
     register_numl.push(15);
     register_numr.push(15);
+    */
     register_numl.duplicate();
-    nd->getChildAtPos(0)->visitNode();
+    nd->getChildAtPos(1)->visitNode();
     register_numl.pop();
     content.addAfter(string_format("j %s_end",nd->getTargetText()));
     content.addAfter(string_format("%s:",nd->getTargetText()));
+    /*
     register_numr.clear();
     register_numl.clear();
     register_numl.push(15);
     register_numr.push(15);
 
     register_numl.push(15);
-    register_numr.push(15);
+    register_numr.push(15);*/
     register_numl.duplicate();
-    nd->getChildAtPos(1)->visitNode();
+    nd->getChildAtPos(2)->visitNode();
     register_numl.pop();
 content.addAfter(string_format("%s_end:",nd->getTargetText()));
 }

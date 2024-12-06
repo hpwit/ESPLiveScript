@@ -1944,7 +1944,12 @@ public:
 if(Match(TokenQuestionMark))
         {
             next();
+                        _node_token_stack.push_back(current_node->children.back());
+            // NodeToken d = current_node->children.back();
+            current_node->children.pop_back();
             current_node=current_node->addChild(NodeToken(ternaryIfNode));
+                        current_node->addChild(_node_token_stack.back());
+            _node_token_stack.pop_back();
             current_node->addTargetText(string_format("label_tern_%d",for_if_num));
             for_if_num++;
             parseExprAddMinus();
