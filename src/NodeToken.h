@@ -1548,10 +1548,10 @@ void _visitbinOpNode(NodeToken *nd)
     // register_numl.displaystack();
     register_numl.duplicate();
     // register_numr.duplicate();
-    if (nd->getChildAtPos(1)->type != TokenPower)
+    if (nd->type != TokenPower)
     {
         // if (nd->getChildAtPos(2)->visitNode != NULL)
-        nd->getChildAtPos(2)->visitNode();
+        nd->getChildAtPos(1)->visitNode();
     }
     else
     {
@@ -1564,14 +1564,15 @@ void _visitbinOpNode(NodeToken *nd)
     register_numl.swap();
     // register_numl.displaystack();
     // if (nd->getChildAtPos(1)->visitNode != NULL)
-    nd->getChildAtPos(1)->visitNode();
+   // nd->getChildAtPos(1)->visitNode();
+   _visitoperatorNode(nd);
     register_numl.pop();
-    if (nd->getChildAtPos(1)->type == TokenAddition || nd->getChildAtPos(1)->type == TokenSubstraction )
+    if (nd->type == TokenAddition || nd->type == TokenSubstraction )
     {
         register_numl.increase();
     }
     // nex
-    if (nd->getChildAtPos(1)->type == TokenSlash || nd->getChildAtPos(1)->type == TokenStar)
+    if (nd->type == TokenSlash || nd->type == TokenStar)
     {
         register_numl.pop();
         register_numl.push(register_numr.get());
@@ -1588,7 +1589,7 @@ void _visitunitaryOpNode(NodeToken *nd)
     // register_numl.displaystack();
     register_numl.duplicate();
     // register_numr.duplicate();
-    if (nd->getChildAtPos(1)->type == TokenUppersand)
+    if (nd->type == TokenUppersand)
     {
         // //printf("node UNitary operator2\n");
         // nd->getChildAtPos(0)->asPointer = true;
@@ -1602,7 +1603,7 @@ void _visitunitaryOpNode(NodeToken *nd)
         content.sp.push(content.get());
         return;
     }
-    if (nd->getChildAtPos(1)->type == TokenNot)
+    if (nd->type == TokenNot)
     {
 
         nd->getChildAtPos(0)->visitNode();
@@ -1616,16 +1617,17 @@ void _visitunitaryOpNode(NodeToken *nd)
         register_numl.decrease();
         return;
     }
-    else if (nd->getChildAtPos(1)->type == TokenSubstraction)
+    else if (nd->type == TokenSubstraction)
     {
-        nd->getChildAtPos(1)->type = TokenNegation;
+        nd->type = TokenNegation;
 
         nd->getChildAtPos(0)->visitNode();
         // register_numl.displaystack();
         register_numl.pop();
         // content.sp.push(content.get());
 
-        nd->getChildAtPos(1)->visitNode();
+       // nd->getChildAtPos(1)->visitNode();
+       _visitoperatorNode(nd);
         // register_numl.pop();
         register_numl.decrease();
     }
@@ -1635,8 +1637,8 @@ void _visitunitaryOpNode(NodeToken *nd)
         nd->getChildAtPos(0)->visitNode();
         // register_numl.displaystack();
         register_numl.pop();
-
-        nd->getChildAtPos(1)->visitNode();
+ _visitoperatorNode(nd);
+      //  nd->getChildAtPos(1)->visitNode();
         register_numl.decrease();
         content.sp.push(content.get());
     }
@@ -1651,39 +1653,39 @@ void _visitoperatorNode(NodeToken *nd)
     varTypeEnum r = __none__;
     // //printf("kk\n");
 
-    if (nd->parent->getChildAtPos(0)->getVarType() != NULL)
+    if (nd->getChildAtPos(0)->getVarType() != NULL)
     {
-        l = nd->parent->getChildAtPos(0)->getVarType()->_varType;
+        l = nd->getChildAtPos(0)->getVarType()->_varType;
     }
 
     // //printf("kk2 :%d\n",nd->parent->children.size());
-    if (nd->parent->children.size() >= 3)
+    if (nd->children.size() >= 2)
     {
-        if (nd->parent->getChildAtPos(2) == NULL)
+        if (nd->getChildAtPos(1) == NULL)
         {
             // printf("WFT %d %s\n",nd->parent->children.size(),nodeTypeNames[nd->parent->_nodetype].c_str());
         }
 
-        if (nd->parent->getChildAtPos(2)->getVarType() != NULL)
+        if (nd->getChildAtPos(1)->getVarType() != NULL)
         {
             // //printf("kk32 %s\n",nodeTypeNames[nd->parent->_nodetype].c_str());
-            r = nd->parent->getChildAtPos(2)->getVarType()->_varType;
+            r = nd->getChildAtPos(1)->getVarType()->_varType;
         }
     }
     // //printf("kk3\n");
     bool ff = false;
-    if (nd->parent->getVarType() == NULL)
+    if (nd->getVarType() == NULL)
     {
         // addTokenSup(nd->parent);
         if (globalType.get() == __float__)
         {
             // nd->parent->_token->_varType = __float__;
-            nd->parent->_vartype = (int)__float__;
+            nd->_vartype = (int)__float__;
         }
         else
         {
             // nd->parent->_token->_varType = __none__;
-            nd->parent->_vartype = __none__;
+            nd->_vartype = __none__;
         }
     }
 
@@ -1691,11 +1693,11 @@ void _visitoperatorNode(NodeToken *nd)
     if (globalType.get() == __float__)
     {
         ff = true;
-        nd->parent->_vartype = __float__;
+        nd->_vartype = __float__;
     }
     // //printf("kk5\n");
     asmInstruction asmInstr;
-    if (nd->parent->children.size() >= 3)
+    if (nd->children.size() >= 2)
         translateType(globalType.get(), r, register_numr.get());
     translateType(globalType.get(), l, register_numl.get());
     switch (nd->type)
@@ -1797,9 +1799,9 @@ void _visitoperatorNode(NodeToken *nd)
         // return;
         break;
     case TokenPlusPlus:
-        if (nd->parent->getChildAtPos(0)->isPointer && nd->parent->getChildAtPos(0)->children.size() == 0)
+        if (nd->getChildAtPos(0)->isPointer && nd->getChildAtPos(0)->children.size() == 0)
         {
-            content.addAfter(string_format("addi a%d,a%d,%d", register_numl.get(), register_numl.get(), nd->parent->getChildAtPos(0)->getVarType()->total_size));
+            content.addAfter(string_format("addi a%d,a%d,%d", register_numl.get(), register_numl.get(), nd->getChildAtPos(0)->getVarType()->total_size));
         }
         else
         {
@@ -1808,9 +1810,9 @@ void _visitoperatorNode(NodeToken *nd)
         // return;
         break;
     case TokenMinusMinus:
-        if (nd->parent->getChildAtPos(0)->isPointer && nd->parent->getChildAtPos(0)->children.size() == 0)
+        if (nd->getChildAtPos(0)->isPointer && nd->getChildAtPos(0)->children.size() == 0)
         {
-            content.addAfter(string_format("addi a%d,a%d,-%d", register_numl.get(), register_numl.get(), nd->parent->getChildAtPos(0)->getVarType()->total_size));
+            content.addAfter(string_format("addi a%d,a%d,-%d", register_numl.get(), register_numl.get(), nd->getChildAtPos(0)->getVarType()->total_size));
         }
         else
         {
@@ -1826,10 +1828,10 @@ void _visitoperatorNode(NodeToken *nd)
     {
         // comment supprimer ce qu'il y a avant
         int __num = 0;
-        if (nd->parent->getChildAtPos(2)->_nodetype == numberNode)
+        if (nd->getChildAtPos(1)->_nodetype == numberNode)
         {
 
-            sscanf(nd->parent->getChildAtPos(2)->getTokenText(), "%d", &__num);
+            sscanf(nd->getChildAtPos(1)->getTokenText(), "%d", &__num);
 
             if (ff)
             {
@@ -1855,10 +1857,18 @@ void _visitoperatorNode(NodeToken *nd)
         content.addAfter(string_format("or a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
         break;
     case TokenKeywordFabs:
+
         content.addAfter(string_format("abs.s f%d,f%d", register_numl.get(), register_numl.get()));
         break;
     case TokenKeywordAbs:
+    if (ff)
+    {
+        content.addAfter(string_format("abs.s f%d,f%d", register_numl.get(), register_numl.get()));
+    }
+    else
+    {
         content.addAfter(string_format("abs a%d,a%d", register_numl.get(), register_numl.get()));
+    }
         break;
     case TokenNegation:
         if (ff)

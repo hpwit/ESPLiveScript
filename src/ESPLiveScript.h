@@ -1016,7 +1016,8 @@ public:
             {
                 return;
             }
-            current_node->addChild(NodeToken(current(), operatorNode));
+            current_node->type=current()->type;
+           // current_node->addChild(NodeToken(current(), operatorNode));
             next();
             current_node = current_node->parent;
             current_node = current_node->parent;
@@ -1146,7 +1147,8 @@ public:
                 t.type=TokenSlash;
                 break;
                }
-                current_node->addChild(NodeToken(&t,operatorNode));
+                //current_node->addChild(NodeToken(&t,operatorNode));
+                current_node->type=t.type;
               sav_t.pop_back();
 
                 parseExprAddMinus();
@@ -1982,7 +1984,8 @@ if(Match(TokenQuestionMark))
             _node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
             // NodeOperator opt = NodeOperator(op);
-            current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+            //current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+            current_node->type=sav_t.back().type;
             sav_t.pop_back();
             parseFactor();
             if (Error.error == 1)
@@ -2048,8 +2051,8 @@ if(Match(TokenQuestionMark))
                 (&sav_t.back())->type =TokenKeywordAnd;
             else
              (&sav_t.back())->type =TokenKeywordOr;
-            current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
-
+           // current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+            current_node->type=sav_t.back().type;
             sav_t.pop_back();
             parseExprConditionnal();
             if (Error.error == 1)
@@ -2152,7 +2155,8 @@ if(Match(TokenQuestionMark))
             current_node = current_node->addChild(NodeToken(binOpNode));
             current_node->addChild(_node_token_stack.back());
             _node_token_stack.pop_back();
-            current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+            //current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+            current_node->type=sav_t.back().type;
             sav_t.pop_back();
             parseTerm();
             if (Error.error == 1)
@@ -2238,7 +2242,8 @@ if(Match(TokenQuestionMark))
                 return;
             }
             // NodeUnitary g = NodeUnitary(NodeOperator(t), res._nd);
-            current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+           // current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
+            current_node->type=sav_t.back().type;
             sav_t.pop_back();
             current_node = current_node->parent;
             Error.error = 0;
