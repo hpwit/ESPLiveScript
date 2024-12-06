@@ -1082,7 +1082,7 @@ Token transNumber(string str)
                 if(_tks.back().type==TokenSubstraction)
                 {
                     tokenType subtype= (tokenType)_tks.getTokenAtPos(_tks.size()-2)->type;
-                if( subtype==TokenEqual ||subtype==TokenDoubleEqual ||  subtype==TokenLessOrEqualThan  ||  subtype==TokenDoubleEqual||  subtype==TokenMoreThan  ||  subtype==TokenMoreOrEqualThan  ||  subtype==TokenNotEqual ||  subtype==TokenStarEqual  ||  subtype==TokenPlusEqual   || subtype==TokenOpenParenthesis)
+                if( subtype==TokenComma ||subtype==TokenEqual ||subtype==TokenDoubleEqual ||  subtype==TokenLessOrEqualThan  ||  subtype==TokenDoubleEqual||  subtype==TokenMoreThan  ||  subtype==TokenMoreOrEqualThan  ||  subtype==TokenNotEqual ||  subtype==TokenStarEqual  ||  subtype==TokenPlusEqual   || subtype==TokenOpenParenthesis)
                 {
                         str="-"+str;
                         _tks.pop_back();
@@ -2214,7 +2214,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
             t.line = _token_line;
             t.pos = pos;
             _tks.push(t);
-            nbReadToken++;
+           // nbReadToken++;
             continue;
         }
         // printf("Error invalid character |%c|\n", c);

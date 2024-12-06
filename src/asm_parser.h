@@ -761,11 +761,11 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   }
   if (sp.opcde.compare("mov") == 0)
   {
-    return parseOperandes(sp.operandes, 2, op_mov, 3, bin_abs);
+    return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);
   }
   if (sp.opcde.compare("abs") == 0)
   {
-    return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);
+    return parseOperandes(sp.operandes, 2, op_mov, 3, bin_abs);
   }
   if (sp.opcde.compare("sll") == 0)
   {
