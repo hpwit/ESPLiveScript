@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
-
+#include "string_function.h"
 #include "functionlib.h"
 using namespace std;
 #define EOF_TEXTARRAY 9999
@@ -266,6 +266,8 @@ public:
 
                 return;
             }
+  
+
         }
 
         addAfter(s);

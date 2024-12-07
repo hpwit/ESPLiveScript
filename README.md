@@ -43,7 +43,6 @@ In the sc_examples directory you will find examples of complexe scripts.
 
 - [What you can do with the language](#what-you-can-do-with-the-language)
   * [Use of define](#use-of-define)
-  * [Limitation of testing](#limitation-of-testing)
 
 - [Running scripts in the background](#running-scripts-in-the-background)
   * [How to cope with several binaries](#how-to-cope-with-several-binaries)
@@ -646,8 +645,9 @@ struct varname
 Like any normal language you can have:
 - loops (`while` , `for`)
 - `break` , `continue`
-- testing : `if` ,`else`
-- `++` : for integers and pointers
+- testing : `if` ,`else` ,`(test)?true_statement:false_statement`
+- `++`,`--`: for integers and pointers
+- `+=`,`-=`,`/=`,`*=`
 - pointers
 - `^` for power
 - `>>` and `<<`
@@ -687,11 +687,6 @@ p("here %d\n",25);
 
 NB: there is no macro yet
 
-## Limitation of testing
-
-For the moment you cannot write combination of test in the same `if`:
-
-`if( a<b and c>d)` is not possible yet. You will have to have the tests in two separate `if`
 
 
 # Running scripts in the background
