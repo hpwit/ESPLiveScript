@@ -28,6 +28,7 @@ In the sc_examples directory you will find examples of complexe scripts.
    * [Led manipulation oriented](#led-manipulation-oriented)
 
 - [First Light](#first-light)
+  * [Error object](#error-object)
   * [Deleting an executable](#deleting-an-executable)
 
 - [The function you call can have input parameters](#the-function-you-call-can-have-input-parameters)
@@ -39,11 +40,11 @@ In the sc_examples directory you will find examples of complexe scripts.
 - [Safe mode and arrays](#safe-mode-and-arrays)
 
 - [Variables types](#variables-types)
-  * [Structures](#structures)
+  * [Arrays and multidimensional arrays](#arrays-and-multidimensionnal-arrays)
+  * [Objects](#objects)
 
 - [What you can do with the language](#what-you-can-do-with-the-language)
   * [Use of define](#use-of-define)
-  * [Limitation of testing](#limitation-of-testing)
 
 - [Running scripts in the background](#running-scripts-in-the-background)
   * [How to cope with several binaries](#how-to-cope-with-several-binaries)
@@ -141,6 +142,10 @@ void setup() {
   {
     exec.execute("main");
   }
+  else
+  {
+    Serial.println(exec.error.error_message.c_str());
+  }
 
 }
 
@@ -183,6 +188,13 @@ i:19 3*i:57
 ```
 
 **NB: if you have several functions it the same script you can call any of the function**
+
+## Error object
+the `Executable` class has an `error` member
+- `error`: 1 if an error occured during the compiling
+- `error_message` : the error message
+- `line` and `pos` : line and position in the script where the error was found (this information is also in the `error_message`)
+
 
 ## Deleting an executable
 
@@ -513,21 +525,38 @@ NB: As the check will be done everytime a write is done then it will slow the sc
 Here are the default types:
  * `uint8_t`
  * `char`
- * `int`: be careful it's int over 2 bytes
+ * `bool` : `true`, `false`
+ * `int` 
+ * `s_int` : int over 2 bytes
  * `uint16_t`
  * `uint32_t`
  * `float`
  * `CRGB`
  * `CRGBW`
 
-<!-- TOC --><a name="structures"></a>
-## Structures
+## Arrays and multidimensionnal arrays
+ 
+You can manage arrays:
+```
+//example of definitions
+int array[23]; 
+int array2D[y][x]; //you can also write int arrayx_y[y,x];
+int array3D[z][y][x];  //or int arrayx_y_x[z,y,x]; 
 
-You can define new types call `struct`
+//usage
+
+int h=array3D[23][12][2];
+
+```
+
+<!-- TOC --><a name="objects"></a>
+## Objects
+
+You can define new types call `Objects`
 
 example:
 ```C
-struct new_type
+Objects new_type
 {
   float k;
   int l;
@@ -537,7 +566,7 @@ struct new_type
 The structures can have methods
 
 ```C
-struct new_type
+Objects new_type
 {
   float h;
   int l;
@@ -554,13 +583,13 @@ Example:
 #include "ESPLiveScript.h"
 
 string script="\
-struct new_type\n\
+Object new_type\n\
 {\n\
   float f;\n\
   int index;\n\
   void display(int multi)\n\
   {\n\
-    printfln(\"from structure:%d\",multi);\n\
+    printfln(\"from object:%d\",multi);\n\
   }\n\
   void func2() \n\
   {\n\
@@ -609,22 +638,22 @@ Creation of an 312 bytes binary and 104 bytes data
 Parsing 114 assembly lines ...
 max used memory: 11060 maxstack:1836  started 265840 free mem:263380 consumed 2460 time:147ms
 
-from structure:9
-from structure:23
+from object:9
+from structobjecture:23
 ```
-NB 1: you can have arrays of structure : `new_type arr[10] `
+NB 1: you can have arrays of objects : `new_type arr[10] `
 
 NB 2: the functions needs to be in order i.e you cannot all a function which has not be defined previously. (for the moment)
 
 NB 3: Due to some memory alignment concern, for the moment you need to order the variable by order of size. Here is the order of size:
-  - `float, uint32_t`
-  - `int, uint16_t`
+  - `float, uint32_t, int`
+  - `s_int, uint16_t`
   - `uint8_t, CRGB, CRGBW`
 
 
 i.e :
-```
-struct varname
+```C
+Object varname
 {
 char c;
 uint16_t k;
@@ -633,7 +662,7 @@ float h;
 
 will not work. you need to arrange your data as such
 
-struct varname
+Object varname
 {
   float h;
   uint16_t k;
@@ -646,14 +675,14 @@ struct varname
 Like any normal language you can have:
 - loops (`while` , `for`)
 - `break` , `continue`
-- testing : `if` ,`else`
-- `++` : for integers and pointers
+- testing : `if` ,`else` ,`(test)?true_statement:false_statement`
+- `++`,`--`: for integers and pointers
+- `+=`,`-=`,`/=`,`*=`
 - pointers
 - `^` for power
 - `>>` and `<<`
 - type convertion `(float)` , `(int)`
     NB: the convertion float <-> int is automatic
-- arrays (multidimensional arrays are work in progress)
 - `define` : see below
 - predefined functions:
   * `printf` , `pritnfln` only for intergers for now.
@@ -663,7 +692,7 @@ Like any normal language you can have:
 
 More or less like in C you can have pre-process instructions with a limited scope for now
 
-```
+```C
 define TOKEN 25
 
 if(i<TOKEN)
@@ -679,7 +708,7 @@ if(i<25)
 }
 ```
 Of course you can have this
-```
+```C
 define p printf
 ...
 p("here %d\n",25);
@@ -687,11 +716,6 @@ p("here %d\n",25);
 
 NB: there is no macro yet
 
-## Limitation of testing
-
-For the moment you cannot write combination of test in the same `if`:
-
-`if( a<b and c>d)` is not possible yet. You will have to have the tests in two separate `if`
 
 
 # Running scripts in the background

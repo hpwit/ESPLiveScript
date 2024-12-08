@@ -290,6 +290,7 @@ public:
     bool exeExist;
     bool _isRunning = false;
     bool isHalted = false;
+    error_message_struct error;
     string name = "Unknown";
     Arguments args;
     _exe_args df;

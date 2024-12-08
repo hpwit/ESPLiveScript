@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <string>
-
+#include "string_function.h"
 #include "functionlib.h"
 using namespace std;
 #define EOF_TEXTARRAY 9999
@@ -266,6 +266,8 @@ public:
 
                 return;
             }
+  
+
         }
 
         addAfter(s);
@@ -321,6 +323,7 @@ public:
     void putIteratorAtPos(int pos)
     {
         _it = getChildAtPos(pos);
+        //position=pos-1;
     }
     void end()
     {
@@ -411,6 +414,7 @@ public:
     }
     int get()
     {
+
         return position - 1;
     }
     void begin()
@@ -507,6 +511,8 @@ struct error_message_struct
 {
   string error_message;
   int error;
+  uint16_t line;
+  uint16_t pos;
 };
 error_message_struct asm_Error;
 
@@ -625,6 +631,7 @@ enum asmInstruction
   add,
   sub,
   quou,
+  quos,
   mull,
   adds,
   subs,
@@ -649,6 +656,7 @@ string asmInstructionsName[] =
         "add",
         "sub",
         "quou",
+        "quos",
         "mull",
         "add.s",
         "sub.s",
@@ -722,6 +730,7 @@ operandeType *asmInstructionOperandes[] =
         op_add,  // add
         op_sub,  // sub
         op_quou, // quou
+        op_quou,
         op_mull, // mull
         op_adds,
         op_subs,
@@ -735,7 +744,7 @@ operandeType __op;
 
 string getRegType(asmInstruction instr, int pos)
 {
-  if (instr >= 19)
+  if (instr >= 20)
   {
     printf("to hight\r\n");
     return " ";

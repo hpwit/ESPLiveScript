@@ -1,13 +1,13 @@
 #include "ESPLiveScript.h"
 
 string script="\
-struct new_type\n\
+Object new_type\n\
 {\n\
   float f;\n\
   int index;\n\
   void display(int multi)\n\
   {\n\
-    printfln(\"from structure:%d\",multi);\n\
+    printfln(\"from Object:%d\",multi);\n\
   }\n\
   void func2() \n\
   {\n\

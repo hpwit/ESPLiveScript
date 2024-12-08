@@ -142,6 +142,8 @@ loop();\n\
 }\n\
 ";
 string base_ext_functions="\n\
+define true 1\n\
+define false 0\n\
 external void printf(char * s,Args a);\n\
 external void printfln(char * s,Args a);\n\
 @";
