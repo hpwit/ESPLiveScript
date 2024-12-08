@@ -429,7 +429,7 @@ public:
                         delta = nd.getVarType()->_varSize - stack_size % 4 + 1;
                 }
             }
-            else if (nd.getVarType()->_varType == __uint16_t__ )
+            else if (nd.getVarType()->_varType == __uint16_t__  ||nd.getVarType()->_varType == __s_int__ )
             {
                 if (stack_size % 2 != 0)
                 {
