@@ -3795,6 +3795,10 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
             register_numl.duplicate();
             nd->getChildAtPos(i)->visitNode();
             register_numl.pop();
+                    if (nd->getChildAtPos(0)->getVarType() != NULL)
+        {
+            translateType(__int__, nd->getChildAtPos(0)->getVarType()->_varType, register_numl.get());
+        }
             if (nb > 1)
             {
                 if (i < nd->children.size() - 1)

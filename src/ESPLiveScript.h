@@ -361,14 +361,20 @@ public:
                 // on parse
                 next();
 
-              
+              NodeToken nd;
+        nd._nodetype = changeTypeNode;
+        nd.type = TokenKeywordVarType;
+        nd._vartype = __none__;
+        current_node = current_node->addChild(nd);
+        change_type.push_back(current_node);
                 parseExpr();
                 if (Error.error)
                 {
                     next();
                     return;
                 }
-
+ current_node = current_node->parent;
+        change_type.pop_back();
                 if (Match(TokenCloseBracket))
                 {
 
@@ -385,12 +391,19 @@ public:
                         next();
 
                         // nb_argument++;
-                        
+                                      NodeToken nd;
+        nd._nodetype = changeTypeNode;
+        nd.type = TokenKeywordVarType;
+        nd._vartype = __none__;
+        current_node = current_node->addChild(nd);
+        change_type.push_back(current_node);
                         parseExpr();
                         if (Error.error)
                         {
                             return;
                         }
+                        current_node = current_node->parent;
+        change_type.pop_back();
                         // arg.addChild(res._nd);
                     }
                     if (Match(TokenCloseBracket))
