@@ -409,19 +409,32 @@ public:
                     if (Match(TokenCloseBracket))
                     {
 
-                        // var.addChild(expr._nd);
-                        // resParse res;
-                        // Error.error = 0;
-                        //  current_node = current_node->parent;
-                        // res._nd = var;
+ 
                         next();
-                        // return;
+                         vector<string> tile;
+                        int _s=current_node->children.size();
+                        int nb = 0;
+        string sd = string(current_node->getTargetText());
+        if (sd.compare(0, 1, "@") == 0)
+        {
+            tile = split(sd, " ");
+
+            sscanf(tile[0].c_str(), "@%d", &nb);
+        }
+        if(nb<_s)
+        {
+                                Error.error = 1;
+                    Error.error_message = string_format("too many arguments expected less than %d got %d at %s", nb,_s,linepos().c_str());
+                    next();
+                    return;
+        }
+
                     }
                     else
                     {
 
                         Error.error = 1;
-                        Error.error_message = string_format("expecting ]  or , %s", current()->getText());
+                        Error.error_message = string_format("expecting ]  or , %s at %s", current()->getText(),linepos().c_str());
                         next();
                         return;
                     }
@@ -430,7 +443,7 @@ public:
                 {
 
                     Error.error = 1;
-                    Error.error_message = string_format("expecting ]  or , %s", current()->getText());
+                    Error.error_message = string_format("expecting ]  or , %s at %s", current()->getText(),linepos().c_str());
                     next();
                     return;
                 }
@@ -2321,7 +2334,7 @@ if(Match(TokenQuestionMark))
         else if (Match(TokenOpenParenthesis))
         {
             next();
-            // printf("one est icic\n\r");
+             printf("one est icic\n\r");
             parseExpr();
             // if(lasttype->_vartype==__float__)
             // {
