@@ -1544,11 +1544,12 @@ public:
             {
                 //  NodeStatement ndsmt;
                 tmp_sav = current_node->addChild(nodeTokenList.get());
-                if(tmp_sav->type=TokenUserDefinedVariable)
+                /*
+                if(tmp_sav->type==TokenUserDefinedVariable)
                 {
                     Error.error=1;
                     Error.error_message=string_format("impossible to assign UserdefinedVariable at %s",linepos().c_str());
-                }
+                }*/
                 // NodeAssignement nd;
                 current_node = current_node->addChild(NodeToken(assignementNode));
                 next();

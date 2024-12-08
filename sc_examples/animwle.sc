@@ -42,8 +42,8 @@ __ASM__ uint32_t millis()
    "retw.n"
 }
     
-    float cR; // = -0.94299;
-float cI;     // = 0.3162;
+    float cR = -0.94299;
+float cI = 0.3162;
 
 
 float cX;
@@ -144,10 +144,9 @@ void main()
 {
 clear();
 resetStat();
-  cR = -0.94299;
-  cI = 0.3162;
+
   int h = 1 ;
-  while (h > 0)
+  while (true)
   {
     beforeRender();
     for (int i = 0; i < width; i++)

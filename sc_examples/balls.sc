@@ -14,7 +14,7 @@ define width 128
 define height 96
 define panel_width 128 
 int slider1;
-struct ball {
+Object ball {
    float vx;
    float vy;
    float xc;

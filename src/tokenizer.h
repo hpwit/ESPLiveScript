@@ -322,7 +322,7 @@ string keyword_array[nb_keywords] =
      "import", "from", "__ASM__",
      "define", "safe_mode", "_header_", "_content_", "and", "or", "continue",
      "break", "fabs", "abs", "save_reg",
-     "save_reg_abs", "object"};
+     "save_reg_abs", "Object"};
 
 bool __isBlockComment = false;
 enum tokenType

@@ -1912,9 +1912,9 @@ void _visitglobalVariableNode(NodeToken *nd)
             sscanf(tile[0].c_str(), "@%d", &nb);
             // r_size = stringToInt((char *)tile[1].c_str());
         }
-        if (nd->children.size() > 1)
+        if (nb > 1)
         {
-           // content.addAfter("movi a10,0");
+           content.addAfter("movi a10,0");
         }
 
         for (int i = 0; i < nd->children.size(); i++)
