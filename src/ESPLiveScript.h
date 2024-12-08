@@ -249,7 +249,7 @@ public:
         parse();
         if (Error.error)
         {
-           // pushToConsole(Error.error_message.c_str(), true);
+           pushToConsole(Error.error_message.c_str(), true);
             results.error=Error;
             return results;
         }
@@ -809,7 +809,7 @@ public:
                 change_type.pop_back();*/
 
         current_node->setTargetText(targetList.pop());
-        parseExpr();
+        parseExprAndOr();
         // cn.target=target;
         // cn.addChild(left._nd);
         // cn.addChild(right._nd);
@@ -1179,7 +1179,7 @@ public:
                 current_node->type=t.type;
               sav_t.pop_back();
 
-                parseExprAddMinus();
+                parseExpr();
                 if(Error.error)
                 {
                     return;
@@ -1544,6 +1544,11 @@ public:
             {
                 //  NodeStatement ndsmt;
                 tmp_sav = current_node->addChild(nodeTokenList.get());
+                if(tmp_sav->type=TokenUserDefinedVariable)
+                {
+                    Error.error=1;
+                    Error.error_message=string_format("impossible to assign UserdefinedVariable at %s",linepos().c_str());
+                }
                 // NodeAssignement nd;
                 current_node = current_node->addChild(NodeToken(assignementNode));
                 next();
@@ -1982,12 +1987,12 @@ if(Match(TokenQuestionMark))
             _node_token_stack.pop_back();
             current_node->addTargetText(string_format("label_tern_%d",for_if_num));
             for_if_num++;
-            parseExprAddMinus();
+            parseExpr();
                     if(Match(TokenColon))
         {
             next();
             
-            parseExprAddMinus();
+            parseExpr();
         }
         else
         {
@@ -2031,7 +2036,7 @@ if(Match(TokenQuestionMark))
         return;
     }
 
-    void parseExpr()
+    void parseExprAndOr()
     {
               // Serial.printf("eee  term1\r\n");
 
@@ -2106,7 +2111,7 @@ if(Match(TokenQuestionMark))
     {
 
         sav_token.push_back(current_node);
-        parseExprAddMinus();
+        parseExpr();
         if (Error.error == 1)
         {
             return;
@@ -2145,7 +2150,7 @@ if(Match(TokenQuestionMark))
             // current_node->type=sav_t.back().type;
             change_type.push_back(current_node);
             sav_t.pop_back();
-            parseExprAddMinus();
+            parseExpr();
             if (Error.error == 1)
             {
                 return;
@@ -2161,7 +2166,7 @@ if(Match(TokenQuestionMark))
         Error.error = 0;
         return;
     }
-    void parseExprAddMinus()
+    void parseExpr()
     {
 
         sav_token.push_back(current_node);
@@ -2334,8 +2339,8 @@ if(Match(TokenQuestionMark))
         else if (Match(TokenOpenParenthesis))
         {
             next();
-             printf("one est icic\n\r");
-            parseExpr();
+           // csprintf("one est icic\n\r");
+            parseExprAndOr();
             // if(lasttype->_vartype==__float__)
             // {
             //     change_type.back()->_vartype=__float__;
