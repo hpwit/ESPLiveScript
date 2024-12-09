@@ -1190,7 +1190,7 @@ line splitOpcodeOperande(string s)
   return res;
 }
 
-error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_parsed)
+error_message_struct parseASM(Text *_footer,Text *_header, Text *_content, parsedLines *asm_parsed)
 {
   // list<string> lines = *_lines;
   error_message_struct main_error;
@@ -1239,7 +1239,22 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
     }
   }
 
-  _instr_size = (_nb_align_label + 1) * ALIGN_INSTR + (_content->size() - _nb_not_aligned_label) * 3;
+  for (int i = 0; i < _footer->size(); i++)
+  {
+    string str = _footer->textAt(i);
+    if (str.compare(0, 2, "@_") == 0)
+    {
+      _nb_align_label++;
+    }
+    else
+    {
+      if (str.find(":") != -1)
+      {
+        _nb_not_aligned_label++;
+      }
+    }
+  }
+  _instr_size = (_nb_align_label + 1) * ALIGN_INSTR + (_content->size()+_footer->size() - _nb_not_aligned_label) * 3;
   // printf("taille instr %d\r\n",_instr_size);
 
   _instr_size = (_instr_size / 8) * 8 + 8;
@@ -1259,14 +1274,15 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
   }
   // printf("her:\r\n");
 #ifdef __CONSOLE_ESP32
-  string d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size());
+  string d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size()+_footer->size());
   LedOS.pushToConsole(d);
 #else
-  printf("Parsing %d assembly lines ...\r\n ", _header->size() + _content->size());
+  printf("Parsing %d assembly lines ...\r\n ", _header->size() + _content->size()+_footer->size());
 #endif
 
   int size = _header->size();
   int tmp_size = size;
+  int tmp_size2 = _content->size()+_header->size();
   for (int i = 0; i < size; i++)
   {
 
@@ -1342,7 +1358,46 @@ error_message_struct parseASM(Text *_header, Text *_content, parsedLines *asm_pa
     }
     _content->pop_front();
   }
+  
+  size=_footer->size();
+  for (int i = tmp_size2; i < size + tmp_size2; i++)
+  {
+    if (__parser_debug)
+    {
+      printf("on parse line: %d : %s\r\n", i, _footer->front().c_str());
+    }
+    if (_footer->front().compare(" ") != 0)
+    {
+      // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
+      line res = splitOpcodeOperande(_footer->front());
+      if (!res.error)
+      {
+        result_parse_line re_sparse = parseline(res, asm_parsed);
+        if (__parser_debug)
+        {
+          // re_sparse.debugtxt = _lines->front();
+        }
+        //  printf("on parse line: %d : %s\r\n",i,_content->front().c_str());
+        re_sparse.line = i + 1;
+        // printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
 
+        if (asm_Error.error)
+        {
+          main_error.error = 1;
+          main_error.error_message += string_format("line:%d %s\r\n", i, asm_Error.error_message.c_str());
+        }
+        else
+        {
+          // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+          // asm_parsed->push_back(re_sparse);
+          addInstr(re_sparse, asm_parsed);
+          updateMem();
+          // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+        }
+      }
+    }
+    _footer->pop_front();
+  }
   // printf("Done.\r\n");
   if (main_error.error == 1)
   {
@@ -1715,17 +1770,18 @@ executable createBinary(parsedLines *asm_parsed)
   return exe;
 }
 
-executable createExectutable(Text *_header, Text *_content, bool display)
+executable createExectutable(Text* _footer,Text *_header, Text *_content, bool display)
 {
 
   executable exec;
   _asm_parsed.clear();
 
   __parser_debug = display;
-  error_message_struct err = parseASM(_header, _content, &_asm_parsed);
+  error_message_struct err = parseASM(_footer,_header, _content, &_asm_parsed);
 
   _header->clear();
   _content->clear();
+  _footer->clear();
 
   if (err.error == 0)
   {

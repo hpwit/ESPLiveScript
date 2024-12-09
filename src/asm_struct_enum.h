@@ -132,7 +132,7 @@ public:
         if (pos > -1)
         {
                     #ifdef __TEST_DEBUG
-        printf(" find text:%d %s\r\n",pos,str.c_str());
+       // printf(" find text:%d %s\r\n",pos,str.c_str());
         #endif
             return pos;
         }
@@ -142,7 +142,7 @@ public:
         _texts.push_back(m);
         position++;
         #ifdef __TEST_DEBUG
-        printf(" addtext:%d %s\r\n",_texts.size(),str.c_str());
+       // printf(" addtext:%d %s\r\n",_texts.size(),str.c_str());
         #endif
         return _texts.size() - 1;
     }
