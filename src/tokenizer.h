@@ -1232,6 +1232,8 @@ int _token_line;
 int _sav_token_line=0;
 int pos=0;
 list<token>::iterator _index_token;
+ string v;
+   Token t;
 int tokenizer(Script *script, bool update, bool increae_line,
               int nbMaxTokenToRead)
 {
@@ -1239,12 +1241,12 @@ int tokenizer(Script *script, bool update, bool increae_line,
     // list<token> list_of_token;
     // int line = 1;
 
-    Token t;
+  
     //int pos = 0;
     char c;
     char c2;
     _define newdef;
-    string v;
+   v.clear();
     if (update)
     {
         userDefinedVarTypeNames.clear();

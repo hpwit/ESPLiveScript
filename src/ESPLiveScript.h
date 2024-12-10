@@ -31,6 +31,10 @@ typedef int Arguments;
 
 #include "NodeToken.h"
 
+NodeToken d;
+NodeToken nd;
+NodeToken _nd;
+NodeToken _t;
 class _arguments
 {
 public:
@@ -363,7 +367,8 @@ public:
                 // on parse
                 next();
 
-                NodeToken nd;
+               // NodeToken nd;
+                nd=NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
                 nd._vartype = __none__;
@@ -393,7 +398,8 @@ public:
                         next();
 
                         // nb_argument++;
-                        NodeToken nd;
+                        //NodeToken nd;
+                        nd=NodeToken(changeTypeNode);
                         nd._nodetype = changeTypeNode;
                         nd.type = TokenKeywordVarType;
                         nd._vartype = __none__;
@@ -524,7 +530,7 @@ public:
                 // current_node->parent->children.pop_back();
                 // current_node=par;
                 current()->addText(string_format("%s.%s", search_result->getVarType()->varName.c_str(), current()->getText()));
-                NodeToken nd = *search_result;
+               nd = *search_result;
 
                 if (search_result->_nodetype == defGlobalVariableNode)
                     nd._nodetype = globalVariableNode;
@@ -589,7 +595,7 @@ public:
             }
             else
             {
-                NodeToken nd = NodeToken();
+                 nd = NodeToken();
                 nd.setTargetText("pointer");
                 nd.isPointer = true;
                 nd.type = TokenUserDefinedVariable;
@@ -621,7 +627,8 @@ public:
         }
         // nb_argument = 1;
         // Serial.printf("lkklqdqsdksmdkqsd\r\n");
-        NodeToken nd;
+        //NodeToken nd;
+        nd=NodeToken(changeTypeNode);
         nd._nodetype = changeTypeNode;
         nd.type = TokenKeywordVarType;
         nd._vartype = __none__;
@@ -643,7 +650,8 @@ public:
             nb_args.pop_back();
             nb_args.push_back(__sav_arg + 1);
             // nb_argument++;
-            NodeToken nd;
+           // NodeToken nd;
+            nd=NodeToken(changeTypeNode);
             nd._nodetype = changeTypeNode;
             nd.type = TokenKeywordVarType;
             nd._vartype = __none__;
@@ -904,8 +912,8 @@ public:
             else
             {
                 current_node = current_node->addChild(NodeToken(returnNode));
-                // next();
-                NodeToken nd;
+                
+                nd=NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
                 nd.setTokenText("yevbs");
@@ -1076,7 +1084,7 @@ public:
 
             current_node = current_node->addChild(NodeToken(assignementNode));
             getVariable(true);
-            NodeToken d = NodeToken(current_node->getChildAtPos(0));
+             d = NodeToken(current_node->getChildAtPos(0));
 
             nodeTokenList.push(d);
             _asPointer = false;
@@ -1099,7 +1107,8 @@ public:
             if (Match(TokenEqual))
             {
                 nodeTokenList.pop();
-                NodeToken nd;
+               // NodeToken nd;
+                nd=NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
                 nd.setTokenText("yves");
@@ -1140,7 +1149,8 @@ public:
             else if (Match(TokenPlusEqual) || Match(TokenMinusEqual) || Match(TokenStarEqual) || Match(TokenSlashEqual))
             {
                 sav_t.push_back(*current());
-                NodeToken nd;
+               // NodeToken nd;
+                nd=NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
                 nd.setTokenText("yves");
@@ -1539,22 +1549,20 @@ public:
                 if (nodeTokenList.get().type == TokenUserDefinedVariable)
                 {
 
-                   // printf("check if coinstructo\r\n");
+                    // printf("check if coinstructo\r\n");
                     current()->addText(string_format("%s._%s", nodeTokenList.get().getVarType()->varName.c_str(), nodeTokenList.get().getVarType()->varName.c_str()));
                     main_context.findFunction(current());
 
                     if (search_result != NULL)
                     {
 
-                      // printf("  printf("we have contructore\r\n"); if coinstructo\r\n");
-                        NodeToken nd=nodeTokenList.get();
+                        // printf("  printf("we have contructore\r\n"); if coinstructo\r\n");
+                        nd = nodeTokenList.get();
                         nd._nodetype = callConstructorNode;
                         current_node->addChild(nodeTokenList.pop());
                         current_node->addChild(nd);
                         next();
                         return;
-                    
-                        
                     }
                     else
                     {
@@ -1591,7 +1599,7 @@ public:
 
                     next();
                     current()->addText(string_format("%s.%s", search_result->getVarType()->varName.c_str(), current()->getText()));
-                    NodeToken nd = *search_result;
+                    nd = *search_result;
                     if (search_result->_nodetype == defGlobalVariableNode)
                         nd._nodetype = globalVariableNode;
                     else
@@ -1640,7 +1648,8 @@ public:
                 }
                 current_node->addChild(_uniquesave); // createNodeLocalVariableForStore(nodeTokenList.pop()));
                                                      // _uniquesave->text=current_cntx->variables.back().text;
-                NodeToken nd;
+                //NodeToken nd;
+                nd=NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
                 nd.setTokenText("yevbs");
@@ -1775,7 +1784,7 @@ public:
         current_node = current_node->addChild(arg);
         if (isStructFunction)
         {
-            NodeToken nd = NodeToken();
+            nd = NodeToken();
             nd.setTargetText("pointer");
             nd.isPointer = true;
             nd.type = TokenUserDefinedVariable;
@@ -1803,11 +1812,11 @@ public:
         {
             return;
         }
-        NodeToken _nd = nodeTokenList.pop();
+         _nd = nodeTokenList.pop();
         //_nd._nodetype=(int)defLocalVariableNode;
-        NodeToken t = nodeTokenList.pop();
+         _t = nodeTokenList.pop();
 
-        copyPrty(&t, &_nd);
+        copyPrty(&_t, &_nd);
         _nd = NodeToken(_nd, defLocalVariableNode);
 
         // NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
@@ -1833,11 +1842,11 @@ public:
                 return;
             }
             // NodeToken _nd = nodeTokenList.pop();
-            NodeToken _nd = nodeTokenList.pop();
+             _nd = nodeTokenList.pop();
             //_nd._nodetype=(int)defLocalVariableNode;
-            NodeToken t = nodeTokenList.pop();
+             _t = nodeTokenList.pop();
 
-            copyPrty(&t, &_nd);
+            copyPrty(&_t, &_nd);
             _nd = NodeToken(_nd, defLocalVariableNode);
             //  NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
             // _nd._nodetype=(int)defLocalVariableNode;
@@ -2205,7 +2214,8 @@ public:
             // current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
             current_node->type = sav_t.back().type;
             current_node->setTargetText(targetList.pop());
-            NodeToken nd;
+           // NodeToken nd;
+            nd=NodeToken(changeTypeNode);
             nd._nodetype = changeTypeNode;
             nd.type = TokenKeywordVarType;
             nd._vartype = findfloat(_node_token_stack.back());
@@ -2371,7 +2381,8 @@ public:
             next(); //)
             next(); //(
             next();
-            NodeToken nd;
+           // NodeToken nd;
+            nd=NodeToken(changeTypeNode);
             nd._nodetype = changeTypeNode;
             nd.type = TokenKeywordVarType;
             nd._vartype = current_node->_vartype;
@@ -2544,7 +2555,8 @@ public:
         }
         else if (Match(TokenString))
         {
-            NodeToken nd; //=NodeToken();
+           // NodeToken nd; //=NodeToken();
+            nd=NodeToken(defGlobalVariableNode);
             nd._nodetype = defGlobalVariableNode;
             nd.type = TokenKeywordVarType;
 
@@ -2572,7 +2584,7 @@ public:
     {
 
         // resParse res;
-        NodeToken _nd;
+         _nd=NodeToken(UnknownNode);
         if (Match(TokenExternal))
         {
             isExternal = true;
@@ -2722,7 +2734,7 @@ public:
         }
         else
         {
-            NodeToken nd = NodeToken(current());
+           nd = NodeToken(current());
 
             // resParse result;
             // result._nd = nd;
@@ -2810,7 +2822,7 @@ public:
                                 _pos++;
                             }
                             next(); // name
-                            NodeToken nd = NodeToken(current(), defLocalVariableNode);
+                            nd = NodeToken(current(), defLocalVariableNode);
                             nd.type = TokenUserDefinedVariableMember;
                             nd._vartype = __v._varType;
                             nd.stack_pos = 1000 * (_start - __v.total_size) + _STACK_SIZE;
@@ -2888,8 +2900,8 @@ public:
 
                             return;
                         }
-                        NodeToken nd = nodeTokenList.pop();
-                        NodeToken t = nodeTokenList.pop();
+                       nd = nodeTokenList.pop();
+                         _t = nodeTokenList.pop();
                         if (isExternal)
                         {
                             nd._nodetype = (int)defExtGlobalVariableNode;
@@ -2900,7 +2912,7 @@ public:
                         {
                             nd._nodetype = (int)defGlobalVariableNode;
                         }
-                        copyPrty(&t, &nd);
+                        copyPrty(&_t, &nd);
 
                         current_node = program.addChild(nd);
                         tmp_sav = current_node;
@@ -2908,34 +2920,28 @@ public:
                         if (Match(TokenSemicolon))
                         {
 
-                            if (current_node->type == TokenUserDefinedVariable )
+                            if (current_node->type == TokenUserDefinedVariable)
                             {
 
-                               // printf("check if coinstructo\r\n");
-                                current()->addText(string_format("%s._%s", current_node->getVarType()->varName.c_str(),current_node->getVarType()->varName.c_str()));
+                                // printf("check if coinstructo\r\n");
+                                current()->addText(string_format("%s._%s", current_node->getVarType()->varName.c_str(), current_node->getVarType()->varName.c_str()));
                                 main_context.findFunction(current());
 
                                 if (search_result != NULL)
                                 {
 
-                                  // printf("  printf("we have contructore\r\n"); if coinstructo\r\n");
-                                     
-                          
-                                        // printf("we have contructorsssse\r\n");
-                                       
-                                          //printf("we have contructore %d %d %d \r\n",current_node->_total_size,current_node->getVarType()->total_size,current_node->_total_size/current_node->getVarType()->total_size);
-                                          
-                                          NodeToken d=*current_node;
-                                          d._nodetype= callConstructorNode;
-                                           current_node=current_node->parent;
-                                          current_node=current_node->addChild(d);
+                                    // printf("  printf("we have contructore\r\n"); if coinstructo\r\n");
 
-                                          
-                                    
-             
+                                    // printf("we have contructorsssse\r\n");
+
+                                    // printf("we have contructore %d %d %d \r\n",current_node->_total_size,current_node->getVarType()->total_size,current_node->_total_size/current_node->getVarType()->total_size);
+
+                                     d = *current_node;
+                                    d._nodetype = callConstructorNode;
+                                    current_node = current_node->parent;
+                                    current_node = current_node->addChild(d);
                                 }
                             }
-                           
 
                             current_node = current_node->parent;
                             next();
@@ -3066,7 +3072,7 @@ public:
 
                                 next();
                                 current()->addText(string_format("%s.%s", current_node->getVarType()->varName.c_str(), current()->getText()));
-                                NodeToken nd = *current_node;
+                               nd = *current_node;
                                 if (current_node->_nodetype == defGlobalVariableNode)
                                     nd._nodetype = globalVariableNode;
                                 else
@@ -3101,7 +3107,7 @@ public:
                         else if (Match(TokenEqual))
                         {
                             next();
-                            NodeToken nd = *current_node;
+                          nd  = *current_node;
                             nd._nodetype = storeGlobalVariableNode;
                             current_node = current_node->parent;
                             current_node = current_node->addChild(NodeToken(assignementNode));
