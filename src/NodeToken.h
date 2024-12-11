@@ -53,7 +53,7 @@ int __sav_arg = 0;
 bool _asPointer = false;
 string struct_name = "";
 list<int> nb_args;
-
+vector<string> sigs;
 list<int> nb_sav_args;
 
 // list<string> _header;
@@ -382,6 +382,7 @@ public:
     NodeToken(nodeType tt)
     {
         _nodetype = tt;
+         children.clear();
     }
     NodeToken(Token *t, nodeType tt)
     {
@@ -389,12 +390,14 @@ public:
         textref = t->textref;
         _vartype = t->_vartype;
         _nodetype = tt;
+         children.clear();
     }
     NodeToken(Token *t)
     {
         type = t->type;
         textref = t->textref;
         _vartype = t->_vartype;
+         children.clear();
     }
     NodeToken(Token t, nodeType tt)
     {
@@ -402,6 +405,7 @@ public:
         textref = t.textref;
         _vartype = t._vartype;
         _nodetype = tt;
+         children.clear();
     }
     NodeToken(NodeToken nd, nodeType tt)
     {
@@ -413,6 +417,7 @@ public:
         isPointer = nd.isPointer;
         _total_size = nd._total_size;
         target = nd.target;
+         children.clear();
 
         if (tt == defLocalVariableNode)
         {
@@ -468,6 +473,7 @@ public:
         _total_size = nd->_total_size;
         stack_pos= nd->stack_pos;
         target = nd->target;
+         children.clear();
     }
     NodeToken(NodeToken *nd)
     {
@@ -481,11 +487,13 @@ public:
         _total_size = nd->_total_size;
        stack_pos= nd->stack_pos;
         target = nd->target;
+        children.clear();
     }
     NodeToken(string _target, nodeType tt)
     {
         _nodetype = tt;
         addTargetText(_target);
+         children.clear();
     }
     NodeToken(NodeToken nd, nodeType tt, string _target)
     {
@@ -498,6 +506,7 @@ public:
         _nodetype = tt;
         stack_pos = nd.stack_pos;
         addTargetText(_target);
+         children.clear();
     }
     NodeToken *addChild(NodeToken *j)
     {
@@ -928,22 +937,71 @@ public:
     {
         variables.push_back(nd);
     }
+    bool findCandidate(char *str)
+    {
+        // NodeTo
+
+        search_result = NULL;
+        char *tocmp;
+        if (str == NULL)
+            return false;
+           
+     
+
+        for (vector<NodeToken>::iterator it = _functions.begin(); it != _functions.end(); ++it)
+        {
+
+            if(strstr((*it).getTokenText(),str)==(*it).getTokenText())
+            {
+                return true;
+            }
+         }
+            
+
+        /*
+        if (parent != NULL)
+        {
+            return parent->findFunction(t);
+        }
+       */
+       // search_result = NULL;
+        return false;
+    }
     void findFunction(Token *t)
     {
         // NodeTo
 
         search_result = NULL;
+        char *tocmp;
         if (t->getText() == NULL)
             return;
+           
+     
+
         for (vector<NodeToken>::iterator it = _functions.begin(); it != _functions.end(); ++it)
         {
 
+            if(strstr((*it).getTokenText(),"Args")!=NULL)
+            {
+                int l=strstr((*it).getTokenText(),"Args")-(*it).getTokenText();
+                if (strncmp((*it).getTokenText(), t->getText(),l) == 0)
+            {
+                search_result = &*it;
+                return;
+            }
+            }
+            else
+            {
+            
             if (strcmp((*it).getTokenText(), t->getText()) == 0)
             {
                 search_result = &*it;
                 return;
             }
-        }
+            }
+         }
+            
+
         /*
         if (parent != NULL)
         {
@@ -1330,23 +1388,24 @@ string findForWhile()
     return res;
 }
 
-void buildParents(NodeToken *nd)
+void buildParents(NodeToken *__nd)
 
 {
     // return; //new
-    if (nd->children.size() > 0)
+    // printf("klkkmkml %s\r\n",__nd->getTokenText());
+    if (__nd->children.size() > 0)
     {
-        for (vector<NodeToken *>::iterator it = nd->children.begin(); it != nd->children.end(); it++)
+        for (vector<NodeToken *>::iterator it = __nd->children.begin(); it != __nd->children.end(); it++)
         {
 
             if ((*it)->_nodetype == (int)UnknownNode)
             {
-                nd->children.erase(it);
-                // printf("klkkmkml\r\n");
+                __nd->children.erase(it);
+                // printf("on supppirm\r\n");
             }
             else
             {
-                (*it)->parent = nd;
+                (*it)->parent = __nd;
                 buildParents(*it);
             }
         }
@@ -1784,7 +1843,7 @@ void _visitoperatorNode(NodeToken *nd)
         {
             bufferText->addAfter(string_format("mov.s f1,f%d", register_numl.get()));
             bufferText->addAfter(string_format("mov.s f2,f%d", register_numr.get()));
-            bufferText->addAfter("call8  @___div");
+            bufferText->addAfter("call8  @___div(d|d)");
             bufferText->addAfter(string_format("mov.s f%d,f0", register_numl.get()));
         }
         else
@@ -2094,7 +2153,7 @@ void _visitcallConstructorNode(NodeToken *nd)
       }
 bufferText->addAfter("mov a11,a5");
 bufferText->addAfter("mov a10,a2");
-bufferText->addAfter(string_format("call8 @_%s._%s",nd->getVarType()->varName.c_str(),nd->getVarType()->varName.c_str()));
+bufferText->addAfter(string_format("call8 @_%s._@%s()",nd->getVarType()->varName.c_str(),nd->getVarType()->varName.c_str()));
       if(size>1)
       {
 bufferText->addAfter(string_format("addi a5,a5,%d",nd->getVarType()->total_size));

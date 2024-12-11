@@ -48,7 +48,10 @@ void replaceExternal(string name, void *ptr)
 
 int findLink(string label, externalType op)
 {
-    
+    if(label.find_first_of("(")!=string::npos)
+    {
+         label=label.substr(0,label.find_first_of("("));
+    }
   for(int i=0;i<external_links.size();i++)
   {
         if( (external_links[i].name.compare(label)==0) )//&&  (external_links[i].type==op))

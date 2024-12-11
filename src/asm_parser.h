@@ -980,6 +980,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     {
       return ps;
     }
+    
     int i = findLink(string(ps.getText()), externalType::function);
     if (i == -1)
     {
@@ -1841,7 +1842,13 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
   res.error = 0;
   for (int i = 0; i < ex.functions.size(); i++)
   {
-    if (ex.functions[i].name.compare(function) == 0)
+    string ftofind=ex.functions[i].name;
+    if(ex.functions[i].name.find_first_of("(")!=string::npos)
+    {
+         ftofind=ex.functions[i].name.substr(0,ex.functions[i].name.find_first_of("("));
+    }
+    
+    if (ftofind.compare(function) == 0)
     {
       // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
 

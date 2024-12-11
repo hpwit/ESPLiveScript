@@ -102,7 +102,7 @@ vector<string> userDefinedVarTypeNames;
 
 varType _varTypes[] = {
     {._varType = __none__,
-     .varName = "",
+     .varName = "d",
      ._varSize = 0,
      .load = {},
      .store = {},
@@ -115,7 +115,7 @@ varType _varTypes[] = {
      .total_size = 0},
 
     {._varType = __uint8_t__,
-     .varName = "",
+     .varName = "d",
      ._varSize = 1,
      .load = {l8ui},
      .store = {s8i},
@@ -128,7 +128,7 @@ varType _varTypes[] = {
      .total_size = 1},
     {
         ._varType = __uint16_t__,
-        .varName = "",
+        .varName = "d",
         ._varSize = 2,
         .load = {l16ui},
         .store = {s16i},
@@ -142,7 +142,7 @@ varType _varTypes[] = {
     },
     {
         ._varType = __uint32_t__,
-        .varName = "",
+        .varName = "d",
         ._varSize = 4,
         .load = {l32i},
         .store = {s32i},
@@ -156,7 +156,7 @@ varType _varTypes[] = {
     },
     {
         ._varType = __int__,
-        .varName = "",
+        .varName = "d",
         ._varSize = 4,
         .load = {l32i},
         .store = {s32i},
@@ -170,7 +170,7 @@ varType _varTypes[] = {
     },
         {
         ._varType = __s_int__,
-        .varName = "",
+        .varName = "d",
         ._varSize = 2,
         .load = {l16si},
         .store = {s16i},
@@ -184,7 +184,7 @@ varType _varTypes[] = {
     },
     {
         ._varType = __float__,
-        .varName = "",
+        .varName = "d",
         ._varSize = 4,
         .load = {lsi},
         .store = {ssi},
@@ -198,7 +198,7 @@ varType _varTypes[] = {
     },
     {
         ._varType = __void__,
-        .varName = "",
+        .varName = "void",
         ._varSize = 0,
         .load = {},
         .store = {},
@@ -212,7 +212,7 @@ varType _varTypes[] = {
     },
     {
         ._varType = __CRGB__,
-        .varName = "",
+        .varName = "d",
         ._varSize = 3,
         .load = {l8ui, l8ui, l8ui},
         .store = {s8i, s8i, s8i},
@@ -226,7 +226,7 @@ varType _varTypes[] = {
     },
     {
         ._varType = __CRGBW__,
-        .varName = "",
+        .varName = "d",
         ._varSize = 4,
         .load = {l8ui, l8ui, l8ui, l8ui},
         .store = {s8i, s8i, s8i, s8i},
@@ -240,7 +240,7 @@ varType _varTypes[] = {
     },
     {
         ._varType = __char__,
-        .varName = "",
+        .varName = "d",
         ._varSize = 1,
         .load = {l8ui},
         .store = {s8i},
@@ -254,7 +254,7 @@ varType _varTypes[] = {
     },
     {
         ._varType =__Args__,
-        .varName = "",
+        .varName = "Args",
         ._varSize = 1,
         .load = {},
         .store = {},
@@ -268,7 +268,7 @@ varType _varTypes[] = {
 
     },
      {._varType = __bool__,
-     .varName = "",
+     .varName = "d",
      ._varSize = 1,
      .load = {l8ui},
      .store = {s8i},
