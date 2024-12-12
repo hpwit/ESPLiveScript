@@ -298,6 +298,8 @@ public:
     {
         exeExist = false;
         __run_handle_index = 9999;
+        _executecmd.binary_size=0;
+         _executecmd.data_size=0;
         // args.clear();
         // args.shrink_to_fit();
     }
@@ -712,8 +714,10 @@ public:
     _ScriptRuntime() {}
     void addExe(Executable df)
     {
+
         if (df.name.size() > 0)
         {
+        deleteExe(df.name);
             _scExecutables.push_back(df);
         }
         else
@@ -867,6 +871,7 @@ public:
         Executable *exec = findExecutable(name);
         if (exec != NULL)
         {
+            kill(name);
             free(name);
             for (vector<Executable>::iterator it = _scExecutables.begin(); it != _scExecutables.end(); it++)
             {
@@ -895,7 +900,8 @@ public:
     {
         for (int i = 0; i < _scExecutables.size(); i++)
         {
-            pushToConsole(string_format(" %2d | %12s isRunning:%d", i + 1, _scExecutables[i].name.c_str(), _scExecutables[i].isRunning()), true);
+    
+            pushToConsole(string_format(" %2d | %20s isRunning:%d| %6d | %6d |%s", i + 1, _scExecutables[i].name.c_str(), _scExecutables[i].isRunning(), _scExecutables[i]._executecmd.binary_size, _scExecutables[i]._executecmd.data_size,_scExecutables[i].error.error_message.c_str()), true);
         }
     }
 

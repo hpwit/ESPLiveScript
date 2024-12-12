@@ -1775,6 +1775,8 @@ executable createExectutable(Text* _footer,Text *_header, Text *_content, bool d
 {
 
   executable exec;
+  exec.binary_size=0;
+  exec.data_size=0;
   _asm_parsed.clear();
 
   __parser_debug = display;

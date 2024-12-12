@@ -244,7 +244,10 @@ public:
         main_script.init();
         initMem();
         _tks.tokenize(&main_script, true, true, 1);
-
+        Error.error=0;
+        Error.error_message="";
+        Error.line=0;
+        Error.pos=0;
         parseProgram();
     }
 
@@ -253,10 +256,11 @@ public:
         Executable results;
         _sav_token_line = 1;
         parse();
+        results.error = Error;
         if (Error.error)
         {
             pushToConsole(Error.error_message.c_str(), true);
-            results.error = Error;
+            
             return results;
         }
         pushToConsole("***********PARSING DONE*********");
@@ -307,12 +311,13 @@ pushToConsole("***********dispalying  DONE*********");
         change_type.clear();
         updateMem();
         displayStat();
+
         if (_executecmd.error.error == 1)
         {
             // exeExist = false;
             // Serial.printf(termColor.Red);
 
-            // pushToConsole(_executecmd.error.error_message.c_str(), true);
+             pushToConsole(_executecmd.error.error_message.c_str(), true);
         }
 
 #endif
@@ -3287,8 +3292,8 @@ pushToConsole("***********dispalying  DONE*********");
 #ifdef __CONSOLE_ESP32
 
 Parser p = Parser();
-// Executable consExecutable = Executable();
-vector<Executable> scExecutables;
+// Executable consExecutable = Executable();//
+//vector<Executable> scExecutables;
 
 void kill(Console *cons, vector<string> args)
 {
@@ -3440,12 +3445,13 @@ void compile_c(Console *cons, vector<string> args)
 {
     pushToConsole("Compiling ...", true);
     Executable _scExec = p.parse_c(&cons->script);
+            _scExec.name = cons->filename;
+        scriptRuntime.addExe(_scExec);
     if (_scExec.exeExist)
     {
 
-        _scExec.name = cons->filename;
-        scriptRuntime.addExe(_scExec);
-        pushToConsole(string_format("Compiling done. Handle number:%d", scExecutables.size()), true);
+
+        pushToConsole(string_format("Compiling done. Handle number:%d", scriptRuntime._scExecutables.size()), true);
     }
     else
     {
