@@ -10,18 +10,7 @@ using namespace std;
 #ifndef _TRIGGER
 #define _TRIGGER 0
 #endif
-/*
-#ifndef __TEST_DEBUG
-using _arguments = std::variant<int, float>;
-typedef std::vector<_arguments> Arguments;
-#else
-typedef int Arguments;
-#endif
-*/
 
-// #include "tokenizer.h"
-
-// #include "asm_parser.h"
 
 #ifndef __TEST_DEBUG
 #include "soc/timer_group_struct.h"
@@ -35,7 +24,10 @@ NodeToken d;
 NodeToken nd;
 NodeToken _nd;
 NodeToken _t;
+NodeToken var;
+NodeToken *_d;
 string signature;
+Token __t;
 class _arguments
 {
 public:
@@ -244,10 +236,10 @@ public:
         main_script.init();
         initMem();
         _tks.tokenize(&main_script, true, true, 1);
-        Error.error=0;
-        Error.error_message="";
-        Error.line=0;
-        Error.pos=0;
+        Error.error = 0;
+        Error.error_message = "";
+        Error.line = 0;
+        Error.pos = 0;
         parseProgram();
     }
 
@@ -260,14 +252,14 @@ public:
         if (Error.error)
         {
             pushToConsole(Error.error_message.c_str(), true);
-            
+
             return results;
         }
         pushToConsole("***********PARSING DONE*********");
         updateMem();
         buildParents(&program);
 #ifdef __TEST_DEBUG
-pushToConsole("***********dispalying  DONE*********");
+        pushToConsole("***********dispalying  DONE*********");
         prettyPrint(&program, "");
 #endif
         program.visitNode();
@@ -317,7 +309,7 @@ pushToConsole("***********dispalying  DONE*********");
             // exeExist = false;
             // Serial.printf(termColor.Red);
 
-             pushToConsole(_executecmd.error.error_message.c_str(), true);
+            pushToConsole(_executecmd.error.error_message.c_str(), true);
         }
 
 #endif
@@ -559,19 +551,21 @@ pushToConsole("***********dispalying  DONE*********");
                                                                          current_node=par;
                                                                          */
                 current_node->_nodetype = UnknownNode;
-                NodeToken *par = current_node;
+                // NodeToken *par = current_node;
+                _node_token_stack.push_back(current_node);
                 current_node = current_node->parent;
 
                 nodeTokenList.push(nd);
                 isStructFunction = true;
-                //printf("her\n");
+                // printf("her\n");
                 parseFunctionCall();
 
                 if (Error.error)
                 {
                     return;
                 }
-                current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
+                current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+                _node_token_stack.pop_back();
                 isStructFunction = false;
                 Error.error = 0;
                 return;
@@ -587,6 +581,9 @@ pushToConsole("***********dispalying  DONE*********");
     }
     void parseArguments()
     {
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         // resParse result;
         // signature="(";
         sigs.push_back("(");
@@ -719,9 +716,13 @@ pushToConsole("***********dispalying  DONE*********");
     }
     void parseFunctionCall()
     {
-        //printf("serial %s\r\n", current()->getText());
-        // int sav_nb_arg;
-        // NodeToken *t = current_cntx->findFunction(current());
+#ifdef PARSER_DEBUG
+        pushToConsole(string_format("functions:%s",__FUNCTION__));
+        updateMem();
+#endif
+        // printf("serial %s\r\n", current()->getText());
+        //  int sav_nb_arg;
+        //  NodeToken *t = current_cntx->findFunction(current());
         sav_t.push_back(*current());
         next();
         next();
@@ -784,19 +785,19 @@ pushToConsole("***********dispalying  DONE*********");
 
         // NodeToken *res=search_result;
 
-        NodeToken res = NodeToken(search_result);
-        if (res._nodetype == (int)defExtFunctionNode)
+        _nd = NodeToken(search_result);
+        if (_nd._nodetype == (int)defExtFunctionNode)
         {
 
-            res._nodetype = extCallFunctionNode;
+            _nd._nodetype = extCallFunctionNode;
         }
         else
         {
-            res._nodetype = callFunctionNode;
+            _nd._nodetype = callFunctionNode;
         }
 
         // NodeExtCallFunction function = NodeExtCallFunction(t);
-        current_node = current_node->addChild(res);
+        current_node = current_node->addChild(_nd);
         // current_node->copyChildren(search_result);
         current_node->addChild(search_result->getChildAtPos(0));
         // if (search_result->getChildAtPos(0)->_vartype == __float__ and change_type.size() > 0)
@@ -838,7 +839,7 @@ pushToConsole("***********dispalying  DONE*********");
         current_node->addChild(_node_token_stack.back());
         _node_token_stack.pop_back();
 
-        //printf("call sing:%s\r\n", current_node->getTokenText());
+        // printf("call sing:%s\r\n", current_node->getTokenText());
         if (nb_sav_args.back() != nb_args.back() and nb_sav_args.back() != 999) // if (sav_nb_arg != nb_args.back())
         {
             Error.error = 1;
@@ -857,6 +858,9 @@ pushToConsole("***********dispalying  DONE*********");
 
     void parseComparaison()
     {
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         // resParse res;
         Error.error = 0;
         //  NodeComparator cn = NodeComparator();
@@ -893,6 +897,10 @@ pushToConsole("***********dispalying  DONE*********");
 
         current_node->setTargetText(targetList.pop());
         parseExprAndOr();
+        if (Error.error)
+        {
+            return;
+        }
         // cn.target=target;
         // cn.addChild(left._nd);
         // cn.addChild(right._nd);
@@ -904,6 +912,9 @@ pushToConsole("***********dispalying  DONE*********");
     }
     void parseStatement()
     {
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         //_asPointer=false;
         isPointer = false;
         sav_token.clear();
@@ -1083,6 +1094,7 @@ pushToConsole("***********dispalying  DONE*********");
             bool sav_b = isStructFunction;
             isStructFunction = false;
             parseFunctionCall();
+
             isStructFunction = sav_b;
             if (Error.error)
             {
@@ -1155,6 +1167,10 @@ pushToConsole("***********dispalying  DONE*********");
 
             current_node = current_node->addChild(NodeToken(assignementNode));
             getVariable(true);
+            if (Error.error)
+            {
+                return;
+            }
             d = NodeToken(current_node->getChildAtPos(0));
 
             nodeTokenList.push(d);
@@ -1231,37 +1247,37 @@ pushToConsole("***********dispalying  DONE*********");
                 change_type.push_back(current_node);
                 next();
                 current_node = current_node->addChild(NodeToken(binOpNode));
-                NodeToken *d = current_node->addChild(nodeTokenList.pop());
-                switch (d->_nodetype)
+                _d = current_node->addChild(nodeTokenList.pop());
+                switch (_d->_nodetype)
                 {
                 case storeExtGlocalVariableNode:
-                    d->_nodetype = extGlobalVariableNode;
+                    _d->_nodetype = extGlobalVariableNode;
                     break;
                 case storeGlobalVariableNode:
-                    d->_nodetype = globalVariableNode;
+                    _d->_nodetype = globalVariableNode;
                     break;
                 case storeLocalVariableNode:
-                    d->_nodetype = localVariableNode;
+                    _d->_nodetype = localVariableNode;
                     break;
                 }
-                Token t = sav_t.back();
-                switch (t.type)
+                __t = sav_t.back();
+                switch (__t.type)
                 {
                 case TokenPlusEqual:
-                    t.type = TokenAddition;
+                    __t.type = TokenAddition;
                     break;
                 case TokenMinusEqual:
-                    t.type = TokenSubstraction;
+                    __t.type = TokenSubstraction;
                     break;
                 case TokenStarEqual:
-                    t.type = TokenStar;
+                    __t.type = TokenStar;
                     break;
                 case TokenSlashEqual:
-                    t.type = TokenSlash;
+                    __t.type = TokenSlash;
                     break;
                 }
                 // current_node->addChild(NodeToken(&t,operatorNode));
-                current_node->type = t.type;
+                current_node->type = _t.type;
                 sav_t.pop_back();
 
                 parseExpr();
@@ -1793,24 +1809,14 @@ pushToConsole("***********dispalying  DONE*********");
             next();
             return;
         }
-        /*
-        else
-        {
-            Error.error = 1;
-            Error.error_message = string_format(" statetenUnexpected %s  %s", current()->getText(), linepos().c_str());
-            return;
-        }
-        */
     }
 
     void parseBlockStatement()
     {
-        // resParse result;
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
 
-        // NodeBlockStatement nbStmnt;
-        // Context cntx;
-        // cntx.name = string_format("%d", block_statement_num);
-        // current_cntx = current_cntx->addChild(cntx);
         updateMem();
         current_cntx = current_cntx->addChild(Context());
         block_statement_num++;
@@ -1848,12 +1854,13 @@ pushToConsole("***********dispalying  DONE*********");
 
     void parseCreateArguments()
     {
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         Error.error = 0;
         signature = "(";
-        // NodeInputArguments arg;
 
-        NodeToken arg = NodeToken(inputArgumentsNode);
-        current_node = current_node->addChild(arg);
+        current_node = current_node->addChild(NodeToken(inputArgumentsNode));
         if (isStructFunction)
         {
             nd = NodeToken();
@@ -1877,13 +1884,14 @@ pushToConsole("***********dispalying  DONE*********");
             return;
         }
         parseType();
-        signature = signature + nodeTokenList.get().getVarType()->varName;
-        if (nodeTokenList.get().isPointer)
-            signature = signature + "*";
         if (Error.error)
         {
             return;
         }
+        signature = signature + nodeTokenList.get().getVarType()->varName;
+        if (nodeTokenList.get().isPointer)
+            signature = signature + "*";
+
         parseVariableForCreation();
         if (Error.error)
         {
@@ -1909,11 +1917,12 @@ pushToConsole("***********dispalying  DONE*********");
         {
             next();
             parseType();
-            signature = signature + "|" + nodeTokenList.get().getVarType()->varName;
             if (Error.error)
             {
                 return;
             }
+            signature = signature + "|" + nodeTokenList.get().getVarType()->varName;
+
             parseVariableForCreation();
             if (Error.error)
             {
@@ -1945,7 +1954,9 @@ pushToConsole("***********dispalying  DONE*********");
 
     void parseDefFunction()
     {
-
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
@@ -1974,11 +1985,11 @@ pushToConsole("***********dispalying  DONE*********");
         }
         if (ext_function)
         {
-            NodeToken function = NodeToken(current(), defExtFunctionNode);
+            nd = NodeToken(current(), defExtFunctionNode);
             // function.addChild( nodeTokenList.pop());
             //   function.addChild(arguments._nd);
 
-            current_node = current_node->addChild(function);
+            current_node = current_node->addChild(nd);
             lasttype = current_node->addChild(nodeTokenList.pop());
 
             lasttype = current_node;
@@ -1987,11 +1998,11 @@ pushToConsole("***********dispalying  DONE*********");
         }
         else if (is_asm)
         {
-            NodeToken function = NodeToken(current(), defAsmFunctionNode);
+            nd = NodeToken(current(), defAsmFunctionNode);
             // function.addChild( nodeTokenList.pop());
             //   function.addChild(arguments._nd);
 
-            current_node = current_node->addChild(function);
+            current_node = current_node->addChild(nd);
             lasttype = current_node->addChild(nodeTokenList.pop());
 
             // lasttype=current_node;
@@ -1999,11 +2010,11 @@ pushToConsole("***********dispalying  DONE*********");
         }
         else
         {
-            NodeToken function = NodeToken(current(), defFunctionNode);
+            nd = NodeToken(current(), defFunctionNode);
             // function.addChild( nodeTokenList.pop());
             //  function.addChild(arguments._nd);
 
-            current_node = current_node->addChild(function);
+            current_node = current_node->addChild(nd);
             lasttype = current_node->addChild(nodeTokenList.pop());
 
             // lasttype=current_node;
@@ -2012,8 +2023,8 @@ pushToConsole("***********dispalying  DONE*********");
         }
         // on ajoute un nouveau contexte
 
-        Context *k = current_cntx->addChild(Context());
-        current_cntx = k;
+        current_cntx = current_cntx->addChild(Context());
+        // current_cntx = k;
         if (isStructFunction)
         {
             stack_size = _STACK_SIZE + 4;
@@ -2027,14 +2038,14 @@ pushToConsole("***********dispalying  DONE*********");
         next();
         next();
         parseCreateArguments();
-       // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
-        current_node->setTokenText(string_format("%s%s", current_node->getTokenText(), signature.c_str()));
-        main_context.addFunction(current_node);
-
         if (Error.error)
         {
             return;
         }
+        // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
+        current_node->setTokenText(string_format("%s%s", current_node->getTokenText(), signature.c_str()));
+        main_context.addFunction(current_node);
+
         if (!Match(TokenCloseParenthesis))
         {
             Error.error = 1;
@@ -2132,8 +2143,9 @@ pushToConsole("***********dispalying  DONE*********");
     }
     void parseTerm()
     {
-        // printf("entering term line:%d pos:%d\n",current()->line,current()->pos);
-        // NodeToken *sav_pa = current_node;
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         sav_token.push_back(current_node);
         parseFactor();
         if (Error.error)
@@ -2152,11 +2164,19 @@ pushToConsole("***********dispalying  DONE*********");
             current_node->addTargetText(string_format("label_tern_%d", for_if_num));
             for_if_num++;
             parseExpr();
+            if (Error.error)
+            {
+                return;
+            }
             if (Match(TokenColon))
             {
                 next();
 
                 parseExpr();
+                if (Error.error)
+                {
+                    return;
+                }
             }
             else
             {
@@ -2202,24 +2222,14 @@ pushToConsole("***********dispalying  DONE*********");
 
     void parseExprAndOr()
     {
-        // Serial.printf("eee  term1\r\n");
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
 
         sav_token.push_back(current_node);
-        /*
-        NodeToken nd;
-        nd._nodetype=changeTypeNode;
-        nd.type=TokenKeywordVarType;
-        nd._vartype=__none__;
-        if(current_node->_nodetype==changeTypeNode and strlen(current_node->getTokenText())>0)
-        {
-            nd._vartype=current_node->_vartype;
-        }
-        current_node=current_node->addChild(nd);
-        change_type.push_back(current_node);
-        */
-        // Serial.printf("eee  term\r\n");
+
         parseExprConditionnal();
-        // Serial.printf("exit  term\r\n");
+
         if (Error.error == 1)
         {
             return;
@@ -2227,16 +2237,9 @@ pushToConsole("***********dispalying  DONE*********");
         while (Match(TokenDoubleUppersand) || Match(TokenDoubleOr))
         {
 
-            // token *op = current();
             sav_t.push_back(*current());
             next();
-            // NodeBinOperator nodeopt;
-            /*
-                        NodeToken d = current_node->children.back();
-                        current_node->children.pop_back();
-                        current_node = current_node->addChild(NodeBinOperator());
-                        current_node->addChild(d);
-            */
+
             _node_token_stack.push_back(current_node->children.back());
             // NodeToken d = current_node->children.back();
             current_node->children.pop_back();
@@ -2272,7 +2275,9 @@ pushToConsole("***********dispalying  DONE*********");
     }
     void parseExprConditionnal()
     {
-
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         sav_token.push_back(current_node);
         parseExpr();
         if (Error.error == 1)
@@ -2332,7 +2337,9 @@ pushToConsole("***********dispalying  DONE*********");
     }
     void parseExpr()
     {
-
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         sav_token.push_back(current_node);
 
         parseTerm();
@@ -2371,14 +2378,17 @@ pushToConsole("***********dispalying  DONE*********");
     }
 
     void parseFactor()
-    { // resParse result;
+    {
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
+
         Error.error = 0;
-        // printf("entering factor line:%d pos:%d\n",current()->line,current()->pos);
-        // token *_f = current();
+
         if (Match(TokenStar) && Match(TokenIdentifier, 1))
         {
             _asPointer = true;
-            // printf("qsldkqsld\n");
+
             next();
             // return;
         }
@@ -2533,6 +2543,10 @@ pushToConsole("***********dispalying  DONE*********");
         else if (Match(TokenIdentifier) && !Match(TokenOpenParenthesis, 1))
         {
             getVariable(false);
+            if (Error.error)
+            {
+                return;
+            }
             //         if(current_node->getChildAtPos(current_node->children.size()-1)->_vartype==__float__)
             // change_type.back()->_vartype=__float__;
             if (change_type.size() > 0)
@@ -2564,31 +2578,32 @@ pushToConsole("***********dispalying  DONE*********");
         {
             bool sav_b = isStructFunction;
             isStructFunction = true;
-           d=NodeToken(current_node->parent->getChildAtPos(0));
-            NodeToken *par=current_node->parent->getChildAtPos(0);
-          // printf("num of cheiold:%d\n",current_node->parent->getChildAtPos(0)->children.size());
-          // nd=NodeToken(*current_node->parent->getChildAtPos(0)->getChildAtPos(0)->getChildAtPos(0));
-         //  d.addChild(NodeToken(current_node->parent->getChildAtPos(0)->getChildAtPos(0)));
+            d = NodeToken(current_node->parent->getChildAtPos(0));
+            // NodeToken *par = current_node->parent->getChildAtPos(0);
+            _node_token_stack.push_back(current_node->parent->getChildAtPos(0));
+            // printf("num of cheiold:%d\n",current_node->parent->getChildAtPos(0)->children.size());
+            // nd=NodeToken(*current_node->parent->getChildAtPos(0)->getChildAtPos(0)->getChildAtPos(0));
+            //  d.addChild(NodeToken(current_node->parent->getChildAtPos(0)->getChildAtPos(0)));
 
-            current_node=current_node->parent;
+            current_node = current_node->parent;
 
-
-            if(d._nodetype==storeGlobalVariableNode)
-            d._nodetype=globalVariableNode;
+            if (d._nodetype == storeGlobalVariableNode)
+                d._nodetype = globalVariableNode;
             else
-            d._nodetype=localVariableNode;
-            d.type=TokenUserDefinedVariableMemberFunction;
-           current_node->children.pop_back();
-           current_node->children.pop_back();
+                d._nodetype = localVariableNode;
+            d.type = TokenUserDefinedVariableMemberFunction;
+            current_node->children.pop_back();
+            current_node->children.pop_back();
             nodeTokenList.push(d);
-           // current_node->children.clear();
+            // current_node->children.clear();
             current()->addText(string_format("%s._@%s", current()->getText(), current()->getText()));
             parseFunctionCall();
             if (Error.error)
             {
                 return;
             }
-            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
+            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+            _node_token_stack.pop_back();
             // if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
             // change_type.back()->_vartype=__float__;
             isStructFunction = sav_b;
@@ -2685,8 +2700,8 @@ pushToConsole("***********dispalying  DONE*********");
 
             // nd.addChild(NodeToken(current(), stringNode));
             current_cntx->addVariable(nd);
-            NodeToken *f = program.addChildFront(nd);
-            f->addChild(NodeToken(current(), stringNode));
+            NodeToken *f = program.addChildFront(nd)->addChild(NodeToken(current(), stringNode));
+            // f->addChild(NodeToken(current(), stringNode));
             nd._nodetype = globalVariableNode;
             // nd.children.clear();
             if (current_node->_nodetype == changeTypeNode)
@@ -2705,7 +2720,9 @@ pushToConsole("***********dispalying  DONE*********");
     }
     void parseType()
     {
-
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         // resParse res;
         _nd = NodeToken(UnknownNode);
         if (Match(TokenExternal))
@@ -2746,6 +2763,10 @@ pushToConsole("***********dispalying  DONE*********");
                 _nd.isPointer = false;
             }
         }
+        else if (Match(TokenSemicolon))
+        {
+            next();
+        }
         else
         {
             Error.error = 1;
@@ -2759,6 +2780,9 @@ pushToConsole("***********dispalying  DONE*********");
     }
     void parseVariableForCreation()
     {
+#ifdef PARSER_DEBUG
+        updateMem();
+#endif
         current_cntx->findVariable(current(), true);
         if (search_result != NULL)
         {
@@ -2773,14 +2797,13 @@ pushToConsole("***********dispalying  DONE*********");
             // we are in the case led[];
             string sizestr = "";
             int j = 0;
-            NodeToken var = NodeToken(current());
+            var = NodeToken(current());
             next();
             next();
             var._total_size = 1;
             if (Match(TokenNumber))
             {
                 j++;
-                // Token num = *current();
                 if (current()->getVarType()->_varType == __int__)
                 {
                     var._total_size *= stringToInt(current()->getText());
@@ -2829,7 +2852,6 @@ pushToConsole("***********dispalying  DONE*********");
                 }
                 else
                 {
-                    // resParse res;
                     Error.error = 1;
                     Error.error_message = string_format("expecting ] %s", linepos().c_str());
                     next();
@@ -2842,7 +2864,7 @@ pushToConsole("***********dispalying  DONE*********");
                 var._nodetype = defGlobalVariableNode; // we can't have arrays in the stack
                                                        // var._total_size = stringToInt(num->text);
                 next();
-                // resParse result;
+
                 Error.error = 0;
                 nodeTokenList.push(var);
                 return;
@@ -2858,9 +2880,6 @@ pushToConsole("***********dispalying  DONE*********");
         else
         {
             nd = NodeToken(current());
-
-            // resParse result;
-            // result._nd = nd;
             Error.error = 0;
             nodeTokenList.push(nd);
             next();
@@ -2882,6 +2901,12 @@ pushToConsole("***********dispalying  DONE*********");
         {
             isStructFunction = false;
             updateMem();
+            if (Match(TokenUnknown))
+            {
+                Error.error = 1;
+                Error.error_message = string_format("Unkown Token %s", linepos().c_str());
+                return;
+            }
             if (Match(TokenKeywordStruct))
             {
 
@@ -2908,12 +2933,6 @@ pushToConsole("***********dispalying  DONE*********");
                         if (Match(TokenUserDefinedVariable) and Match(TokenOpenParenthesis, 1))
                         {
                             isStructFunction = true;
-                            /* if (!oneFunction)
-                             {
-                                 current_cntx = current_cntx->parent;
-                                 oneFunction = true;
-                             }
-                             */
                             _nd = NodeToken(UnknownNode);
                             _nd._nodetype = typeNode;
                             _nd.type = TokenKeywordVarType;
@@ -2956,7 +2975,7 @@ pushToConsole("***********dispalying  DONE*********");
                             }
                             isStructFunction = false;
                         }
-                        else
+                        else if (Match(TokenKeywordVarType) and Match(TokenIdentifier, 1) and !Match(TokenOpenParenthesis, 2))
                         {
                             usded.starts[memberpos] = _start;
 
@@ -2992,6 +3011,12 @@ pushToConsole("***********dispalying  DONE*********");
                             }
                             next();
                             memberpos++;
+                        }
+                        else
+                        {
+                            Error.error = 1;
+                            Error.error_message = string_format("Invalid statement line %s", linepos().c_str());
+                            return;
                         }
                     }
                     usded.size = _pos;
@@ -3072,20 +3097,11 @@ pushToConsole("***********dispalying  DONE*********");
 
                             if (current_node->type == TokenUserDefinedVariable)
                             {
-
-                                // printf("check if coinstructo\r\n");
                                 current()->addText(string_format("%s._@%s()", current_node->getVarType()->varName.c_str(), current_node->getVarType()->varName.c_str()));
                                 main_context.findFunction(current());
 
                                 if (search_result != NULL)
                                 {
-
-                                    // printf("  printf("we have contructore\r\n"); if coinstructo\r\n");
-
-                                    // printf("we have contructorsssse\r\n");
-
-                                    //printf("we have contructore %d %d %d \r\n", current_node->_total_size, current_node->getVarType()->total_size, current_node->_total_size / current_node->getVarType()->total_size);
-
                                     d = NodeToken(*current_node);
                                     d._nodetype = callConstructorNode;
                                     current_node = current_node->parent;
@@ -3156,65 +3172,7 @@ pushToConsole("***********dispalying  DONE*********");
                             // _tks.position = __sav_pos;
                             current_node = current_node->parent;
                         }
-                        /*
-                        else if (Match(TokenEqual) and Match(TokenNumber, 1))
-                        {
-                            next();
-                            current_node->addChild(NodeToken(current(), numberNode));
-                            next();
-                            if (!Match(TokenSemicolon))
-                            {
 
-                                Error.error = 1;
-                                Error.error_message = string_format("Expected ; %s", linepos().c_str());
-                                next();
-                                return;
-                            }
-                            next();
-                            current_node = current_node->parent;
-                            Error.error = 0;
-                        }
-
-                        else if (Match(TokenEqual) and Match(TokenIdentifier, 1) and Match(TokenOpenParenthesis, 2))
-                        {
-                            if (current_node->type == TokenUserDefinedVariable)
-                            {
-
-                                next();
-                                current()->addText(string_format("%s.%s", current_node->getVarType()->varName.c_str(), current()->getText()));
-                                NodeToken nd = *current_node;
-                                if (current_node->_nodetype == defGlobalVariableNode)
-                                    nd._nodetype = globalVariableNode;
-                                else
-                                    nd._nodetype = localVariableNode; // globalVariableNode;
-                                nd.type = TokenUserDefinedVariableMemberFunction;
-                                nd.isPointer = true;
-                                nd._total_size = current_node->getVarType()->total_size;
-
-                                nodeTokenList.push(nd);
-                                isStructFunction = true;
-                                current_node = current_node->parent;
-                                parseFunctionCall();
-
-                                if (Error.error)
-                                {
-                                    return;
-                                }
-                                if (!Match(TokenSemicolon))
-                                {
-                                    Error.error = 1;
-                                    Error.error_message = string_format("Missing ; %s", linepos().c_str());
-                                    return;
-                                }
-                                next();
-                                //       current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
-                                isStructFunction = false;
-                                Error.error = 0;
-                               // current_node = current_node->parent;
-                               // return;
-                            }
-                        }
-                        */
                         else if (Match(TokenEqual) and Match(TokenUserDefinedVariable, 1) and Match(TokenOpenParenthesis, 2) and current_node->type == TokenUserDefinedVariable)
                         {
 
@@ -3261,6 +3219,10 @@ pushToConsole("***********dispalying  DONE*********");
                             current_node->addChild(nd);
 
                             parseExpr();
+                            if (Error.error)
+                            {
+                                return;
+                            }
                             if (!Match(TokenSemicolon))
                             {
                                 Error.error = 1;
@@ -3292,8 +3254,6 @@ pushToConsole("***********dispalying  DONE*********");
 #ifdef __CONSOLE_ESP32
 
 Parser p = Parser();
-// Executable consExecutable = Executable();//
-//vector<Executable> scExecutables;
 
 void kill(Console *cons, vector<string> args)
 {
@@ -3371,18 +3331,7 @@ void run(Console *cons, vector<string> args)
     else
     {
         scriptRuntime.executeAsTask(progToRun, _args);
-        /*
-        if (progToRun > scExecutables.size())
-        {
-            LedOS.pushToConsole("No executable ...", true);
-        }
-        else
-        {
-            scExecutables[progToRun - 1].executeAsTask("main", _args);
-        }
-        */
     }
-    // SCExecutable._run(args, true);
 }
 void kill_cEsc(Console *cons)
 {
@@ -3401,55 +3350,15 @@ void kill_cEsc(Console *cons)
 }
 void parseasm(Console *cons, vector<string> args)
 {
-    /*
-    bool othercore = false;
-    executecmd = createExectutable(&cons->script, true);
-    // strcompile = "";
-   // p.clean2();
-    // //Serial.printf(config.ESC_RESET);
-
-    if (executecmd.error.error == 0)
-    {
-
-        exeExist = true;
-        if (othercore)
-        {
-            vector<string> d;
-            d.push_back("main");
-            LedOS.pushToConsole("***********START RUN *********");
-            run(cons, d);
-            if (cons->cmode == keyword)
-            {
-                _push(config.ENDLINE);
-                _push(cons->prompt(cons).c_str());
-            }
-        }
-        else
-        {
-            LedOS.pushToConsole("***********START RUN*********");
-            LedOS.pushToConsole("Execution asm ...", true);
-            executeBinary("main", executecmd);
-            LedOS.pushToConsole("Execution done.", true, true);
-        }
-    }
-    else
-    {
-        exeExist = false;
-        // Serial.printf(termColor.Red);
-        LedOS.pushToConsole(executecmd.error.error_message.c_str());
-        // Serial.printf(config.ESC_RESET);
-    }
-    */
 }
 void compile_c(Console *cons, vector<string> args)
 {
     pushToConsole("Compiling ...", true);
     Executable _scExec = p.parse_c(&cons->script);
-            _scExec.name = cons->filename;
-        scriptRuntime.addExe(_scExec);
+    _scExec.name = cons->filename;
+    scriptRuntime.addExe(_scExec);
     if (_scExec.exeExist)
     {
-
 
         pushToConsole(string_format("Compiling done. Handle number:%d", scriptRuntime._scExecutables.size()), true);
     }
@@ -3564,20 +3473,6 @@ public:
         LedOS.addEscCommand(18, parsec_cEsc, "Compile and execute a program (always second Core)");
         LedOS.addEscCommand(11, kill_cEsc, "Stop a running program");
         addExternal("__feed", externalType::function, (void *)feedTheDog);
-
-        /*
-        LedOS.script.clear();
-         LedOS.script.push_back("stack:");
-         LedOS.script.push_back(".bytes 120");
-         LedOS.script.push_back(".global @_main");
-         LedOS.script.push_back("@_main:");
-         LedOS.script.push_back("entry a1,72");
-         for (int i = 1; i < 400; i++)
-         {
-             LedOS.script.push_back("nop");
-         }
-         LedOS.script.push_back("retw.n");
-         */
     }
 };
 __INIT_PARSER _init_parser;

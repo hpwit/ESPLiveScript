@@ -107,6 +107,10 @@ void initMem()
     // printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
 #endif
 }
+void displayStat()
+{
+    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms", __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
+}
 void updateMem()
 {
 #ifndef __COMPILER_TEST
@@ -130,14 +134,13 @@ void updateMem()
         __MaxStackMemory = newdelta;
 
     __endtime = ESP.getCycleCount();
-
+    #if PARSER_DEBUG ==1
+    displayStat();
+    #endif
     // printf("max memory: %ld mem and stack:%ld free mem:%ld\n", __maxMemUsage, __MaxStackMemory, esp_get_free_heap_size());
 #endif
 }
-void displayStat()
-{
-    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms", __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
-}
+
 string _numToBytes(uint32_t __num)
 {
     string val = ".bytes 4";
