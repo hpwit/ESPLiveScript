@@ -109,7 +109,6 @@ void init()
    for(int i=0;i<nb_balls;i++)
    {
       tmpball.vx = rand(300)/255+0.5;
-      dp(tmpball.vx);
       tmpball.vy = rand(280)/255+0.3;
       tmpball.r = (rmax-rmin)*(rand(280)/180) +rmin;
       tmpball.xc = width/2*(rand(280)/255+0.3)+15;

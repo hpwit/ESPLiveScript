@@ -2267,8 +2267,8 @@ int tokenizer(Script *script, bool update, bool increae_line,
             c2 = script->nextChar();
             continue;
         }
-        if (!_for_display)
-            printf("Error invalid character |%d| line :%d pos: %d\n", c, _token_line, pos);
+        //if (!_for_display)
+          //  printf("Error invalid character |%d| line :%d pos: %d\n", c, _token_line, pos);
     }
 
     if (script->currentChar() == EOF_TEXT)
