@@ -825,24 +825,16 @@ public:
                 nb_sav_args.push_back(999);
             }
         }
-        // Serial.printf("serial2\r\n");
-        // NodeCallFunction function = NodeCallFunction(t);
-
-        // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
-        // nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
-        // Serial.printf("serial3\r\n");
 
         current_node->_vartype = current_node->getChildAtPos(0)->_vartype;
-        // parseArguments();
-        // Serial.printf("serial4\r\n");
+
         current_node->addChild(_node_token_stack.back());
         _node_token_stack.pop_back();
 
-        // printf("call sing:%s\r\n", current_node->getTokenText());
         if (nb_sav_args.back() != nb_args.back() and nb_sav_args.back() != 999) // if (sav_nb_arg != nb_args.back())
         {
             Error.error = 1;
-            // sav_nb_args
+
             Error.error_message = string_format("Expected %d arguments got %d %s", nb_sav_args.back(), nb_args.back(), linepos().c_str());
             return;
         }
@@ -860,39 +852,10 @@ public:
 #ifdef PARSER_DEBUG
         updateMem();
 #endif
-        // resParse res;
+
         Error.error = 0;
-        //  NodeComparator cn = NodeComparator();
+
         current_node = current_node->addChild(NodeToken(current(), comparatorNode));
-
-        // res._nd=NodeToken();
-
-        /*
-                parseExpr();
-                if (Error.error)
-                {
-                    return;
-                }
-                // token *t=current();
-                // current_node->type = current()->type;
-                current_node = current_node->parent;
-                current_node->type = current()->type;
-                change_type.pop_back();
-                // current_node->ad
-                next();
-                nd._nodetype = changeTypeNode;
-                nd.type = TokenKeywordVarType;
-                nd._vartype = __none__;
-                current_node = current_node->addChild(nd);
-                change_type.push_back(current_node);
-                parseExpr();
-                if (Error.error)
-                {
-                    return;
-                }
-                next();
-                current_node = current_node->parent;
-                change_type.pop_back();*/
 
         current_node->setTargetText(targetList.pop());
         parseExprAndOr();
@@ -900,13 +863,11 @@ public:
         {
             return;
         }
-        // cn.target=target;
-        // cn.addChild(left._nd);
-        // cn.addChild(right._nd);
+
         next();
         Error.error = 0;
         current_node = current_node->parent;
-        // current_node = current_node->parent;
+
         return;
     }
     void parseStatement()
@@ -914,20 +875,11 @@ public:
 #ifdef PARSER_DEBUG
         updateMem();
 #endif
-        //_asPointer=false;
+
         isPointer = false;
         sav_token.clear();
         Error.error = 0;
-        // asPointer =false;
-        // resParse result;
-        // NodeStatement statement;
-        // current_node=current_node->addChild(statement);
         current_node->addChild(NodeToken(statementNode));
-#ifndef __TEST_DEBUG
-        // printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
-#endif
-        // printf("line:%d mem:%u\r\n",current()->line,esp_get_free_heap_size());
-        //  on demarre avec la function
         updateMem();
         if (Match(TokenString))
         {
@@ -1036,58 +988,7 @@ public:
                 }
             }
         }
-        /*
-        else  if (Match(TokenIdentifier) &&  Match(TokenMember,1) && Match(TokenIdentifier, 2)  && Match(TokenOpenParenthesis, 3))
-            {
-                 current_cntx->findVariable(current(), false);
-                        if (search_result == NULL)
-        {
-
-
-            Error.error = 1;
-            Error.error_message = string_format("impossible to find declaraiton for %s %s", current()->getText(), linepos().c_str());
-            next();
-            return;
-        }
-                next();
-                next();
-                current()->addText(string_format("%s.%s",search_result->getVarType()->varName.c_str() ,current()->getText()));
-                NodeToken nd=*search_result;
-                nd._nodetype=globalVariableNode;
-                 nd.isPointer=true;
-                 nodeTokenList.push(nd);
-                isStructFunction=true;
-
-                 parseFunctionCall();
-                 isStructFunction=false;
-                 if (Error.error)
-            {
-                return;
-            }
-            else
-            {
-                if (Match(TokenSemicolon))
-                {
-                    Error.error = 0;
-                    // current_node->addChild(res._nd);
-                    // current_node=current_node->parent;
-                    // result._nd = res._nd;
-                    next();
-                    return;
-                }
-                else
-                {
-                    Error.error = 1;
-                    Error.error_message = string_format("Expected ; %s", linepos().c_str());
-                    next();
-                    return;
-                }
-            }
-
-                 next();
-                return;
-
-            }*/
+        
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
             bool sav_b = isStructFunction;
@@ -1157,8 +1058,10 @@ public:
         else if (Match(TokenStar) && Match(TokenIdentifier, 1))
         {
             _asPointer = true;
-            // printf("qsldkqsld\n");
             next();
+
+            Error.error = 0;
+           // return;
         }
         else if (Match(TokenIdentifier))
         {
@@ -2980,12 +2883,6 @@ public:
                         else if (Match(TokenKeywordVarType) and Match(TokenIdentifier, 1) and Match(TokenOpenParenthesis, 2))
                         {
                             isStructFunction = true;
-                            /* if (!oneFunction)
-                             {
-                                 current_cntx = current_cntx->parent;
-                                 oneFunction = true;
-                             }
-                             */
                             parseType();
                             if (Error.error)
                             {
@@ -3030,6 +2927,37 @@ public:
                             usded.membersNames[memberpos] = current()->getText();
                             // printf(" addinr %s.%s\r\n",usded.varName.c_str(),current()->text.c_str());
                             next(); // ;
+                            while(Match(TokenComma))
+                            {
+                                //next();
+                                 memberpos++;
+                                 usded.starts[memberpos] = _start;
+
+                                 usded.types[memberpos] = __v._varType;
+                            usded.memberSize[memberpos] = __v.size;
+                            _start += __v.total_size;
+                            for (int _var = 0; _var < __v.size; _var++)
+                            {
+                                usded.load[_pos] = __v.load[_var];
+                                usded.store[_pos] = __v.store[_var];
+                                usded.sizes[_pos] = __v.sizes[_var];
+                                _pos++;
+                            }
+                            next(); // name
+                            nd = NodeToken(current(), defLocalVariableNode);
+                            nd.type = TokenUserDefinedVariableMember;
+                            nd._vartype = __v._varType;
+                            nd.stack_pos = 1000 * (_start - __v.total_size) + _STACK_SIZE;
+                            nd._total_size = __v.size;
+                            nd.asPointer = true;
+                            nd.isPointer = true;
+                            current_cntx->addVariable(nd);
+
+                            usded.membersNames[memberpos] = current()->getText();
+                            // printf(" addinr %s.%s\r\n",usded.varName.c_str(),current()->text.c_str());
+                            next(); // ;
+
+                            }
                             if (!Match(TokenSemicolon))
                             {
                                 Error.error = 1;
