@@ -94,19 +94,6 @@ else
 
 }
 
-//float fmod(float a, float b)
-//{
-//  int tmp = (float)(a / b);
-//  return a - b * tmp;
-//}
-//
-//float time(float par1) 
-//{
-//  float myVal = millis();
-//  myVal = myVal / 65535 / par1; 
-//  myVal = fmod(myVal, 1.0);     
-//  return myVal;
-//}
 
 
 void beforeRender() {
@@ -126,8 +113,6 @@ float y0=y/height/scale -0.5;
  float  sy = y1 * cosT - x1 * sinT;
 
  float  dx = abs(sin(nSquares*log(x0 * sx + y0 * sy) + atan2(y0,x0) - t1));
-  
-// leds[128 * y + x]=hsv((float)((t2 + x0*sx + y0*sy)*255), 255, (float)((dx * dx * dx)*255));
 leds[128 * y + x]=hsv((t2 + x0*sx + y0*sy)*255, 255,(dx * dx * dx)*255);
 }
 

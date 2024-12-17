@@ -1,6 +1,6 @@
 # Introduction
 For a very long time now I have been looking at being able to execute programs on the esp32 without having to load the code via any IDE(Arduino, VSCode ...).
-I rapidly forgot that topic and focus my energy on writing leds driver and artnet libraries for the esp32. Once that done, I start thinking again about being able to write animations 'live'. Of course in my searches for existing previous implementations, I fell upon PixelBlaze and later Arti-Fx (part of the WLED MoonModules).
+I rapidly forgot that topic and focus my energy on writing leds drivers and artnet libraries for the esp32. Once that done, I start thinking again about being able to write animations 'live'. Of course in my searches for existing previous implementations, I fell upon PixelBlaze and later Arti-Fx (part of the WLED MoonModules).
 In both cases the scripting lanquage is a subset of JavaScript and to my knowkledge interpreted.
 A number of impressive animations have already been written for both these environments and PixelBlaze has a full web based accessible examples library to which one can contribute.
 WLED Arti-Fx and PixelBlaze both have a web interface to program the animations.
@@ -41,7 +41,7 @@ In the sc_examples directory you will find examples of complexe scripts.
 
 - [Variables types](#variables-types)
   * [Arrays and multidimensional arrays](#arrays-and-multidimensionnal-arrays)
-  * [Objects](#objects)
+  * [Structures](#structures)
 
 - [What you can do with the language](#what-you-can-do-with-the-language)
   * [Use of define](#use-of-define)
@@ -63,11 +63,11 @@ Being old school, I know that assembly language is the way to get the most of pe
  
 So I wrote an assembly language compiler as well as a small terminal interface to edit/save/compile/execute these programs (It will later become [ledOS](https://www.github.com/hpwit/LedOS) )
 
-Of course proposing an assembly parer is not a really something usable :) so I took my chance at writing a compiler which will produce assembly languages for the esp32 xtensa CPU. 
+Of course proposing an assembly language compiler is not a really something usable :) so I took my chance at writing a compiler which will produce assembly languages for the esp32 xtensa CPU. 
 
 <!-- TOC --><a name="c-like-language"></a>
 ## C like language
-I have chosen to go for a C like syntax which is closed to JavaScript with stronger typing. I have made a loose adaptation of the language. But you can write thing like this:
+I have chosen to go for a C like syntax which is closed to JavaScript with stronger typing. I have made a loose adaptation of the language. But you can write programs like this:
  
  ```C
  void main()
@@ -526,7 +526,7 @@ Here are the default types:
  * `uint8_t`
  * `char`
  * `bool` : `true`, `false`
- * `int` 
+ * `int` : int over 4 bytes
  * `s_int` : int over 2 bytes
  * `uint16_t`
  * `uint32_t`
@@ -549,14 +549,14 @@ int h=array3D[23][12][2];
 
 ```
 
-<!-- TOC --><a name="objects"></a>
-## Objects
 
-You can define new types call `Objects`
+## Structures
+
+You can define new types call `struct`
 
 example:
 ```C
-Objects new_type
+struct new_type
 {
   float k;
   int l;
@@ -566,7 +566,7 @@ Objects new_type
 The structures can have methods
 
 ```C
-Objects new_type
+struct new_type
 {
   float h;
   int l;
@@ -583,7 +583,7 @@ Example:
 #include "ESPLiveScript.h"
 
 string script="\
-Object new_type\n\
+struct new_type\n\
 {\n\
   float f;\n\
   int index;\n\
@@ -653,7 +653,7 @@ NB 3: Due to some memory alignment concern, for the moment you need to order the
 
 i.e :
 ```C
-Object varname
+struct varname
 {
 char c;
 uint16_t k;
@@ -662,13 +662,38 @@ float h;
 
 will not work. you need to arrange your data as such
 
-Object varname
+struct varname
 {
   float h;
   uint16_t k;
   char c;
 }
 ```
+
+you can have structure constructors
+
+```C
+struct varname
+{
+  float h;
+  uint16_t k;
+  char c;
+  varname()
+  {
+    ...
+  }
+  varname(int j)
+  {
+    h=j/23;
+  }
+}
+
+....
+
+varname d; //it is equivalent to varname d=varname();
+varname d2=varname(23);
+```
+
 
 # What you can do with the language
 

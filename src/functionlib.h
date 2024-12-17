@@ -52,7 +52,7 @@ string _rand="\
 __ASM__ uint32_t rand(uint32_t mod) \n\
 {\n\
 \"entry a1,56\" \n\
-\"l32r a4,@_stack_rand\" \n\
+\"l32r a4,@_stack_rand(d)\" \n\
 \"l32i a3,a4,0\" \n\
 \"rsr a14,234\" \n\
 \"mov a13,a14\" \n\
