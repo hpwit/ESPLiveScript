@@ -85,8 +85,8 @@ public:
             execPtr[i] = NULL;
         }
         nb_concurrent_programs = 0;
-        addExternal("_sync", externalType::function, (void *)syncExt);
-        addExternal("feed", externalType::function, (void *)feedTheDog);
+    //    addExternal("_sync", externalType::function, (void *)syncExt);
+     //   addExternal("feed", externalType::function, (void *)feedTheDog);
     }
     int getHandle(Executable *exec)
     {

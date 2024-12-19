@@ -9,6 +9,7 @@ using namespace std;
 #include "string_function.h"
 
 #include "tokenizer.h"
+#include "asm_external.h"
 
 void pushToConsole(string str, bool force)
 {
@@ -895,6 +896,7 @@ public:
 };
 
 Script main_script;
+Script extra_script;
 NodeToken program = NodeToken(programNode);
 NodeToken *current_node;
 NodeToken *search_result;
@@ -1004,13 +1006,9 @@ public:
             }
          }
             
-
-        /*
-        if (parent != NULL)
-        {
-            return parent->findFunction(t);
-        }
-       */
+        //looking in the external
+       
+  
         search_result = NULL;
         return;
     }

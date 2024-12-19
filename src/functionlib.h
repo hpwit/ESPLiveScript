@@ -144,9 +144,9 @@ loop();\n\
 string base_ext_functions="\n\
 define true 1\n\
 define false 0\n\
-external void printf(char * s,Args a);\n\
-external void printfln(char * s,Args a);\n\
 @";
+
+//external void printfln(char * s,Args a);\n
 string empty_header="";
 int stdlib_size=5;
 string stdlib[]={"sync","rand","copy","memset","fill","arduino"};
