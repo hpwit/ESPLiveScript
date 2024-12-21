@@ -360,7 +360,7 @@ public:
                     // string toinsert = external_links[i].name;
                     extra_script.clear();
                     _extra_tks.clear();
-                    printf("on iserset %s\n", external_links[i].signature.c_str());
+                   // printf("on iserset %s\n", external_links[i].signature.c_str());
                     extra_script.addContent((char *)(external_links[i].signature.c_str()));
                     extra_script.init();
                     __isBlockComment = false;
@@ -861,7 +861,7 @@ public:
                         _node_token_stack.push_back(current_node);
                         current_node = &program;
                         // string toinsert = external_links[i].name; //"external " + external_links[i].out + " " + external_links[i].name + "("+external_links[i].in + ");";
-                        printf("on inseet %s\n", external_links[i].name.c_str());
+                       // printf("on inseet %s\n", external_links[i].name.c_str());
                         //  main_script.previousChar();
                         extra_script.clear();
 
@@ -2123,7 +2123,7 @@ isStructFunction=false;
         {
             return;
         }
-        printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
+      // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
         current_node->setTokenText(string_format("%s%s", current_node->getTokenText(), signature.c_str()));
         main_context.addFunction(current_node);
 
