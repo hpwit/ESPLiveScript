@@ -50,6 +50,7 @@ enum varTypeEnum
     __userDefined__,
     __unknown__
 };
+bool insecond=false;
 
 struct varType
 {
@@ -314,7 +315,7 @@ string keywordTypeNames[] = {
 
 };
 
-#define nb_keywords 36
+#define nb_keywords 37
 #define nb_typeVariables 13
 string keyword_array[nb_keywords] =
     {"none", "uint8_t", "uint16_t", "uint32_t", "int", "s_int", "float", "void", "CRGB",
@@ -322,7 +323,7 @@ string keyword_array[nb_keywords] =
      "import", "from", "__ASM__",
      "define", "safe_mode", "_header_", "_content_", "and", "or", "continue",
      "break", "fabs", "abs", "save_reg",
-     "save_reg_abs", "struct"};
+     "save_reg_abs", "struct","override"};
 
 bool __isBlockComment = false;
 enum tokenType
@@ -405,7 +406,8 @@ enum tokenType
     TokenPlusEqual,
     TokenMinusEqual,
     TokenStarEqual,
-    TokenSlashEqual
+    TokenSlashEqual,
+    TokenOverride
 
 };
 
@@ -446,6 +448,7 @@ tokenType __keywordTypes[] = {
     TokenKeywordSaveReg,
     TokenKeywordSaveRegAbs,
     TokenKeywordStruct,
+    TokenOverride
 
 };
 
@@ -529,7 +532,8 @@ string tokenNames[] = {
     "TokenPlusEqual",
     "TokenMinusEqual",
     "TokenStarEqual",
-    "TokenSlashEqual"
+    "TokenSlashEqual",
+    "TokenOverride"
 
 #endif
 };
@@ -653,6 +657,7 @@ const char *tokenFormat[] = {
     termColor.BWhite,   // TokenMinusEqual
     termColor.BWhite,   // TokenStarEqual
     termColor.BWhite,   // TokenSlashEqual
+    termColor.LMagenta,   // TokenSlashEqual
 };
 
 /*
@@ -769,7 +774,7 @@ public:
     char previousChar()
     {
 
-        if ((position - 1) >= 0)
+        if ((position-1) >= 0)
         {
             position--;
             return (*it)[position];
@@ -790,8 +795,10 @@ public:
             }
             else
             {
-                position = 0;
-                return (*it)[0];
+                printf("jkjk\n");
+                position = -1;
+               
+                return 0;// (*it)[0];
             }
         }
     }
@@ -941,11 +948,20 @@ public:
     {
         return _tokens.size();
     }
-    void tokenize(Script *script, bool update, bool increae_line, int nbToken)
+        void tokenizelow(Script *script, bool update, bool increae_line, int nbToken)
     {
         _script = script;
         clear();
         tokenizer(script, true, increae_line, nbToken);
+        // list_of_token.push_back(token());
+        // Serial.printf("token read %d\n", tokenizer(script, true, increae_line, nbToken));
+    }
+    void tokenize(Script *script, bool update, bool increae_line, int nbToken)
+    {
+        _script = script;
+        clear();
+        
+        tokenizer(script, update, increae_line, nbToken);
         // list_of_token.push_back(token());
         // Serial.printf("token read %d\n", tokenizer(script, true, increae_line, nbToken));
     }
@@ -994,6 +1010,7 @@ public:
 
         return getTokenAtPos(position);
 #else
+
         _tokens.erase(_tokens.begin());
         _tokens.shrink_to_fit();
 
@@ -1249,9 +1266,6 @@ int tokenizer(Script *script, bool update, bool increae_line,
     v.clear();
     if (update)
     {
-        userDefinedVarTypeNames.clear();
-        userDefinedVarTypeNames.shrink_to_fit();
-        //all_text.clear();
         _tks->clear();
         for (int i = 0; i < __DEPTH; i++)
         {
@@ -1259,11 +1273,19 @@ int tokenizer(Script *script, bool update, bool increae_line,
         }
         _token_line = 1;
         pos = 0;
+         if(!insecond)
+         {
+        userDefinedVarTypeNames.clear();
+        userDefinedVarTypeNames.shrink_to_fit();
+        //all_text.clear();
+
         deleteDefine();
 
         __isBlockComment = false;
-        // _for_display= true;
+         }
     }
+        // _for_display= true;
+    
     else
     {
         script->previousChar();
@@ -1271,7 +1293,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
     int nbReadToken = 0;
     while (script->nextChar() != EOF_TEXT and nbReadToken < nbMaxTokenToRead)
     {
-        // printf(" nb read :%c:\n",script->currentChar());
+       //  printf(" nb read :%c:\n",script->currentChar());
         t.clean();
         v.clear();
         pos++;
@@ -1520,6 +1542,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 if (t.getType() == TokenKeywordExternalVar)
                 {
                     t.type = (int)TokenExternal;
+                  //  printf("ereeeeeeee\n");
                 }
                 if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
                 {

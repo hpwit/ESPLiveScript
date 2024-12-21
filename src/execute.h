@@ -85,7 +85,7 @@ public:
             execPtr[i] = NULL;
         }
         nb_concurrent_programs = 0;
-    //    addExternal("_sync", externalType::function, (void *)syncExt);
+      addExternalFunction("_sync", "void","uint32_t", (void *)syncExt);
      //   addExternal("feed", externalType::function, (void *)feedTheDog);
     }
     int getHandle(Executable *exec)
@@ -650,9 +650,10 @@ static void _run_task(void *pvParameters)
     // esp_task_wdt_delete(NULL);
     //  _exe_args *_fg = exec->df;
     exec->_isRunning = true;
+    Arguments d;
     if (exec->df.args.size() > 0)
     {
-                error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec->args);
+                error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, d);
           
          res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec->args);
         if (res.error)
@@ -662,7 +663,7 @@ static void _run_task(void *pvParameters)
     }
     else
     {
-         error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec->args);
+         error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, d);
          res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec->args);
         if (res.error)
         {

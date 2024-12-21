@@ -38,6 +38,7 @@ uint32_t __startStackMemory;
 uint32_t __MaxStackMemory;
 uint32_t __endtime;
 uint32_t __starttime;
+int savestacksize=0;
 bool oneFunction = false;
 
 int stack_size = 0;
@@ -52,6 +53,7 @@ int local_var_num = 0;
 
 int __sav_arg = 0;
 bool _asPointer = false;
+bool found;
 string struct_name = "";
 list<int> nb_args;
 vector<string> sigs;
@@ -74,6 +76,7 @@ bool isExternal = false;
 
 bool isPointer = true;
 bool isStructFunction = false;
+bool sav_b=false;
 bool isASM = false;
 bool safeMode = false;
 bool saveReg = false;
@@ -1053,6 +1056,7 @@ public:
                 c_cntx = c_cntx->parent;
             }
         }
+
         search_result = NULL;
         return;
     }
