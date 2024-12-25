@@ -257,7 +257,7 @@ public:
         }
         pushToConsole("***********PARSING DONE*********");
         updateMem();
-        buildParents(&program);
+       // buildParents(&program);
 #ifdef __TEST_DEBUG
         pushToConsole("***********dispalying  DONE*********");
         prettyPrint(&program, "");
@@ -1799,7 +1799,7 @@ isStructFunction=false;
                         return;
                     }
                     next();
-                    //       current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
+                 
                     isStructFunction = false;
                     Error.error = 0;
                     // current_node = current_node->parent;
@@ -2203,18 +2203,7 @@ isStructFunction=false;
                 updateMem();
 #endif
 
-                /*
-                #ifndef __MEM_PARSER
-                               printf("on compile %s\r\n",current_node->text.c_str());
-                                __sav_pos = _tks->position;
-                                buildParents(current_node);
-
-                                current_node->visitNode(current_node);
-                                clearContext(tobedeted);
-                                _tks->position = __sav_pos;
-                #endif
-                */
-                // printf("on a visité\r\n");
+                
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
 
@@ -2250,6 +2239,7 @@ isStructFunction=false;
             current_node->children.pop_back();
             current_node = current_node->addChild(NodeToken(ternaryIfNode));
             current_node->addChild(_node_token_stack.back());
+            //buildParents(current_node);
             _node_token_stack.pop_back();
             current_node->addTargetText(string_format("label_tern_%d", for_if_num));
             for_if_num++;
@@ -2288,6 +2278,7 @@ isStructFunction=false;
             // current_node->children.erase( --current_node->children.end());
             current_node = current_node->addChild(NodeToken(binOpNode));
             current_node->addChild(_node_token_stack.back());
+            //buildParents(current_node);
             _node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
             // NodeOperator opt = NodeOperator(op);
@@ -2335,6 +2326,7 @@ isStructFunction=false;
             current_node->children.pop_back();
             current_node = current_node->addChild(NodeToken(binOpNode));
             current_node->addChild(_node_token_stack.back());
+            //buildParents(current_node);
             _node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
             if ((&sav_t.back())->type == TokenDoubleUppersand)
@@ -2402,6 +2394,7 @@ isStructFunction=false;
             current_node = current_node->addChild(nd);
             change_type.push_back(current_node);
             current_node->addChild(_node_token_stack.back());
+            //buildParents(current_node);
             _node_token_stack.pop_back();
             current_node = current_node->parent;
             nd._vartype = __none__;
@@ -2447,7 +2440,8 @@ isStructFunction=false;
 
             current_node->children.pop_back();
             current_node = current_node->addChild(NodeToken(binOpNode));
-            current_node->addChild(_node_token_stack.back());
+           current_node->addChild(_node_token_stack.back());
+           //buildParents(current_node);
             _node_token_stack.pop_back();
             // current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
             current_node->type = sav_t.back().type;
@@ -3370,7 +3364,7 @@ isStructFunction=false;
                                 return;
                             }
                             next();
-                            //       current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(par);
+                            
                             isStructFunction = false;
                             Error.error = 0;
                             // current_node = current_node->parent;

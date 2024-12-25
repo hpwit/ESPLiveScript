@@ -70,7 +70,7 @@ list<int> nb_sav_args;
 // list<varTypeEnum> _types;
 vector<Token> sav_t;
 
-int point_regnum = 4;
+int point_regnum = 5;
 
 bool isExternal = false;
 
@@ -564,7 +564,7 @@ public:
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
         memcpy((void *)tmp, (void *)&j, sizeof(NodeToken));
- // tmp->copyChildren(&j);
+ //tmp->copyChildren(&j);
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
         children.insert(children.begin(), tmp);
@@ -2397,7 +2397,7 @@ void _visitdefFunctionNode(NodeToken *nd)
 }
 void _visitstatementNode(NodeToken *nd)
 {
-    point_regnum = 4;
+    point_regnum = 5;
     // printf("visit statement\n");
     register_numr.clear();
     register_numl.clear();
@@ -2421,7 +2421,7 @@ void _visitprogramNode(NodeToken *nd)
 {
     //
 //printf("visit program\n");
-    point_regnum = 4;
+    point_regnum = 5;
 
     // content.clear();
     // header.clear();
@@ -2468,7 +2468,7 @@ void _visitprogramNode(NodeToken *nd)
 void _visitassignementNode(NodeToken *nd)
 {
     // printf("entre assignemen\n") ;
-    point_regnum = 4;
+    point_regnum = 5;
     bufferText->sp.clear();
     bufferText->sp.push(bufferText->get());
     register_numl.duplicate();
@@ -3366,7 +3366,7 @@ void _visitcallFunctionNode(NodeToken *nd)
 void _visitforNode(NodeToken *nd)
 {
     // printf("ente for\n") ;
-    point_regnum = 4;
+    point_regnum = 5;
 
     register_numl.duplicate();
     nd->getChildAtPos(0)->visitNode();
@@ -4027,7 +4027,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
     string body = "";
     //////ppppoolplp
         int savreg_num = point_regnum;
-    point_regnum = 3;
+    point_regnum = 4;
 
 
 
@@ -4165,7 +4165,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
 void _visitifNode(NodeToken *nd)
 {
     // printf("oo\n");
-    point_regnum = 4;
+    point_regnum = 5;
     _compare.push_back(bufferText->get());
     // printf("oo1\n");
     //  bufferText->addAfter(  string_format("%s:\n",nd->target.c_str()));
@@ -4204,7 +4204,7 @@ void _visitifNode(NodeToken *nd)
 
 void _visitelseNode(NodeToken *nd)
 {
-    point_regnum = 4;
+    point_regnum = 5;
     bufferText->addBefore(string_format("j %s", nd->getTargetText()));
     // register_numl.duplicate();
 
@@ -4224,7 +4224,7 @@ void _visitelseNode(NodeToken *nd)
 
 void _visitwhileNode(NodeToken *nd)
 {
-    point_regnum = 4;
+    point_regnum = 5;
     bufferText->addAfter(string_format("%s_while:", nd->getTargetText()));
     bufferText->addAfter(string_format("%s_continue:", nd->getTargetText()));
     _compare.push_back(bufferText->get());

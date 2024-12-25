@@ -401,10 +401,12 @@ public:
     {
         if (size() > 0)
         {
+            /*
             if (!isReused(_texts.size() - 1))
             {
                 free(_texts.back());
             }
+            */
             _texts.pop_back();
             _texts.shrink_to_fit();
             position--;

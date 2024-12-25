@@ -1604,6 +1604,7 @@ _token_line = 1;
                             continue;
                         }
                     }
+                    /*
                     else if (prev.getType() == TokenDiese && !_for_display)
                     {
                         nbReadToken--;
@@ -1622,7 +1623,7 @@ _token_line = 1;
                             // script->previousChar ();
                             continue;
                         }
-                    }
+                    }*/
                     else if (prev.getType() == TokenKeywordDefine && !_for_display)
                     {
                         _tks->pop_back();
