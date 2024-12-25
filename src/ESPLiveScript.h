@@ -376,13 +376,13 @@ public:
                     parseType();
                     if (Error.error)
                     {
-
+                        Error.error_message=string_format("in parsing %s %s",external_links[i].signature.c_str(),Error.error_message.c_str());
                         return;
                     }
                     parseVariableForCreation();
                     if (Error.error)
                     {
-
+                         Error.error_message=string_format("in parsing %s %s",external_links[i].signature.c_str(),Error.error_message.c_str());
                         return;
                     }
                     nd = nodeTokenList.pop();
@@ -838,13 +838,16 @@ public:
                 
                 for (int i = 0; i < external_links.size(); i++)
                 {
-                    // printf("comparing %s ,%s \n\r", external_links[i].signature.c_str(), external_links[i].signature.c_str());
+                    // printf("comparing %s ,%s \n\r", external_links[i].signature.c_str(), sav_t.back().getText());
                     //  bool
                     found = false;
 
                     if (strstr(external_links[i].signature.c_str(), "Args") != NULL)
                     {
                         int l = strstr(external_links[i].signature.c_str(), "Args") - external_links[i].signature.c_str();
+                      // printf("l%d\n",l);
+                        if(l>0)
+                        l--;
                         if (strncmp(external_links[i].signature.c_str(), sav_t.back().getText(), l) == 0)
                         {
                             found = true;
@@ -892,6 +895,7 @@ isStructFunction=false;
                         if (Error.error)
                         {
                             //         printf("ice\n\r");
+                             Error.error_message=string_format("in parsing %s %s",external_links[i].name.c_str(),Error.error_message.c_str());
                             return;
                         }
 
@@ -899,6 +903,8 @@ isStructFunction=false;
                         if (Error.error)
                         {
                             //           printf("cold\n\r");
+                             Error.error_message=string_format("in parsing %s %s",external_links[i].name.c_str(),Error.error_message.c_str());
+
                             return;
                         }
                         current_node = _node_token_stack.back();
@@ -946,8 +952,10 @@ isStructFunction=false;
         // if (search_result->getChildAtPos(0)->_vartype == __float__ and change_type.size() > 0)
         //   change_type.back()->_vartype = __float__;
 
-        if (change_type.size() > 0)
+        if (change_type.size() > 0 )
         {
+            if(search_result->getChildAtPos(0)->children.size()==0 && !search_result->getChildAtPos(0)->asPointer)
+           change_type.back()->isPointer=search_result->getChildAtPos(0)->isPointer; //n,ew modif here
             if (change_type.back()->_vartype != __float__)
             {
                 if (search_result->getChildAtPos(0)->_vartype == __float__ || search_result->getChildAtPos(0)->_vartype == __uint32_t__)
@@ -2002,7 +2010,8 @@ isStructFunction=false;
                 return;
             }
             signature = signature + "|" + nodeTokenList.get().getVarType()->varName;
-
+        if (nodeTokenList.get().isPointer)
+            signature = signature + "*";
             parseVariableForCreation();
             if (Error.error)
             {
@@ -2494,6 +2503,7 @@ isStructFunction=false;
             current_node->addChild(NodeToken(current(), numberNode));
             if (change_type.size() > 0)
             {
+               
                 if (change_type.back()->_vartype != __float__)
                 {
                     if (current()->_vartype == __float__ || current()->_vartype == __uint32_t__)
@@ -2632,6 +2642,8 @@ isStructFunction=false;
             // change_type.back()->_vartype=__float__;
             if (change_type.size() > 0)
             {
+                if(tmp_sav->children.size()==0 && !tmp_sav->asPointer)
+                change_type.back()->isPointer=tmp_sav->isPointer;
                 if (change_type.back()->_vartype != __float__)
                 {
                     if (tmp_sav->_vartype == __float__ || tmp_sav->_vartype == __uint32_t__)

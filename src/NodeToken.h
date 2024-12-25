@@ -985,13 +985,16 @@ public:
             return;
            
      
-
+        
         for (vector<NodeToken>::iterator it = _functions.begin(); it != _functions.end(); ++it)
         {
 
             if(strstr((*it).getTokenText(),"Args")!=NULL)
             {
+           
                 int l=strstr((*it).getTokenText(),"Args")-(*it).getTokenText();
+                if(l>0)
+                l--;
                 if (strncmp((*it).getTokenText(), t->getText(),l) == 0)
             {
                 search_result = &*it;
@@ -2428,6 +2431,8 @@ void _visitprogramNode(NodeToken *nd)
     // header.addAfter(".bytes 60");
     header.addAfter("@__handle_:");
     header.addAfter(".bytes 4");
+    header.addAfter("@__execaddr_:");
+    header.addAfter(".bytes 4");
     header.addAfter("@_stackr:");
     header.addAfter(".bytes 32");
     header.addAfter(".global @__footer");
@@ -3672,7 +3677,7 @@ void _visitdefExtGlobalVariableNode(NodeToken *nd)
 }
 void _visitdefGlobalVariableNode(NodeToken *nd)
 {
-    if (strcmp(nd->getTokenText(), "_handle_") == 0)
+    if (strcmp(nd->getTokenText(), "_handle_") == 0 or strcmp(nd->getTokenText(), "_execaddr_") ==0)
         return;
     if (safeMode)
     {
@@ -4018,6 +4023,12 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
         regnum = point_regnum;
     }
     string body = "";
+    //////ppppoolplp
+        int savreg_num = point_regnum;
+    point_regnum = 3;
+
+
+
     // register_numl++;
     for (int h = 0; h < v->size - 1; h++)
     {
@@ -4142,6 +4153,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
     bufferText->sp.pop();
     //;
     register_numl.pop();
+    point_regnum = savreg_num;
     // point_regnum--;
     //    res.register_numl=register_numl;
     // res.register_numr=register_numr;

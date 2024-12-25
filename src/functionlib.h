@@ -8,6 +8,7 @@
 //string division="";
 string _sync="\
 uint32_t _handle_;\n\
+uint32_t _execaddr_;\n\
 __ASM__ void sync()\n\
 {\n\
 \"entry a1,32\" \n\
@@ -142,8 +143,8 @@ loop();\n\
 }\n\
 ";
 string base_ext_functions="\n\
-define true 1\n\
-define false 0\n\
+#define true 1\n\
+#define false 0\n\
 @";
 
 //external void printfln(char * s,Args a);\n

@@ -59,7 +59,8 @@ void addExternalFunction(string name,string out,string in, void * ptr)
     
     asmex.signature= asmex.signature+")";
     asmex.name=asmex.name+");";
-  //  printf("%s %s \n\r",asmex.signature.c_str(),asmex.name.c_str());
+   
+   // printf("%s %s \n\r",asmex.signature.c_str(),asmex.name.c_str());
     }
     if(ptr!=NULL)
          asmex.ptr=ptr;

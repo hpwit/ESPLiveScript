@@ -1271,18 +1271,20 @@ int tokenizer(Script *script, bool update, bool increae_line,
         {
             _tks->push(Token());
         }
-        _token_line = 1;
         pos = 0;
+       
          if(!insecond)
          {
         userDefinedVarTypeNames.clear();
         userDefinedVarTypeNames.shrink_to_fit();
-        //all_text.clear();
-
+        all_text.clear();
+_token_line = 1;
+        
         deleteDefine();
 
         __isBlockComment = false;
          }
+        
     }
         // _for_display= true;
     
@@ -1348,7 +1350,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 // t.line = _token_line;
                 t.pos = pos;
                 _tks->push(t);
-                // nbReadToken++;
+                 nbReadToken--;
                 continue;
             }
             else if (c2 == '<')
@@ -1544,6 +1546,22 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     t.type = (int)TokenExternal;
                   //  printf("ereeeeeeee\n");
                 }
+                if( t.getType() == TokenKeywordDefine )
+                {
+                   // printf("lll %d %d\n",pos,_token_line);//_tks->back().getType());
+                    
+                if(_tks->back().getType() == TokenDiese)
+                {
+                    if(!_for_display)
+                    {
+                        _tks->pop_back();
+                    }
+                }
+                else
+                {
+                    t.type=TokenUnknown;
+                }
+                }
                 if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
                 {
 
@@ -1636,9 +1654,9 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 }
                 if (!_for_display) // on ne remplace pas lorsque l'on display
                 {
+                    
                     if (getDefine(v) != NULL)
                     {
-
                         script->insert((char *)(getDefine(v)));
                         script->nextChar();
                         // nbReadToken--;
