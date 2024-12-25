@@ -549,6 +549,7 @@ public:
 
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
+       // tmp->copyChildren(&j);
         children.push_back(tmp);
         return tmp;
     }
@@ -563,7 +564,7 @@ public:
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
         memcpy((void *)tmp, (void *)&j, sizeof(NodeToken));
-
+ // tmp->copyChildren(&j);
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
         children.insert(children.begin(), tmp);
@@ -1399,6 +1400,7 @@ string findForWhile()
 void buildParents(NodeToken *__nd)
 
 {
+    //return;
     // return; //new
     // printf("klkkmkml %s\r\n",__nd->getTokenText());
     if (__nd->children.size() > 0)
