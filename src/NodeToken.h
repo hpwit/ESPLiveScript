@@ -549,7 +549,7 @@ public:
 
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
-       // tmp->copyChildren(&j);
+      // tmp->copyChildren(&j);
         children.push_back(tmp);
         return tmp;
     }
@@ -940,7 +940,9 @@ public:
     }
     void addFunction(NodeToken *nd)
     {
-        _functions.push_back(*nd);
+       NodeToken tmp=NodeToken(*nd);
+       tmp.copyChildren(nd);
+        _functions.push_back(NodeToken(*nd));
     }
     void addVariable(NodeToken nd)
     {
@@ -981,15 +983,16 @@ public:
         // NodeTo
 
         search_result = NULL;
-        char *tocmp;
+       // char *tocmp;
         if (t->getText() == NULL)
             return;
            
-     
+     //printf("looking for:%s\n",t->getText());
         
         for (vector<NodeToken>::iterator it = _functions.begin(); it != _functions.end(); ++it)
         {
 
+//printf("         comparing to:%s\n",(*it).getTokenText());
             if(strstr((*it).getTokenText(),"Args")!=NULL)
             {
            
@@ -998,6 +1001,7 @@ public:
                 l--;
                 if (strncmp((*it).getTokenText(), t->getText(),l) == 0)
             {
+               // printf("found :%s\n",(*it).getTokenText());
                 search_result = &*it;
                 return;
             }
@@ -1007,6 +1011,7 @@ public:
             
             if (strcmp((*it).getTokenText(), t->getText()) == 0)
             {
+                // printf("found :%s\n",(*it).getTokenText());
                 search_result = &*it;
                 return;
             }
@@ -1398,9 +1403,8 @@ string findForWhile()
 }
 
 void buildParents(NodeToken *__nd)
-
 {
-    //return;
+   // return;
     // return; //new
     // printf("klkkmkml %s\r\n",__nd->getTokenText());
     if (__nd->children.size() > 0)

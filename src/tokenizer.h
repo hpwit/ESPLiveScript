@@ -795,7 +795,7 @@ public:
             }
             else
             {
-                printf("jkjk\n");
+               // printf("jkjk\n");
                 position = -1;
                
                 return 0;// (*it)[0];
@@ -1961,14 +1961,19 @@ _token_line = 1;
 
                 string str = "/*";
                 c = script->nextChar();
+                if(c=='\n')
+                _token_line++;
                 c2 = script->nextChar();
                 while ((c != '*' or c2 != '/') and c2 != EOF_TEXT and c != EOF_TEXT) // stop when (c=* and c2=/) or c=0 or c2=0
                 {
                     if (_for_display)
                         // str = string_format("%s%c", t.getText(), c);
                         str = str + c2;
+
                     c = c2;
                     c2 = script->nextChar();
+                                    if(c2=='\n')
+                _token_line++;
                 }
                 if (_for_display)
                     t.addText(str);

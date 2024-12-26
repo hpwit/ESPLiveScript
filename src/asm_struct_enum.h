@@ -56,6 +56,10 @@ public:
         else
             return _default;
     }
+    T *back()
+    {
+        return &_stack.back();
+    }
     void swap()
     {
 
@@ -110,6 +114,7 @@ public:
        // for (int i = 0; i < _texts.size(); i++)
        for (int i =  _texts.size()-1; i >=0; i--)
         {
+            if(strlen(str)==strlen(_texts[i]))
             if (strcmp(str,_texts[i]) == 0)
             {
                 return i;
@@ -137,6 +142,10 @@ public:
             return pos;
         }
         char *m = (char *)malloc(str.size() + 1);
+        if(m==NULL)
+        {
+            printf("not anough meme\n");
+        }
         memcpy(m, str.c_str(), str.size());
         m[str.size()] = 0;
         _texts.push_back(m);
@@ -367,7 +376,7 @@ public:
     {
         return _texts.size();
     }
-    char *getText(int pos)
+    char *getText(uint16_t pos)
     {
         if (pos >= 0 and pos < _texts.size())
         {
@@ -436,7 +445,7 @@ public:
 
 private:
     char cc[1] = {'\0'};
-    int position;
+    uint16_t position;
     vector<char *>::iterator _it;
 };
 
