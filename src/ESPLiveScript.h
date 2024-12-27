@@ -360,7 +360,7 @@ public:
                     // string toinsert = external_links[i].name;
                     extra_script.clear();
                     _extra_tks.clear();
-                   // printf("on iserset %s\n", external_links[i].signature.c_str());
+                    // printf("on iserset %s\n", external_links[i].signature.c_str());
                     extra_script.addContent((char *)(external_links[i].signature.c_str()));
                     extra_script.init();
                     __isBlockComment = false;
@@ -792,20 +792,18 @@ public:
         sav_t.push_back(*current());
         next();
         next();
-        
+
         main_context.findCandidate(sav_t.back().getText());
         if (!main_context.findCandidate(sav_t.back().getText()))
         {
             if (struct_name.size() > 0)
             {
                 v = string_format("%s.%s", struct_name.c_str(), sav_t.back().getText());
-                if(main_context.findCandidate((char*)v.c_str()))
-                isStructFunction = true;
- 
+                if (main_context.findCandidate((char *)v.c_str()))
+                    isStructFunction = true;
             }
-        
         }
-        
+
         parseArguments();
         if (Error.error)
         {
@@ -823,19 +821,18 @@ public:
         if (search_result == NULL)
         {
 
-           
             if (struct_name.size() > 0)
             {
-                 sav_t.push_back(sav_t.back());  
-                sav_t.back().addText(string_format("%s.%s", struct_name.c_str(), sav_t.back().getText()));
+                sav_t.push_back(sav_t.back());
+                (&sav_t.back())->addText(string_format("%s.%s", struct_name.c_str(), sav_t.back().getText()));
                 main_context.findFunction(&sav_t.back());
                 isStructFunction = true;
-                 sav_t.pop_back();
-//sav_t.pop_back();
+                sav_t.pop_back();
+                // sav_t.pop_back();
             }
-            if(search_result == NULL)
+            if (search_result == NULL)
             {
-                
+
                 for (int i = 0; i < external_links.size(); i++)
                 {
                     // printf("comparing %s ,%s \n\r", external_links[i].signature.c_str(), external_links[i].signature.c_str());
@@ -845,6 +842,8 @@ public:
                     if (strstr(external_links[i].signature.c_str(), "Args") != NULL)
                     {
                         int l = strstr(external_links[i].signature.c_str(), "Args") - external_links[i].signature.c_str();
+                        if (l > 0)
+                            l--;
                         if (strncmp(external_links[i].signature.c_str(), sav_t.back().getText(), l) == 0)
                         {
                             found = true;
@@ -861,7 +860,7 @@ public:
                         _node_token_stack.push_back(current_node);
                         current_node = &program;
                         // string toinsert = external_links[i].name; //"external " + external_links[i].out + " " + external_links[i].name + "("+external_links[i].in + ");";
-                       // printf("on inseet %s\n", external_links[i].name.c_str());
+                        // printf("on inseet %s\n", external_links[i].name.c_str());
                         //  main_script.previousChar();
                         extra_script.clear();
 
@@ -885,8 +884,8 @@ public:
                         // printf("%s \n\r",next()->getText());
 
                         // prev();
-sav_b=isStructFunction;
-isStructFunction=false;
+                        sav_b = isStructFunction;
+                        isStructFunction = false;
                         parseType();
 
                         if (Error.error)
@@ -903,7 +902,7 @@ isStructFunction=false;
                         }
                         current_node = _node_token_stack.back();
                         _node_token_stack.pop_back();
-                        isStructFunction=sav_b;
+                        isStructFunction = sav_b;
                         break;
                         // return;
                     }
@@ -922,8 +921,6 @@ isStructFunction=false;
                 }
                 // current()->type=TokenSemicolon;
             }
-     
-            
         }
 
         // NodeToken *res=search_result;
@@ -934,7 +931,7 @@ isStructFunction=false;
 
             _nd._nodetype = extCallFunctionNode;
         }
-        else// if (_nd._nodetype == (int)defFunctionNode)
+        else // if (_nd._nodetype == (int)defFunctionNode)
         {
             _nd._nodetype = callFunctionNode;
         }
@@ -948,6 +945,8 @@ isStructFunction=false;
 
         if (change_type.size() > 0)
         {
+            if (search_result->getChildAtPos(0)->children.size() == 0 && !search_result->getChildAtPos(0)->asPointer)
+                change_type.back()->isPointer = search_result->getChildAtPos(0)->isPointer; // n,ew modif here
             if (change_type.back()->_vartype != __float__)
             {
                 if (search_result->getChildAtPos(0)->_vartype == __float__ || search_result->getChildAtPos(0)->_vartype == __uint32_t__)
@@ -961,11 +960,10 @@ isStructFunction=false;
         // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
 
         nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
-        if(isStructFunction)
+        if (isStructFunction)
         {
-             // nb_sav_args.push_back( nb_sav_args.back()-1);
-              isStructFunction=false;
-
+            // nb_sav_args.push_back( nb_sav_args.back()-1);
+            isStructFunction = false;
         }
         for (int i = 0; i < current_node->getChildAtPos(1)->children.size(); i++)
         {
@@ -1142,7 +1140,7 @@ isStructFunction=false;
 
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
-             sav_b = isStructFunction;
+            sav_b = isStructFunction;
             isStructFunction = false;
             parseFunctionCall();
 
@@ -2002,7 +2000,8 @@ isStructFunction=false;
                 return;
             }
             signature = signature + "|" + nodeTokenList.get().getVarType()->varName;
-
+            if (nodeTokenList.get().isPointer)
+                signature = signature + "*";
             parseVariableForCreation();
             if (Error.error)
             {
@@ -2123,7 +2122,7 @@ isStructFunction=false;
         {
             return;
         }
-      // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
+        // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
         current_node->setTokenText(string_format("%s%s", current_node->getTokenText(), signature.c_str()));
         main_context.addFunction(current_node);
 
@@ -2632,6 +2631,9 @@ isStructFunction=false;
             // change_type.back()->_vartype=__float__;
             if (change_type.size() > 0)
             {
+
+                if (tmp_sav->children.size() == 0 && !(tmp_sav->asPointer))
+                    change_type.back()->isPointer = tmp_sav->isPointer;
                 if (change_type.back()->_vartype != __float__)
                 {
                     if (tmp_sav->_vartype == __float__ || tmp_sav->_vartype == __uint32_t__)
@@ -2657,7 +2659,7 @@ isStructFunction=false;
 
         else if (Match(TokenUserDefinedVariable) && Match(TokenOpenParenthesis, 1))
         {
-             sav_b = isStructFunction;
+            sav_b = isStructFunction;
             isStructFunction = true;
             d = NodeToken(current_node->parent->getChildAtPos(0));
             // NodeToken *par = current_node->parent->getChildAtPos(0);
@@ -2692,7 +2694,7 @@ isStructFunction=false;
         }
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
-             sav_b = isStructFunction;
+            sav_b = isStructFunction;
             isStructFunction = false;
             parseFunctionCall();
             if (Error.error)

@@ -571,7 +571,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   }
   if (sp.opcde.compare("or") == 0)
   {
-    return parseOperandes(sp.operandes, 3, op_and, 3, bin_mov);
+    return parseOperandes(sp.operandes, 3, op_and, 3, bin_or);
   }
   if (sp.opcde.compare("bnez") == 0)
   {
@@ -1837,7 +1837,7 @@ void executeBinaryAsm(uint32_t *j, uint32_t *c)
   // free(exec);
 }
 
-error_message_struct executeBinary(string function, executable ex, uint32_t handle, Arguments arguments)
+error_message_struct executeBinary(string function, executable ex, uint32_t handle,void * exePtr, Arguments arguments)
 {
   error_message_struct res;
   // uint32_t toexecute;
@@ -1858,6 +1858,9 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
       ex.functions[i].address = (uint32_t)(ex.start_program + ex.functions[i].address);
       uint32_t *t = (uint32_t *)ex.data;
       *t = handle;
+      t++;
+      *t=(uint32_t)exePtr;
+
       uint8_t *var = (ex.data + ex.functions[i].variableaddress);
       if (ex.functions[i].args_num == arguments._args.size())
       {
@@ -1897,7 +1900,7 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
 error_message_struct executeBinary(executable ex, uint32_t handle)
 {
   Arguments args;
-  return executeBinary(ex.functions[0].name, ex, handle, args);
+  return executeBinary(ex.functions[0].name, ex, handle,NULL, args);
 }
 void freeBinary(executable *ex)
 {

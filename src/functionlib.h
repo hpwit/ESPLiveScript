@@ -8,6 +8,7 @@
 //string division="";
 string _sync="\
 uint32_t _handle_;\n\
+uint32_t _execaddr_;\n\
 __ASM__ void sync()\n\
 {\n\
 \"entry a1,32\" \n\
