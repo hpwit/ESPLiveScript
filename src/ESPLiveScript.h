@@ -83,14 +83,14 @@ public:
 void prettyPrint(NodeToken *_nd, string ident)
 {
     NodeToken nd = NodeToken(*_nd);
-    nd.parent=_nd->parent;
+    nd.parent = _nd->parent;
     if (_nd == NULL)
     {
         printf("mlqskdlmqskdlomqksdlmfdkqsdlmfk");
     }
     // printf("%s%d\n", ident.c_str(), 1);
 
-    printf("%s%s\tisPointer:%d\tparent:%d\t,asPointer:%d\t", ident.c_str(), nodeTypeNames[nd._nodetype].c_str(),nd.parent==NULL?0:1 ,nd.isPointer, nd.asPointer); //, tokenNames[nd._token.type].c_str());
+    printf("%s%s\tisPointer:%d\tparent:%d\t,asPointer:%d\t", ident.c_str(), nodeTypeNames[nd._nodetype].c_str(), nd.parent == NULL ? 0 : 1, nd.isPointer, nd.asPointer); //, tokenNames[nd._token.type].c_str());
 
     printf("text:%s\ttokenType:%s\t", nd.getTokenText(), tokenNames[nd.type].c_str());
     // printf("\n");
@@ -259,7 +259,7 @@ public:
         }
         pushToConsole("***********PARSING DONE*********");
         updateMem();
-        //buildParents(&program);
+        // buildParents(&program);
 #ifdef __TEST_DEBUG
         pushToConsole("***********dispalying  DONE*********");
         prettyPrint(&program, "");
@@ -362,7 +362,7 @@ public:
                     // string toinsert = external_links[i].name;
                     extra_script.clear();
                     _extra_tks.clear();
-                   // printf("on iserset %s\n", external_links[i].signature.c_str());
+                    // printf("on iserset %s\n", external_links[i].signature.c_str());
                     extra_script.addContent((char *)(external_links[i].signature.c_str()));
                     extra_script.init();
                     __isBlockComment = false;
@@ -375,16 +375,16 @@ public:
                     parseType();
                     if (Error.error)
                     {
-                        Error.error_message=string_format("in parsing %s %s",external_links[i].signature.c_str(),Error.error_message.c_str());
+                        Error.error_message = string_format("in parsing %s %s", external_links[i].signature.c_str(), Error.error_message.c_str());
                         return;
                     }
                     parseVariableForCreation();
                     if (Error.error)
                     {
-                         Error.error_message=string_format("in parsing %s %s",external_links[i].signature.c_str(),Error.error_message.c_str());
+                        Error.error_message = string_format("in parsing %s %s", external_links[i].signature.c_str(), Error.error_message.c_str());
                         return;
                     }
-                   NodeToken nd = nodeTokenList.pop();
+                    NodeToken nd = nodeTokenList.pop();
                     NodeToken _t = nodeTokenList.pop();
                     if (isExternal)
                     {
@@ -434,7 +434,7 @@ public:
             next();
 
             // NodeToken nd;
-           NodeToken nd = NodeToken(changeTypeNode);
+            NodeToken nd = NodeToken(changeTypeNode);
             nd._nodetype = changeTypeNode;
             nd.type = TokenKeywordVarType;
             nd._vartype = __none__;
@@ -596,8 +596,8 @@ public:
             // current_node->parent->children.pop_back();
             // current_node=par;
             current()->addText(string_format("%s.%s", search_result->getVarType()->varName.c_str(), current()->getText()));
-           NodeToken nd = NodeToken(search_result);
- nd.copyChildren(search_result);
+            NodeToken nd = NodeToken(*search_result);
+            nd.copyChildren(search_result);
             if (search_result->_nodetype == defGlobalVariableNode)
                 nd._nodetype = globalVariableNode;
             else
@@ -706,7 +706,7 @@ public:
         // nb_argument = 1;
         // Serial.printf("lkklqdqsdksmdkqsd\r\n");
         // NodeToken nd;
-       NodeToken nd = NodeToken(changeTypeNode);
+        NodeToken nd = NodeToken(changeTypeNode);
         nd._nodetype = changeTypeNode;
         nd.type = TokenKeywordVarType;
         nd._vartype = __none__;
@@ -788,27 +788,25 @@ public:
         pushToConsole(string_format("functions:%s", __FUNCTION__));
         updateMem();
 #endif
-        // printf("serial %s\r\n", current()->getText());
+        printf("calling %s\r\n", current()->getText());
         //  int sav_nb_arg;
         //  NodeToken *t = current_cntx->findFunction(current());
-    
+
         sav_t.push_back(*current());
         next();
         next();
-        
-        main_context.findCandidate(sav_t.back().getText());
+
+        //  main_context.findCandidate(sav_t.back().getText());
         if (!main_context.findCandidate(sav_t.back().getText()))
         {
             if (struct_name.size() > 0)
             {
                 v = string_format("%s.%s", struct_name.c_str(), sav_t.back().getText());
-                if(main_context.findCandidate((char*)v.c_str()))
-                isStructFunction = true;
- 
+                if (main_context.findCandidate((char *)v.c_str()))
+                    isStructFunction = true;
             }
-        
         }
-        
+
         parseArguments();
         if (Error.error)
         {
@@ -826,19 +824,18 @@ public:
         if (search_result == NULL)
         {
 
-           
             if (struct_name.size() > 0)
             {
-                 sav_t.push_back(sav_t.back());  
+                sav_t.push_back(sav_t.back());
                 (&sav_t.back())->addText(string_format("%s.%s", struct_name.c_str(), sav_t.back().getText()));
                 main_context.findFunction(&sav_t.back());
                 isStructFunction = true;
-                 sav_t.pop_back();
-//sav_t.pop_back();
+                sav_t.pop_back();
+                // sav_t.pop_back();
             }
-            if(search_result == NULL)
+            if (search_result == NULL)
             {
-                
+
                 for (int i = 0; i < external_links.size(); i++)
                 {
                     // printf("comparing %s ,%s \n\r", external_links[i].signature.c_str(), sav_t.back().getText());
@@ -848,9 +845,9 @@ public:
                     if (strstr(external_links[i].signature.c_str(), "Args") != NULL)
                     {
                         int l = strstr(external_links[i].signature.c_str(), "Args") - external_links[i].signature.c_str();
-                      // printf("l%d\n",l);
-                        if(l>0)
-                        l--;
+                        // printf("l%d\n",l);
+                        if (l > 0)
+                            l--;
                         if (strncmp(external_links[i].signature.c_str(), sav_t.back().getText(), l) == 0)
                         {
                             found = true;
@@ -867,7 +864,7 @@ public:
                         _node_token_stack.push_back(current_node);
                         current_node = &program;
                         // string toinsert = external_links[i].name; //"external " + external_links[i].out + " " + external_links[i].name + "("+external_links[i].in + ");";
-                       // printf("on inseet %s\n", external_links[i].name.c_str());
+                        // printf("on inseet %s\n", external_links[i].name.c_str());
                         //  main_script.previousChar();
                         extra_script.clear();
 
@@ -891,14 +888,14 @@ public:
                         // printf("%s \n\r",next()->getText());
 
                         // prev();
-sav_b=isStructFunction;
-isStructFunction=false;
+                        sav_b = isStructFunction;
+                        isStructFunction = false;
                         parseType();
 
                         if (Error.error)
                         {
                             //         printf("ice\n\r");
-                             Error.error_message=string_format("in parsing %s %s",external_links[i].name.c_str(),Error.error_message.c_str());
+                            Error.error_message = string_format("in parsing %s %s", external_links[i].name.c_str(), Error.error_message.c_str());
                             return;
                         }
 
@@ -906,13 +903,13 @@ isStructFunction=false;
                         if (Error.error)
                         {
                             //           printf("cold\n\r");
-                             Error.error_message=string_format("in parsing %s %s",external_links[i].name.c_str(),Error.error_message.c_str());
+                            Error.error_message = string_format("in parsing %s %s", external_links[i].name.c_str(), Error.error_message.c_str());
 
                             return;
                         }
                         current_node = _node_token_stack.back();
                         _node_token_stack.pop_back();
-                        isStructFunction=sav_b;
+                        isStructFunction = sav_b;
                         break;
                         // return;
                     }
@@ -931,19 +928,17 @@ isStructFunction=false;
                 }
                 // current()->type=TokenSemicolon;
             }
-     
-            
         }
 
         // NodeToken *res=search_result;
 
-       NodeToken _nd = NodeToken(search_result);
+        NodeToken _nd = NodeToken(search_result);
         if (_nd._nodetype == (int)defExtFunctionNode)
         {
 
             _nd._nodetype = extCallFunctionNode;
         }
-        else// if (_nd._nodetype == (int)defFunctionNode)
+        else // if (_nd._nodetype == (int)defFunctionNode)
         {
             _nd._nodetype = callFunctionNode;
         }
@@ -951,14 +946,20 @@ isStructFunction=false;
         // NodeExtCallFunction function = NodeExtCallFunction(t);
         current_node = current_node->addChild(_nd);
         // current_node->copyChildren(search_result);
-        current_node->addChild(search_result->getChildAtPos(0));
+        NodeToken *p=current_node->addChild(NodeToken(search_result->getChildAtPos(0)));
+        p->children.clear();
+            for(NodeToken *h:search_result->getChildAtPos(0)->children)
+            {
+                p->addChild(NodeToken(h));
+            }
+
         // if (search_result->getChildAtPos(0)->_vartype == __float__ and change_type.size() > 0)
         //   change_type.back()->_vartype = __float__;
 
-        if (change_type.size() > 0 )
+        if (change_type.size() > 0)
         {
-            if(search_result->getChildAtPos(0)->children.size()==0 && !search_result->getChildAtPos(0)->asPointer)
-           change_type.back()->isPointer=search_result->getChildAtPos(0)->isPointer; //n,ew modif here
+            if (search_result->getChildAtPos(0)->children.size() == 0 && !search_result->getChildAtPos(0)->asPointer)
+                change_type.back()->isPointer = search_result->getChildAtPos(0)->isPointer; // n,ew modif here
             if (change_type.back()->_vartype != __float__)
             {
                 if (search_result->getChildAtPos(0)->_vartype == __float__ || search_result->getChildAtPos(0)->_vartype == __uint32_t__)
@@ -967,16 +968,20 @@ isStructFunction=false;
                 }
             }
         }
-        current_node->addChild(search_result->getChildAtPos(1));
+        p=current_node->addChild(NodeToken(search_result->getChildAtPos(1)));
+         p->children.clear();
+              for(NodeToken *h:search_result->getChildAtPos(1)->children)
+            {
+                p->addChild(NodeToken(h));
+            }
 
         // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
 
         nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
-        if(isStructFunction)
+        if (isStructFunction)
         {
-             // nb_sav_args.push_back( nb_sav_args.back()-1);
-              isStructFunction=false;
-
+            // nb_sav_args.push_back( nb_sav_args.back()-1);
+            isStructFunction = false;
         }
         for (int i = 0; i < current_node->getChildAtPos(1)->children.size(); i++)
         {
@@ -1039,7 +1044,7 @@ isStructFunction=false;
 #endif
 
         isPointer = false;
-        sav_token.clear();
+      //  sav_token.clear();
         Error.error = 0;
         current_node->addChild(NodeToken(statementNode));
         updateMem();
@@ -1108,10 +1113,10 @@ isStructFunction=false;
             {
                 current_node = current_node->addChild(NodeToken(returnNode));
 
-               NodeToken nd = NodeToken(changeTypeNode);
+                NodeToken nd = NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
-                nd.setTokenText("yevbs");
+                // nd.setTokenText("yevbs");
                 nd._vartype = __none__;
                 if (lasttype != NULL)
                 {
@@ -1153,7 +1158,7 @@ isStructFunction=false;
 
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
-             sav_b = isStructFunction;
+            sav_b = isStructFunction;
             isStructFunction = false;
             parseFunctionCall();
 
@@ -1235,8 +1240,8 @@ isStructFunction=false;
             {
                 return;
             }
-           NodeToken d = NodeToken(current_node->getChildAtPos(0));
-
+            NodeToken d = NodeToken(current_node->getChildAtPos(0));
+           d.copyChildren(current_node->getChildAtPos(0)); // to be remover 26/12
             nodeTokenList.push(d);
             _asPointer = false;
             isPointer = false;
@@ -1259,10 +1264,10 @@ isStructFunction=false;
             {
                 nodeTokenList.pop();
                 // NodeToken nd;
-               NodeToken nd = NodeToken(changeTypeNode);
+                NodeToken nd = NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
-                nd.setTokenText("yves");
+                // nd.setTokenText("yves");
                 nd._vartype = tmp_sav->_vartype;
                 /*
                 if (tmp_sav->_vartype == __float__)
@@ -1301,17 +1306,17 @@ isStructFunction=false;
             {
                 sav_t.push_back(*current());
                 // NodeToken nd;
-               NodeToken nd = NodeToken(changeTypeNode);
+                NodeToken nd = NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
-                nd.setTokenText("yves");
+                // nd.setTokenText("yves");
                 nd._vartype = tmp_sav->_vartype;
 
                 current_node = current_node->addChild(nd);
                 change_type.push_back(current_node);
                 next();
                 current_node = current_node->addChild(NodeToken(binOpNode));
-               NodeToken * _d = current_node->addChild(nodeTokenList.pop());
+                NodeToken *_d = current_node->addChild(nodeTokenList.pop());
                 switch (_d->_nodetype)
                 {
                 case storeExtGlocalVariableNode:
@@ -1777,8 +1782,8 @@ isStructFunction=false;
 
                     next();
                     current()->addText(string_format("%s._@%s", search_result->getVarType()->varName.c_str(), current()->getText()));
-                   NodeToken nd = NodeToken(search_result);
-                  nd.copyChildren(search_result);
+                    NodeToken nd = NodeToken(search_result);
+                    nd.copyChildren(search_result);
                     if (search_result->_nodetype == defGlobalVariableNode)
                         nd._nodetype = globalVariableNode;
                     else
@@ -1788,8 +1793,7 @@ isStructFunction=false;
                     nd._total_size = search_result->getVarType()->total_size;
 
                     nodeTokenList.push(nd);
-                    
-                    
+
                     isStructFunction = true;
 
                     parseFunctionCall();
@@ -1805,7 +1809,7 @@ isStructFunction=false;
                         return;
                     }
                     next();
-                 
+
                     isStructFunction = false;
                     Error.error = 0;
                     // current_node = current_node->parent;
@@ -1833,7 +1837,7 @@ isStructFunction=false;
                 NodeToken nd = NodeToken(changeTypeNode);
                 nd._nodetype = changeTypeNode;
                 nd.type = TokenKeywordVarType;
-                nd.setTokenText("yevbs");
+                // nd.setTokenText("yevbs");
                 nd._vartype = tmp_sav->_vartype;
                 /*
                 if (tmp_sav->_vartype == __float__)
@@ -1951,6 +1955,7 @@ isStructFunction=false;
 #ifdef PARSER_DEBUG
         updateMem();
 #endif
+printf("parse arguments\n");
         Error.error = 0;
         signature = "(";
 
@@ -1991,12 +1996,12 @@ isStructFunction=false;
         {
             return;
         }
-       NodeToken _nd = nodeTokenList.pop();
+        NodeToken _nd = nodeTokenList.pop();
         //_nd._nodetype=(int)defLocalVariableNode;
-       NodeToken _t = nodeTokenList.pop();
+        NodeToken _t = nodeTokenList.pop();
 
         copyPrty(&_t, &_nd);
-         _nd = NodeToken(_nd, defLocalVariableNode);
+        _nd = NodeToken(_nd, defLocalVariableNode);
 
         // NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
         // _nd._nodetype=(int)defLocalVariableNode;
@@ -2016,17 +2021,17 @@ isStructFunction=false;
                 return;
             }
             signature = signature + "|" + nodeTokenList.get().getVarType()->varName;
-        if (nodeTokenList.get().isPointer)
-            signature = signature + "*";
+            if (nodeTokenList.get().isPointer)
+                signature = signature + "*";
             parseVariableForCreation();
             if (Error.error)
             {
                 return;
             }
             // NodeToken _nd = nodeTokenList.pop();
-           NodeToken _nd = nodeTokenList.pop();
+            NodeToken _nd = nodeTokenList.pop();
             //_nd._nodetype=(int)defLocalVariableNode;
-           NodeToken _t = nodeTokenList.pop();
+            NodeToken _t = nodeTokenList.pop();
 
             copyPrty(&_t, &_nd);
             _nd = NodeToken(_nd, defLocalVariableNode);
@@ -2055,7 +2060,7 @@ isStructFunction=false;
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
-        // printf("entering function %s with %ur\n",current()->text.c_str(),esp_get_free_heap_size());
+         printf("entering function %s \n",current()->getText());
         if (isExternal)
         {
             ext_function = true;
@@ -2081,7 +2086,7 @@ isStructFunction=false;
         if (ext_function)
         {
 
-          NodeToken nd = NodeToken(current(), defExtFunctionNode);
+            NodeToken nd = NodeToken(current(), defExtFunctionNode);
             // function.addChild( nodeTokenList.pop());
             //   function.addChild(arguments._nd);
 
@@ -2094,7 +2099,7 @@ isStructFunction=false;
         }
         else if (is_asm)
         {
-          NodeToken  nd = NodeToken(current(), defAsmFunctionNode);
+            NodeToken nd = NodeToken(current(), defAsmFunctionNode);
             // function.addChild( nodeTokenList.pop());
             //   function.addChild(arguments._nd);
 
@@ -2106,7 +2111,7 @@ isStructFunction=false;
         }
         else
         {
-          NodeToken  nd = NodeToken(current(), defFunctionNode);
+            NodeToken nd = NodeToken(current(), defFunctionNode);
             // function.addChild( nodeTokenList.pop());
             //  function.addChild(arguments._nd);
 
@@ -2134,11 +2139,12 @@ isStructFunction=false;
         next();
         next();
         parseCreateArguments();
+        printf("end parse arguments\n");
         if (Error.error)
         {
             return;
         }
-      // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
+        // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
         current_node->setTokenText(string_format("%s%s", current_node->getTokenText(), signature.c_str()));
         main_context.addFunction(current_node);
 
@@ -2199,20 +2205,20 @@ isStructFunction=false;
                 point_regnum = 4;
 
 #ifndef __MEM_PARSER
-printf("after clean function %s\n",current_node->getTokenText());
-               // buildParents(current_node);
+                printf("we visit  function %s\n", current_node->getTokenText());
+                // buildParents(current_node);
 
                 current_node->visitNode();
-               //  current_node->clear();
+                //  current_node->clear();
                 current_node->getChildAtPos(2)->clear();
-                current_node->children.pop_back();
+                //current_node->children.pop_back();
                 //  current_cntx->clear();
-                _node_token_stack.clear();
+                //_node_token_stack.clear();
+                 printf("after we visit  function %s\n", current_node->getTokenText());
                 // printf("after clean function %s\n",current_node->getTokenText());
                 updateMem();
 #endif
 
-                
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
 
@@ -2248,7 +2254,7 @@ printf("after clean function %s\n",current_node->getTokenText());
             current_node->children.pop_back();
             current_node = current_node->addChild(NodeToken(ternaryIfNode));
             current_node->addChild(_node_token_stack.back());
-            //buildParents(current_node);
+            // buildParents(current_node);
             _node_token_stack.pop_back();
             current_node->addTargetText(string_format("label_tern_%d", for_if_num));
             for_if_num++;
@@ -2287,7 +2293,7 @@ printf("after clean function %s\n",current_node->getTokenText());
             // current_node->children.erase( --current_node->children.end());
             current_node = current_node->addChild(NodeToken(binOpNode));
             current_node->addChild(_node_token_stack.back());
-            //buildParents(current_node);
+            // buildParents(current_node);
             _node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
             // NodeOperator opt = NodeOperator(op);
@@ -2335,7 +2341,7 @@ printf("after clean function %s\n",current_node->getTokenText());
             current_node->children.pop_back();
             current_node = current_node->addChild(NodeToken(binOpNode));
             current_node->addChild(_node_token_stack.back());
-            //buildParents(current_node);
+            // buildParents(current_node);
             _node_token_stack.pop_back();
             // current_node->parent->children.remove(current_node->parent->children.back());
             if ((&sav_t.back())->type == TokenDoubleUppersand)
@@ -2403,7 +2409,7 @@ printf("after clean function %s\n",current_node->getTokenText());
             current_node = current_node->addChild(nd);
             change_type.push_back(current_node);
             current_node->addChild(_node_token_stack.back());
-            //buildParents(current_node);
+            // buildParents(current_node);
             _node_token_stack.pop_back();
             current_node = current_node->parent;
             nd._vartype = __none__;
@@ -2449,8 +2455,8 @@ printf("after clean function %s\n",current_node->getTokenText());
 
             current_node->children.pop_back();
             current_node = current_node->addChild(NodeToken(binOpNode));
-           current_node->addChild(_node_token_stack.back());
-           //buildParents(current_node);
+            current_node->addChild(_node_token_stack.back());
+            // buildParents(current_node);
             _node_token_stack.pop_back();
             // current_node->addChild(NodeToken(&sav_t.back(), operatorNode));
             current_node->type = sav_t.back().type;
@@ -2506,7 +2512,7 @@ printf("after clean function %s\n",current_node->getTokenText());
             current_node->addChild(NodeToken(current(), numberNode));
             if (change_type.size() > 0)
             {
-               
+
                 if (change_type.back()->_vartype != __float__)
                 {
                     if (current()->_vartype == __float__ || current()->_vartype == __uint32_t__)
@@ -2567,7 +2573,7 @@ printf("after clean function %s\n",current_node->getTokenText());
             next(); //(
             next();
             // NodeToken nd;
-           NodeToken nd = NodeToken(changeTypeNode);
+            NodeToken nd = NodeToken(changeTypeNode);
             nd._nodetype = changeTypeNode;
             nd.type = TokenKeywordVarType;
             nd._vartype = current_node->_vartype;
@@ -2645,8 +2651,8 @@ printf("after clean function %s\n",current_node->getTokenText());
             // change_type.back()->_vartype=__float__;
             if (change_type.size() > 0)
             {
-                if(tmp_sav->children.size()==0 && !tmp_sav->asPointer)
-                change_type.back()->isPointer=tmp_sav->isPointer;
+                if (tmp_sav->children.size() == 0 && !tmp_sav->asPointer)
+                    change_type.back()->isPointer = tmp_sav->isPointer;
                 if (change_type.back()->_vartype != __float__)
                 {
                     if (tmp_sav->_vartype == __float__ || tmp_sav->_vartype == __uint32_t__)
@@ -2672,9 +2678,9 @@ printf("after clean function %s\n",current_node->getTokenText());
 
         else if (Match(TokenUserDefinedVariable) && Match(TokenOpenParenthesis, 1))
         {
-             sav_b = isStructFunction;
+            sav_b = isStructFunction;
             isStructFunction = true;
-           NodeToken d = NodeToken(current_node->parent->getChildAtPos(0));
+            NodeToken d = NodeToken(current_node->parent->getChildAtPos(0));
             // NodeToken *par = current_node->parent->getChildAtPos(0);
             _node_token_stack.push_back(current_node->parent->getChildAtPos(0));
             // printf("num of cheiold:%d\n",current_node->parent->getChildAtPos(0)->children.size());
@@ -2698,8 +2704,8 @@ printf("after clean function %s\n",current_node->getTokenText());
             {
                 return;
             }
-           current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
-           buildParents(current_node);
+            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+            buildParents(current_node);
             _node_token_stack.pop_back();
             // if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
             // change_type.back()->_vartype=__float__;
@@ -2708,7 +2714,7 @@ printf("after clean function %s\n",current_node->getTokenText());
         }
         else if (Match(TokenIdentifier) && Match(TokenOpenParenthesis, 1))
         {
-             sav_b = isStructFunction;
+            sav_b = isStructFunction;
             isStructFunction = false;
             parseFunctionCall();
             if (Error.error)
@@ -2786,7 +2792,7 @@ printf("after clean function %s\n",current_node->getTokenText());
         else if (Match(TokenString))
         {
             // NodeToken nd; //=NodeToken();
-           NodeToken nd = NodeToken(defGlobalVariableNode);
+            NodeToken nd = NodeToken(defGlobalVariableNode);
             nd._nodetype = defGlobalVariableNode;
             nd.type = TokenKeywordVarType;
 
@@ -2822,7 +2828,7 @@ printf("after clean function %s\n",current_node->getTokenText());
         updateMem();
 #endif
         // resParse res;
-     NodeToken  _nd = NodeToken(UnknownNode);
+        NodeToken _nd = NodeToken(UnknownNode);
         if (Match(TokenExternal))
         {
             isExternal = true;
@@ -3031,7 +3037,7 @@ printf("after clean function %s\n",current_node->getTokenText());
                         if (Match(TokenUserDefinedVariable) and Match(TokenOpenParenthesis, 1))
                         {
                             isStructFunction = true;
-                           NodeToken _nd = NodeToken(UnknownNode);
+                            NodeToken _nd = NodeToken(UnknownNode);
                             _nd._nodetype = typeNode;
                             _nd.type = TokenKeywordVarType;
                             _nd._vartype = __void__;
@@ -3198,8 +3204,8 @@ printf("after clean function %s\n",current_node->getTokenText());
 
                             return;
                         }
-                      NodeToken nd = nodeTokenList.pop();
-                       NodeToken _t = nodeTokenList.pop();
+                        NodeToken nd = nodeTokenList.pop();
+                        NodeToken _t = nodeTokenList.pop();
                         if (isExternal)
                         {
                             nd._nodetype = (int)defExtGlobalVariableNode;
@@ -3227,8 +3233,8 @@ printf("after clean function %s\n",current_node->getTokenText());
 
                                     return;
                                 }
-                               NodeToken nd = nodeTokenList.pop();
-                               NodeToken _t = nodeTokenList.pop();
+                                NodeToken nd = nodeTokenList.pop();
+                                NodeToken _t = nodeTokenList.pop();
                                 if (isExternal)
                                 {
                                     nd._nodetype = (int)defExtGlobalVariableNode;
@@ -3349,7 +3355,7 @@ printf("after clean function %s\n",current_node->getTokenText());
                             nodeTokenList.pop();
                             next();
                             current()->addText(string_format("%s._@%s", current_node->getVarType()->varName.c_str(), current()->getText()));
-                           NodeToken  nd = NodeToken(*current_node);
+                            NodeToken nd = NodeToken(*current_node);
                             if (current_node->_nodetype == defGlobalVariableNode)
                                 nd._nodetype = globalVariableNode;
                             else
@@ -3374,7 +3380,7 @@ printf("after clean function %s\n",current_node->getTokenText());
                                 return;
                             }
                             next();
-                            
+
                             isStructFunction = false;
                             Error.error = 0;
                             // current_node = current_node->parent;
@@ -3384,7 +3390,7 @@ printf("after clean function %s\n",current_node->getTokenText());
                         {
                             nodeTokenList.pop();
                             next();
-                           NodeToken nd = NodeToken(*current_node);
+                            NodeToken nd = NodeToken(*current_node);
                             nd._nodetype = storeGlobalVariableNode;
                             current_node = current_node->parent;
                             current_node = current_node->addChild(NodeToken(assignementNode));

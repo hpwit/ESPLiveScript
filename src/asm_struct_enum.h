@@ -302,10 +302,12 @@ public:
     {
         if (pos >= 0 and pos < size())
         {
+            /*
             if (!isReused(pos))
             {
                 free(_texts[pos]);
             }
+            */
             char *m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());
             m[str.size()] = 0;
@@ -340,10 +342,14 @@ public:
     }
     void clear()
     {
+
 // #ifndef __SPEED
        // int kk = 0;
         for (int i = 0; i < _texts.size(); i++)
         {
+            printf("trying to delete %s\n",_texts.front());
+            pop_front();
+            /*
             char *c1 = _texts[i];
             if (c1 != NULL)
             {
@@ -356,8 +362,10 @@ public:
                     }
                 }
             }
+            */
         }
 //#endif
+/*
         for (int i = 0; i < _texts.size(); i++)
         {
             if (_texts[i] != NULL)
@@ -366,6 +374,7 @@ public:
                // kk++;
             }
         }
+        */
         _texts.clear();
         _texts.shrink_to_fit();
         sp.clear();

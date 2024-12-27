@@ -535,9 +535,9 @@ public:
             addChild(lm);
         }
     }
-    NodeToken *addChild(NodeToken j)
+    NodeToken *addChild(NodeToken nd)
     {
-        j.parent = this;
+        nd.parent=this;
         NodeToken *tmp = (NodeToken *)malloc(sizeof(NodeToken));
         if (tmp == NULL)
         {
@@ -545,10 +545,22 @@ public:
             return NULL;
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        memcpy((void *)tmp, (void *)&j, sizeof(NodeToken));
+        /*
+        tmp->type = nd.type;
+        tmp->textref = nd.textref;
+        tmp->_vartype = nd._vartype;
+        tmp->_nodetype = nd._nodetype;
+        tmp->isPointer = nd.isPointer;
+        tmp->asPointer=nd.asPointer;
+        tmp->_total_size = nd._total_size;
+       tmp->stack_pos= nd.stack_pos;
+        tmp->target = nd.target;
+        */
+ memcpy((void *)tmp, (void *)&nd, sizeof(NodeToken));
 
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
+         tmp->children.clear();
       // tmp->copyChildren(&j);
         children.push_back(tmp);
         return tmp;
@@ -941,8 +953,10 @@ public:
     void addFunction(NodeToken *nd)
     {
        NodeToken tmp=NodeToken(*nd);
-       tmp.copyChildren(nd);
-        _functions.push_back(NodeToken(*nd));
+     //  tmp.copyChildren(nd);
+        _functions.push_back(tmp);
+        (&_functions.back())->children.clear();
+        (&_functions.back())->copyChildren(nd);
     }
     void addVariable(NodeToken nd)
     {
@@ -4437,7 +4451,7 @@ void optimize(Text *text)
                             if (str.compare(tmp) == 0)
                             {
                                 //  printf("%s found \r\n", tmp.c_str());
-                                text->replaceText(i, " ");
+                                text->replaceText(i, "  ");
                                 //")
                             }
                             //}
