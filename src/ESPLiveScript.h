@@ -257,7 +257,7 @@ public:
         }
         pushToConsole("***********PARSING DONE*********");
         updateMem();
-        buildParents(&program);
+       // buildParents(&program);
 #ifdef __TEST_DEBUG
         pushToConsole("***********dispalying  DONE*********");
         prettyPrint(&program, "");
@@ -597,7 +597,8 @@ public:
             // current_node->parent->children.pop_back();
             // current_node=par;
             current()->addText(string_format("%s.%s", search_result->getVarType()->varName.c_str(), current()->getText()));
-            nd = *search_result;
+            NodeToken nd = NodeToken(*search_result);
+            nd.copyChildren(search_result);
 
             if (search_result->_nodetype == defGlobalVariableNode)
                 nd._nodetype = globalVariableNode;
@@ -618,10 +619,10 @@ public:
                                                                      current_node=par;
                                                                      */
             current_node->_nodetype = UnknownNode;
-            // NodeToken *par = current_node;
+            
             _node_token_stack.push_back(current_node);
             current_node = current_node->parent;
-
+           // current_node->children.pop_back();
             nodeTokenList.push(nd);
             isStructFunction = true;
             // printf("her\n");
@@ -631,8 +632,9 @@ public:
             {
                 return;
             }
-            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+            current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
             _node_token_stack.pop_back();
+            buildParents(current_node);
             isStructFunction = false;
             Error.error = 0;
             return;
@@ -945,8 +947,9 @@ public:
 
         if (change_type.size() > 0)
         {
-            if (search_result->getChildAtPos(0)->children.size() == 0 && !search_result->getChildAtPos(0)->asPointer)
-                change_type.back()->isPointer = search_result->getChildAtPos(0)->isPointer; // n,ew modif here
+                
+            
+                change_type.back()->isPointer = search_result->getChildAtPos(0)->getIfPointer(); // n,ew modif here
             if (change_type.back()->_vartype != __float__)
             {
                 if (search_result->getChildAtPos(0)->_vartype == __float__ || search_result->getChildAtPos(0)->_vartype == __uint32_t__)
@@ -2183,7 +2186,7 @@ public:
                 point_regnum = 4;
 
 #ifndef __MEM_PARSER
-                buildParents(current_node);
+                //buildParents(current_node);
 
                 current_node->visitNode();
                 current_node->clear();
@@ -2632,8 +2635,8 @@ public:
             if (change_type.size() > 0)
             {
 
-                if (tmp_sav->children.size() == 0 && !(tmp_sav->asPointer))
-                    change_type.back()->isPointer = tmp_sav->isPointer;
+                
+                    change_type.back()->isPointer = tmp_sav->getIfPointer();
                 if (change_type.back()->_vartype != __float__)
                 {
                     if (tmp_sav->_vartype == __float__ || tmp_sav->_vartype == __uint32_t__)
@@ -2686,6 +2689,7 @@ public:
                 return;
             }
             current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+            buildParents(current_node);
             _node_token_stack.pop_back();
             // if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
             // change_type.back()->_vartype=__float__;
@@ -3017,8 +3021,8 @@ public:
                         if (Match(TokenUserDefinedVariable) and Match(TokenOpenParenthesis, 1))
                         {
                             isStructFunction = true;
-                            _nd = NodeToken(UnknownNode);
-                            _nd._nodetype = typeNode;
+                            _nd = NodeToken(typeNode);
+                            //_nd._nodetype = typeNode;
                             _nd.type = TokenKeywordVarType;
                             _nd._vartype = __void__;
                             _nd.textref = EOF_TEXT;

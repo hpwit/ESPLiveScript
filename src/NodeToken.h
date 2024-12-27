@@ -682,6 +682,13 @@ public:
     {
         return (nodeType)_nodetype;
     }
+    bool getIfPointer()
+    {
+        if(children.size()==0 && !asPointer)
+        return isPointer;
+        else
+        return false;
+    }
     int findMaxArgumentSize()
     {
         int cur_size = 0;
