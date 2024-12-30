@@ -209,6 +209,7 @@ enum nodeType
     testNode,
     ternaryIfNode,
     callConstructorNode,
+    defInputArgumentsNode,
     UnknownNode
 
 };
@@ -259,6 +260,7 @@ string nodeTypeNames[] =
         "testNode",
         "ternaryIfNode",
         "callConstructorNode",
+        "defInputArgumentsNode",
         "UnknownNode"
 
 #endif
@@ -360,6 +362,7 @@ void _visitreturnArgumentNode(NodeToken *nd);
 void _visitvariableDeclarationNode(NodeToken *nd);
 void _visitdefExtFunctionNode(NodeToken *nd);
 void _visitinputArgumentsNode(NodeToken *nd);
+void _visitdefInputArgumentsNode(NodeToken *nd);
 void _visitdefExtGlobalVariableNode(NodeToken *nd);
 void _visitdefGlobalVariableNode(NodeToken *nd);
 void _visitdefLocalVariableNode(NodeToken *nd);
@@ -575,9 +578,13 @@ public:
         int i = 0;
         if (!all)
         {
-            if (_nodetype == (int)callFunctionNode || _nodetype == (int)extCallFunctionNode || _nodetype == (int)defAsmFunctionNode || _nodetype == (int)defFunctionNode || _nodetype == (int)defExtFunctionNode)
+            if(_nodetype == defInputArgumentsNode || _nodetype == typeNode)
+            return;
+
+            if ( _nodetype == callFunctionNode || _nodetype == extCallFunctionNode || _nodetype == defAsmFunctionNode || _nodetype == defFunctionNode || _nodetype == defExtFunctionNode)
             {
-                // printf("on tente %s\r\n",getTokenText());
+           
+          //  printf("on tente %s\r\n",getTokenText());
                 i = 2;
             }
         }
@@ -585,20 +592,25 @@ public:
         for (NodeToken *child : children)
         {
 
-            // child->clear();
-            if (j >= i)
+           
+           if (j >= i)
             {
-
-                child->clear();
+                 if(!all &&_nodetype != defInputArgumentsNode && _nodetype != typeNode)
+                 {
+                child->clear(all);
                 free(child);
-                // children[j]=NULL;
+               children[j]=NULL;
             }
-            j++;
+            //children[j]=NULL;
+            }
+           j++;
         }
-
-        children.clear();
-
+ 
+         children.clear();
+    
         children.shrink_to_fit();
+
+     
     }
     void clear()
     {
@@ -802,6 +814,10 @@ public:
 
         case inputArgumentsNode:
             _visitinputArgumentsNode(this);
+            break;
+
+        case defInputArgumentsNode:
+            _visitdefInputArgumentsNode(this);
             break;
 
         case defExtGlobalVariableNode:
@@ -1118,10 +1134,10 @@ Stack<NodeToken> nodeTokenList;
 Stack<string> targetList;
 list<NodeToken *> sav_token;
 list<NodeToken *> change_type;
-NodeToken *lastFunctionType;
+//NodeToken *lastFunctionType;
 NodeToken *lasttype;
 list<NodeToken *> _node_token_stack;
-NodeToken _uniquesave;
+//NodeToken _uniquesave;
 void copyPrty(NodeToken *from, NodeToken *to)
 
 {
@@ -3583,6 +3599,9 @@ void _visitdefExtFunctionNode(NodeToken *nd)
     // printf("visit externazl function %s\n", nd->getTokenText());
 }
 void _visitinputArgumentsNode(NodeToken *nd)
+{
+}
+void _visitdefInputArgumentsNode(NodeToken *nd)
 {
 
     if (nd->children.size() < 1)

@@ -1649,8 +1649,8 @@ error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
       else
       {
         error.error = 1;
-        printf("b ou foune\r\n");
-        error.error_message += string_format("line : %d label %s not found\n", parse_line->line, parse_line->getText());
+       // printf("b ou foune\r\n");
+        error.error_message += string_format("line : %d label %s not found\n\r", parse_line->line, parse_line->getText());
       }
     }
   }

@@ -588,17 +588,11 @@ public:
             }
             // next();
             next();
-            /*
-            NodeToken *par=current_node->parent;
-            current_node->parent->children.pop_back();
-            current_node=par;
-            */
-            // par=current_node->parent;
-            // current_node->parent->children.pop_back();
-            // current_node=par;
-            current()->addText(string_format("%s.%s", search_result->getVarType()->varName.c_str(), current()->getText()));
-            nd = *search_result;
 
+            current()->addText(string_format("%s.%s", search_result->getVarType()->varName.c_str(), current()->getText()));
+            //nd = *search_result; //30/12
+            nd=NodeToken(*search_result);
+            nd.copyChildren(search_result);
             if (search_result->_nodetype == defGlobalVariableNode)
                 nd._nodetype = globalVariableNode;
             else
@@ -814,7 +808,7 @@ public:
         // NodeToken d = current_node->children.back();
         current_node->children.pop_back();
 
-        sav_t.back().addText(string_format("%s%s", sav_t.back().getText(), sigs.back().c_str()));
+        (&sav_t.back())->addText(string_format("%s%s", sav_t.back().getText(), sigs.back().c_str()));
         sigs.pop_back();
         main_context.findFunction(&sav_t.back());
         // NodeToken *t =search_result;
@@ -1109,6 +1103,12 @@ public:
                         nd._vartype = __float__;
                     }
                     */
+                }
+                else
+                {
+                    Error.error =1;
+                    Error.error_message=string_format("issue with return %s",linepos().c_str());
+                    return;
                 }
 
                 current_node = current_node->addChild(nd);
@@ -1764,7 +1764,10 @@ public:
 
                     next();
                     current()->addText(string_format("%s._@%s", search_result->getVarType()->varName.c_str(), current()->getText()));
-                    nd = *search_result;
+                    nd = NodeToken(*search_result);
+                    nd.copyChildren(search_result);//30/12
+
+
                     if (search_result->_nodetype == defGlobalVariableNode)
                         nd._nodetype = globalVariableNode;
                     else
@@ -1802,7 +1805,7 @@ public:
                 // copyPrty(type._nd, &var);
                 // current_node->addChild(left);
                 // _uniquesave=
-                _uniquesave = nodeTokenList.pop();
+               NodeToken _uniquesave = nodeTokenList.pop();
                 if (_uniquesave.getNodeTokenType() == defLocalVariableNode)
                 {
                     _uniquesave._nodetype = (int)storeLocalVariableNode;
@@ -1938,7 +1941,7 @@ public:
         Error.error = 0;
         signature = "(";
 
-        current_node = current_node->addChild(NodeToken(inputArgumentsNode));
+        current_node = current_node->addChild(NodeToken(defInputArgumentsNode));
         if (isStructFunction)
         {
             nd = NodeToken();
@@ -2072,9 +2075,8 @@ public:
             current_node = current_node->addChild(nd);
             lasttype = current_node->addChild(nodeTokenList.pop());
 
-            lasttype = current_node;
-            // current_cntx->parent->addFunction(current_node);
-            // main_context.addFunction(current_node);
+           // lasttype = current_node; //modif  30/12
+
         }
         else if (is_asm)
         {
@@ -2186,9 +2188,9 @@ public:
                 buildParents(current_node);
 
                 current_node->visitNode();
-                current_node->clear();
+                current_node->getChildAtPos(2)->clear();
                 //  current_cntx->clear();
-                _node_token_stack.clear();
+                //_node_token_stack.clear();
                 // printf("after clean function %s\n",current_node->getTokenText());
                 updateMem();
 #endif
