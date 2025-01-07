@@ -1,0 +1,1871 @@
+src/NodeToken.h:3733:25: error: Using object that points to local variable '__f' that is out of scope. [invalidLifetime]
+                    c = __num & 0xff;
+                        ^
+src/NodeToken.h:3724:54: note: Address of variable taken here.
+                    __num = (uint32_t)(*((uint32_t *)&__f));
+                                                     ^
+src/NodeToken.h:3722:27: note: Variable created here.
+                    float __f = 0;
+                          ^
+src/NodeToken.h:3733:25: note: Using object that points to local variable '__f' that is out of scope.
+                    c = __num & 0xff;
+                        ^
+src/NodeToken.h:3736:29: error: Using object that points to local variable '__f' that is out of scope. [invalidLifetime]
+                    __num = __num / 256;
+                            ^
+src/NodeToken.h:3724:54: note: Address of variable taken here.
+                    __num = (uint32_t)(*((uint32_t *)&__f));
+                                                     ^
+src/NodeToken.h:3722:27: note: Variable created here.
+                    float __f = 0;
+                          ^
+src/NodeToken.h:3736:29: note: Using object that points to local variable '__f' that is out of scope.
+                    __num = __num / 256;
+                            ^
+src/string_function.h:40:35: information: --check-library: There is no matching configuration for function std::runtime_error() [checkLibraryFunction]
+    if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
+                                  ^
+src/string_function.h:44:17: information: --check-library: There is no matching configuration for function std::string() [checkLibraryFunction]
+    return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
+                ^
+src/asm_struct_enum.h:222:33: information: --check-library: There is no matching configuration for function next() [checkLibraryFunction]
+            _it = _texts.insert(next(_it), tmp);
+                                ^
+src/asm_struct_enum.h:229:20: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+            return string(_texts.back());
+                   ^
+src/asm_struct_enum.h:236:20: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+            return string(_texts.front());
+                   ^
+src/asm_struct_enum.h:244:16: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        return string(_texts[pos]);
+               ^
+src/asm_struct_enum.h:264:27: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+            if (s.compare(string(*_it)) == 0)
+                          ^
+src/tokenizer.h:739:17: information: --check-library: There is no matching configuration for function next() [checkLibraryFunction]
+            if (next(it) == script.end())
+                ^
+src/tokenizer.h:747:22: information: --check-library: There is no matching configuration for function next() [checkLibraryFunction]
+                it = next(it);
+                     ^
+src/NodeToken.h:19:12: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+    Serial.printf("%s\r\n", str.c_str());
+           ^
+src/NodeToken.h:101:38: information: --check-library: There is no matching configuration for function uxTaskGetStackHighWaterMark() [checkLibraryFunction]
+    UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(loopTaskHandle);
+                                     ^
+src/NodeToken.h:126:38: information: --check-library: There is no matching configuration for function uxTaskGetStackHighWaterMark() [checkLibraryFunction]
+    UBaseType_t stackHighWaterMark = uxTaskGetStackHighWaterMark(loopTaskHandle);
+                                     ^
+src/NodeToken.h:653:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+                if (string(getTargetText()).compare(0, 1, "@") == 0)
+                    ^
+src/NodeToken.h:657:25: information: --check-library: There is no matching configuration for function findMember() [checkLibraryFunction]
+                int i = findMember(_vartype, string(getTargetText()));
+                        ^
+src/NodeToken.h:657:46: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+                int i = findMember(_vartype, string(getTargetText()));
+                                             ^
+src/NodeToken.h:689:45: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                int cmp = getChildAtPos(2)->getChildAtPos(i)->findMaxArgumentSize();
+                                            ^
+src/NodeToken.h:1389:15: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        res = string(p->getTargetText());
+              ^
+src/NodeToken.h:1529:17: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        else if(string(nd->getTokenText()).find("x") != string::npos)
+                ^
+src/NodeToken.h:1979:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        string sd = string(nd->getTargetText());
+                    ^
+src/NodeToken.h:2346:89: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+            variables = string_format("%s %d", variables.c_str(), nd->getChildAtPos(1)->getChildAtPos(i)->getVarType()->total_size);
+                                                                                        ^
+src/NodeToken.h:2696:23: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+    nd->setTargetText(string(nd->parent->getTargetText()));
+                      ^
+src/NodeToken.h:2938:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+            if (nd->getChildAtPos(2)->getChildAtPos(j)->findMaxArgumentSize() - 1 >= i)
+                                      ^
+src/NodeToken.h:2964:34: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+        if (t->getChildAtPos(2)->getChildAtPos(i)->isPointer)
+                                 ^
+src/NodeToken.h:2967:35: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+            nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
+                                  ^
+src/NodeToken.h:2983:42: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                if (t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType == __Args__)
+                                         ^
+src/NodeToken.h:2987:54: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
+                                                     ^
+src/NodeToken.h:2988:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
+                                      ^
+src/NodeToken.h:2995:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
+                                      ^
+src/NodeToken.h:2998:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+            if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL and convert)
+                                      ^
+src/NodeToken.h:2999:71: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
+                                                                      ^
+src/NodeToken.h:3005:49: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                _vartype = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType;
+                                                ^
+src/NodeToken.h:3008:53: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    _vartype = t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
+                                                    ^
+src/NodeToken.h:3022:49: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                _vartype = t->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType;
+                                                ^
+src/NodeToken.h:3046:42: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == numberNode)
+                                         ^
+src/NodeToken.h:3070:62: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    for (int k = 0; k < t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->getVarType()->size; k++)
+                                                             ^
+src/NodeToken.h:3077:46: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == callFunctionNode)
+                                             ^
+src/NodeToken.h:3089:46: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == extCallFunctionNode)
+                                             ^
+src/NodeToken.h:3101:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    else if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == localVariableNode)
+                                                  ^
+src/NodeToken.h:3105:138: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                            bufferText->addAfter(bufferText->sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->stack_pos));
+                                                                                                                                         ^
+src/NodeToken.h:3110:138: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                            bufferText->addAfter(bufferText->sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->stack_pos));
+                                                                                                                                         ^
+src/NodeToken.h:3113:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    else if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == globalVariableNode)
+                                                  ^
+src/NodeToken.h:3162:47: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    v = nd->getChildAtPos(1)->getChildAtPos(i)->getVarType();
+                                              ^
+src/NodeToken.h:3164:47: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    v = nd->getChildAtPos(2)->getChildAtPos(i)->getVarType();
+                                              ^
+src/NodeToken.h:3220:38: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+            if (t->getChildAtPos(1)->getChildAtPos(i)->isPointer)
+                                     ^
+src/NodeToken.h:3225:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
+                                      ^
+src/NodeToken.h:3227:50: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE;
+                                                 ^
+src/NodeToken.h:3251:54: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                globalType.push(t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
+                                                     ^
+src/NodeToken.h:3254:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                nd->getChildAtPos(2)->getChildAtPos(i)->visitNode();
+                                      ^
+src/NodeToken.h:3257:50: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                int start = t->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE + t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->total_size;
+                                                 ^
+src/NodeToken.h:3258:48: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                int tot = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1;
+                                               ^
+src/NodeToken.h:3259:58: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                for (int j = 0; j < t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size; j++)
+                                                         ^
+src/NodeToken.h:3262:47: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    if (nd->getChildAtPos(2)->getChildAtPos(i)->getVarType() != NULL)
+                                              ^
+src/NodeToken.h:3264:79: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                        translateType(globalType.get(), nd->getChildAtPos(2)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
+                                                                              ^
+src/NodeToken.h:3273:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    start -= t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->sizes[tot - j];
+                                                  ^
+src/NodeToken.h:3274:68: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                    asmInstruction asmInstr = t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->store[tot - j];
+                                                                   ^
+src/NodeToken.h:3282:55: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                        if (j == t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1)
+                                                      ^
+src/NodeToken.h:3294:55: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                        if (j == t->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1)
+                                                      ^
+src/NodeToken.h:3448:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        string sd = string(nd->getTargetText());
+                    ^
+src/NodeToken.h:3705:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+            string str = string(nd->getChildAtPos(0)->getTokenText());
+                         ^
+src/NodeToken.h:3899:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        string sd = string(nd->getTargetText());
+                    ^
+src/NodeToken.h:4075:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        string sd = string(nd->getTargetText());
+                    ^
+src/NodeToken.h:4331:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+    string target = string(nd->getTokenText());
+                    ^
+src/NodeToken.h:4389:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+            string tmp = string((*text->getChildAtPos(i)));
+                         ^
+src/asm_parser.h:486:16: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+      if (trim(string((*it)->getText())).compare(trim(s)) == 0)
+               ^
+src/asm_parser.h:528:19: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+    if (findLabel(string(res.getText()), asm_parsed) != -1)
+                  ^
+src/asm_parser.h:984:22: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+    int i = findLink(string(ps.getText()), externalType::function);
+                     ^
+src/asm_parser.h:1012:22: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+    int i = findLink(string(ps.getText()), externalType::value);
+                     ^
+src/asm_parser.h:1556:25: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+      int i = findLabel(string((*it)->getText()), asm_parsed);
+                        ^
+src/asm_parser.h:1593:29: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+      int index = findLabel(string(parse_line->getText()), asm_parsed);
+                            ^
+src/asm_parser.h:1634:29: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+      int index = findLabel(string(parse_line->getText()), asm_parsed);
+                            ^
+src/asm_parser.h:1698:29: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+      int index = findLabel(string((*it)->getText()), asm_parsed);
+                            ^
+src/asm_parser.h:1712:32: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+          string stackstring = string((*it)->getText()).insert(2, "stack_");
+                               ^
+src/asm_parser.h:1717:42: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        vector<string> args = split(trim(string((*it2)->getText())), " ");
+                                         ^
+src/asm_parser.h:1720:19: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        gc.name = string((*it)->getText());
+                  ^
+src/asm_parser.h:1723:24: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+        gc.variables = string((*it2)->getText());
+                       ^
+src/asm_parser.h:1742:32: information: --check-library: There is no matching configuration for function heap_caps_malloc() [checkLibraryFunction]
+  uint32_t *exec = (uint32_t *)heap_caps_malloc(_instr_size, MALLOC_CAP_EXEC);
+                               ^
+src/asm_parser.h:1907:5: information: --check-library: There is no matching configuration for function heap_caps_free() [checkLibraryFunction]
+    heap_caps_free(ex->start_program);
+    ^
+src/asm_parser.h:1915:5: information: --check-library: There is no matching configuration for function heap_caps_free() [checkLibraryFunction]
+    heap_caps_free(ex->data);
+    ^
+src/execute.h:71:5: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+    vTaskDelay(1);
+    ^
+src/execute.h:125:17: information: --check-library: There is no matching configuration for function vTaskSuspend() [checkLibraryFunction]
+                vTaskSuspend(__run_handles[i]);
+                ^
+src/execute.h:137:17: information: --check-library: There is no matching configuration for function vTaskResume() [checkLibraryFunction]
+                vTaskResume(__run_handles[i]);
+                ^
+src/execute.h:149:9: information: --check-library: There is no matching configuration for function xEventGroupSync() [checkLibraryFunction]
+        xEventGroupSync(xCreatedEventGroup,
+        ^
+src/execute.h:153:9: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+        vTaskDelay(10);
+        ^
+src/execute.h:154:9: information: --check-library: There is no matching configuration for function xEventGroupSync() [checkLibraryFunction]
+        xEventGroupSync(xCreatedEventGroup2,
+        ^
+src/execute.h:237:16: information: --check-library: There is no matching configuration for function xEventGroupSync() [checkLibraryFunction]
+    uxReturn = xEventGroupSync(xCreatedEventGroup,
+               ^
+src/execute.h:248:13: information: --check-library: There is no matching configuration for function xEventGroupClearBits() [checkLibraryFunction]
+            xEventGroupClearBits(xCreatedEventGroup, MASK);
+            ^
+src/execute.h:259:13: information: --check-library: There is no matching configuration for function xEventGroupSync() [checkLibraryFunction]
+            xEventGroupSync(xCreatedEventGroup2,
+            ^
+src/execute.h:269:13: information: --check-library: There is no matching configuration for function xEventGroupClearBits() [checkLibraryFunction]
+            xEventGroupClearBits(xCreatedEventGroup2, MASK);
+            ^
+src/execute.h:274:9: information: --check-library: There is no matching configuration for function xEventGroupSync() [checkLibraryFunction]
+        xEventGroupSync(xCreatedEventGroup2,
+        ^
+src/execute.h:351:20: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+            Serial.printf("Something Already running kill it first ...\r\n");
+                   ^
+src/execute.h:377:20: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+            Serial.printf("Halting the program...\r\n");
+                   ^
+src/execute.h:382:13: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+            vTaskDelay(10);
+            ^
+src/execute.h:385:17: information: --check-library: There is no matching configuration for function vTaskSuspend() [checkLibraryFunction]
+                vTaskSuspend(*runningPrograms.getHandleByIndex(__run_handle_index));
+                ^
+src/execute.h:390:13: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+            vTaskDelay(10);
+            ^
+src/execute.h:396:20: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+            Serial.printf("Program Halted.\r\n");
+                   ^
+src/execute.h:412:13: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+            vTaskDelay(10);
+            ^
+src/execute.h:413:13: information: --check-library: There is no matching configuration for function vTaskResume() [checkLibraryFunction]
+            vTaskResume(*runningPrograms.getHandleByIndex(__run_handle_index));
+            ^
+src/execute.h:427:20: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+            Serial.printf("Stopping the program...\r\n");
+                   ^
+src/execute.h:434:13: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+            vTaskDelay(10);
+            ^
+src/execute.h:440:13: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+            vTaskDelay(30);
+            ^
+src/execute.h:444:17: information: --check-library: There is no matching configuration for function vTaskDelete() [checkLibraryFunction]
+                vTaskDelete(*runningPrograms.getHandleByIndex(__run_handle_index));
+                ^
+src/execute.h:448:13: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+            vTaskDelay(30);
+            ^
+src/execute.h:455:20: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+            Serial.printf("Program stopped.\r\n");
+                   ^
+src/execute.h:457:13: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+            vTaskDelay(10);
+            ^
+src/execute.h:498:13: information: --check-library: There is no matching configuration for function vTaskDelay() [checkLibraryFunction]
+            vTaskDelay(20);
+            ^
+src/execute.h:513:24: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+                Serial.printf("too many programs at once\r\n");
+                       ^
+src/execute.h:521:13: information: --check-library: There is no matching configuration for function xTaskCreateUniversal() [checkLibraryFunction]
+            xTaskCreateUniversal(_run_task, taskname.c_str(), 4096 * 2, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), core);
+            ^
+src/execute.h:526:20: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+            Serial.printf("Execution on going CTRL + k to stop\r\n");
+                   ^
+src/execute.h:534:20: information: --check-library: There is no matching configuration for function Serial::printf() [checkLibraryFunction]
+            Serial.printf("Nothing to execute\r\n");
+                   ^
+src/execute.h:677:5: information: --check-library: There is no matching configuration for function vTaskDelete() [checkLibraryFunction]
+    vTaskDelete(NULL);
+    ^
+src/ESPLiveScript.h:423:37: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+                        string sd = string(current_node->getTargetText());
+                                    ^
+src/ESPLiveScript.h:467:25: information: --check-library: There is no matching configuration for function findMember() [checkLibraryFunction]
+                    i = findMember(current_node->getVarType(), string(current()->getText()));
+                        ^
+src/ESPLiveScript.h:467:64: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+                    i = findMember(current_node->getVarType(), string(current()->getText()));
+                                                               ^
+src/ESPLiveScript.h:479:60: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+                    i = findMember(current_node->_vartype, string(current()->getText()));
+                                                           ^
+src/ESPLiveScript.h:531:28: information: --check-library: There is no matching configuration for function Token::addText() [checkLibraryFunction]
+                current()->addText(string_format("%s.%s", search_result->getVarType()->varName.c_str(), current()->getText()));
+                           ^
+src/ESPLiveScript.h:566:81: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+                current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+                                                                                ^
+src/ESPLiveScript.h:592:38: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+        current_node = current_node->addChild(NodeToken(inputArgumentsNode));
+                                     ^
+src/ESPLiveScript.h:821:49: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+            if (current_node->getChildAtPos(1)->getChildAtPos(i)->_vartype == __Args__)
+                                                ^
+src/ESPLiveScript.h:858:38: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+        current_node = current_node->addChild(NodeToken(current(), comparatorNode));
+                                     ^
+src/ESPLiveScript.h:882:23: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+        current_node->addChild(NodeToken(statementNode));
+                      ^
+src/ESPLiveScript.h:886:27: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node->addChild(NodeToken(current(), stringNode));
+                          ^
+src/ESPLiveScript.h:902:31: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node->addChild(NodeToken(c, breakNode));
+                              ^
+src/ESPLiveScript.h:925:31: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node->addChild(NodeToken(c, continueNode));
+                              ^
+src/ESPLiveScript.h:941:31: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node->addChild(NodeToken(returnNode));
+                              ^
+src/ESPLiveScript.h:947:46: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node = current_node->addChild(NodeToken(returnNode));
+                                             ^
+src/ESPLiveScript.h:1027:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(assignementNode));
+                                         ^
+src/ESPLiveScript.h:1034:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(unitaryOpNode));
+                                         ^
+src/ESPLiveScript.h:1070:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(assignementNode));
+                                         ^
+src/ESPLiveScript.h:1151:46: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node = current_node->addChild(NodeToken(binOpNode));
+                                             ^
+src/ESPLiveScript.h:1235:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(current(), elseNode, targetList.pop()));
+                                         ^
+src/ESPLiveScript.h:1287:46: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node = current_node->addChild(NodeToken(&sav_t.back(), whileNode, targetList.get()));
+                                             ^
+src/ESPLiveScript.h:1361:46: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node = current_node->addChild(NodeToken(current(), ifNode, targetList.get()));
+                                             ^
+src/ESPLiveScript.h:1432:46: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node = current_node->addChild(NodeToken(current(), forNode, targetList.get()));
+                                             ^
+src/ESPLiveScript.h:1434:46: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node = current_node->addChild(NodeToken(statementNode));
+                                             ^
+src/ESPLiveScript.h:1456:46: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node = current_node->addChild(NodeToken(statementNode));
+                                             ^
+src/ESPLiveScript.h:1566:32: information: --check-library: There is no matching configuration for function Token::addText() [checkLibraryFunction]
+                    current()->addText(string_format("%s._@%s()", nodeTokenList.get().getVarType()->varName.c_str(), nodeTokenList.get().getVarType()->varName.c_str()));
+                               ^
+src/ESPLiveScript.h:1606:35: information: --check-library: There is no matching configuration for function Context::findVariable() [checkLibraryFunction]
+                    current_cntx->findVariable(nodeTokenList.get().getTokenText(), false);
+                                  ^
+src/ESPLiveScript.h:1617:32: information: --check-library: There is no matching configuration for function Token::addText() [checkLibraryFunction]
+                    current()->addText(string_format("%s._@%s", search_result->getVarType()->varName.c_str(), current()->getText()));
+                               ^
+src/ESPLiveScript.h:1650:46: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                current_node = current_node->addChild(NodeToken(assignementNode));
+                                             ^
+src/ESPLiveScript.h:1753:38: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+        current_node = current_node->addChild(NodeToken(current(), blockStatementNode));
+                                     ^
+src/ESPLiveScript.h:1792:38: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+        current_node = current_node->addChild(NodeToken(inputArgumentsNode));
+                                     ^
+src/ESPLiveScript.h:2090:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(ternaryIfNode));
+                                         ^
+src/ESPLiveScript.h:2128:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(binOpNode));
+                                         ^
+src/ESPLiveScript.h:2175:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(binOpNode));
+                                         ^
+src/ESPLiveScript.h:2228:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(testNode));
+                                         ^
+src/ESPLiveScript.h:2288:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(binOpNode));
+                                         ^
+src/ESPLiveScript.h:2342:27: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node->addChild(NodeToken(current(), numberNode));
+                          ^
+src/ESPLiveScript.h:2370:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(unitaryOpNode));
+                                         ^
+src/ESPLiveScript.h:2395:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(current(), changeTypeNode));
+                                         ^
+src/ESPLiveScript.h:2528:24: information: --check-library: There is no matching configuration for function Token::addText() [checkLibraryFunction]
+            current()->addText(string_format("%s._@%s", current()->getText(), current()->getText()));
+                       ^
+src/ESPLiveScript.h:2534:77: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+                                                                            ^
+src/ESPLiveScript.h:2562:42: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+            current_node = current_node->addChild(NodeToken(current(), numberNode));
+                                         ^
+src/ESPLiveScript.h:2632:41: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+             program.addChildFront(nd)->addChild(NodeToken(current(), stringNode));
+                                        ^
+src/ESPLiveScript.h:2740:47: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+                    sizestr = sizestr + " " + string(current()->getText());
+                                              ^
+src/ESPLiveScript.h:2758:51: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+                        sizestr = sizestr + " " + string(current()->getText());
+                                                  ^
+src/ESPLiveScript.h:2874:40: information: --check-library: There is no matching configuration for function Token::addText() [checkLibraryFunction]
+                            current()->addText(string_format("%s._@%s", usded.varName.c_str(), current()->getText()));
+                                       ^
+src/ESPLiveScript.h:2893:40: information: --check-library: There is no matching configuration for function Token::addText() [checkLibraryFunction]
+                            current()->addText(string_format("%s.%s", usded.varName.c_str(), current()->getText()));
+                                       ^
+src/ESPLiveScript.h:3101:44: information: --check-library: There is no matching configuration for function Token::addText() [checkLibraryFunction]
+                                current()->addText(string_format("%s._@%s()", current_node->getVarType()->varName.c_str(), current_node->getVarType()->varName.c_str()));
+                                           ^
+src/ESPLiveScript.h:3120:43: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                            current_node->addChild(NodeToken(current(), stringNode));
+                                          ^
+src/ESPLiveScript.h:3184:40: information: --check-library: There is no matching configuration for function Token::addText() [checkLibraryFunction]
+                            current()->addText(string_format("%s._@%s", current_node->getVarType()->varName.c_str(), current()->getText()));
+                                       ^
+src/ESPLiveScript.h:3223:58: information: --check-library: There is no matching configuration for function NodeToken::addChild() [checkLibraryFunction]
+                            current_node = current_node->addChild(NodeToken(assignementNode));
+                                                         ^
+src/asm_struct_enum.h:72:9: information: --check-library: There is no matching configuration for function push() [checkLibraryFunction]
+        push(sav + 1);
+        ^
+src/asm_struct_enum.h:81:9: information: --check-library: There is no matching configuration for function push() [checkLibraryFunction]
+        push(sav - 1);
+        ^
+src/asm_struct_enum.h:530:3: warning: Member variable 'result_parse_line::bincode' is not initialized in the constructor. [uninitMemberVar]
+  result_parse_line(){}
+  ^
+src/asm_struct_enum.h:530:3: warning: Member variable 'result_parse_line::size' is not initialized in the constructor. [uninitMemberVar]
+  result_parse_line(){}
+  ^
+src/asm_struct_enum.h:530:3: warning: Member variable 'result_parse_line::op' is not initialized in the constructor. [uninitMemberVar]
+  result_parse_line(){}
+  ^
+src/asm_struct_enum.h:530:3: warning: Member variable 'result_parse_line::address' is not initialized in the constructor. [uninitMemberVar]
+  result_parse_line(){}
+  ^
+src/asm_struct_enum.h:530:3: warning: Member variable 'result_parse_line::align' is not initialized in the constructor. [uninitMemberVar]
+  result_parse_line(){}
+  ^
+src/asm_struct_enum.h:530:3: warning: Member variable 'result_parse_line::line' is not initialized in the constructor. [uninitMemberVar]
+  result_parse_line(){}
+  ^
+src/tokenizer.h:923:5: warning: Member variable 'Tokens::_script' is not initialized in the constructor. [uninitMemberVar]
+    Tokens()
+    ^
+src/ESPLiveScript.h:33:5: warning: Member variable '_arguments::intval' is not initialized in the constructor. [uninitMemberVar]
+    _arguments()
+    ^
+src/ESPLiveScript.h:33:5: warning: Member variable '_arguments::floatval' is not initialized in the constructor. [uninitMemberVar]
+    _arguments()
+    ^
+src/ESPLiveScript.h:37:5: warning: Member variable '_arguments::floatval' is not initialized in the constructor. [uninitMemberVar]
+    _arguments(int val)
+    ^
+src/ESPLiveScript.h:42:5: warning: Member variable '_arguments::intval' is not initialized in the constructor. [uninitMemberVar]
+    _arguments(float val)
+    ^
+src/execute.h:79:5: warning: Member variable '_executablesClass::nb_concurrent_programs_current' is not initialized in the constructor. [uninitMemberVar]
+    _executablesClass()
+    ^
+src/execute.h:297:5: warning: Member variable 'Executable::error' is not initialized in the constructor. [uninitMemberVar]
+    Executable()
+    ^
+src/execute.h:297:5: warning: Member variable 'Executable::df' is not initialized in the constructor. [uninitMemberVar]
+    Executable()
+    ^
+src/execute.h:306:5: warning: Member variable 'Executable::__run_handle_index' is not initialized in the constructor. [uninitMemberVar]
+    Executable(executable _executable)
+    ^
+src/execute.h:306:5: warning: Member variable 'Executable::error' is not initialized in the constructor. [uninitMemberVar]
+    Executable(executable _executable)
+    ^
+src/execute.h:306:5: warning: Member variable 'Executable::df' is not initialized in the constructor. [uninitMemberVar]
+    Executable(executable _executable)
+    ^
+src/asm_struct_enum.h:18:5: warning:inconclusive: Member variable 'Stack < int >::_default' is not initialized in the constructor. [uninitMemberVar]
+    Stack() {}
+    ^
+src/asm_struct_enum.h:18:5: warning:inconclusive: Member variable 'Stack < varTypeEnum >::_default' is not initialized in the constructor. [uninitMemberVar]
+    Stack() {}
+    ^
+src/asm_struct_enum.h:21:9: performance: Variable '_default' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+        _default = def;
+        ^
+src/asm_struct_enum.h:240:12: style:inconclusive: Technically the member function 'Text::textAt' can be const. [functionConst]
+    string textAt(int pos)
+           ^
+src/asm_struct_enum.h:366:9: style:inconclusive: Technically the member function 'Text::size' can be const. [functionConst]
+    int size()
+        ^
+src/asm_struct_enum.h:415:9: style:inconclusive: Technically the member function 'Text::get' can be const. [functionConst]
+    int get()
+        ^
+src/tokenizer.h:754:10: style:inconclusive: Technically the member function 'Script::currentChar' can be const. [functionConst]
+    char currentChar()
+         ^
+src/tokenizer.h:867:15: style:inconclusive: Technically the member function 'Token::getType' can be const. [functionConst]
+    tokenType getType()
+              ^
+src/tokenizer.h:940:9: style:inconclusive: Technically the member function 'Tokens::size' can be const. [functionConst]
+    int size()
+        ^
+src/NodeToken.h:677:14: style:inconclusive: Technically the member function 'NodeToken::getNodeTokenType' can be const. [functionConst]
+    nodeType getNodeTokenType()
+             ^
+src/NodeToken.h:935:10: performance:inconclusive: Technically the member function 'Context::addFunction' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+    void addFunction(NodeToken *nd)
+         ^
+src/NodeToken.h:943:10: performance:inconclusive: Technically the member function 'Context::findCandidate' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+    bool findCandidate(char *str)
+         ^
+src/NodeToken.h:973:10: performance:inconclusive: Technically the member function 'Context::findFunction' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+    void findFunction(Token *t)
+         ^
+src/ESPLiveScript.h:74:9: style:inconclusive: Technically the member function 'Arguments::size' can be const. [functionConst]
+    int size()
+        ^
+src/execute.h:184:9: performance:inconclusive: Technically the member function '_executablesClass::getFirstHandle' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+    int getFirstHandle()
+        ^
+src/execute.h:561:10: style:inconclusive: Technically the member function 'Executable::isExeExists' can be const. [functionConst]
+    bool isExeExists()
+         ^
+src/execute.h:633:10: style:inconclusive: Technically the member function 'Executable::isRunning' can be const. [functionConst]
+    bool isRunning()
+         ^
+src/ESPLiveScript.h:167:9: performance:inconclusive: Technically the member function 'Parser::size' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+    int size()
+        ^
+src/ESPLiveScript.h:191:10: performance:inconclusive: Technically the member function 'Parser::Match' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+    bool Match(tokenType tt)
+         ^
+src/ESPLiveScript.h:195:10: performance:inconclusive: Technically the member function 'Parser::Match' can be static (but you may consider moving to unnamed namespace). [functionStatic]
+    bool Match(tokenType tt, int index)
+         ^
+src/tokenizer.h:852:5: style: Class 'Token' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    Token(tokenType h)
+    ^
+src/NodeToken.h:385:5: style: Class 'NodeToken' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    NodeToken(nodeType tt)
+    ^
+src/NodeToken.h:398:5: style: Class 'NodeToken' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    NodeToken(Token *t)
+    ^
+src/NodeToken.h:481:5: style: Class 'NodeToken' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    NodeToken(NodeToken *nd)
+    ^
+src/ESPLiveScript.h:37:5: style: Class '_arguments' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    _arguments(int val)
+    ^
+src/ESPLiveScript.h:42:5: style: Class '_arguments' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    _arguments(float val)
+    ^
+src/execute.h:306:5: style: Class 'Executable' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    Executable(executable _executable)
+    ^
+src/asm_struct_enum.h:19:5: style: Class 'Stack < int >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    Stack(T def)
+    ^
+src/asm_struct_enum.h:19:5: style: Class 'Stack < NodeToken >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    Stack(T def)
+    ^
+src/asm_struct_enum.h:19:5: style: Class 'Stack < string >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    Stack(T def)
+    ^
+src/asm_struct_enum.h:19:5: style: Class 'Stack < varTypeEnum >' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+    Stack(T def)
+    ^
+src/NodeToken.h:2923:11: style: Condition 't==NULL' is always false [knownConditionTrueFalse]
+    if (t == NULL)
+          ^
+src/NodeToken.h:2907:12: note: Assuming that condition 'nd==NULL' is not redundant
+    if (nd == NULL)
+           ^
+src/NodeToken.h:2922:20: note: Assignment 't=nd', assigned value is 0
+    NodeToken *t = nd; // cntx.findFunction(nd->_token);
+                   ^
+src/NodeToken.h:2923:11: note: Condition 't==NULL' is always false
+    if (t == NULL)
+          ^
+src/execute.h:431:20: style: Condition '!toResetSync' is always false [knownConditionTrueFalse]
+            while (!toResetSync)
+                   ^
+src/execute.h:430:27: note: Assignment 'toResetSync=true', assigned value is 1
+            toResetSync = true;
+                          ^
+src/execute.h:431:20: note: Condition '!toResetSync' is always false
+            while (!toResetSync)
+                   ^
+src/NodeToken.h:3729:21: warning: %lu in format string (no. 1) requires 'unsigned long *' but the argument type is 'unsigned int *'. [invalidScanfArgType_int]
+                    sscanf(ndt->getTokenText(), "%lu", &__num);
+                    ^
+src/execute.h:554:13: warning: %ld in format string (no. 1) requires 'long' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+            printf("Free memory after:%ld freed:%ld\r\n", mema, mema - memb);
+            ^
+src/execute.h:554:13: warning: %ld in format string (no. 2) requires 'long' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
+            printf("Free memory after:%ld freed:%ld\r\n", mema, mema - memb);
+            ^
+src/asm_struct_enum.h:127:9: information: --check-library: Function push_back() should have <use>/<leak-ignore> configuration [checkLibraryUseIgnore]
+        return _texts.size() - 1;
+        ^
+src/asm_struct_enum.h:147:9: information: --check-library: Function push_back() should have <use>/<leak-ignore> configuration [checkLibraryUseIgnore]
+        return _texts.size() - 1;
+        ^
+src/asm_struct_enum.h:225:5: information: --check-library: Function push_back() should have <use>/<leak-ignore> configuration [checkLibraryUseIgnore]
+    }
+    ^
+src/asm_struct_enum.h:288:9: information: --check-library: Function insert() should have <use>/<leak-ignore> configuration [checkLibraryUseIgnore]
+        }
+        ^
+src/asm_struct_enum.h:583:5: information: --check-library: Function push_back() should have <use>/<leak-ignore> configuration [checkLibraryUseIgnore]
+    return parsed_lines.back();
+    ^
+src/tokenizer.h:948:55: information: --check-library: Function tokenizer() should have <noreturn> configuration [checkLibraryNoReturn]
+        tokenizer(script, true, increae_line, nbToken);
+                                                      ^
+src/NodeToken.h:28:30: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+    pushToConsole(str, false);
+                             ^
+src/NodeToken.h:112:264: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms", __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
+                                                                                                                                                                                                                                                                       ^
+src/NodeToken.h:1776:64: information: --check-library: Function translateType() should have <noreturn> configuration [checkLibraryNoReturn]
+        translateType(globalType.get(), r, register_numr.get());
+                                                               ^
+src/NodeToken.h:2198:82: information: --check-library: Function translateType() should have <noreturn> configuration [checkLibraryNoReturn]
+                translateType(globalType.get(), v->_varType, register_numl.get());
+                                                                                 ^
+src/NodeToken.h:2479:111: information: --check-library: Function translateType() should have <noreturn> configuration [checkLibraryNoReturn]
+            translateType(globalType.get(), nd->getChildAtPos(1)->getVarType()->_varType, register_numl.get());
+                                                                                                              ^
+src/NodeToken.h:3313:50: information: --check-library: Function _visitCallFunctionTemplate() should have <noreturn> configuration [checkLibraryNoReturn]
+        _visitCallFunctionTemplate(nd, 11, false);
+                                                 ^
+src/NodeToken.h:3495:99: information: --check-library: Function translateType() should have <noreturn> configuration [checkLibraryNoReturn]
+         translateType(__int__, nd->getChildAtPos(0)->getVarType()->_varType, register_numl.get());
+                                                                                                  ^
+src/asm_parser.h:1799:66: information: --check-library: Function printparsdAsm() should have <noreturn> configuration [checkLibraryNoReturn]
+        printparsdAsm((uint32_t)exec.start_program, &_asm_parsed);
+                                                                 ^
+src/asm_parser.h:1831:18: information: --check-library: Function asm() should have <noreturn> configuration [checkLibraryNoReturn]
+               :);
+                 ^
+src/asm_parser.h:1907:38: information: --check-library: Function heap_caps_free() should have <noreturn> configuration [checkLibraryNoReturn]
+    heap_caps_free(ex->start_program);
+                                     ^
+src/asm_parser.h:1915:29: information: --check-library: Function heap_caps_free() should have <noreturn> configuration [checkLibraryNoReturn]
+    heap_caps_free(ex->data);
+                            ^
+src/execute.h:71:18: information: --check-library: Function vTaskDelay() should have <noreturn> configuration [checkLibraryNoReturn]
+    vTaskDelay(1);
+                 ^
+src/execute.h:157:39: information: --check-library: Function xEventGroupSync() should have <noreturn> configuration [checkLibraryNoReturn]
+                        portMAX_DELAY);
+                                      ^
+src/execute.h:206:27: information: --check-library: Function _prekill() should have <noreturn> configuration [checkLibraryNoReturn]
+                _prekill();
+                          ^
+src/execute.h:214:28: information: --check-library: Function _postkill() should have <noreturn> configuration [checkLibraryNoReturn]
+                _postkill();
+                           ^
+src/execute.h:269:60: information: --check-library: Function xEventGroupClearBits() should have <noreturn> configuration [checkLibraryNoReturn]
+            xEventGroupClearBits(xCreatedEventGroup2, MASK);
+                                                           ^
+src/execute.h:277:39: information: --check-library: Function xEventGroupSync() should have <noreturn> configuration [checkLibraryNoReturn]
+                        portMAX_DELAY);
+                                      ^
+src/execute.h:360:37: information: --check-library: Function freeBinary() should have <noreturn> configuration [checkLibraryNoReturn]
+            freeBinary(&_executecmd);
+                                    ^
+src/execute.h:385:84: information: --check-library: Function vTaskSuspend() should have <noreturn> configuration [checkLibraryNoReturn]
+                vTaskSuspend(*runningPrograms.getHandleByIndex(__run_handle_index));
+                                                                                   ^
+src/execute.h:574:51: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+            pushToConsole(res.error_message, true);
+                                                  ^
+src/execute.h:660:51: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+            pushToConsole(res.error_message, true);
+                                                  ^
+src/execute.h:669:51: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+            pushToConsole(res.error_message, true);
+                                                  ^
+src/execute.h:677:22: information: --check-library: Function vTaskDelete() should have <noreturn> configuration [checkLibraryNoReturn]
+    vTaskDelete(NULL);
+                     ^
+src/execute.h:725:71: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+            pushToConsole("please add a name to the executable", true);
+                                                                      ^
+src/ESPLiveScript.h:3689:89: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+    pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
+                                                                                        ^
+src/ESPLiveScript.h:3698:73: information: --check-library: Function addExternal() should have <noreturn> configuration [checkLibraryNoReturn]
+        addExternal("error", externalType::function, (void *)&showError);
+                                                                        ^
+src/asm_struct_enum.h:72:22: information: --check-library: Function push() should have <noreturn> configuration [checkLibraryNoReturn]
+        push(sav + 1);
+                     ^
+src/asm_struct_enum.h:81:22: information: --check-library: Function push() should have <noreturn> configuration [checkLibraryNoReturn]
+        push(sav - 1);
+                     ^
+src/NodeToken.h:1380:12: warning: Either the condition 'p!=NULL' is redundant or there is possible null pointer dereference: p. [nullPointerRedundantCheck]
+    while (p->_nodetype != forNode and p->_nodetype != whileNode)
+           ^
+src/NodeToken.h:1386:11: note: Assuming that condition 'p!=NULL' is not redundant
+    if (p != NULL)
+          ^
+src/NodeToken.h:1380:12: note: Null pointer dereference
+    while (p->_nodetype != forNode and p->_nodetype != whileNode)
+           ^
+src/NodeToken.h:2903:26: warning: Either the condition 'nd==NULL' is redundant or there is possible null pointer dereference: nd. [nullPointerRedundantCheck]
+    int staack_offset = (nd->getChildAtPos(2)->children.size() - 7) * 4;
+                         ^
+src/NodeToken.h:2907:12: note: Assuming that condition 'nd==NULL' is not redundant
+    if (nd == NULL)
+           ^
+src/NodeToken.h:2903:26: note: Null pointer dereference
+    int staack_offset = (nd->getChildAtPos(2)->children.size() - 7) * 4;
+                         ^
+src/NodeToken.h:3325:9: warning: Either the condition 'v==NULL' is redundant or there is possible null pointer dereference: v. [nullPointerRedundantCheck]
+    if (v->size > 1)
+        ^
+src/NodeToken.h:3319:11: note: Assuming that condition 'v==NULL' is not redundant
+    if (v == NULL)
+          ^
+src/NodeToken.h:3325:9: note: Null pointer dereference
+    if (v->size > 1)
+        ^
+src/ESPLiveScript.h:84:31: warning: Either the condition '_nd==NULL' is redundant or there is possible null pointer dereference: _nd. [nullPointerRedundantCheck]
+    NodeToken nd = NodeToken(*_nd);
+                              ^
+src/ESPLiveScript.h:85:13: note: Assuming that condition '_nd==NULL' is not redundant
+    if (_nd == NULL)
+            ^
+src/ESPLiveScript.h:84:31: note: Null pointer dereference
+    NodeToken nd = NodeToken(*_nd);
+                              ^
+src/ESPLiveScript.h:111:25: warning: Either the condition '_nd==NULL' is redundant or there is possible null pointer dereference: _nd. [nullPointerRedundantCheck]
+    for (NodeToken *t : _nd->children)
+                        ^
+src/ESPLiveScript.h:85:13: note: Assuming that condition '_nd==NULL' is not redundant
+    if (_nd == NULL)
+            ^
+src/ESPLiveScript.h:111:25: note: Null pointer dereference
+    for (NodeToken *t : _nd->children)
+                        ^
+src/asm_struct_enum.h:580:28: style: C-style pointer casting [cstyleCast]
+    result_parse_line *tmp=(result_parse_line *)malloc(sizeof(result_parse_line));
+                           ^
+src/asm_struct_enum.h:608:26: style: C-style pointer casting [cstyleCast]
+  result_parse_line *tmp=(result_parse_line *)malloc(sizeof(result_parse_line));
+                         ^
+src/NodeToken.h:537:26: style: C-style pointer casting [cstyleCast]
+        NodeToken *tmp = (NodeToken *)malloc(sizeof(NodeToken));
+                         ^
+src/NodeToken.h:554:26: style: C-style pointer casting [cstyleCast]
+        NodeToken *tmp = (NodeToken *)malloc(sizeof(NodeToken));
+                         ^
+src/execute.h:649:25: style: C-style pointer casting [cstyleCast]
+    Executable *exec = ((Executable *)pvParameters);
+                        ^
+src/NodeToken.h:1503:43: portability: Casting from float * to unsigned int * is not portable due to different binary data representations on different platforms. [invalidPointerCast]
+            uint32_t __num = (uint32_t)(*((uint32_t *)&__f));
+                                          ^
+src/NodeToken.h:3724:42: portability: Casting from float * to unsigned int * is not portable due to different binary data representations on different platforms. [invalidPointerCast]
+                    __num = (uint32_t)(*((uint32_t *)&__f));
+                                         ^
+src/execute.h:571:15: style: Redundant initialization for 'res'. The initialized value is overwritten before it is read. [redundantInitialization]
+          res = executeBinary("@_" + prog, _executecmd, 9999, args);
+              ^
+src/execute.h:570:34: note: res is initialized
+        error_message_struct res = executeBinary("@__footer", _executecmd, 9999, args);
+                                 ^
+src/execute.h:571:15: note: res is overwritten
+          res = executeBinary("@_" + prog, _executecmd, 9999, args);
+              ^
+src/execute.h:588:15: style: Redundant initialization for 'res'. The initialized value is overwritten before it is read. [redundantInitialization]
+          res = executeBinary("@_" + prog, _executecmd, 9999, args);
+              ^
+src/execute.h:587:42: note: res is initialized
+                error_message_struct res = executeBinary("@__footer", _executecmd, 9999, args);
+                                         ^
+src/execute.h:588:15: note: res is overwritten
+          res = executeBinary("@_" + prog, _executecmd, 9999, args);
+              ^
+src/execute.h:657:14: style: Redundant initialization for 'res'. The initialized value is overwritten before it is read. [redundantInitialization]
+         res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec->args);
+             ^
+src/execute.h:655:42: note: res is initialized
+                error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec->args);
+                                         ^
+src/execute.h:657:14: note: res is overwritten
+         res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec->args);
+             ^
+src/execute.h:666:14: style: Redundant initialization for 'res'. The initialized value is overwritten before it is read. [redundantInitialization]
+         res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec->args);
+             ^
+src/execute.h:665:35: note: res is initialized
+         error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec->args);
+                                  ^
+src/execute.h:666:14: note: res is overwritten
+         res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec->args);
+             ^
+src/ESPLiveScript.h:204:22: style: Variable 'point_regnum' is reassigned a value before the old one has been used. [redundantAssignment]
+        point_regnum = 4;
+                     ^
+src/ESPLiveScript.h:203:22: note: point_regnum is assigned
+        point_regnum = 4;
+                     ^
+src/ESPLiveScript.h:204:22: note: point_regnum is overwritten
+        point_regnum = 4;
+                     ^
+src/NodeToken.h:2914:9: style:inconclusive: Found duplicate branches for 'if' and 'else'. [duplicateBranch]
+        if (isExtCall)
+        ^
+src/NodeToken.h:2916:9: note: Found duplicate branches for 'if' and 'else'.
+        else
+        ^
+src/NodeToken.h:2914:9: note: Found duplicate branches for 'if' and 'else'.
+        if (isExtCall)
+        ^
+src/NodeToken.h:4351:13: style:inconclusive: Found duplicate branches for 'if' and 'else'. [duplicateBranch]
+            if (strlen(nd->getChildAtPos(i)->getTokenText()) > 0)
+            ^
+src/NodeToken.h:4353:13: note: Found duplicate branches for 'if' and 'else'.
+            else
+            ^
+src/NodeToken.h:4351:13: note: Found duplicate branches for 'if' and 'else'.
+            if (strlen(nd->getChildAtPos(i)->getTokenText()) > 0)
+            ^
+src/NodeToken.h:1362:9: style: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
+        break;
+        ^
+src/NodeToken.h:1470:9: style: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
+        break;
+        ^
+src/NodeToken.h:3276:25: style: The scope of the variable 'sav' can be reduced. [variableScope]
+                    int sav;
+                        ^
+src/NodeToken.h:3584:9: style: The scope of the variable 'sav' can be reduced. [variableScope]
+    int sav = 9;
+        ^
+src/asm_parser.h:74:9: style: The scope of the variable 'add_size' can be reduced. [variableScope]
+    int add_size = 0;
+        ^
+src/asm_parser.h:436:12: style: The scope of the variable 'values' can be reduced. [variableScope]
+  uint32_t values[4];
+           ^
+src/ESPLiveScript.h:2729:17: style: The scope of the variable 'j' can be reduced. [variableScope]
+            int j = 0;
+                ^
+src/NodeToken.h:3200:46: style: Unsigned expression 't->getChildAtPos(1)->children.size()' can't be negative so it is unnecessary to test it. [unsignedPositive]
+    if (t->getChildAtPos(1)->children.size() >= _TRIGGER)
+                                             ^
+src/NodeToken.h:3585:29: style: Unsigned expression 'nd->children.size()' can't be negative so it is unnecessary to test it. [unsignedPositive]
+    if (nd->children.size() >= _TRIGGER)
+                            ^
+src/execute.h:683:34: style:inconclusive: Function 'kill' argument 1 names different: declaration 'handle' definition 'handle_number'. [funcArgNamesDifferent]
+void _executablesClass::kill(int handle_number)
+                                 ^
+src/execute.h:117:19: note: Function 'kill' argument 1 names different: declaration 'handle' definition 'handle_number'.
+    void kill(int handle);
+                  ^
+src/execute.h:683:34: note: Function 'kill' argument 1 names different: declaration 'handle' definition 'handle_number'.
+void _executablesClass::kill(int handle_number)
+                                 ^
+src/string_function.h:17:13: style: Local variable 'pos' shadows outer variable [shadowVariable]
+        int pos = 0
+            ^
+src/tokenizer.h:1231:5: note: Shadowed declaration
+int pos = 0;
+    ^
+src/string_function.h:17:13: note: Shadow variable
+        int pos = 0
+            ^
+src/asm_struct_enum.h:131:13: style: Local variable 'pos' shadows outer variable [shadowVariable]
+        int pos = findText((char *)str.c_str());
+            ^
+src/tokenizer.h:1231:5: note: Shadowed declaration
+int pos = 0;
+    ^
+src/asm_struct_enum.h:131:13: note: Shadow variable
+        int pos = findText((char *)str.c_str());
+            ^
+src/asm_struct_enum.h:202:13: style: Local variable 'pos' shadows outer variable [shadowVariable]
+        int pos = findText((char *)str.c_str());
+            ^
+src/tokenizer.h:1231:5: note: Shadowed declaration
+int pos = 0;
+    ^
+src/asm_struct_enum.h:202:13: note: Shadow variable
+        int pos = findText((char *)str.c_str());
+            ^
+src/asm_struct_enum.h:277:13: style: Local variable 'pos' shadows outer variable [shadowVariable]
+        int pos = findText((char *)s.c_str());
+            ^
+src/tokenizer.h:1231:5: note: Shadowed declaration
+int pos = 0;
+    ^
+src/asm_struct_enum.h:277:13: note: Shadow variable
+        int pos = findText((char *)s.c_str());
+            ^
+src/tokenizer.h:1112:15: style: Local variable 't' shadows outer variable [shadowVariable]
+        Token t = Token(TokenNumber, (int)__float__);
+              ^
+src/tokenizer.h:1234:7: note: Shadowed declaration
+Token t;
+      ^
+src/tokenizer.h:1112:15: note: Shadow variable
+        Token t = Token(TokenNumber, (int)__float__);
+              ^
+src/tokenizer.h:1119:15: style: Local variable 't' shadows outer variable [shadowVariable]
+        Token t = Token(TokenNumber, (int)__int__);
+              ^
+src/tokenizer.h:1234:7: note: Shadowed declaration
+Token t;
+      ^
+src/tokenizer.h:1119:15: note: Shadow variable
+        Token t = Token(TokenNumber, (int)__int__);
+              ^
+src/tokenizer.h:1866:18: style: Local variable 'c2' shadows outer variable [shadowVariable]
+            char c2 = script->nextChar();
+                 ^
+src/tokenizer.h:1244:10: note: Shadowed declaration
+    char c2;
+         ^
+src/tokenizer.h:1866:18: note: Shadow variable
+            char c2 = script->nextChar();
+                 ^
+src/tokenizer.h:2045:26: style: Local variable 'c2' shadows outer variable [shadowVariable]
+                    char c2 = script->nextChar();
+                         ^
+src/tokenizer.h:1244:10: note: Shadowed declaration
+    char c2;
+         ^
+src/tokenizer.h:2045:26: note: Shadow variable
+                    char c2 = script->nextChar();
+                         ^
+src/NodeToken.h:288:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = &_userDefinedTypes[_v];
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:288:14: note: Shadow variable
+    varType *v = &_userDefinedTypes[_v];
+             ^
+src/NodeToken.h:1192:15: style: Local variable 'v' shadows outer variable [shadowVariable]
+    NodeToken v = NodeToken(_var);
+              ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:1192:15: note: Shadow variable
+    NodeToken v = NodeToken(_var);
+              ^
+src/NodeToken.h:1350:19: style: Local variable 'v' shadows outer variable [shadowVariable]
+        NodeToken v = NodeToken(var, defGlobalVariableNode);
+                  ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:1350:19: note: Shadow variable
+        NodeToken v = NodeToken(var, defGlobalVariableNode);
+                  ^
+src/NodeToken.h:1357:19: style: Local variable 'v' shadows outer variable [shadowVariable]
+        NodeToken v = NodeToken(var, defLocalVariableNode);
+                  ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:1357:19: note: Shadow variable
+        NodeToken v = NodeToken(var, defLocalVariableNode);
+                  ^
+src/NodeToken.h:1367:19: style: Local variable 'v' shadows outer variable [shadowVariable]
+        NodeToken v = NodeToken(var, defLocalVariableNode);
+                  ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:1367:19: note: Shadow variable
+        NodeToken v = NodeToken(var, defLocalVariableNode);
+                  ^
+src/NodeToken.h:2022:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = nd->getVarType();
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:2022:14: note: Shadow variable
+    varType *v = nd->getVarType();
+             ^
+src/NodeToken.h:2238:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = nd->getVarType();
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:2238:14: note: Shadow variable
+    varType *v = nd->getVarType();
+             ^
+src/NodeToken.h:2178:18: style: Local variable 'v' shadows outer variable [shadowVariable]
+        varType *v = nd->getVarType();
+                 ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:2178:18: note: Shadow variable
+        varType *v = nd->getVarType();
+                 ^
+src/NodeToken.h:2252:13: style: Local variable 'start' shadows outer variable [shadowVariable]
+        int start = nd->stack_pos;
+            ^
+src/NodeToken.h:2239:9: note: Shadowed declaration
+    int start = nd->stack_pos;
+        ^
+src/NodeToken.h:2252:13: note: Shadow variable
+        int start = nd->stack_pos;
+            ^
+src/NodeToken.h:2343:16: style: Local variable 'variables' shadows outer variable [shadowVariable]
+        string variables = "";
+               ^
+src/NodeToken.h:2340:12: note: Shadowed declaration
+    string variables = "";
+           ^
+src/NodeToken.h:2343:16: note: Shadow variable
+        string variables = "";
+               ^
+src/NodeToken.h:2922:16: style: Local variable 't' shadows outer variable [shadowVariable]
+    NodeToken *t = nd; // cntx.findFunction(nd->_token);
+               ^
+src/tokenizer.h:1234:7: note: Shadowed declaration
+Token t;
+      ^
+src/NodeToken.h:2922:16: note: Shadow variable
+    NodeToken *t = nd; // cntx.findFunction(nd->_token);
+               ^
+src/NodeToken.h:3160:26: style: Local variable 'v' shadows outer variable [shadowVariable]
+                varType *v;
+                         ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:3160:26: note: Shadow variable
+                varType *v;
+                         ^
+src/NodeToken.h:3198:16: style: Local variable 't' shadows outer variable [shadowVariable]
+    NodeToken *t = nd; // cntx.findFunction(nd->_token);
+               ^
+src/tokenizer.h:1234:7: note: Shadowed declaration
+Token t;
+      ^
+src/NodeToken.h:3198:16: note: Shadow variable
+    NodeToken *t = nd; // cntx.findFunction(nd->_token);
+               ^
+src/NodeToken.h:3317:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = nd->getChildAtPos(0)->getVarType();
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:3317:14: note: Shadow variable
+    varType *v = nd->getChildAtPos(0)->getVarType();
+             ^
+src/NodeToken.h:3413:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = nd->getVarType();
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:3413:14: note: Shadow variable
+    varType *v = nd->getVarType();
+             ^
+src/NodeToken.h:3538:16: style: Local variable 't' shadows outer variable [shadowVariable]
+    NodeToken *t = nd;
+               ^
+src/tokenizer.h:1234:7: note: Shadowed declaration
+Token t;
+      ^
+src/NodeToken.h:3538:16: note: Shadow variable
+    NodeToken *t = nd;
+               ^
+src/NodeToken.h:3541:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = t->getChildAtPos(0)->getVarType();
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:3541:14: note: Shadow variable
+    varType *v = t->getChildAtPos(0)->getVarType();
+             ^
+src/NodeToken.h:3596:21: style: Local variable 'start' shadows outer variable [shadowVariable]
+                int start = nd->getChildAtPos(i)->stack_pos;
+                    ^
+src/NodeToken.h:3592:17: note: Shadowed declaration
+            int start = nd->getChildAtPos(i)->stack_pos;
+                ^
+src/NodeToken.h:3596:21: note: Shadow variable
+                int start = nd->getChildAtPos(i)->stack_pos;
+                    ^
+src/NodeToken.h:3748:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = nd->getVarType();
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:3748:14: note: Shadow variable
+    varType *v = nd->getVarType();
+             ^
+src/NodeToken.h:3846:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = nd->getVarType();
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:3846:14: note: Shadow variable
+    varType *v = nd->getVarType();
+             ^
+src/NodeToken.h:4010:14: style: Local variable 'v' shadows outer variable [shadowVariable]
+    varType *v = nd->getVarType();
+             ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/NodeToken.h:4010:14: note: Shadow variable
+    varType *v = nd->getVarType();
+             ^
+src/NodeToken.h:4245:16: style: Local variable 't' shadows outer variable [shadowVariable]
+    NodeToken *t = nd;
+               ^
+src/tokenizer.h:1234:7: note: Shadowed declaration
+Token t;
+      ^
+src/NodeToken.h:4245:16: note: Shadow variable
+    NodeToken *t = nd;
+               ^
+src/NodeToken.h:4405:36: style: Local variable 'd' shadows outer variable [shadowVariable]
+                    vector<string> d = split(tmp, " ");
+                                   ^
+src/ESPLiveScript.h:22:11: note: Shadowed declaration
+NodeToken d;
+          ^
+src/NodeToken.h:4405:36: note: Shadow variable
+                    vector<string> d = split(tmp, " ");
+                                   ^
+src/asm_parser_LMbin.h:132:9: style: Local variable 'v' shadows outer variable [shadowVariable]
+    int v = values[2];
+        ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/asm_parser_LMbin.h:132:9: note: Shadow variable
+    int v = values[2];
+        ^
+src/asm_parser.h:1219:22: style: Local variable 'v' shadows outer variable [shadowVariable]
+      vector<string> v = split(str, " ");
+                     ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/asm_parser.h:1219:22: note: Shadow variable
+      vector<string> v = split(str, " ");
+                     ^
+src/asm_parser.h:1670:16: style: Local variable 'content' shadows outer variable [shadowVariable]
+      uint32_t content = (*it)->bincode + address;
+               ^
+src/NodeToken.h:328:6: note: Shadowed declaration
+Text content;
+     ^
+src/asm_parser.h:1670:16: note: Shadow variable
+      uint32_t content = (*it)->bincode + address;
+               ^
+src/asm_parser.h:1859:17: style: Local variable 't' shadows outer variable [shadowVariable]
+      uint32_t *t = (uint32_t *)ex.data;
+                ^
+src/tokenizer.h:1234:7: note: Shadowed declaration
+Token t;
+      ^
+src/asm_parser.h:1859:17: note: Shadow variable
+      uint32_t *t = (uint32_t *)ex.data;
+                ^
+src/asm_parser.h:1861:16: style: Local variable 'var' shadows outer variable [shadowVariable]
+      uint8_t *var = (ex.data + ex.functions[i].variableaddress);
+               ^
+src/ESPLiveScript.h:26:11: note: Shadowed declaration
+NodeToken var;
+          ^
+src/asm_parser.h:1861:16: note: Shadow variable
+      uint8_t *var = (ex.data + ex.functions[i].variableaddress);
+               ^
+src/asm_parser.h:1865:18: style: Local variable 'i' shadows outer variable [shadowVariable]
+        for (int i = 1; i < args.size(); i++)
+                 ^
+src/asm_parser.h:1845:12: note: Shadowed declaration
+  for (int i = 0; i < ex.functions.size(); i++)
+           ^
+src/asm_parser.h:1865:18: note: Shadow variable
+        for (int i = 1; i < args.size(); i++)
+                 ^
+src/ESPLiveScript.h:84:15: style: Local variable 'nd' shadows outer variable [shadowVariable]
+    NodeToken nd = NodeToken(*_nd);
+              ^
+src/ESPLiveScript.h:23:11: note: Shadowed declaration
+NodeToken nd;
+          ^
+src/ESPLiveScript.h:84:15: note: Shadow variable
+    NodeToken nd = NodeToken(*_nd);
+              ^
+src/ESPLiveScript.h:111:21: style: Local variable 't' shadows outer variable [shadowVariable]
+    for (NodeToken *t : _nd->children)
+                    ^
+src/tokenizer.h:1234:7: note: Shadowed declaration
+Token t;
+      ^
+src/ESPLiveScript.h:111:21: note: Shadow variable
+    for (NodeToken *t : _nd->children)
+                    ^
+src/ESPLiveScript.h:463:26: style: Local variable 'v' shadows outer variable [shadowVariable]
+                varType *v = NULL;
+                         ^
+src/tokenizer.h:1233:8: note: Shadowed declaration
+string v;
+       ^
+src/ESPLiveScript.h:463:26: note: Shadow variable
+                varType *v = NULL;
+                         ^
+src/asm_struct_enum.h:149:35: performance: Function parameter 's' should be passed by const reference. [passedByValue]
+    void addAfter(int pos, string s)
+                                  ^
+src/asm_struct_enum.h:161:36: performance: Function parameter 's' should be passed by const reference. [passedByValue]
+    void addBefore(int pos, string s)
+                                   ^
+src/tokenizer.h:1087:25: performance: Function parameter 't' should be passed by const reference. [passedByValue]
+void displaytoken(token t)
+                        ^
+src/NodeToken.h:26:27: performance: Function parameter 'str' should be passed by const reference. [passedByValue]
+void pushToConsole(string str)
+                          ^
+src/NodeToken.h:495:22: performance: Function parameter '_target' should be passed by const reference. [passedByValue]
+    NodeToken(string _target, nodeType tt)
+                     ^
+src/NodeToken.h:501:49: performance: Function parameter '_target' should be passed by const reference. [passedByValue]
+    NodeToken(NodeToken nd, nodeType tt, string _target)
+                                                ^
+src/asm_external.h:26:25: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+void addExternal(string name,externalType type, void * ptr)
+                        ^
+src/asm_parser.h:432:41: performance: Function parameter 'str' should be passed by const reference. [passedByValue]
+result_parse_line parseOperandes(string str, int nboperande, operandeType *optypes, int size, uint32_t (*createbin)(uint32_t *val))
+                                        ^
+src/asm_parser.h:478:22: performance: Function parameter 's' should be passed by const reference. [passedByValue]
+int findLabel(string s, parsedLines *asm_parsed)
+                     ^
+src/execute.h:471:29: performance: Function parameter 'args' should be passed by const reference. [passedByValue]
+    int _run(vector<string> args, bool second_core, int core, Arguments arguments)
+                            ^
+src/execute.h:471:73: performance: Function parameter 'arguments' should be passed by const reference. [passedByValue]
+    int _run(vector<string> args, bool second_core, int core, Arguments arguments)
+                                                                        ^
+src/execute.h:566:25: performance: Function parameter 'prog' should be passed by const reference. [passedByValue]
+    void execute(string prog)
+                        ^
+src/execute.h:579:25: performance: Function parameter 'prog' should be passed by const reference. [passedByValue]
+    void execute(string prog, Arguments arguments)
+                        ^
+src/execute.h:596:31: performance: Function parameter 'prog' should be passed by const reference. [passedByValue]
+    void executeAsTask(string prog, int core, Arguments arguments)
+                              ^
+src/execute.h:617:31: performance: Function parameter 'prog' should be passed by const reference. [passedByValue]
+    void executeAsTask(string prog, Arguments arguments)
+                              ^
+src/execute.h:617:47: performance: Function parameter 'arguments' should be passed by const reference. [passedByValue]
+    void executeAsTask(string prog, Arguments arguments)
+                                              ^
+src/execute.h:621:31: performance: Function parameter 'prog' should be passed by const reference. [passedByValue]
+    void executeAsTask(string prog)
+                              ^
+src/execute.h:627:31: performance: Function parameter 'prog' should be passed by const reference. [passedByValue]
+    void executeAsTask(string prog, int core)
+                              ^
+src/execute.h:728:39: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void addExe(Executable df, string name)
+                                      ^
+src/execute.h:745:25: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void execute(string name)
+                        ^
+src/execute.h:756:25: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void execute(string name, string function)
+                        ^
+src/execute.h:767:25: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void execute(string name, Arguments arguments)
+                        ^
+src/execute.h:779:25: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void execute(string name, string function, Arguments arguments)
+                        ^
+src/execute.h:790:31: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void executeAsTask(string name, Arguments arguments)
+                              ^
+src/execute.h:801:31: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void executeAsTask(string name)
+                              ^
+src/execute.h:813:31: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void executeAsTask(string name, string function, Arguments arguments)
+                              ^
+src/execute.h:824:31: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void executeAsTask(string name, string function)
+                              ^
+src/execute.h:835:31: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void executeAsTask(string name, int core, Arguments args)
+                              ^
+src/execute.h:846:31: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void executeAsTask(string name, int core)
+                              ^
+src/execute.h:857:22: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void kill(string name)
+                     ^
+src/execute.h:888:22: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    void free(string name)
+                     ^
+src/execute.h:929:39: performance: Function parameter 'name' should be passed by const reference. [passedByValue]
+    exe_info getExecutableInfo(string name)
+                                      ^
+src/ESPLiveScript.h:121:29: performance: Function parameter 'nd' should be passed by const reference. [passedByValue]
+void prettyPrint2(NodeToken nd, string ident)
+                            ^
+src/ESPLiveScript.h:121:40: performance: Function parameter 'ident' should be passed by const reference. [passedByValue]
+void prettyPrint2(NodeToken nd, string ident)
+                                       ^
+src/asm_struct_enum.h:19:13: performance: Function parameter 'def' should be passed by const reference. [passedByValue]
+    Stack(T def)
+            ^
+src/ESPLiveScript.h:253:13: performance: Passing the result of c_str() to a function that takes std::string as argument no. 1 is slow and redundant. [stlcstrParam]
+            pushToConsole(Error.error_message.c_str(), true);
+            ^
+src/ESPLiveScript.h:311:13: performance: Passing the result of c_str() to a function that takes std::string as argument no. 1 is slow and redundant. [stlcstrParam]
+            pushToConsole(_executecmd.error.error_message.c_str(), true);
+            ^
+src/NodeToken.h:1148:17: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
+                {
+                ^
+src/NodeToken.h:1173:17: style: Consider using std::any_of algorithm instead of a raw loop. [useStlAlgorithm]
+                {
+                ^
+src/ESPLiveScript.h:337:16: style: Consider using std::accumulate algorithm instead of a raw loop. [useStlAlgorithm]
+            sc = sc + "\n" + s;
+               ^
+src/asm_external.h:33:30: error: Uninitialized struct member: asmex.ptr [uninitStructMember]
+    external_links.push_back(asmex);
+                             ^
+src/asm_external.h:33:30: error: Uninitialized struct member: asmex.offset [uninitStructMember]
+    external_links.push_back(asmex);
+                             ^
+src/asm_parser.h:147:25: error: Uninitialized struct member: error.line [uninitStructMember]
+            res.error = error;
+                        ^
+src/asm_parser.h:155:17: error: Uninitialized struct member: error.line [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:147:25: error: Uninitialized struct member: error.pos [uninitStructMember]
+            res.error = error;
+                        ^
+src/asm_parser.h:155:17: error: Uninitialized struct member: error.pos [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:181:25: error: Uninitialized struct member: error.line [uninitStructMember]
+            res.error = error;
+                        ^
+src/asm_parser.h:189:17: error: Uninitialized struct member: error.line [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:181:25: error: Uninitialized struct member: error.pos [uninitStructMember]
+            res.error = error;
+                        ^
+src/asm_parser.h:189:17: error: Uninitialized struct member: error.pos [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:215:25: error: Uninitialized struct member: error.line [uninitStructMember]
+            res.error = error;
+                        ^
+src/asm_parser.h:223:17: error: Uninitialized struct member: error.line [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:215:25: error: Uninitialized struct member: error.pos [uninitStructMember]
+            res.error = error;
+                        ^
+src/asm_parser.h:223:17: error: Uninitialized struct member: error.pos [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:247:23: error: Uninitialized struct member: error.line [uninitStructMember]
+          res.error = error;
+                      ^
+src/asm_parser.h:255:17: error: Uninitialized struct member: error.line [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:247:23: error: Uninitialized struct member: error.pos [uninitStructMember]
+          res.error = error;
+                      ^
+src/asm_parser.h:255:17: error: Uninitialized struct member: error.pos [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:279:23: error: Uninitialized struct member: error.line [uninitStructMember]
+          res.error = error;
+                      ^
+src/asm_parser.h:287:17: error: Uninitialized struct member: error.line [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:279:23: error: Uninitialized struct member: error.pos [uninitStructMember]
+          res.error = error;
+                      ^
+src/asm_parser.h:287:17: error: Uninitialized struct member: error.pos [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:306:19: error: Uninitialized struct member: error.line [uninitStructMember]
+      res.error = error;
+                  ^
+src/asm_parser.h:312:17: error: Uninitialized struct member: error.line [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:306:19: error: Uninitialized struct member: error.pos [uninitStructMember]
+      res.error = error;
+                  ^
+src/asm_parser.h:312:17: error: Uninitialized struct member: error.pos [uninitStructMember]
+    res.error = error;
+                ^
+src/asm_parser.h:1163:15: error: Uninitialized struct member: err.line [uninitStructMember]
+  asm_Error = err;
+              ^
+src/asm_parser.h:1163:15: error: Uninitialized struct member: err.pos [uninitStructMember]
+  asm_Error = err;
+              ^
+src/asm_parser.h:1726:33: error: Uninitialized struct member: gc.variableaddress [uninitStructMember]
+        exe.functions.push_back(gc);
+                                ^
+src/execute.h:942:16: error: Uninitialized variable: inf [uninitvar]
+        return inf;
+               ^
+src/execute.h:934:15: note: Assuming condition is false
+        if (f != NULL)
+              ^
+src/execute.h:942:16: note: Uninitialized variable: inf
+        return inf;
+               ^
+src/execute.h:949:24: error: Uninitialized variable: inf [uninitvar]
+                return inf;
+                       ^
+src/NodeToken.h:948:15: style: Unused variable: tocmp [unusedVariable]
+        char *tocmp;
+              ^
+src/NodeToken.h:978:15: style: Unused variable: tocmp [unusedVariable]
+        char *tocmp;
+              ^
+src/NodeToken.h:2032:17: style: Variable 'body' is assigned a value that is never used. [unreadVariable]
+    string body = "";
+                ^
+src/NodeToken.h:2340:22: style: Variable 'variables' is assigned a value that is never used. [unreadVariable]
+    string variables = "";
+                     ^
+src/NodeToken.h:2906:17: style: Variable 'nbfloat' is assigned a value that is never used. [unreadVariable]
+    int nbfloat = 0;
+                ^
+src/NodeToken.h:3421:17: style: Variable 'body' is assigned a value that is never used. [unreadVariable]
+    string body = "";
+                ^
+src/NodeToken.h:3716:19: style: Variable '__num' is assigned a value that is never used. [unreadVariable]
+            __num = 0;
+                  ^
+src/NodeToken.h:3859:17: style: Variable 'body' is assigned a value that is never used. [unreadVariable]
+    string body = "";
+                ^
+src/NodeToken.h:4018:17: style: Variable 'body' is assigned a value that is never used. [unreadVariable]
+    string body = "";
+                ^
+src/asm_parser.h:74:18: style: Variable 'add_size' is assigned a value that is never used. [unreadVariable]
+    int add_size = 0;
+                 ^
+src/ESPLiveScript.h:2821:23: style: Variable 'memberpos' is assigned a value that is never used. [unreadVariable]
+        int memberpos = 0;
+                      ^
+src/ESPLiveScript.h:2822:20: style: Variable '_start' is assigned a value that is never used. [unreadVariable]
+        int _start = 0;
+                   ^
+src/ESPLiveScript.h:2823:18: style: Variable '_pos' is assigned a value that is never used. [unreadVariable]
+        int _pos = 0;
+                 ^
+main.cpp:15:17: style: Variable 'exec' is assigned a value that is never used. [unreadVariable]
+ Executable exec=_parser.parseScript(&script);
+                ^
+src/asm_struct_enum.h:218:13: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+            _it--;
+            ^
+src/asm_struct_enum.h:289:9: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+        _it++;
+        ^
+src/asm_struct_enum.h:313:80: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+        for (vector<char *>::iterator it = _texts.begin(); it != _texts.end(); it++)
+                                                                               ^
+src/asm_struct_enum.h:412:13: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+            _it--;
+            ^
+src/tokenizer.h:782:17: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+                it--;
+                ^
+src/tokenizer.h:804:9: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+        it++;
+        ^
+src/tokenizer.h:814:82: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+        for (vector<char *>::iterator _it = script.begin(); _it != script.end(); _it++)
+                                                                                 ^
+src/tokenizer.h:829:13: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+            it++;
+            ^
+src/NodeToken.h:923:9: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+        it--;
+        ^
+src/NodeToken.h:931:9: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+        it--;
+        ^
+src/NodeToken.h:1401:101: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+        for (vector<NodeToken *>::iterator it = __nd->children.begin(); it != __nd->children.end(); it++)
+                                                                                                    ^
+src/asm_external.h:39:91: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+     for(vector<asm_external>::iterator it=external_links.begin();it<external_links.end();it++)
+                                                                                          ^
+src/asm_parser.h:96:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = _asm_parsed.begin(); it != _asm_parsed.end(); it++)
+                                                                                                ^
+src/asm_parser.h:114:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = _asm_parsed.begin(); it != _asm_parsed.end(); it++)
+                                                                                                ^
+src/asm_parser.h:482:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                                ^
+src/asm_parser.h:500:95: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                              ^
+src/asm_parser.h:1425:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                                ^
+src/asm_parser.h:1466:11: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+          it++;
+          ^
+src/asm_parser.h:1478:7: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+      it++;
+      ^
+src/asm_parser.h:1520:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                                ^
+src/asm_parser.h:1552:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                                ^
+src/asm_parser.h:1588:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                                ^
+src/asm_parser.h:1629:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                                ^
+src/asm_parser.h:1664:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                                ^
+src/asm_parser.h:1691:97: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
+                                                                                                ^
+src/asm_parser.h:1709:9: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+        it2++;
+        ^
+src/execute.h:876:104: performance: Prefer prefix ++/-- operators for non-primitive types. [postfixOperator]
+            for (vector<Executable>::iterator it = _scExecutables.begin(); it != _scExecutables.end(); it++)
+                                                                                                       ^
+src/NodeToken.h:138:18: information: --check-library: Function displayStat() should have <noreturn> configuration [checkLibraryNoReturn]
+    displayStat();
+                 ^
+src/NodeToken.h:16:11: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+    LedOS.pushToConsole(str, force);
+          ^
+src/asm_parser.h:1264:9: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+  LedOS.pushToConsole(_d);
+        ^
+src/asm_parser.h:1279:9: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+  LedOS.pushToConsole(d);
+        ^
+src/asm_parser.h:1545:9: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+  LedOS.pushToConsole("Flag label(s) to align ... ");
+        ^
+src/asm_parser.h:1565:9: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+  LedOS.pushToConsole("Done. ");
+        ^
+src/asm_parser.h:1577:9: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+  LedOS.pushToConsole("alculating jumps ...");
+        ^
+src/asm_parser.h:1620:9: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+  LedOS.pushToConsole("alculating jumps 2...");
+        ^
+src/asm_parser.h:1823:9: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+  LedOS.pushToConsole(s, false);
+        ^
+src/execute.h:349:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Something Already running kill it first ...", true);
+                  ^
+src/execute.h:375:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Halting the program ...", true);
+                  ^
+src/execute.h:394:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Program Halted.", true);
+                  ^
+src/execute.h:425:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Stopping the program ...", true);
+                  ^
+src/execute.h:453:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Program stopped.", true);
+                  ^
+src/execute.h:511:23: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+                LedOS.pushToConsole("too many programs at once", true);
+                      ^
+src/execute.h:524:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Execution on going CTRL + k to stop", true);
+                  ^
+src/execute.h:532:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Nothing to execute.", true);
+                  ^
+src/ESPLiveScript.h:3331:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Something Already running kill it first ...");
+                  ^
+src/ESPLiveScript.h:3352:9: information: --check-library: There is no matching configuration for function _push() [checkLibraryFunction]
+        _push(config.ENDLINE);
+        ^
+src/ESPLiveScript.h:3353:9: information: --check-library: There is no matching configuration for function _push() [checkLibraryFunction]
+        _push(cons->prompt(cons).c_str());
+        ^
+src/ESPLiveScript.h:3353:21: information: --check-library: There is no matching configuration for function Console::prompt() [checkLibraryFunction]
+        _push(cons->prompt(cons).c_str());
+                    ^
+src/ESPLiveScript.h:3394:15: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+        LedOS.pushToConsole("Something Already running kill it first ...");
+              ^
+src/ESPLiveScript.h:3401:11: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+    LedOS.pushToConsole("Compiling ...", true);
+          ^
+src/ESPLiveScript.h:3419:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("***********START RUN *********");
+                  ^
+src/ESPLiveScript.h:3424:17: information: --check-library: There is no matching configuration for function _push() [checkLibraryFunction]
+                _push(config.ENDLINE);
+                ^
+src/ESPLiveScript.h:3425:17: information: --check-library: There is no matching configuration for function _push() [checkLibraryFunction]
+                _push(cons->prompt(cons).c_str());
+                ^
+src/ESPLiveScript.h:3425:29: information: --check-library: There is no matching configuration for function Console::prompt() [checkLibraryFunction]
+                _push(cons->prompt(cons).c_str());
+                            ^
+src/ESPLiveScript.h:3430:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Start program", true);
+                  ^
+src/ESPLiveScript.h:3433:19: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+            LedOS.pushToConsole("Execution done.", true);
+                  ^
+src/ESPLiveScript.h:3438:15: information: --check-library: There is no matching configuration for function LedOS::pushToConsole() [checkLibraryFunction]
+        LedOS.pushToConsole(SCExecutable.error.error_message, true);
+              ^
+src/ESPLiveScript.h:3455:9: information: --check-library: There is no matching configuration for function _push() [checkLibraryFunction]
+        _push(config.ENDLINE);
+        ^
+src/ESPLiveScript.h:3456:9: information: --check-library: There is no matching configuration for function _push() [checkLibraryFunction]
+        _push(cons->prompt(cons).c_str());
+        ^
+src/ESPLiveScript.h:3456:21: information: --check-library: There is no matching configuration for function Console::prompt() [checkLibraryFunction]
+        _push(cons->prompt(cons).c_str());
+                    ^
+src/ESPLiveScript.h:3471:15: information: --check-library: There is no matching configuration for function LedOS::addKeywordCommand() [checkLibraryFunction]
+        LedOS.addKeywordCommand("compile", parse_c, "Compile and run a program add '&' for run on the second core");
+              ^
+src/ESPLiveScript.h:3472:15: information: --check-library: There is no matching configuration for function LedOS::addKeywordCommand() [checkLibraryFunction]
+        LedOS.addKeywordCommand("comp", compile_c, "Compile  a program");
+              ^
+src/ESPLiveScript.h:3473:15: information: --check-library: There is no matching configuration for function LedOS::addKeywordCommand() [checkLibraryFunction]
+        LedOS.addKeywordCommand("list", listExec, "list the compiled programs");
+              ^
+src/ESPLiveScript.h:3474:15: information: --check-library: There is no matching configuration for function LedOS::addKeywordCommand() [checkLibraryFunction]
+        LedOS.addKeywordCommand("free", free, "free the binary free x will free the program with handle x");
+              ^
+src/ESPLiveScript.h:3475:15: information: --check-library: There is no matching configuration for function LedOS::addKeywordCommand() [checkLibraryFunction]
+        LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core) run x run program with handle x");
+              ^
+src/ESPLiveScript.h:3476:15: information: --check-library: There is no matching configuration for function LedOS::addKeywordCommand() [checkLibraryFunction]
+        LedOS.addKeywordCommand("kill", kill, "Stop a running program kill x kill program with handle x");
+              ^
+src/ESPLiveScript.h:3477:15: information: --check-library: There is no matching configuration for function LedOS::addKeywordCommand() [checkLibraryFunction]
+        LedOS.addKeywordCommand("parseasm", parseasm, "Parse assembly program");
+              ^
+src/ESPLiveScript.h:3478:15: information: --check-library: There is no matching configuration for function LedOS::addEscCommand() [checkLibraryFunction]
+        LedOS.addEscCommand(18, parsec_cEsc, "Compile and execute a program (always second Core)");
+              ^
+src/ESPLiveScript.h:3479:15: information: --check-library: There is no matching configuration for function LedOS::addEscCommand() [checkLibraryFunction]
+        LedOS.addEscCommand(11, kill_cEsc, "Stop a running program");
+              ^
+src/ESPLiveScript.h:3666:15: information: --check-library: There is no matching configuration for function LedOS::addHightLightinf() [checkLibraryFunction]
+        LedOS.addHightLightinf("sc", formatLine, formatInit, formatNewLine);
+              ^
+src/ESPLiveScript.h:3274:65: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+            pushToConsole("Nothing is currently running.", true);
+                                                                ^
+src/ESPLiveScript.h:3332:29: information: --check-library: Function kill() should have <noreturn> configuration [checkLibraryNoReturn]
+            kill(cons, args);
+                            ^
+src/ESPLiveScript.h:3353:42: information: --check-library: Function _push() should have <noreturn> configuration [checkLibraryNoReturn]
+        _push(cons->prompt(cons).c_str());
+                                         ^
+src/ESPLiveScript.h:3368:116: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+        pushToConsole(string_format("Compiling done. Handle number:%d", scriptRuntime._scExecutables.size()), true);
+                                                                                                                   ^
+src/ESPLiveScript.h:3372:51: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
+        pushToConsole(_scExec.error.error_message);
+                                                  ^
+src/ESPLiveScript.h:3396:22: information: --check-library: Function kill() should have <noreturn> configuration [checkLibraryNoReturn]
+        kill(cons, k);
+                     ^
+src/ESPLiveScript.h:3425:50: information: --check-library: Function _push() should have <noreturn> configuration [checkLibraryNoReturn]
+                _push(cons->prompt(cons).c_str());
+                                                 ^
+src/ESPLiveScript.h:3456:42: information: --check-library: Function _push() should have <noreturn> configuration [checkLibraryNoReturn]
+        _push(cons->prompt(cons).c_str());
+                                         ^
+src/ESPLiveScript.h:3480:74: information: --check-library: Function addExternal() should have <noreturn> configuration [checkLibraryNoReturn]
+        addExternal("__feed", externalType::function, (void *)feedTheDog);
+                                                                         ^
+src/NodeToken.h:1379:16: style: Local variable 'p' shadows outer variable [shadowVariable]
+    NodeToken *p = current_node;
+               ^
+src/ESPLiveScript.h:3261:8: note: Shadowed declaration
+Parser p = Parser();
+       ^
+src/NodeToken.h:1379:16: note: Shadow variable
+    NodeToken *p = current_node;
+               ^
+src/asm_parser.h:1263:10: style: Local variable '_d' shadows outer variable [shadowVariable]
+  string _d = string_format("Creation of an %d bytes binary and %d bytes data", _instr_size, _size);
+         ^
+src/ESPLiveScript.h:27:12: note: Shadowed declaration
+NodeToken *_d;
+           ^
+src/asm_parser.h:1263:10: note: Shadow variable
+  string _d = string_format("Creation of an %d bytes binary and %d bytes data", _instr_size, _size);
+         ^
+src/asm_parser.h:1278:10: style: Local variable 'd' shadows outer variable [shadowVariable]
+  string d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size()+_footer->size());
+         ^
+src/ESPLiveScript.h:22:11: note: Shadowed declaration
+NodeToken d;
+          ^
+src/asm_parser.h:1278:10: note: Shadow variable
+  string d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size()+_footer->size());
+         ^
+src/ESPLiveScript.h:3417:28: style: Local variable 'd' shadows outer variable [shadowVariable]
+            vector<string> d;
+                           ^
+src/ESPLiveScript.h:22:11: note: Shadowed declaration
+NodeToken d;
+          ^
+src/ESPLiveScript.h:3417:28: note: Shadow variable
+            vector<string> d;
+                           ^
+src/ESPLiveScript.h:3283:33: performance: Function parameter 'variables' should be passed by const reference. [passedByValue]
+Arguments parseInputArgs(string variables)
+                                ^
+src/ESPLiveScript.h:3356:45: performance: Function parameter 'args' should be passed by const reference. [passedByValue]
+void parseasm(Console *cons, vector<string> args)
+                                            ^
+src/ESPLiveScript.h:3359:46: performance: Function parameter 'args' should be passed by const reference. [passedByValue]
+void compile_c(Console *cons, vector<string> args)
+                                             ^
+src/ESPLiveScript.h:3460:45: performance: Function parameter 'args' should be passed by const reference. [passedByValue]
+void listExec(Console *cons, vector<string> args)
+                                            ^
+src/asm_struct_enum.h:252:17: style: Condition '!isReused(0)' is always true [knownConditionTrueFalse]
+            if (!isReused(0))
+                ^
+src/asm_struct_enum.h:111:8: style:inconclusive: Statements following return, break, continue, goto or throw will never be executed. [unreachableCode]
+       for (int i =  _texts.size()-1; i >=0; i--)
+       ^
+src/asm_struct_enum.h:386:9: style:inconclusive: Statements following return, break, continue, goto or throw will never be executed. [unreachableCode]
+        if (pos < 0 or pos >= _texts.size())
+        ^
+nofile:0:0: information: Cppcheck cannot find all the include files (use --check-config for details) [missingInclude]
+
