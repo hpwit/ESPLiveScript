@@ -1,4 +1,4 @@
-#include "ESPLiveScript.h"
+#include "src/ESPLiveScript.h"
 #define __TEST_DEBUG
 string script="\
 void main()\n\
