@@ -512,14 +512,15 @@ uint32_t jump_l32r(uint32_t value, uint32_t current_address, uint32_t destinatio
     }
     else
     {
-        uint32_t dif = ((destination_address - current_address) / 4) & 0xFFFF;
-        uint32_t recalculate = (((current_address & 0xFFFF) + dif * 4) + 3) & 0xFFFc;
-        if (recalculate != (destination_address & 0xFFFF))
+        uint32_t dif = ((destination_address - current_address) / 4) & 0xFFFFFFFF;
+        uint32_t recalculate = (((current_address & 0xFFFFFFFF) + dif * 4) + 3) & 0xFFFFFFFc;
+        if (recalculate != (destination_address & 0xFFFFFFFF))
         {
 
-            recalculate = ((current_address & 0xFFFF) + 3 + 4) & 0xFFFFFc;
-            if (recalculate == (destination_address & 0xFFFF))
+            recalculate = ((current_address & 0xFFFFFFFF) + 3 + 4) & 0xFFFFFFFc;
+            if (recalculate == (destination_address & 0xFFFFFFFF))
             {
+                printf("calcultate here\n");
                 dif++;
             }
             else
@@ -543,6 +544,7 @@ uint32_t bin_retw_n(uint32_t *values)
 }
 
 operandeType op_global[1] = {operandeType::label};
+operandeType op_callExt[1] = { operandeType::label};
 operandeType op_movExt[2] = {operandeType::registers, operandeType::label};
 uint32_t bin_movExt(uint32_t *values)
 {

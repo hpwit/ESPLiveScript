@@ -1250,7 +1250,7 @@ int _token_line;
 int _sav_token_line = 0;
 int pos = 0;
 list<token>::iterator _index_token;
-string v;
+string vchar;
 Token t;
 int tokenizer(Script *script, bool update, bool increae_line,
               int nbMaxTokenToRead)
@@ -1263,7 +1263,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
     char c;
     char c2;
     _define newdef;
-    v.clear();
+    vchar.clear();
     if (update)
     {
         _tks->clear();
@@ -1295,7 +1295,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
     {
        //  printf(" nb read :%c:\n",script->currentChar());
         t.clean();
-        v.clear();
+        vchar.clear();
         pos++;
 
         c = script->currentChar();
@@ -1522,7 +1522,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
             int newpos = pos;
             while (isIna_zA_Z_0_9(c))
             {
-                v += c;
+                vchar += c;
                 newpos++;
                 c = script->nextChar();
             }
@@ -1532,13 +1532,13 @@ int tokenizer(Script *script, bool update, bool increae_line,
             //  t._vartype=NULL;
             t.line = _token_line;
             t.pos = pos;
-            if (isKeyword(v) > -1)
+            if (isKeyword(vchar) > -1)
             {
                 // printf("keyword;%s\n",v.c_str());
                 // t.type = TokenKeyword;
-                t.type = (int)__keywordTypes[isKeyword(v)];
-                if (isKeyword(v) < nb_typeVariables)
-                    t._vartype = isKeyword(v);
+                t.type = (int)__keywordTypes[isKeyword(vchar)];
+                if (isKeyword(vchar) < nb_typeVariables)
+                    t._vartype = isKeyword(vchar);
                 if (t.getType() == TokenKeywordExternalVar)
                 {
                     t.type = (int)TokenExternal;
@@ -1550,7 +1550,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     nbReadToken--;
                 }
             }
-            else if (isUserDefined(v) > -1)
+            else if (isUserDefined(vchar) > -1)
             {
                 t.type = (int)TokenUserDefinedVariable;
                 t._vartype = (int)__userDefined__;
@@ -1570,7 +1570,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
 
                         _sav_token_line = _token_line;
                         nbReadToken--;
-                        if (findLibFunction(v) > -1)
+                        if (findLibFunction(vchar) > -1)
                         {
 
                             _tks->pop_back();
@@ -1579,7 +1579,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
 
                             // list_of_token.pop_back();
                             //  add_on.push_back(findLibFunction(v));
-                            script->insert((char *)((*_stdlib[findLibFunction(v)]).c_str()));
+                            script->insert((char *)((*_stdlib[findLibFunction(vchar)]).c_str()));
 
                             // script->previousChar ();
 
@@ -1589,7 +1589,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     else if (prev.getType() == TokenDiese && !_for_display)
                     {
                         nbReadToken--;
-                        if (findLibFunction(v) > -1)
+                        if (findLibFunction(vchar) > -1)
                         {
 
                             _tks->pop_back();
@@ -1598,7 +1598,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
 
                             // list_of_token.pop_back();
                             //  add_on.push_back(findLibFunction(v));
-                            script->insertAtEnd((char *)((*_stdlib[findLibFunction(v)]).c_str()));
+                            script->insertAtEnd((char *)((*_stdlib[findLibFunction(vchar)]).c_str()));
                             // printf("ll%d %s\n",findLibFunction(v),(*_stdlib[findLibFunction(v)]).c_str());
                             script->nextChar();
                             // script->previousChar ();
@@ -1611,7 +1611,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
                         all_text.pop();
                         // nbReadToken--;
 
-                        newdef.name = v;
+                        newdef.name = vchar;
                         newdef.content = "";
 
                         c2 = script->nextChar();
@@ -1629,17 +1629,17 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     }
                     else if (prev.getType() == TokenKeywordStruct && !_for_display)
                     {
-                        userDefinedVarTypeNames.push_back(v);
+                        userDefinedVarTypeNames.push_back(vchar);
                         t.type = (int)TokenUserDefinedName;
                         // continue;
                     }
                 }
                 if (!_for_display) // on ne remplace pas lorsque l'on display
                 {
-                    if (getDefine(v) != NULL)
+                    if (getDefine(vchar) != NULL)
                     {
 
-                        script->insert((char *)(getDefine(v)));
+                        script->insert((char *)(getDefine(vchar)));
                         script->nextChar();
                         // nbReadToken--;
                         continue;
@@ -1648,7 +1648,7 @@ int tokenizer(Script *script, bool update, bool increae_line,
             }
             pos = newpos - 1;
 
-            t.addText(v);
+            t.addText(vchar);
             //_tks->push(t);
             _tks->push(t);
             nbReadToken++;
@@ -1658,16 +1658,16 @@ int tokenizer(Script *script, bool update, bool increae_line,
         if (isIn0_9(c))
         {
             // //printf("on a %c\n",c);
-            v = "";
+            vchar = "";
             int newpos = pos;
             while (isIn0_9_x_b(c))
             {
-                v += c;
+                vchar += c;
                 c = script->nextChar();
                 newpos++;
             }
             script->previousChar(); // on revient un caractere en arriere
-            t = transNumber(v);
+            t = transNumber(vchar);
             //  t._vartype=NULL;
             t.line = _token_line;
             t.pos = pos;
@@ -2056,12 +2056,12 @@ int tokenizer(Script *script, bool update, bool increae_line,
         }
         if (c == '"')
         {
-            v = "";
+            vchar = "";
             // Token t;
             t._vartype = EOF_VARTYPE;
             t.line = _token_line;
             t.pos = pos;
-            v += c;
+            vchar += c;
             c = script->nextChar();
             pos++;
             while (c != '"' && c != EOF_TEXT)
@@ -2072,14 +2072,14 @@ int tokenizer(Script *script, bool update, bool increae_line,
                     if (c == '\\' and c2 == 'n')
                     {
                         c = '\x0d';
-                        v += c;
+                        vchar += c;
                         c = '\x0a';
-                        v += c;
+                        vchar += c;
                         c = script->nextChar();
                     }
                     else
                     {
-                        v += c;
+                        vchar += c;
                         c = c2;
                     }
 
@@ -2087,16 +2087,16 @@ int tokenizer(Script *script, bool update, bool increae_line,
                 }
                 else
                 {
-                    v += c;
+                    vchar += c;
                     c = script->nextChar();
                     pos++;
                 }
             }
             // script->previousChar(); //on revient un caractere en arriere
             // pos--;
-            v += c;
+            vchar += c;
             t.type = (int)TokenString;
-            t.addText(v);
+            t.addText(vchar);
             _tks->push(t);
             nbReadToken++;
             continue;

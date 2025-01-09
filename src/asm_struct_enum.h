@@ -89,6 +89,7 @@ public:
     vector<T> _stack;
     T _default;
 };
+char *m;
 
 class Text
 {
@@ -119,7 +120,7 @@ public:
     }
     int addText(string str,uint16_t si)
     {
-              char *m = (char *)malloc(si + 1);
+               m = (char *)malloc(si + 1);
         memcpy(m, str.c_str(), si);
         m[str.size()] = 0;
         _texts.push_back(m);
@@ -136,7 +137,7 @@ public:
         #endif
             return pos;
         }
-        char *m = (char *)malloc(str.size() + 1);
+         m = (char *)malloc(str.size() + 1);
         memcpy(m, str.c_str(), str.size());
         m[str.size()] = 0;
         _texts.push_back(m);
@@ -200,26 +201,26 @@ public:
     void addAfter(string str)
     {
         int pos = findText((char *)str.c_str());
-        char *tmp;
+       // char *tmp;
         if (pos > -1)
         {
-            tmp = _texts[pos];
+            m = _texts[pos];
         }
         else
         {
-            tmp = (char *)malloc(str.size() + 1);
-            memcpy(tmp, str.c_str(), str.size());
-            tmp[str.size()] = 0;
+            m = (char *)malloc(str.size() + 1);
+            memcpy(m, str.c_str(), str.size());
+            m[str.size()] = 0;
         }
         if (_it == _texts.end())
         {
-            _texts.push_back(tmp);
+            _texts.push_back(m);
             _it = _texts.end();
             _it--;
         }
         else
         {
-            _it = _texts.insert(next(_it), tmp);
+            _it = _texts.insert(next(_it), m);
         }
         position++;
     }
@@ -281,7 +282,7 @@ public:
         }
         else
         {
-            char *m = (char *)malloc(s.size() + 1);
+            m = (char *)malloc(s.size() + 1);
             memcpy(m, s.c_str(), s.size());
             m[s.size()] = 0;
             _it = _texts.insert(_it, m);
@@ -297,7 +298,7 @@ public:
             {
                 free(_texts[pos]);
             }
-            char *m = (char *)malloc(str.size() + 1);
+            m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());
             m[str.size()] = 0;
             _texts[pos] = m;
@@ -477,7 +478,10 @@ enum class opCodeType
   label,
   function_declaration,
   external_var,
+  external_var_label,
   external_call,
+   ext_function_declaration,
+    external_call_label,
   data,
   number,
   number_label,
@@ -494,11 +498,12 @@ enum class externalType
 
 typedef struct
 {
+     void *ptr;
   externalType type;
   string name;
   string signature;
   string shortname;
-  void *ptr;
+ 
   int offset;
 } asm_external;
 
@@ -544,7 +549,7 @@ char *getText()
         nameref = all_text.addText(t,si);
     }
   uint32_t bincode;
-  uint32_t size;
+  uint16_t size;
   opCodeType op;
   int16_t nameref=EOF_TEXTARRAY;
   uint32_t address;
@@ -690,6 +695,19 @@ typedef struct
   uint32_t total_size;
 
 } executable;
+
+typedef struct
+{
+    error_message_struct error;
+    uint8_t *binary_data;
+    uint8_t *function_data;
+    uint16_t instruction_size;
+     uint16_t tmp_instruction_size;
+      uint16_t function_size;
+      uint16_t data_size;
+
+
+} Binary;
 
 operandeType op_mov_n[2] = {operandeType::registers, operandeType::registers};
 operandeType *op_mov = op_mov_n; //[3] = {operandeType::registers, operandeType::registers};

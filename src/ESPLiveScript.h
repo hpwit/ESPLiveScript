@@ -243,17 +243,18 @@ public:
         parseProgram();
     }
 
-    Executable compile()
+    Binary compileBinary()
     {
-        Executable results;
+        Binary bin;
+        bin.error.error = 0;
         _sav_token_line = 1;
         parse();
-        results.error = Error;
+        bin.error = Error;
         if (Error.error)
         {
             pushToConsole(Error.error_message.c_str(), true);
 
-            return results;
+            return bin;
         }
         pushToConsole("***********PARSING DONE*********");
         updateMem();
@@ -267,8 +268,10 @@ public:
         updateMem();
         displayStat();
         sigs.clear();
+        sigs.shrink_to_fit();
         main_script.clear();
         _userDefinedTypes.clear();
+        _userDefinedTypes.shrink_to_fit();
         nodeTokenList.clear();
         program.clearAll();
         sav_t.clear();
@@ -293,23 +296,48 @@ public:
         pushToConsole("***********AFTER CLEAN*********");
 
 #ifndef __TEST_DEBUG
-        pushToConsole("***********CREATE EXECUTABLE*********");
-        executable _executecmd = createExectutable(&footer, &header, &content, __parser_debug);
-        results.setExecutable(_executecmd);
-        results.error = _executecmd.error;
+        pushToConsole("***********CREATE BINARY*********");
+        bin = createBinary(&footer, &header, &content, __parser_debug);
         content.clear();
         header.clear();
         footer.clear();
         change_type.clear();
         updateMem();
         displayStat();
-
-        if (_executecmd.error.error == 1)
+        if (bin.error.error == 1)
         {
-            // exeExist = false;
-            // Serial.printf(termColor.Red);
+            pushToConsole("WTF", true);
+            pushToConsole(bin.error.error_message.c_str(), true);
+            freeBinary(&bin);
+        }
+#endif
+        return bin;
+    }
+    Executable compile()
+    {
 
-            pushToConsole(_executecmd.error.error_message.c_str(), true);
+        Executable results;
+#ifndef __TEST_DEBUG
+        Binary bin = compileBinary();
+        if (bin.error.error == 0)
+        {
+            pushToConsole("***********CREATE EXECUTABLE*********");
+
+            executable _executecmd = createExectutable(&bin);
+            results.setExecutable(_executecmd);
+            results.error = _executecmd.error;
+
+            if (_executecmd.error.error == 1)
+            {
+                // exeExist = false;
+                // Serial.printf(termColor.Red);
+
+                pushToConsole(_executecmd.error.error_message.c_str(), true);
+            }
+        }
+        else
+        {
+            pushToConsole("WTF", true);
         }
 
 #endif
@@ -326,6 +354,17 @@ public:
         main_script.addContent((char *)str->c_str());
         return compile();
     }
+
+    Binary parseScriptBinary(string *str)
+    {
+
+        main_script.clear();
+        main_script.addContent((char *)_sync.c_str());
+        main_script.addContent((char *)division.c_str());
+        main_script.addContent((char *)base_ext_functions.c_str());
+        main_script.addContent((char *)str->c_str());
+        return compileBinary();
+    }
     Executable parse_c(list<string> *_script)
     {
         main_script.clear();
@@ -339,6 +378,20 @@ public:
         }
         main_script.addContent((char *)sc.c_str());
         return compile();
+    }
+    Binary parse_cBinary(list<string> *_script)
+    {
+        main_script.clear();
+        main_script.addContent((char *)_sync.c_str());
+        main_script.addContent((char *)division.c_str());
+        main_script.addContent((char *)base_ext_functions.c_str());
+        string sc = "";
+        for (string s : *_script)
+        {
+            sc = sc + "\n" + s;
+        }
+        main_script.addContent((char *)sc.c_str());
+        return compileBinary();
     }
     void getVariable(bool isStore)
     {
@@ -370,7 +423,7 @@ public:
                         _tks->push(Token());
                     }
                     insecond = true;
-                    _tks->tokenizelow(&extra_script, true, true, 1);
+                    _tks->tokenizelow(&extra_script, true, true, 20);
                     insecond = false;
 
                     parseType();
@@ -590,9 +643,9 @@ public:
             next();
 
             current()->addText(string_format("%s.%s", search_result->getVarType()->varName.c_str(), current()->getText()));
-            //nd = *search_result; //30/12
-            nd=NodeToken(*search_result);
-            nd.copyChildren(search_result);
+            // nd = *search_result; //30/12
+            nd = NodeToken(*search_result);
+            // nd.copyChildren(search_result);
             if (search_result->_nodetype == defGlobalVariableNode)
                 nd._nodetype = globalVariableNode;
             else
@@ -680,9 +733,9 @@ public:
             // result._nd = arg;
             // printf("on retourne with argh ide\n");
             current_node = current_node->parent;
-            signature = sigs.back() + ")";
+            string _signature = sigs.back() + ")";
             sigs.pop_back();
-            sigs.push_back(signature);
+            sigs.push_back(_signature);
             next();
             return;
         }
@@ -710,15 +763,15 @@ public:
         {
             return;
         }
-        signature = sigs.back() + current_node->getVarType()->varName;
+        string _signature = sigs.back() + current_node->getVarType()->varName;
         sigs.pop_back();
-        sigs.push_back(signature);
+        sigs.push_back(_signature);
         if (current_node->isPointer)
         {
 
-            signature = sigs.back() + "*";
+            string _signature = sigs.back() + "*";
             sigs.pop_back();
-            sigs.push_back(signature);
+            sigs.push_back(_signature);
         }
         current_node = current_node->parent;
         change_type.pop_back();
@@ -743,15 +796,15 @@ public:
                 return;
             }
 
-            signature = sigs.back() + "|" + current_node->getVarType()->varName;
+            string _signature = sigs.back() + "|" + current_node->getVarType()->varName;
             sigs.pop_back();
-            sigs.push_back(signature);
+            sigs.push_back(_signature);
             if (current_node->isPointer)
             {
 
-                signature = sigs.back() + "*";
+                string _signature = sigs.back() + "*";
                 sigs.pop_back();
-                sigs.push_back(signature);
+                sigs.push_back(_signature);
             }
             current_node = current_node->parent;
             change_type.pop_back();
@@ -768,9 +821,9 @@ public:
         next();
         Error.error = 0;
         // result._nd = arg;
-        signature = sigs.back() + ")";
+        _signature = sigs.back() + ")";
         sigs.pop_back();
-        sigs.push_back(signature);
+        sigs.push_back(_signature);
         current_node = current_node->parent;
         return;
     }
@@ -780,7 +833,7 @@ public:
         pushToConsole(string_format("functions:%s", __FUNCTION__));
         updateMem();
 #endif
-        // printf("serial %s\r\n", current()->getText());
+        printf("calling  %s\r\n", current()->getText());
         //  int sav_nb_arg;
         //  NodeToken *t = current_cntx->findFunction(current());
         sav_t.push_back(*current());
@@ -792,8 +845,8 @@ public:
         {
             if (struct_name.size() > 0)
             {
-                v = string_format("%s.%s", struct_name.c_str(), sav_t.back().getText());
-                if (main_context.findCandidate((char *)v.c_str()))
+                string v_tmp = string_format("%s.%s", struct_name.c_str(), sav_t.back().getText());
+                if (main_context.findCandidate((char *)v_tmp.c_str()))
                     isStructFunction = true;
             }
         }
@@ -869,7 +922,7 @@ public:
                         // prev();
                         pos = 0;
                         insecond = true;
-                        _tks->tokenizelow(&extra_script, true, true, 1);
+                        _tks->tokenizelow(&extra_script, true, true, 20);
                         insecond = false;
                         //  printf("%s \n\r",next()->getText());
                         // _for_display=false;
@@ -1106,8 +1159,8 @@ public:
                 }
                 else
                 {
-                    Error.error =1;
-                    Error.error_message=string_format("issue with return %s",linepos().c_str());
+                    Error.error = 1;
+                    Error.error_message = string_format("issue with return %s", linepos().c_str());
                     return;
                 }
 
@@ -1672,7 +1725,7 @@ public:
                 return;
             }
             nodeTokenList.push(createNodeLocalVariableForCreation(nodeTokenList.pop(), nodeTokenList.pop()));
-            current_cntx->addVariable(nodeTokenList.get());
+            current_cntx->addVariable(nodeTokenList.get()); // 31/12
             if (Match(TokenComma))
             {
                 while (Match(TokenComma))
@@ -1765,8 +1818,7 @@ public:
                     next();
                     current()->addText(string_format("%s._@%s", search_result->getVarType()->varName.c_str(), current()->getText()));
                     nd = NodeToken(*search_result);
-                    nd.copyChildren(search_result);//30/12
-
+                    // nd.copyChildren(search_result);//30/12
 
                     if (search_result->_nodetype == defGlobalVariableNode)
                         nd._nodetype = globalVariableNode;
@@ -1805,7 +1857,7 @@ public:
                 // copyPrty(type._nd, &var);
                 // current_node->addChild(left);
                 // _uniquesave=
-               NodeToken _uniquesave = nodeTokenList.pop();
+                NodeToken _uniquesave = nodeTokenList.pop();
                 if (_uniquesave.getNodeTokenType() == defLocalVariableNode)
                 {
                     _uniquesave._nodetype = (int)storeLocalVariableNode;
@@ -2042,7 +2094,7 @@ public:
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
-        // printf("entering function %s with %ur\n",current()->text.c_str(),esp_get_free_heap_size());
+        printf("entering function %s \r\n", current()->getText());
         if (isExternal)
         {
             ext_function = true;
@@ -2075,8 +2127,7 @@ public:
             current_node = current_node->addChild(nd);
             lasttype = current_node->addChild(nodeTokenList.pop());
 
-           // lasttype = current_node; //modif  30/12
-
+            // lasttype = current_node; //modif  30/12
         }
         else if (is_asm)
         {
@@ -3542,6 +3593,78 @@ void free(Console *cons, vector<string> args)
         scriptRuntime.deleteExe(args[0]);
     }
 }
+void saveBin(Console *cons, vector<string> args)
+{
+    Binary bin;
+    if (args.size() > 0)
+    {
+        LedOS.pushToConsole("Compiling ...", true);
+        bin = p.parse_cBinary(&cons->script);
+        saveBinary((char *)(fileSystem.current_path+args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
+    }
+    else
+            LedOS.pushToConsole("filename missing ...", true);
+}
+void binload(Console *cons, vector<string> args)
+{
+    Binary bin;
+    if (args.size() > 0)
+    {
+        if (SCExecutable.isRunning())
+        {
+            LedOS.pushToConsole("Something Already running kill it first ...");
+            vector<string> k;
+            kill(cons, k);
+        }
+        bool othercore = false;
+
+        SCExecutable.free();
+      //  bin = p.parse_cBinary(&cons->script);
+        loadBinary((char *)(fileSystem.current_path+args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
+        executable _executecmd = createExectutable(&bin);
+        SCExecutable.setExecutable(_executecmd);
+        SCExecutable.error = _executecmd.error;
+        if (_executecmd.error.error == 1)
+        {
+            // exeExist = false;
+            // Serial.printf(termColor.Red);
+
+            pushToConsole(_executecmd.error.error_message.c_str(), true);
+        }
+        else
+        {
+            if (SCExecutable.exeExist)
+            {
+
+                exeExist = true;
+                if (true)
+                {
+                    vector<string> d;
+                    // d.push_back("main");
+                    LedOS.pushToConsole("***********START RUN *********");
+                    run(cons, d);
+
+                    if (cons->cmode == keyword)
+                    {
+                        _push(config.ENDLINE);
+                        _push(cons->prompt(cons).c_str());
+                    }
+                }
+                else
+                {
+                    LedOS.pushToConsole("Start program", true);
+                    SCExecutable.execute("main");
+                    // executeBinary("main", executecmd);
+                    LedOS.pushToConsole("Execution done.", true);
+                }
+            }
+        }
+    }
+    else
+        
+            LedOS.pushToConsole("filename missing ...", true);
+}
+
 void parse_c(Console *cons, vector<string> args)
 {
     if (SCExecutable.isRunning())
@@ -3625,6 +3748,8 @@ public:
         // __run_handle = NULL;
         LedOS.addKeywordCommand("compile", parse_c, "Compile and run a program add '&' for run on the second core");
         LedOS.addKeywordCommand("comp", compile_c, "Compile  a program");
+        LedOS.addKeywordCommand("createbin", saveBin, "Compile  a program into binary");
+        LedOS.addKeywordCommand("executebin", binload, "executebin");
         LedOS.addKeywordCommand("list", listExec, "list the compiled programs");
         LedOS.addKeywordCommand("free", free, "free the binary free x will free the program with handle x");
         LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core) run x run program with handle x");
