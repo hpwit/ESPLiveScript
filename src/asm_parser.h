@@ -35,7 +35,7 @@ uint16_t _instr_size = 0;
 uint16_t tmp_instr_size = 0;
 uint16_t _data_size = 0;
 uint16_t tmp_data_size = 0;
-uint16_t binary_header_size=0;
+uint16_t binary_header_size = 0;
 
 // vector<result_parse_line> _asm_parsed;
 parsedLines _asm_parsed;
@@ -1779,7 +1779,7 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
   uint16_t nb_objects = 0;
   uint8_t type;
   uint16_t text_size;
-   binary_header_size = 2;
+  binary_header_size = 2;
   for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
     if ((*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label)
@@ -1921,14 +1921,14 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
       if ((*it2)->op == opCodeType::variable)
       {
         string stackstring = string((*it)->getText()).insert(2, "stack_");
-       // printf(" qss %s %ld  %s\r\n", stackstring.c_str(), getInstrAtPos(findLabel(stackstring, asm_parsed))->bincode, (*it2)->getText());
+        // printf(" qss %s %ld  %s\r\n", stackstring.c_str(), getInstrAtPos(findLabel(stackstring, asm_parsed))->bincode, (*it2)->getText());
         bc = getInstrAtPos(findLabel(stackstring, asm_parsed))->bincode;
         memcpy(binary_header, &bc, 4);
       }
       binary_header = binary_header + 4;
     }
   }
-  //printf("encoding %d objce\r\n", nb_objects);
+  // printf("encoding %d objce\r\n", nb_objects);
   return _binary_header;
 }
 
@@ -1949,12 +1949,12 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
 
   memcpy(&nb_objects, binary_header, 2);
   binary_header = binary_header + 2;
-  //printf("nb objecst %u\n", nb_objects);
+  // printf("nb objecst %u\n", nb_objects);
   for (int i = 0; i < nb_objects; i++)
   {
     memcpy(&type, binary_header, 1);
     binary_header++;
-   // printf("type %d\r\n", type);
+    // printf("type %d\r\n", type);
     switch (type)
     {
     case 0:
@@ -1984,7 +1984,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
 
         uint32_t *new_adr = (uint32_t *)exec + nb_data;
         memcpy(new_adr, &content, 4);
-       // printf("external var:%s\n\r", textptr);
+        // printf("external var:%s\n\r", textptr);
       }
       else
       {
@@ -2011,7 +2011,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
         // printf("calculate ext %s\n\r", (*it)->getText());
         bincode = jump_call8(bincode, _address + (uint32_t)_exec, (uint32_t)external_links[index].ptr);
         memcpy(exec + _address, &bincode, 3);
-       // printf("external func:%s\n\r", textptr);
+        // printf("external func:%s\n\r", textptr);
       }
       else
       {
@@ -2055,7 +2055,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       memcpy(&_address, binary_header, 4);
       binary_header = binary_header + 4;
       gc.variableaddress = _address;
-     // printf("funcrion %s adfrees:%d\n\r",gc.name .c_str(),gc.address);
+      // printf("funcrion %s adfrees:%d\n\r",gc.name .c_str(),gc.address);
       finalexe->functions.push_back(gc);
     }
     break;
@@ -2069,7 +2069,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
 
   return error;
 }
-
+/*
 error_message_struct createAbsoluteJump(uint8_t *exec, parsedLines *asm_parsed, uint32_t address, uint32_t _exec)
 {
   error_message_struct error;
@@ -2147,14 +2147,14 @@ error_message_struct createAbsoluteJump(uint8_t *exec, parsedLines *asm_parsed, 
   }
   return error;
 }
-
+*/
 #ifndef __TEST_DEBUG
 
 executable _createExcutablefromBinary(Binary *bin)
 {
   executable exe;
   error_message_struct error;
-  exe.error.error=0;
+  exe.error.error = 0;
   uint32_t *exec = (uint32_t *)heap_caps_malloc(bin->instruction_size, MALLOC_CAP_EXEC);
   if (binary_data != NULL)
     free(binary_data);
@@ -2179,7 +2179,7 @@ executable _createExcutablefromBinary(Binary *bin)
 
   memcpy(exec, bin->binary_data, bin->instruction_size);
 
-  //free(tmp_exec);
+  // free(tmp_exec);
 
   for (int i = 0; i < exe.functions.size(); i++)
   {
@@ -2228,7 +2228,7 @@ return bin;
 Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
 {
   Binary bin;
-  bin.error.error=0;
+  bin.error.error = 0;
   _asm_parsed.clear();
 
   __parser_debug = display;
@@ -2259,7 +2259,7 @@ Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
     bin.function_size = binary_header_size;
     bin.data_size = _data_size;
     bin.instruction_size = _instr_size;
-    bin.tmp_instruction_size= tmp_instr_size;
+    bin.tmp_instruction_size = tmp_instr_size;
   }
   else
   {
@@ -2273,72 +2273,68 @@ Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
 }
 void freeBinary(Binary *bin)
 {
-      if(bin->binary_data )
-      free(bin->binary_data );
-    if(bin->function_data)
-     free(bin->function_data);
-   // delete(bin);
+  if (bin->binary_data)
+    free(bin->binary_data);
+  if (bin->function_data)
+    free(bin->function_data);
+  // delete(bin);
 }
 
-void saveBinary(char * name, fs::FS &fs, Binary *bin)
+void saveBinary(char *name, fs::FS &fs, Binary *bin)
 {
-  File root = fs.open(name,FILE_WRITE);
-  root.write((uint8_t *)"ESPLiveScript1.0.0",19);
-  root.write((uint8_t*)&bin->tmp_instruction_size,2);
+  File root = fs.open(name, FILE_WRITE);
+  root.write((uint8_t *)"ESPLiveScript1.0.0", 19);
+  root.write((uint8_t *)&bin->tmp_instruction_size, 2);
   // printf("instr_iz :%d\n",bin->tmp_instruction_size);
 
-  root.write((uint8_t*)&bin->instruction_size,2);
- //printf("instr_iz :%d\n",bin->instruction_size);
- 
-  root.write((uint8_t*)&bin->data_size,2);
-// printf("instr_iz :%d\n",bin->data_size);
- 
-  root.write((uint8_t*)&bin->function_size,2);
- // printf("instr_iz :%d\n",bin->function_size);
+  root.write((uint8_t *)&bin->instruction_size, 2);
+  // printf("instr_iz :%d\n",bin->instruction_size);
 
-   root.write(bin->binary_data,bin->tmp_instruction_size);
-   root.write(bin->function_data, bin->function_size);
-   root.close();
-   
+  root.write((uint8_t *)&bin->data_size, 2);
+  // printf("instr_iz :%d\n",bin->data_size);
+
+  root.write((uint8_t *)&bin->function_size, 2);
+  // printf("instr_iz :%d\n",bin->function_size);
+
+  root.write(bin->binary_data, bin->tmp_instruction_size);
+  root.write(bin->function_data, bin->function_size);
+  root.close();
 }
 
-void loadBinary(char * name, fs::FS &fs, Binary *bin)
+void loadBinary(char *name, fs::FS &fs, Binary *bin)
 {
   File root = fs.open(name);
 
   char ver[19];
-  root.read((uint8_t*)ver,19);
-  if(strcmp(ver,"ESPLiveScript1.0.0")!=0)
+  root.read((uint8_t *)ver, 19);
+  if (strcmp(ver, "ESPLiveScript1.0.0") != 0)
   {
-    bin->error.error=1;
-    bin->error.error_message="wrong format";
+    bin->error.error = 1;
+    bin->error.error_message = "wrong format";
     return;
   }
 
-  root.read((uint8_t*)&bin->tmp_instruction_size,2);
- // printf("instr_iz :%d\n",bin->tmp_instruction_size);
+  root.read((uint8_t *)&bin->tmp_instruction_size, 2);
+  // printf("instr_iz :%d\n",bin->tmp_instruction_size);
 
-  root.read((uint8_t*)&bin->instruction_size,2);
- // printf("instr_iz :%d\n",bin->instruction_size);
-  
-  root.read((uint8_t*)&bin->data_size,2);
- // printf("instr_iz :%d\n",bin->data_size);
+  root.read((uint8_t *)&bin->instruction_size, 2);
+  // printf("instr_iz :%d\n",bin->instruction_size);
 
-  root.read((uint8_t*)&bin->function_size,2);
- // printf("instr_iz :%d\n",bin->function_size);
+  root.read((uint8_t *)&bin->data_size, 2);
+  // printf("instr_iz :%d\n",bin->data_size);
 
-  uint8_t *tmp=(uint8_t *)malloc(bin->tmp_instruction_size);
+  root.read((uint8_t *)&bin->function_size, 2);
+  // printf("instr_iz :%d\n",bin->function_size);
 
-   root.read(tmp,bin->tmp_instruction_size);
-   bin->binary_data=tmp;
-    uint8_t *tmp2=(uint8_t *)malloc(bin->function_size);
-   root.read(tmp2, bin->function_size);
-   bin->function_data=tmp2;
-   root.close();
-   
-   
+  uint8_t *tmp = (uint8_t *)malloc(bin->tmp_instruction_size);
+
+  root.read(tmp, bin->tmp_instruction_size);
+  bin->binary_data = tmp;
+  uint8_t *tmp2 = (uint8_t *)malloc(bin->function_size);
+  root.read(tmp2, bin->function_size);
+  bin->function_data = tmp2;
+  root.close();
 }
-
 
 executable createExectutable(Binary *bin)
 {
@@ -2346,13 +2342,13 @@ executable createExectutable(Binary *bin)
   executable exec;
   exec.binary_size = 0;
   exec.data_size = 0;
- // _asm_parsed.clear();
+  // _asm_parsed.clear();
 
   __parser_debug = display;
-  
-  //Binary bin = createBinary(_footer, _header, _content,display);
+
+  // Binary bin = createBinary(_footer, _header, _content,display);
   exec = _createExcutablefromBinary(bin);
-  
+
   freeBinary(bin);
 
   return exec;

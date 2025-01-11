@@ -3599,6 +3599,7 @@ void saveBin(Console *cons, vector<string> args)
     if (args.size() > 0)
     {
         LedOS.pushToConsole("Compiling ...", true);
+         __parser_debug = false;
         bin = p.parse_cBinary(&cons->script);
         saveBinary((char *)(fileSystem.current_path+args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
     }
@@ -3608,6 +3609,7 @@ void saveBin(Console *cons, vector<string> args)
 void binload(Console *cons, vector<string> args)
 {
     Binary bin;
+      Arguments _args;
     if (args.size() > 0)
     {
         if (SCExecutable.isRunning())
@@ -3621,6 +3623,11 @@ void binload(Console *cons, vector<string> args)
         SCExecutable.free();
       //  bin = p.parse_cBinary(&cons->script);
         loadBinary((char *)(fileSystem.current_path+args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
+        if(args.size()>1)
+        {
+            string variables = args[1].substr(1, args[1].size() - 2);
+            _args = parseInputArgs(variables);
+        }
         executable _executecmd = createExectutable(&bin);
         SCExecutable.setExecutable(_executecmd);
         SCExecutable.error = _executecmd.error;
@@ -3639,10 +3646,11 @@ void binload(Console *cons, vector<string> args)
                 exeExist = true;
                 if (true)
                 {
-                    vector<string> d;
+                    //vector<string> d;
                     // d.push_back("main");
                     LedOS.pushToConsole("***********START RUN *********");
-                    run(cons, d);
+                    SCExecutable.executeAsTask("main", _args);
+                   // run(cons, d);
 
                     if (cons->cmode == keyword)
                     {
@@ -3686,6 +3694,7 @@ void parse_c(Console *cons, vector<string> args)
     }
     SCExecutable = p.parse_c(&cons->script);
     // if (p.parse_c(&cons->script))
+    
     if (SCExecutable.exeExist)
     {
 
@@ -3750,6 +3759,7 @@ public:
         LedOS.addKeywordCommand("comp", compile_c, "Compile  a program");
         LedOS.addKeywordCommand("createbin", saveBin, "Compile  a program into binary");
         LedOS.addKeywordCommand("executebin", binload, "executebin");
+        LedOS.addKeywordCommand("./", binload, "executebin");
         LedOS.addKeywordCommand("list", listExec, "list the compiled programs");
         LedOS.addKeywordCommand("free", free, "free the binary free x will free the program with handle x");
         LedOS.addKeywordCommand("run", run, "Run an already compiled program (always second Core) run x run program with handle x");
