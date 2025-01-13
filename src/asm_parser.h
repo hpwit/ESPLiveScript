@@ -1239,6 +1239,13 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   main_error.error = 0;
   main_error.error_message = "";
   optimize(_content);
+  #ifdef __TEST_DEBUG
+  _header->display();
+//content.display();
+
+_content->display();
+_footer->display();
+#endif
   //_content->display();
   // printf("optimized done\r\n");
 
@@ -1980,10 +1987,12 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       int index = findLink(string(textptr).substr(6, 100), externalType::value);
       if (index > -1)
       {
+        #ifndef __TEST_DEBUG
         uint32_t content = (uint32_t)((external_links[index].ptr));
 
         uint32_t *new_adr = (uint32_t *)exec + nb_data;
         memcpy(new_adr, &content, 4);
+        #endif
         // printf("external var:%s\n\r", textptr);
       }
       else
@@ -2007,10 +2016,11 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       int index = findLink(string(textptr), externalType::function);
       if (index > -1)
       {
-
+#ifndef __TEST_DEBUG
         // printf("calculate ext %s\n\r", (*it)->getText());
         bincode = jump_call8(bincode, _address + (uint32_t)_exec, (uint32_t)external_links[index].ptr);
         memcpy(exec + _address, &bincode, 3);
+        #endif
         // printf("external func:%s\n\r", textptr);
       }
       else

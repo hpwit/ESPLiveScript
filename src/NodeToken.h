@@ -2348,7 +2348,7 @@ void _visitdefFunctionNode(NodeToken *nd)
     if (nd->type == TokenUserDefinedVariableMemberFunction)
         isStructFunction = true;
     header.addAfter(string_format(".global @_%s", nd->getTokenText()));
-    string variables = "";
+    //string variables = "";
     if (!isStructFunction)
     {
         string variables = "";

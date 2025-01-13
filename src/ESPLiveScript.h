@@ -317,10 +317,11 @@ public:
     {
 
         Executable results;
-#ifndef __TEST_DEBUG
+
         Binary bin = compileBinary();
         if (bin.error.error == 0)
         {
+            #ifndef __TEST_DEBUG
             pushToConsole("***********CREATE EXECUTABLE*********");
 
             executable _executecmd = createExectutable(&bin);
@@ -334,13 +335,14 @@ public:
 
                 pushToConsole(_executecmd.error.error_message.c_str(), true);
             }
+            #endif
         }
         else
         {
             pushToConsole("WTF", true);
         }
 
-#endif
+
         return results;
     }
 
@@ -920,7 +922,7 @@ public:
 
                         // next();
                         // prev();
-                        pos = 0;
+                        pos_in_line = 0;
                         insecond = true;
                         _tks->tokenizelow(&extra_script, true, true, 20);
                         insecond = false;
