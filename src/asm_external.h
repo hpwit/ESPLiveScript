@@ -23,16 +23,69 @@ uint32_t * createExternalLinks()
 
 }
 
-void addExternal(string name,externalType type, void * ptr)
+void addExternalFunction(string name,string out,string in, void * ptr)
 {
     asm_external asmex;
     asmex.name=name;
+    asmex.shortname=name;
+    asmex.type=externalType::function;
+    //asmex.in=in;
+    //asmex.out=out;
+    if(out.size()==0)
+    {
+    asmex.signature="()";
+    }
+    else
+    {
+    vector<string> j=split(in,",");
+    asmex.signature=name+"(";
+    asmex.name="external "+out+" "+name +"(";
+    for (int i=0;i<j.size();i++)
+    {
+//printf("%s %d\n\r",j[i].c_str(),j[i].find("Args"));
+      if(j[i].find("Args")==string::npos)
+       asmex.signature= asmex.signature+"d";
+      else
+       asmex.signature= asmex.signature+"Args";
+       if(j[i].find("*")!=string::npos)
+        asmex.signature= asmex.signature+"*";
+      asmex.name=string_format("%s%s a%d",asmex.name.c_str(),j[i].c_str(),i);
+       if (i<j.size()-1)
+       {
+         asmex.signature= asmex.signature+"|";
+          asmex.name=asmex.name+",";
+       }
+    }
+    
+    asmex.signature= asmex.signature+")";
+    asmex.name=asmex.name+");";
+  //  printf("%s %s \n\r",asmex.signature.c_str(),asmex.name.c_str());
+    }
+    if(ptr!=NULL)
+         asmex.ptr=ptr;
+    external_links.push_back(asmex);
+}
+void addExternalVariable(string name, string out,string in,void * ptr)
+{
+    asm_external asmex;
+    asmex.name=name;
+    asmex.shortname=name;
+    asmex.signature="external "+out+" "+name+in+";";
+    asmex.type=externalType::value;
+    if(ptr!=NULL)
+         asmex.ptr=ptr;
+    external_links.push_back(asmex);
+}
+void addExternal(string name, externalType type, void * ptr)
+{
+    asm_external asmex;
+    asmex.name=name;
+    asmex.shortname=name;
     asmex.type=type;
     if(ptr!=NULL)
          asmex.ptr=ptr;
     external_links.push_back(asmex);
 }
-
 void replaceExternal(string name, void *ptr)
 {
    //  vector<asm_external>::iterator it=external_links.begin();
@@ -54,7 +107,7 @@ int findLink(string label, externalType op)
     }
   for(int i=0;i<external_links.size();i++)
   {
-        if( (external_links[i].name.compare(label)==0) )//&&  (external_links[i].type==op))
+        if( (external_links[i].shortname.compare(label)==0) )//&&  (external_links[i].type==op))
         {
             return i;
         }

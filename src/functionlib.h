@@ -8,12 +8,13 @@
 //string division="";
 string _sync="\
 uint32_t _handle_;\n\
+uint32_t _execaddr_;\n\
 __ASM__ void sync()\n\
 {\n\
 \"entry a1,32\" \n\
 \"l32r a4,@__handle_\" \n\
 \"l32i a10,a4,0\" \n\
-\"callExt a8,_sync\"\n\
+\"callExt _sync\"\n\
 \"retw.n\" \n\
 }@";
 string division="\
@@ -144,9 +145,9 @@ loop();\n\
 string base_ext_functions="\n\
 define true 1\n\
 define false 0\n\
-external void printf(char * s,Args a);\n\
-external void printfln(char * s,Args a);\n\
 @";
+
+//external void printfln(char * s,Args a);\n
 string empty_header="";
 int stdlib_size=5;
 string stdlib[]={"sync","rand","copy","memset","fill","arduino"};

@@ -85,8 +85,8 @@ public:
             execPtr[i] = NULL;
         }
         nb_concurrent_programs = 0;
-        addExternal("_sync", externalType::function, (void *)syncExt);
-        addExternal("feed", externalType::function, (void *)feedTheDog);
+      addExternalFunction("_sync", "void","uint32_t", (void *)syncExt);
+     //   addExternal("feed", externalType::function, (void *)feedTheDog);
     }
     int getHandle(Executable *exec)
     {
@@ -563,12 +563,24 @@ public:
         return exeExist;
     }
 #ifndef __TEST_DEBUG
+void executeOnly(string prog)
+{
+     args.clear();
+#ifndef __TEST_DEBUG
+        // res = executeBinary("@__footer", _executecmd, 9999, args);
+         error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999,this,args);
+        if (res.error)
+        {
+            pushToConsole(res.error_message, true);
+        }
+#endif
+}
     void execute(string prog)
     {
         args.clear();
 #ifndef __TEST_DEBUG
-        error_message_struct res = executeBinary("@__footer", _executecmd, 9999, args);
-          res = executeBinary("@_" + prog, _executecmd, 9999, args);
+        error_message_struct res = executeBinary("@__footer", _executecmd, 9999,this, args);
+          res = executeBinary("@_" + prog, _executecmd, 9999, this,args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -584,8 +596,8 @@ public:
             args.add(arguments._args[i]);
         }
 #ifndef __TEST_DEBUG
-                error_message_struct res = executeBinary("@__footer", _executecmd, 9999, args);
-          res = executeBinary("@_" + prog, _executecmd, 9999, args);
+                error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this,args);
+          res = executeBinary("@_" + prog, _executecmd, 9999,this,args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -650,11 +662,12 @@ static void _run_task(void *pvParameters)
     // esp_task_wdt_delete(NULL);
     //  _exe_args *_fg = exec->df;
     exec->_isRunning = true;
+    Arguments d;
     if (exec->df.args.size() > 0)
     {
-                error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec->args);
+                error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec,d);
           
-         res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec->args);
+         res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec,exec->args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -662,8 +675,8 @@ static void _run_task(void *pvParameters)
     }
     else
     {
-         error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec->args);
-         res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec->args);
+         error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index,exec, d);
+         res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec,exec->args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
