@@ -662,10 +662,10 @@ static void _run_task(void *pvParameters)
     // esp_task_wdt_delete(NULL);
     //  _exe_args *_fg = exec->df;
     exec->_isRunning = true;
-    Arguments d;
+    Arguments _d;
     if (exec->df.args.size() > 0)
     {
-                error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec,d);
+                error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec,_d);
           
          res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec,exec->args);
         if (res.error)
@@ -675,7 +675,7 @@ static void _run_task(void *pvParameters)
     }
     else
     {
-         error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index,exec, d);
+         error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index,exec, _d);
          res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec,exec->args);
         if (res.error)
         {

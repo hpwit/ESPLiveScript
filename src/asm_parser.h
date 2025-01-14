@@ -1266,10 +1266,10 @@ _footer->display();
     {
       int h = 0;
       _nb_data++;
-      vector<string> __v = split(trim(str), " ");
-      sscanf(__v[1].c_str(), "%d", &h);
+      vector<string> ___v = split(trim(str), " ");
+      sscanf(___v[1].c_str(), "%d", &h);
       h = (h / 4) * 4 + 4;
-      if (__v.size() > 2)
+      if (___v.size() > 2)
       {
         //  printf("%s \n\r",str.c_str());
         tmp_data_size += h;
@@ -1335,8 +1335,8 @@ _footer->display();
   }
   // printf("her:\r\n");
 #ifdef __CONSOLE_ESP32
-  string d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size() + _footer->size());
-  LedOS.pushToConsole(d);
+  string __d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size() + _footer->size());
+  LedOS.pushToConsole(__d);
 #else
   printf("Parsing %d assembly lines ...\r\n ", _header->size() + _content->size() + _footer->size());
 #endif
@@ -1952,7 +1952,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
   uint16_t size;
 
   char *textptr;
-  char *textptr2;
+  //char *textptr2;
 
   memcpy(&nb_objects, binary_header, 2);
   binary_header = binary_header + 2;
@@ -1970,10 +1970,10 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       binary_header = binary_header + 4;
       memcpy(&nb_data, binary_header, 2);
       binary_header = binary_header + 2;
-      uint32_t content = bincode + address;
+      uint32_t _content = bincode + address;
 
       uint32_t *new_adr = (uint32_t *)exec + nb_data;
-      memcpy(new_adr, &content, 4);
+      memcpy(new_adr, &_content, 4);
     }
     break;
     case 1:
@@ -1988,10 +1988,10 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       if (index > -1)
       {
         #ifndef __TEST_DEBUG
-        uint32_t content = (uint32_t)((external_links[index].ptr));
+        uint32_t _content = (uint32_t)((external_links[index].ptr));
 
         uint32_t *new_adr = (uint32_t *)exec + nb_data;
-        memcpy(new_adr, &content, 4);
+        memcpy(new_adr, &_content, 4);
         #endif
         // printf("external var:%s\n\r", textptr);
       }
@@ -2409,19 +2409,19 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
       t++;
       *t = (uint32_t)exePtr;
 
-      uint8_t *var = (ex.data + ex.functions[i].variableaddress);
+      uint8_t *_var = (ex.data + ex.functions[i].variableaddress);
       if (ex.functions[i].args_num == arguments._args.size())
       {
         vector<string> args = split(trim(ex.functions[i].variables), " ");
-        for (int i = 1; i < args.size(); i++)
+        for (int j = 1; j < args.size(); j++)
         {
           int _size = 0;
-          sscanf(args[i].c_str(), "%d", &_size);
-          if (arguments._args[i - 1].vartype == __float__)
-            memcpy(var, &arguments._args[i - 1].floatval, _size);
+          sscanf(args[j].c_str(), "%d", &_size);
+          if (arguments._args[j - 1].vartype == __float__)
+            memcpy(_var, &arguments._args[j - 1].floatval, _size);
           else
-            memcpy(var, &arguments._args[i - 1].intval, _size);
-          var += _size;
+            memcpy(_var, &arguments._args[j - 1].intval, _size);
+          _var += _size;
         }
       }
       else

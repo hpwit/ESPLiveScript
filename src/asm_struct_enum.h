@@ -240,7 +240,7 @@ public:
     }
     string textAt(int pos)
     {
-      if(pos>0 and pos<_texts.size())
+      if(pos>=0 and pos<_texts.size())
       {
         return string(_texts[pos]);
       }
@@ -296,7 +296,7 @@ public:
         {
             if (!isReused(pos))
             {
-                free(_texts[pos]);
+              //  free(_texts[pos]);
             }
             m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());

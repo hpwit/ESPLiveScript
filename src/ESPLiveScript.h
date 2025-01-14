@@ -273,6 +273,7 @@ public:
         _userDefinedTypes.clear();
         _userDefinedTypes.shrink_to_fit();
         nodeTokenList.clear();
+         printf("cleargin program\n\r");
         program.clearAll();
         sav_t.clear();
         sav_t.shrink_to_fit();
@@ -281,10 +282,12 @@ public:
         change_type.clear();
         sav_token.clear();
         _node_token_stack.clear();
+        printf("cleargin function\n\r");
         for (NodeToken h : _functions)
         {
             h.clearAll();
         }
+         printf("end cleargin function\n\r");
         _functions.clear();
         _functions.shrink_to_fit();
         all_text.clear();
@@ -321,7 +324,7 @@ public:
         Binary bin = compileBinary();
         if (bin.error.error == 0)
         {
-            #ifndef __TEST_DEBUG
+#ifndef __TEST_DEBUG
             pushToConsole("***********CREATE EXECUTABLE*********");
 
             executable _executecmd = createExectutable(&bin);
@@ -335,13 +338,12 @@ public:
 
                 pushToConsole(_executecmd.error.error_message.c_str(), true);
             }
-            #endif
+#endif
         }
         else
         {
             pushToConsole("WTF", true);
         }
-
 
         return results;
     }
@@ -420,7 +422,7 @@ public:
                     extra_script.init();
                     __isBlockComment = false;
                     _tks = &_extra_tks;
-                    for (int i = 0; i < __DEPTH; i++)
+                    for (int j = 0; j < __DEPTH; j++)
                     {
                         _tks->push(Token());
                     }
@@ -680,7 +682,7 @@ public:
             {
                 return;
             }
-            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->duplicateChildren(_node_token_stack.back());
             _node_token_stack.pop_back();
             isStructFunction = false;
             Error.error = 0;
@@ -771,7 +773,7 @@ public:
         if (current_node->isPointer)
         {
 
-            string _signature = sigs.back() + "*";
+            _signature = sigs.back() + "*";
             sigs.pop_back();
             sigs.push_back(_signature);
         }
@@ -798,13 +800,13 @@ public:
                 return;
             }
 
-            string _signature = sigs.back() + "|" + current_node->getVarType()->varName;
+            _signature = sigs.back() + "|" + current_node->getVarType()->varName;
             sigs.pop_back();
             sigs.push_back(_signature);
             if (current_node->isPointer)
             {
 
-                string _signature = sigs.back() + "*";
+                _signature = sigs.back() + "*";
                 sigs.pop_back();
                 sigs.push_back(_signature);
             }
@@ -971,26 +973,28 @@ public:
                 // current()->type=TokenSemicolon;
             }
         }
-
+        printf("found fucntion %s\r\n",search_result->getTokenText());
         // NodeToken *res=search_result;
 
-        _nd = NodeToken(search_result);
-        if (_nd._nodetype == (int)defExtFunctionNode)
+
+        // NodeExtCallFunction function = NodeExtCallFunction(t);
+        current_node = current_node->addChildDuplicate(search_result); //14/01
+        
+                if (search_result->_nodetype == (int)defExtFunctionNode)
         {
 
-            _nd._nodetype = extCallFunctionNode;
+            current_node->_nodetype = extCallFunctionNode;
         }
         else // if (_nd._nodetype == (int)defFunctionNode)
         {
-            _nd._nodetype = callFunctionNode;
+            current_node->_nodetype = callFunctionNode;
         }
-
-        // NodeExtCallFunction function = NodeExtCallFunction(t);
-        current_node = current_node->addChild(_nd);
-        // current_node->copyChildren(search_result);
-        current_node->addChild(search_result->getChildAtPos(0));
-        // if (search_result->getChildAtPos(0)->_vartype == __float__ and change_type.size() > 0)
-        //   change_type.back()->_vartype = __float__;
+       //    prettyPrint(search_result,"_");
+         printf("duplicate fucntion done %s\r\n",current_node->getTokenText());
+   current_node->duplicateChildren(search_result);
+ //prettyPrint(search_result,"_");
+       // current_node->addChild(search_result->getChildAtPos(0)); //14/01
+ printf("duplicate arguments fucntion %s\r\n",search_result->getTokenText());
 
         if (change_type.size() > 0)
         {
@@ -1004,11 +1008,13 @@ public:
                 }
             }
         }
-        current_node->addChild(search_result->getChildAtPos(1));
+      
+        //current_node->addChild(search_result->getChildAtPos(1)); 14/01
 
         // sav_nb_arg = function._link->getChildAtPos(1)->children.size();
 
         nb_sav_args.push_back(current_node->getChildAtPos(1)->children.size());
+          
         if (isStructFunction)
         {
             // nb_sav_args.push_back( nb_sav_args.back()-1);
@@ -1025,8 +1031,11 @@ public:
         }
 
         current_node->_vartype = current_node->getChildAtPos(0)->_vartype;
+  //prettyPrint(search_result,"_");
 
         current_node->addChild(_node_token_stack.back());
+          // prettyPrint(search_result,"_");
+      
         _node_token_stack.pop_back();
 
         if (nb_sav_args.back() != nb_args.back() and nb_sav_args.back() != 999) // if (sav_nb_arg != nb_args.back())
@@ -1041,7 +1050,8 @@ public:
         sav_t.pop_back();
         Error.error = 0;
         current_node = current_node->parent;
-
+        search_result=NULL;
+        printf("end calling fib\n\r");
         return;
     }
 
@@ -2180,6 +2190,9 @@ public:
         // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
         current_node->setTokenText(string_format("%s%s", current_node->getTokenText(), signature.c_str()));
         main_context.addFunction(current_node);
+      //printf("displaying function %s\n\r",current_node->getTokenText());
+      //  prettyPrint(current_node,"-");
+       // prettyPrint(&_functions.back(),"-");
 
         if (!Match(TokenCloseParenthesis))
         {
@@ -2193,12 +2206,6 @@ public:
         {
             if (Match(TokenSemicolon))
             {
-                //   NodeDefExtFunction function = NodeDefExtFunction(func);
-                //  function.addChild(oritype);
-                //  function.addChild(arguments._nd);
-                // current_cntx->parent->addFunction(function);
-                // current_node->addChild(function);
-                // result._nd = function;
                 Error.error = 0;
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
@@ -2239,27 +2246,13 @@ public:
 
 #ifndef __MEM_PARSER
                 buildParents(current_node);
-
                 current_node->visitNode();
-                current_node->getChildAtPos(2)->clear();
-                //  current_cntx->clear();
-                //_node_token_stack.clear();
-                // printf("after clean function %s\n",current_node->getTokenText());
+                current_node->getChildAtPos(2)->clear(); //14/01
+                //current_node->clear();
+
                 updateMem();
 #endif
 
-                /*
-                #ifndef __MEM_PARSER
-                               printf("on compile %s\r\n",current_node->text.c_str());
-                                __sav_pos = _tks->position;
-                                buildParents(current_node);
-
-                                current_node->visitNode(current_node);
-                                clearContext(tobedeted);
-                                _tks->position = __sav_pos;
-                #endif
-                */
-                // printf("on a visité\r\n");
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
 
@@ -2348,8 +2341,16 @@ public:
             // left._nd = NodeBinOperator(left._nd, opt, right._nd);
         }
         // next();
+        if(sav_token.size()>0)
+        {
         current_node = sav_token.back();
         sav_token.pop_back();
+        }
+        else
+        {
+            Error.error=1;
+            Error.error_message="issue with the sav_token track";
+        }
         // current_node = sav_pa;
         // printf("exit term\n");
         return;
@@ -2398,8 +2399,16 @@ public:
             // left._nd = NodeBinOperator(left._nd, opt, right._nd);
         }
         // next();
+        if(sav_token.size()>0)
+        {
         current_node = sav_token.back();
         sav_token.pop_back();
+        }
+        else
+        {
+            Error.error=1;
+            Error.error_message="issue with the sav_token track";
+        }
         //  lasttype=change_type.back();
         // printf("last type:%d\n",lasttype->_vartype);
         // change_type.pop_back();
@@ -2505,8 +2514,17 @@ public:
             current_node = current_node->parent;
         }
 
+          if(sav_token.size()>0)
+        {
         current_node = sav_token.back();
         sav_token.pop_back();
+        }
+        else
+        {
+            Error.error=1;
+            Error.error_message="issue with the sav_token track";
+            return; 
+        }
 
         Error.error = 0;
         return;
@@ -2740,7 +2758,7 @@ public:
             {
                 return;
             }
-            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+            current_node->getChildAtPos(current_node->children.size() - 1)->getChildAtPos(2)->getChildAtPos(0)->duplicateChildren(_node_token_stack.back());
             _node_token_stack.pop_back();
             // if(current_node->getChildAtPos(current_node->children.size()-1)->getChildAtPos(0)->_vartype==__float__)
             // change_type.back()->_vartype=__float__;
@@ -3601,17 +3619,17 @@ void saveBin(Console *cons, vector<string> args)
     if (args.size() > 0)
     {
         LedOS.pushToConsole("Compiling ...", true);
-         __parser_debug = false;
+        __parser_debug = false;
         bin = p.parse_cBinary(&cons->script);
-        saveBinary((char *)(fileSystem.current_path+args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
+        saveBinary((char *)(fileSystem.current_path + args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
     }
     else
-            LedOS.pushToConsole("filename missing ...", true);
+        LedOS.pushToConsole("filename missing ...", true);
 }
 void binload(Console *cons, vector<string> args)
 {
     Binary bin;
-      Arguments _args;
+    Arguments _args;
     if (args.size() > 0)
     {
         if (SCExecutable.isRunning())
@@ -3623,9 +3641,9 @@ void binload(Console *cons, vector<string> args)
         bool othercore = false;
 
         SCExecutable.free();
-      //  bin = p.parse_cBinary(&cons->script);
-        loadBinary((char *)(fileSystem.current_path+args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
-        if(args.size()>1)
+        //  bin = p.parse_cBinary(&cons->script);
+        loadBinary((char *)(fileSystem.current_path + args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
+        if (args.size() > 1)
         {
             string variables = args[1].substr(1, args[1].size() - 2);
             _args = parseInputArgs(variables);
@@ -3648,11 +3666,11 @@ void binload(Console *cons, vector<string> args)
                 exeExist = true;
                 if (true)
                 {
-                    //vector<string> d;
-                    // d.push_back("main");
+                    // vector<string> d;
+                    //  d.push_back("main");
                     LedOS.pushToConsole("***********START RUN *********");
                     SCExecutable.executeAsTask("main", _args);
-                   // run(cons, d);
+                    // run(cons, d);
 
                     if (cons->cmode == keyword)
                     {
@@ -3671,8 +3689,8 @@ void binload(Console *cons, vector<string> args)
         }
     }
     else
-        
-            LedOS.pushToConsole("filename missing ...", true);
+
+        LedOS.pushToConsole("filename missing ...", true);
 }
 
 void parse_c(Console *cons, vector<string> args)
@@ -3684,7 +3702,7 @@ void parse_c(Console *cons, vector<string> args)
         kill(cons, k);
     }
     bool othercore = false;
-
+    __parser_debug = false;
     SCExecutable.free();
     LedOS.pushToConsole("Compiling ...", true);
     if (args.size() > 0)
@@ -3696,17 +3714,17 @@ void parse_c(Console *cons, vector<string> args)
     }
     SCExecutable = p.parse_c(&cons->script);
     // if (p.parse_c(&cons->script))
-    
+
     if (SCExecutable.exeExist)
     {
 
         exeExist = true;
         if (othercore)
         {
-            vector<string> d;
+            vector<string> _d;
             // d.push_back("main");
             LedOS.pushToConsole("***********START RUN *********");
-            run(cons, d);
+            run(cons, _d);
 
             if (cons->cmode == keyword)
             {

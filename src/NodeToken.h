@@ -383,7 +383,7 @@ void _visitternaryIfNode(NodeToken *nd);
 void _visitcallConstructorNode(NodeToken *nd);
 void _visitUnknownNode(NodeToken *nd);
 
-NodeToken *tmpToken;
+//NodeToken *tmpToken;
 class NodeToken
 {
 
@@ -392,6 +392,7 @@ public:
     NodeToken(nodeType tt)
     {
         _nodetype = tt;
+        textref=EOF_TEXTARRAY;
         children.clear();
     }
     NodeToken(Token *t, nodeType tt)
@@ -502,6 +503,7 @@ public:
     NodeToken(string _target, nodeType tt)
     {
         _nodetype = tt;
+         textref=EOF_TEXTARRAY;
         addTargetText(_target);
         children.clear();
     }
@@ -524,6 +526,34 @@ public:
         children.push_back(j);
         return j;
     }
+    NodeToken *addChildDuplicate(NodeToken *nd)
+    {
+        if(nd==NULL)
+        return NULL;
+      NodeToken *tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
+        if (tmpToken == NULL)
+        {
+            printf("impossinlme pour crear\n\r");
+            return NULL;
+        }
+        // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
+      //  memcpy((void *)tmpToken, (void *)j, sizeof(NodeToken));
+        tmpToken->type = nd->type;
+        tmpToken->textref = nd->textref;
+        tmpToken->_vartype = nd->_vartype;
+        tmpToken->_nodetype = nd->_nodetype;
+        tmpToken->isPointer = nd->isPointer;
+        tmpToken->asPointer = nd->asPointer;
+        tmpToken->_total_size = nd->_total_size;
+        tmpToken->stack_pos = nd->stack_pos;
+        tmpToken->target = nd->target;
+        tmpToken->children.clear();
+
+         //tmpToken->children.clear();
+        tmpToken->parent = this;
+        children.push_back(tmpToken);
+        return tmpToken;
+    }
     NodeToken *addChildFront(NodeToken *j)
     {
         j->parent = this;
@@ -538,43 +568,76 @@ public:
             addChild(lm);
         }
     }
-    NodeToken *addChild(NodeToken j)
+        void duplicateChildren(NodeToken *k)
     {
-        j.parent = this;
-        tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
+        children.clear();
+      //  printf("duplicate %d\n\r",k->children.size());
+        for (NodeToken *lm : k->children)
+        {
+         //  printf("     dup \n\r");
+           NodeToken *tmp_tnk= addChildDuplicate(lm);
+         //  printf("     dup children \n\r");
+         if(tmp_tnk!=NULL)
+           tmp_tnk->duplicateChildren(lm);
+        }
+
+    }
+    NodeToken *addChild(NodeToken nd)
+    {
+        //j.parent = this;
+        //j.children.clear();
+NodeToken * tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
         if (tmpToken == NULL)
         {
             // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
             return NULL;
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        memcpy((void *)tmpToken, (void *)&j, sizeof(NodeToken));
-
-        // tmp->children.shrink_to_fit();
-        // tmp->parent = this;
+      //  memcpy((void *)tmpToken, (void *)&j, sizeof(NodeToken));
+                tmpToken->type = nd.type;
+        tmpToken->textref = nd.textref;
+        tmpToken->_vartype = nd._vartype;
+        tmpToken->_nodetype = nd._nodetype;
+        tmpToken->isPointer = nd.isPointer;
+        tmpToken->asPointer = nd.asPointer;
+        tmpToken->_total_size = nd._total_size;
+        tmpToken->stack_pos = nd.stack_pos;
+        tmpToken->target = nd.target;
+        tmpToken->children.clear();
+        tmpToken->parent = this;
         children.push_back(tmpToken);
         return tmpToken;
     }
-    NodeToken *addChildFront(NodeToken j)
+    NodeToken *addChildFront(NodeToken nd)
     {
-        j.parent = this;
-        tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
+       // j.parent = this;
+         NodeToken *tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
         if (tmpToken == NULL)
         {
             // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
             return NULL;
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        memcpy((void *)tmpToken, (void *)&j, sizeof(NodeToken));
+        tmpToken->type = nd.type;
+        tmpToken->textref = nd.textref;
+        tmpToken->_vartype = nd._vartype;
+        tmpToken->_nodetype = nd._nodetype;
+        tmpToken->isPointer = nd.isPointer;
+        tmpToken->asPointer = nd.asPointer;
+        tmpToken->_total_size = nd._total_size;
+        tmpToken->stack_pos = nd.stack_pos;
+        tmpToken->target = nd.target;
+        tmpToken->children.clear();
 
         // tmp->children.shrink_to_fit();
-        // tmp->parent = this;
+         tmpToken->parent = this;
         children.insert(children.begin(), tmpToken);
         return tmpToken;
     }
     void clear(bool all)
     {
         // printf("delete %s %d\r\n",getTokenText(),_nodetype);
+    
         int i = 0;
         if (!all)
         {
@@ -594,12 +657,12 @@ public:
 
             if (j >= i)
             {
-                if (!all && _nodetype != defInputArgumentsNode && _nodetype != typeNode)
-                {
-                    child->clear(all);
-                    free(child);
-                    children[j] = NULL;
-                }
+                      
+
+                        child->clear(all);
+                        free(child);
+                        children[j] = NULL;
+        
                 // children[j]=NULL;
             }
             j++;
@@ -897,7 +960,7 @@ public:
             break;
         }
     }
-    vector<NodeToken *> children;
+   
     NodeToken *parent = NULL;
     uint16_t _total_size = 1;
     uint16_t target = EOF_TEXTARRAY;
@@ -909,6 +972,7 @@ public:
 
     uint8_t type = (int)TokenUnknown;
     uint8_t _vartype = EOF_VARTYPE;
+     vector<NodeToken *> children;
 };
 
 Script main_script;
@@ -952,7 +1016,10 @@ public:
     }
     void addFunction(NodeToken *nd)
     {
-        _functions.push_back(*nd);
+        NodeToken sd=NodeToken(nd);
+     //   printf("ona as :%d children\n\r",sd.children.size());
+        _functions.push_back(sd);
+        (&_functions.back())->duplicateChildren(nd);
     }
     void addVariable(NodeToken nd)
     {
@@ -963,7 +1030,7 @@ public:
         // NodeTo
 
         search_result = NULL;
-        char *tocmp;
+       // char *tocmp;
         if (str == NULL)
             return false;
 
@@ -990,7 +1057,7 @@ public:
         // NodeTo
 
         search_result = NULL;
-        char *tocmp;
+       // char *tocmp;
         if (t->getText() == NULL)
             return;
 
@@ -1123,11 +1190,11 @@ error_message_struct Error;
 
 Stack<NodeToken> nodeTokenList;
 Stack<string> targetList;
-list<NodeToken *> sav_token;
-list<NodeToken *> change_type;
+vector<NodeToken *> sav_token;
+vector<NodeToken *> change_type;
 // NodeToken *lastFunctionType;
 NodeToken *lasttype;
-list<NodeToken *> _node_token_stack;
+vector<NodeToken *> _node_token_stack;
 // NodeToken _uniquesave;
 void copyPrty(NodeToken *from, NodeToken *to)
 
@@ -1200,7 +1267,7 @@ void createNodeVariable(Token *_var, bool isStore)
     // NodeToken var = NodeToken(_var);
     // //printf("%s %d\n",_var->text.c_str(),_asPointer);
 
-    NodeToken v = NodeToken(_var);
+    NodeToken _v = NodeToken(_var);
     switch (search_result->getNodeTokenType())
     {
     case extGlobalVariableNode:
@@ -1209,14 +1276,14 @@ void createNodeVariable(Token *_var, bool isStore)
         {
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(var);
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(_var);
-            v._nodetype = (int)storeExtGlocalVariableNode;
+            _v._nodetype = (int)storeExtGlocalVariableNode;
             // current_node->asPointer=asPointer;
             //  return;
         }
         else
         {
             // NodeExtGlobalVariable v = NodeExtGlobalVariable(_var);
-            v._nodetype = (int)extGlobalVariableNode;
+            _v._nodetype = (int)extGlobalVariableNode;
 
             // current_node->asPointer=asPointer;
             // return;
@@ -1228,14 +1295,14 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore)
         {
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(_var);
-            v._nodetype = (int)storeExtGlocalVariableNode;
+            _v._nodetype = (int)storeExtGlocalVariableNode;
             // current_node->asPointer=asPointer;
             // return;
         }
         else
         {
             // NodeExtGlobalVariable v = NodeExtGlobalVariable(_var);
-            v._nodetype = (int)extGlobalVariableNode;
+            _v._nodetype = (int)extGlobalVariableNode;
             // current_node->asPointer=asPointer;
             // return;
         }
@@ -1246,7 +1313,7 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore == true)
         {
             // NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
-            v._nodetype = (int)storeLocalVariableNode;
+            _v._nodetype = (int)storeLocalVariableNode;
             // current_node->asPointer=asPointer;
             //  asPointer=false;
             //  return;
@@ -1254,7 +1321,7 @@ void createNodeVariable(Token *_var, bool isStore)
         else
         {
             // NodeLocalVariable v = NodeLocalVariable(_var);
-            v._nodetype = (int)localVariableNode;
+            _v._nodetype = (int)localVariableNode;
             // current_node->asPointer=asPointer;
             //  return;
         }
@@ -1265,14 +1332,14 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore == true)
         {
             //  NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
-            v._nodetype = (int)storeLocalVariableNode;
+            _v._nodetype = (int)storeLocalVariableNode;
             // current_node->asPointer=asPointer;
             //            return;
         }
         else
         {
             // NodeLocalVariable v = NodeLocalVariable(_var);
-            v._nodetype = (int)localVariableNode;
+            _v._nodetype = (int)localVariableNode;
             // current_node->asPointer=asPointer;
             // §            return;
         }
@@ -1284,7 +1351,7 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore)
         {
             // NodeStoreGlobalVariable v = NodeStoreGlobalVariable(_var);
-            v._nodetype = (int)storeGlobalVariableNode;
+            _v._nodetype = (int)storeGlobalVariableNode;
             // v.addTargetText(search_result->getTargetText());
             // current_node->asPointer=asPointer;
             //  return;
@@ -1292,7 +1359,7 @@ void createNodeVariable(Token *_var, bool isStore)
         else
         {
             // NodeGlobalVariable v = NodeGlobalVariable(_var);
-            v._nodetype = (int)globalVariableNode;
+            _v._nodetype = (int)globalVariableNode;
             // current_node->asPointer=asPointer;
             //            return;
         }
@@ -1303,7 +1370,7 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore)
         {
             // NodeStoreGlobalVariable v = NodeStoreGlobalVariable(_var);
-            v._nodetype = (int)storeGlobalVariableNode;
+            _v._nodetype = (int)storeGlobalVariableNode;
             // v.addTargetText(search_result->getTargetText());
             //  current_node->asPointer=asPointer;
             //   return;
@@ -1311,7 +1378,7 @@ void createNodeVariable(Token *_var, bool isStore)
         else
         {
             // NodeGlobalVariable v = NodeGlobalVariable(_var);
-            v._nodetype = (int)globalVariableNode;
+            _v._nodetype = (int)globalVariableNode;
             // current_node->asPointer=asPointer;
             //            return;
         }
@@ -1322,14 +1389,14 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore == true)
         {
             //  NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
-            v._nodetype = (int)storeLocalVariableNode;
+            _v._nodetype = (int)storeLocalVariableNode;
             // current_node->asPointer=asPointer;
             //            return;
         }
         else
         {
             // NodeLocalVariable v = NodeLocalVariable(_var);
-            v._nodetype = (int)localVariableNode;
+            _v._nodetype = (int)localVariableNode;
             // current_node->asPointer=asPointer;
             // §            return;
         }
@@ -1338,17 +1405,17 @@ void createNodeVariable(Token *_var, bool isStore)
     }
     if (search_result->getTargetText()[0] == '@')
     {
-        v.addTargetText(search_result->getTargetText());
+        _v.addTargetText(search_result->getTargetText());
     }
-    copyPrty(search_result, &v);
-    v.asPointer = _asPointer;
+    copyPrty(search_result, &_v);
+    _v.asPointer = _asPointer;
     if (search_result->asPointer)
     {
-        v.asPointer = true;
+        _v.asPointer = true;
     }
     if (isPointer)
-        v.isPointer = isPointer;
-    current_node = current_node->addChild(v);
+        _v.isPointer = isPointer;
+    current_node = current_node->addChild(_v);
 }
 
 NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
@@ -2040,7 +2107,7 @@ void _visitglobalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         //  regnum = point_regnum;
     }
-    string body = "";
+   // string body = "";
     // register_numl++;
     // bufferText->addAfter(string_format("l32r a%d,%s", point_regnum, nd->_token->text.c_str()));
     if (nd->isPointer && nd->children.size() > 0) // leds[g];
@@ -2342,7 +2409,7 @@ void _visitblockStatementNode(NodeToken *nd)
 }
 void _visitdefFunctionNode(NodeToken *nd)
 {
-    // printf("compiling %s\n",nd->getTokenText());
+    printf("compiling def functionc %s\n",nd->getTokenText());
     bufferText = &content;
     isStructFunction = false;
     if (nd->type == TokenUserDefinedVariableMemberFunction)
@@ -2398,6 +2465,7 @@ void _visitdefFunctionNode(NodeToken *nd)
     bufferText->addAfter(string_format("retw.n"));
     isStructFunction = false;
     bufferText = &footer;
+     printf("end compiling def functionc %s\n",nd->getTokenText());
 }
 void _visitstatementNode(NodeToken *nd)
 {
@@ -2914,7 +2982,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
     int staack_offset = (nd->getChildAtPos(2)->children.size() - 7) * 4;
     bool convert = true;
     bool isArg = false;
-    int nbfloat = 0;
+  //  int nbfloat = 0;
     if (nd == NULL)
     {
         return;
@@ -3205,7 +3273,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
 
 void _visitcallFunctionNode(NodeToken *nd)
 {
-    // printf("compiling  call function %s\n",nd->getTokenText());
+     printf("compiling  call function %s\n",nd->getTokenText());
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
 
     if (t->getChildAtPos(1)->children.size() >= _TRIGGER)
@@ -3364,7 +3432,9 @@ void _visitcallFunctionNode(NodeToken *nd)
         bufferText->sp.push(bufferText->get());
         register_numl.decrease();
     }
+    printf("done  call function %s\n",nd->getTokenText());
 }
+
 void _visitforNode(NodeToken *nd)
 {
     // printf("ente for\n") ;
@@ -3428,7 +3498,7 @@ void _visitextGlobalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         //  regnum = point_regnum;
     }
-    string body = "";
+    //string body = "";
     // register_numl++;
 
     if (!nd->isPointer)
@@ -3546,6 +3616,7 @@ void _visitextGlobalVariableNode(NodeToken *nd)
 
 void _visitextCallFunctionNode(NodeToken *nd)
 {
+    printf("compiling  ex call function %s\n\r",nd->getTokenText());
     NodeToken *t = nd;
     _visitCallFunctionTemplate(nd, 10, true);
     int start = nd->stack_pos;
@@ -3580,6 +3651,7 @@ void _visitextCallFunctionNode(NodeToken *nd)
         }
     }
     register_numl.decrease();
+    printf("end compiling  ex call function %s\n\r",nd->getTokenText());
 }
 void _visitreturnArgumentNode(NodeToken *nd) {}
 void _visitvariableDeclarationNode(NodeToken *nd) {}
@@ -3873,7 +3945,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         // regnum = point_regnum;
     }
-    string body = "";
+  //  string body = "";
     // register_numl++;
     for (int h = 0; h < v->size - 1; h++)
     {
@@ -4422,14 +4494,14 @@ void optimize(Text *text)
 
                 else
                 {
-                    vector<string> d = split(tmp, " ");
-                    if (d[0].compare("call8") == 0 and regnum >= 8)
+                    vector<string> _d = split(tmp, " ");
+                    if (_d[0].compare("call8") == 0 and regnum >= 8)
                     {
                         str = "_";
                     }
-                    else if (d.size() > 1)
+                    else if (_d.size() > 1)
                     {
-                        if (d[1].compare(0, registername.size(), registername) == 0)
+                        if (_d[1].compare(0, registername.size(), registername) == 0)
                         {
                             // printf("on a %s %s\r\n", d[1].c_str(), registername.c_str());
                             // if (!(str.compare("__")== 0))
@@ -4443,7 +4515,7 @@ void optimize(Text *text)
                             //}
                             else
                             {
-                                if (d[0].compare("movi") == 0 or d[0].compare("l32i") == 0 or d[0].compare("l32r") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("movExt") == 0)
+                                if (_d[0].compare("movi") == 0 or _d[0].compare("l32i") == 0 or _d[0].compare("l32r") == 0 or _d[0].compare("l16i") == 0 or _d[0].compare("l16ui") == 0 or _d[0].compare("l8ui") == 0 or _d[0].compare("movExt") == 0)
                                 {
                                     str = tmp;
                                 }

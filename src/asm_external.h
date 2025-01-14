@@ -61,7 +61,7 @@ void addExternalFunction(string name,string out,string in, void * ptr)
     asmex.name=asmex.name+");";
   //  printf("%s %s \n\r",asmex.signature.c_str(),asmex.name.c_str());
     }
-    if(ptr!=NULL)
+    //if(ptr!=NULL)
          asmex.ptr=ptr;
     external_links.push_back(asmex);
 }
@@ -72,7 +72,7 @@ void addExternalVariable(string name, string out,string in,void * ptr)
     asmex.shortname=name;
     asmex.signature="external "+out+" "+name+in+";";
     asmex.type=externalType::value;
-    if(ptr!=NULL)
+   // if(ptr!=NULL)
          asmex.ptr=ptr;
     external_links.push_back(asmex);
 }
