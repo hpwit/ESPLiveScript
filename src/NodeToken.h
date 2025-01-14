@@ -337,7 +337,20 @@ Text footer;
 Text *bufferText;
 
 class NodeToken;
+typedef struct NodeTokenStruct
+{
+        NodeToken *parent = NULL;
+    uint16_t _total_size = 1;
+    uint16_t target = EOF_TEXTARRAY;
+    uint16_t textref = EOF_TEXTARRAY;
+    uint16_t stack_pos = 0;
+    bool isPointer = false;
+    bool asPointer = false;
+    uint8_t _nodetype = (int)UnknownNode;
 
+    uint8_t type = (int)TokenUnknown;
+    uint8_t _vartype = EOF_VARTYPE;
+} NodeTokenStruct;
 void _visittypeNode(NodeToken *nd);
 void _visitnumberNode(NodeToken *nd);
 void _visitbinOpNode(NodeToken *nd);
@@ -550,7 +563,7 @@ public:
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
         NodeToken *tmpToken=new(buff)NodeToken;
-       memcpy((void *)buff, (void *)&nd, sizeof(NodeToken));
+       memcpy((void *)buff, (void *)&nd, sizeof(NodeTokenStruct));
       
        tmpToken->children.clear();
        /*
@@ -582,7 +595,7 @@ public:
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
         //memcpy((void *)tmpToken, (void *)&nd, sizeof(NodeToken));
                 NodeToken *tmpToken=new(buff)NodeToken;
-       memcpy((void *)buff, (void *)&nd, sizeof(NodeToken));
+       memcpy((void *)buff, (void *)&nd, sizeof(NodeTokenStruct));
       
        tmpToken->children.clear();
   /*
@@ -926,7 +939,7 @@ public:
             break;
         }
     }
-    vector<NodeToken *> children;
+    
     NodeToken *parent = NULL;
     uint16_t _total_size = 1;
     uint16_t target = EOF_TEXTARRAY;
@@ -938,6 +951,8 @@ public:
 
     uint8_t type = (int)TokenUnknown;
     uint8_t _vartype = EOF_VARTYPE;
+
+    vector<NodeToken *> children;
 };
 
 Script main_script;
