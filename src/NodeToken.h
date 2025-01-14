@@ -383,7 +383,7 @@ void _visitternaryIfNode(NodeToken *nd);
 void _visitcallConstructorNode(NodeToken *nd);
 void _visitUnknownNode(NodeToken *nd);
 
-NodeToken *tmpToken;
+//NodeToken *tmpToken;
 class NodeToken
 {
 
@@ -538,35 +538,64 @@ public:
             addChild(lm);
         }
     }
-    NodeToken *addChild(NodeToken j)
+    NodeToken *addChild(NodeToken nd)
     {
-        j.parent = this;
-        tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
-        if (tmpToken == NULL)
+        nd.parent = this;
+       void *buff =  malloc(sizeof(NodeToken));
+       
+        if (buff == NULL)
         {
             // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
             return NULL;
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        memcpy((void *)tmpToken, (void *)&j, sizeof(NodeToken));
-
+        NodeToken *tmpToken=new(buff)NodeToken;
+       memcpy((void *)buff, (void *)&nd, sizeof(NodeToken));
+      
+       tmpToken->children.clear();
+       /*
+              tmpToken->type = nd.type;
+        tmpToken->textref = nd.textref;
+        tmpToken->_vartype = nd._vartype;
+        tmpToken->_nodetype = nd._nodetype;
+        tmpToken->isPointer = nd.isPointer;
+        tmpToken->asPointer = nd.asPointer;
+        tmpToken->_total_size = nd._total_size;
+        tmpToken->stack_pos = nd.stack_pos;
+        tmpToken->target = nd.target;*/
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
         children.push_back(tmpToken);
         return tmpToken;
     }
-    NodeToken *addChildFront(NodeToken j)
+    NodeToken *addChildFront(NodeToken nd)
     {
-        j.parent = this;
-        tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
-        if (tmpToken == NULL)
+          nd.parent = this;
+          nd.children.clear();
+       void *buff =  malloc(sizeof(NodeToken));
+       
+        if (buff == NULL)
         {
             // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
             return NULL;
         }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        memcpy((void *)tmpToken, (void *)&j, sizeof(NodeToken));
-
+        //memcpy((void *)tmpToken, (void *)&nd, sizeof(NodeToken));
+                NodeToken *tmpToken=new(buff)NodeToken;
+       memcpy((void *)buff, (void *)&nd, sizeof(NodeToken));
+      
+       tmpToken->children.clear();
+  /*
+              tmpToken->type = nd.type;
+        tmpToken->textref = nd.textref;
+        tmpToken->_vartype = nd._vartype;
+        tmpToken->_nodetype = nd._nodetype;
+        tmpToken->isPointer = nd.isPointer;
+        tmpToken->asPointer = nd.asPointer;
+        tmpToken->_total_size = nd._total_size;
+        tmpToken->stack_pos = nd.stack_pos;
+        tmpToken->target = nd.target;
+*/
         // tmp->children.shrink_to_fit();
         // tmp->parent = this;
         children.insert(children.begin(), tmpToken);
