@@ -497,7 +497,7 @@ int findLabel(string s, parsedLines *asm_parsed)
   int i = 0;
   for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
   {
-    if ((*it)->op == opCodeType::label || (*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label || (*it)->op == opCodeType::external_var_label)
+    if ((*it)->op == opCodeType::label || (*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label || (*it)->op == opCodeType::external_var_label || (*it)->op == opCodeType::external_call)
     {
       if (trim(string((*it)->getText())).compare(trim(s)) == 0)
       {
@@ -1000,40 +1000,51 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   }
   if (sp.opcde.compare("callExt") == 0)
   {
+    /*
     result_parse_line ps = parseOperandes(sp.operandes, 1, op_call8, 3, bin_call8);
     ps.op = opCodeType::external_call;
     ps.calculateOfssetJump = jump_call8;
     return ps;
-    /*
+    */
+    
     result_parse_line ps;
-    ps = parseOperandes(sp.operandes, 1, op_callExt, 0, bin_movExt);
+    ps = parseOperandes(sp.operandes, 2, op_callExt, 0, bin_movExt);
     if (asm_Error.error != 0)
     {
       return ps;
     }
-
+/*
     int i = findLink(string(ps.getText()), externalType::function);
     if (i == -1)
     {
       asm_Error.error = 1;
       asm_Error.error_message = string_format("External function %s not found\n", ps.getText());
-    }
-    else
-    {
+    */
+  //  else
+  //  {
       // string debugsav=ps.debugtxt;
       int savbin = ps.bincode;
-      ps = parseOperandes(string_format("a%d,a2,%d", ps.bincode, i * 4), 3, op_l32i, 3, bin_l32i);
+      ps = parseOperandes(string_format("a%d,%s", ps.bincode, ps.getText()), 2, op_l32r, 3, bin_l32r);
+        ps.op = opCodeType::jump_32aligned;
+            ps.calculateOfssetJump = jump_l32r;
+    int index = findLabel(string(ps.getText()), asm_parsed);
+    if (index > -1)
+    {
+      result_parse_line *ps1 = getInstrAtPos(index);
+      ps1->op = opCodeType::external_call;
+    }
       // ps.debugtxt = "call ext function";
       // ps.op = opCodeType::external_call;
       //(*asm_parsed).push_back(ps);
       addInstr(ps, asm_parsed);
       ps = parseOperandes(string_format("a%d", savbin), 1, op_callx8, 3, bin_callx8);
+      
       // ps.debugtxt=debugsav;
       // ps.op = opCodeType::external_call;
-    }
+   // }
     // ps.op=opCodeType::external_call;
     return ps;
-    */
+    
   }
 
   if (sp.opcde.compare("movExt") == 0)
@@ -1405,7 +1416,7 @@ _footer->display();
         if (asm_Error.error)
         {
           main_error.error = 1;
-          main_error.error_message += string_format("line:%d %s\r\n", i, asm_Error.error_message.c_str());
+          main_error.error_message += string_format("line:%d  %s %s\r\n", i, _content->front().c_str(),asm_Error.error_message.c_str());
         }
         else
         {
@@ -1809,8 +1820,9 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
       binary_header_size += 1;
       binary_header_size += 2; // text size
       binary_header_size += strlen((*it)->getText()) + 1;
-      binary_header_size += 4; // bincode
-      binary_header_size += 4; // address
+       binary_header_size += 2; // nb_data
+    //  binary_header_size += 4; // bincode
+     // binary_header_size += 4; // address
     }
     else if ((*it)->op == opCodeType::data)
     {
@@ -1879,10 +1891,13 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
       memcpy(binary_header, (*it)->getText(), text_size - 1);
       binary_header[text_size - 1] = 0;
       binary_header = binary_header + text_size;
-      memcpy(binary_header, &(*it)->bincode, 4);
-      binary_header = binary_header + 4;
-      memcpy(binary_header, &(*it)->address, 4);
-      binary_header = binary_header + 4;
+     // memcpy(binary_header, &(*it)->bincode, 4);
+    //  binary_header = binary_header + 4;
+     // memcpy(binary_header, &(*it)->address, 4);
+     // binary_header = binary_header + 4;
+            memcpy(binary_header, &nb_data, 2);
+      binary_header = binary_header + 2;
+        nb_data++;
     }
     else if ((*it)->op == opCodeType::data)
     {
@@ -2009,17 +2024,26 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       binary_header = binary_header + 2;
       textptr = (char *)binary_header;
       binary_header = binary_header + text_size;
-      memcpy(&bincode, binary_header, 4);
-      binary_header = binary_header + 4;
-      memcpy(&_address, binary_header, 4);
-      binary_header = binary_header + 4;
+     // memcpy(&bincode, binary_header, 4);
+     // binary_header = binary_header + 4;
+     // memcpy(&_address, binary_header, 4);
+     // binary_header = binary_header + 4;
+      memcpy(&nb_data, binary_header, 2);
+      binary_header = binary_header + 2;     
       int index = findLink(string(textptr), externalType::function);
       if (index > -1)
       {
 #ifndef __TEST_DEBUG
         // printf("calculate ext %s\n\r", (*it)->getText());
+        /*
         bincode = jump_call8(bincode, _address + (uint32_t)_exec, (uint32_t)external_links[index].ptr);
         memcpy(exec + _address, &bincode, 3);
+        */
+
+        uint32_t content = (uint32_t)((external_links[index].ptr));
+
+        uint32_t *new_adr = (uint32_t *)exec + nb_data;
+        memcpy(new_adr, &content, 4);
         #endif
         // printf("external func:%s\n\r", textptr);
       }
@@ -2293,7 +2317,7 @@ void freeBinary(Binary *bin)
 void saveBinary(char *name, fs::FS &fs, Binary *bin)
 {
   File root = fs.open(name, FILE_WRITE);
-  root.write((uint8_t *)"ESPLiveScript1.0.0", 19);
+  root.write((uint8_t *)"ESPLiveScript1.0.1", 19);
   root.write((uint8_t *)&bin->tmp_instruction_size, 2);
   // printf("instr_iz :%d\n",bin->tmp_instruction_size);
 
@@ -2317,7 +2341,7 @@ void loadBinary(char *name, fs::FS &fs, Binary *bin)
 
   char ver[19];
   root.read((uint8_t *)ver, 19);
-  if (strcmp(ver, "ESPLiveScript1.0.0") != 0)
+  if (strcmp(ver, "ESPLiveScript1.0.1") != 0)
   {
     bin->error.error = 1;
     bin->error.error_message = "wrong format";
@@ -2354,7 +2378,7 @@ executable createExectutable(Binary *bin)
   exec.data_size = 0;
   // _asm_parsed.clear();
 
-  __parser_debug = display;
+  __parser_debug = false;
 
   // Binary bin = createBinary(_footer, _header, _content,display);
   exec = _createExcutablefromBinary(bin);

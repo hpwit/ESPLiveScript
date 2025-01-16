@@ -2483,6 +2483,8 @@ void _visitprogramNode(NodeToken *nd)
     header.addAfter(".bytes 4");
     header.addAfter("@__execaddr_:");
     header.addAfter(".bytes 4");
+    header.addAfter("_sync:");
+    header.addAfter(".bytes 4");
     header.addAfter("@_stackr:");
     header.addAfter(".bytes 32");
     header.addAfter(".global @__footer");
@@ -3235,7 +3237,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
     }
     if (isExtCall)
     {
-        bufferText->addAfter(string_format("callExt %s", nd->getTokenText()));
+        bufferText->addAfter(string_format("callExt a8,%s", nd->getTokenText()));
     }
     else
     {
@@ -3629,8 +3631,8 @@ void _visitreturnArgumentNode(NodeToken *nd) {}
 void _visitvariableDeclarationNode(NodeToken *nd) {}
 void _visitdefExtFunctionNode(NodeToken *nd)
 {
-    // printf("visit externazl function %s\n", nd->getTokenText());
-
+    header.addAfter(string_format("%s:",nd->getTokenText()));
+    header.addAfter(".bytes 4");
 }
 void _visitinputArgumentsNode(NodeToken *nd)
 {
@@ -4006,7 +4008,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
         bufferText->addAfter(string_format("movi a10,%d", 0));
         bufferText->addAfter(string_format("mov a11,a%d", point_regnum));
         bufferText->addAfter(string_format("mov a12,a%d", register_numl.get()));
-        bufferText->addAfter("callExt error");
+        bufferText->addAfter("callExt a8,error");
         bufferText->addAfter("retw.n");
         bufferText->addAfter(string_format("__test_safe_%d:", for_if_num));
         for_if_num++;
@@ -4184,7 +4186,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
         bufferText->addAfter(string_format("movi a10,%d", 0)); // nd->_token->line
         bufferText->addAfter(string_format("mov a11,a%d", regnum));
         bufferText->addAfter(string_format("mov a12,a%d", register_numl.get()));
-        bufferText->addAfter("callExt error");
+        bufferText->addAfter("callExt a8,error");
         bufferText->addAfter("retw.n");
         bufferText->addAfter(string_format("__test_safe_%d:", for_if_num));
         for_if_num++;
