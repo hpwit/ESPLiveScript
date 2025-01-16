@@ -357,7 +357,7 @@ public:
 
         if (exeExist)
         {
-            freeExecutable(&_executecmd);
+            freeBinary(&_executecmd);
         }
         exeExist = false;
 
@@ -548,7 +548,7 @@ public:
         {
             uint32_t memb = esp_get_free_heap_size();
             printf("Free memory before:%ld\r\n", esp_get_free_heap_size());
-            freeExecutable(&_executecmd);
+            freeBinary(&_executecmd);
             _isRunning = false;
             uint32_t mema = esp_get_free_heap_size();
             printf("Free memory after:%ld freed:%ld\r\n", mema, mema - memb);

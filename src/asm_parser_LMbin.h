@@ -553,7 +553,7 @@ uint32_t bin_retw_n(uint32_t *values)
 }
 
 operandeType op_global[1] = {operandeType::label};
-operandeType op_callExt[1] = { operandeType::label};
+operandeType op_callExt[2] = {operandeType::registers, operandeType::label};
 operandeType op_movExt[2] = {operandeType::registers, operandeType::label};
 uint32_t bin_movExt(uint32_t *values)
 {
