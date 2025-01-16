@@ -475,13 +475,22 @@ uint32_t bin_call12(uint32_t *values)
 }
 uint32_t jump_call8(uint32_t value, uint32_t current_address, uint32_t destination_address)
 {
+    
+    if (destination_address > current_address);
+    {
+        printf("in that case %x %x %ld\n\r",destination_address , current_address,destination_address-current_address);
+//uint32_t tmp=current_address;
+  //   current_address=destination_address;
+    // destination_address=tmp;
+    }
+
     if ((((destination_address) / 4) * 4) != destination_address)
     {
-        printf("impossible de calculer le jump\n");
-        return 0;
+        printf("impossible de calculer le jump %x\n",destination_address);
+      //  return 0;
     }
-    else
-    {
+    //else
+   // {
         uint32_t dif = ((destination_address - (current_address & 0xFFFFFFFC)) - 4) & 0xFFFFFFC;
         /*
                 uint32_t recalculate=(((current_address & 0xFFFF)+dif*4)+3)& 0xFFFc ;
@@ -500,14 +509,14 @@ uint32_t jump_call8(uint32_t value, uint32_t current_address, uint32_t destinati
         }ffd
         */
         return value + ((dif << 4) & 0xFFFFC0);
-    }
+    //}
 }
 
 uint32_t jump_l32r(uint32_t value, uint32_t current_address, uint32_t destination_address)
 {
     if ((((destination_address) / 4) * 4) != destination_address)
     {
-        printf("impossible de calculer le jump\n");
+        printf("impossible de calculer le jump call\n");
         return 0;
     }
     else

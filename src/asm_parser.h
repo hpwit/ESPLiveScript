@@ -1002,6 +1002,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   {
     result_parse_line ps = parseOperandes(sp.operandes, 1, op_call8, 3, bin_call8);
     ps.op = opCodeType::external_call;
+    //ps.align=true;
     ps.calculateOfssetJump = jump_call8;
     return ps;
     /*
@@ -2017,7 +2018,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       if (index > -1)
       {
 #ifndef __TEST_DEBUG
-        // printf("calculate ext %s\n\r", (*it)->getText());
+        printf("calculate ext  %s %x %x \n\r",textptr, _address + (uint32_t)_exec,(uint32_t)external_links[index].ptr);
         bincode = jump_call8(bincode, _address + (uint32_t)_exec, (uint32_t)external_links[index].ptr);
         memcpy(exec + _address, &bincode, 3);
         #endif
@@ -2283,11 +2284,16 @@ Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
 }
 void freeBinary(Binary *bin)
 {
+       updateMem();
+        displayStat();
   if (bin->binary_data)
     free(bin->binary_data);
   if (bin->function_data)
     free(bin->function_data);
   // delete(bin);
+         updateMem();
+        displayStat();
+
 }
 
 void saveBinary(char *name, fs::FS &fs, Binary *bin)
@@ -2354,7 +2360,7 @@ executable createExectutable(Binary *bin)
   exec.data_size = 0;
   // _asm_parsed.clear();
 
-  __parser_debug = display;
+  __parser_debug = false;
 
   // Binary bin = createBinary(_footer, _header, _content,display);
   exec = _createExcutablefromBinary(bin);
@@ -2450,7 +2456,7 @@ error_message_struct executeBinary(executable ex, uint32_t handle)
   Arguments args;
   return executeBinary(ex.functions[0].name, ex, handle, NULL, args);
 }
-void freeBinary(executable *ex)
+void freeExecutable(executable *ex)
 {
   if (ex->start_program != NULL)
   {

@@ -337,7 +337,20 @@ Text footer;
 Text *bufferText;
 
 class NodeToken;
+typedef struct NodeTokenStruct
+{
+        NodeToken *parent = NULL;
+    uint16_t _total_size = 1;
+    uint16_t target = EOF_TEXTARRAY;
+    uint16_t textref = EOF_TEXTARRAY;
+    uint16_t stack_pos = 0;
+    bool isPointer = false;
+    bool asPointer = false;
+    uint8_t _nodetype = (int)UnknownNode;
 
+    uint8_t type = (int)TokenUnknown;
+    uint8_t _vartype = EOF_VARTYPE;
+} NodeTokenStruct;
 void _visittypeNode(NodeToken *nd);
 void _visitnumberNode(NodeToken *nd);
 void _visitbinOpNode(NodeToken *nd);
@@ -530,14 +543,20 @@ public:
     {
         if(nd==NULL)
         return NULL;
-      NodeToken *tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
-        if (tmpToken == NULL)
+      void *buff = (void *)malloc(sizeof(NodeToken));
+        if (buff == NULL)
         {
             printf("impossinlme pour crear\n\r");
             return NULL;
         }
+
+        NodeToken *tmpToken=new(buff)NodeToken;
+       memcpy((void *)buff, (void *)nd, sizeof(NodeTokenStruct));
+      
+       tmpToken->children.clear();
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
       //  memcpy((void *)tmpToken, (void *)j, sizeof(NodeToken));
+      /*
         tmpToken->type = nd->type;
         tmpToken->textref = nd->textref;
         tmpToken->_vartype = nd->_vartype;
@@ -548,6 +567,7 @@ public:
         tmpToken->stack_pos = nd->stack_pos;
         tmpToken->target = nd->target;
         tmpToken->children.clear();
+        */
 
          //tmpToken->children.clear();
         tmpToken->parent = this;
@@ -586,24 +606,17 @@ public:
     {
         //j.parent = this;
         //j.children.clear();
-NodeToken * tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
-        if (tmpToken == NULL)
+    void *buff = (void *)malloc(sizeof(NodeToken));
+        if (buff == NULL)
         {
-            // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
+            printf("impossinlme pour crear\n\r");
             return NULL;
         }
-        // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-      //  memcpy((void *)tmpToken, (void *)&j, sizeof(NodeToken));
-                tmpToken->type = nd.type;
-        tmpToken->textref = nd.textref;
-        tmpToken->_vartype = nd._vartype;
-        tmpToken->_nodetype = nd._nodetype;
-        tmpToken->isPointer = nd.isPointer;
-        tmpToken->asPointer = nd.asPointer;
-        tmpToken->_total_size = nd._total_size;
-        tmpToken->stack_pos = nd.stack_pos;
-        tmpToken->target = nd.target;
-        tmpToken->children.clear();
+
+        NodeToken *tmpToken=new(buff)NodeToken;
+       memcpy((void *)buff, (void *)&nd, sizeof(NodeTokenStruct));
+      
+       tmpToken->children.clear();
         tmpToken->parent = this;
         children.push_back(tmpToken);
         return tmpToken;
@@ -611,23 +624,18 @@ NodeToken * tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
     NodeToken *addChildFront(NodeToken nd)
     {
        // j.parent = this;
-         NodeToken *tmpToken = (NodeToken *)malloc(sizeof(NodeToken));
-        if (tmpToken == NULL)
+             void *buff = (void *)malloc(sizeof(NodeToken));
+        if (buff == NULL)
         {
-            // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
+            printf("impossinlme pour crear\n\r");
             return NULL;
         }
-        // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        tmpToken->type = nd.type;
-        tmpToken->textref = nd.textref;
-        tmpToken->_vartype = nd._vartype;
-        tmpToken->_nodetype = nd._nodetype;
-        tmpToken->isPointer = nd.isPointer;
-        tmpToken->asPointer = nd.asPointer;
-        tmpToken->_total_size = nd._total_size;
-        tmpToken->stack_pos = nd.stack_pos;
-        tmpToken->target = nd.target;
-        tmpToken->children.clear();
+
+        NodeToken *tmpToken=new(buff)NodeToken;
+       memcpy((void *)buff, (void *)&nd, sizeof(NodeTokenStruct));
+      
+       tmpToken->children.clear();
+   
 
         // tmp->children.shrink_to_fit();
          tmpToken->parent = this;
