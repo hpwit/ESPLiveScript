@@ -2049,7 +2049,7 @@ void _visitoperatorNode(NodeToken *nd)
         break;
     }
 }
-// void _visitProgram(NodeToken *nd) {}
+
 void _visitglobalVariableNode(NodeToken *nd)
 {
 
@@ -2515,7 +2515,7 @@ void _visitprogramNode(NodeToken *nd)
     header.addAfter(".bytes 4");
     header.addAfter("@__execaddr_:");
     header.addAfter(".bytes 4");
-     header.addAfter("_sync:");
+     header.addAfter("@__sync:");
     header.addAfter(".bytes 4");
     header.addAfter("@_stackr:");
     header.addAfter(".bytes 32");
@@ -3269,7 +3269,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
     }
     if (isExtCall)
     {
-        bufferText->addAfter(string_format("callExt a8,%s", nd->getTokenText()));
+        bufferText->addAfter(string_format("callExt a8,%@_%s", nd->getTokenText()));
     }
     else
     {
@@ -3668,7 +3668,7 @@ void _visitvariableDeclarationNode(NodeToken *nd) {}
 void _visitdefExtFunctionNode(NodeToken *nd)
 {
     // printf("visit externazl function %s\n", nd->getTokenText());
- header.addAfter(string_format("%s:",nd->getTokenText()));
+ header.addAfter(string_format("@_%s:",nd->getTokenText()));
     header.addAfter(".bytes 4");
 }
 void _visitinputArgumentsNode(NodeToken *nd)

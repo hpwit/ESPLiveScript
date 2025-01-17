@@ -1013,13 +1013,8 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     {
       return ps;
     }
-/*
-    int i = findLink(string(ps.getText()), externalType::function);
-    if (i == -1)
-    {
-      asm_Error.error = 1;
-      asm_Error.error_message = string_format("External function %s not found\n", ps.getText());
-    */
+
+
   //  else
   //  {
       // string debugsav=ps.debugtxt;
@@ -1032,6 +1027,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     {
       result_parse_line *ps1 = getInstrAtPos(index);
       ps1->op = opCodeType::external_call;
+      ps1->align=true;
     }
       // ps.debugtxt = "call ext function";
       // ps.op = opCodeType::external_call;
@@ -2030,7 +2026,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
      // binary_header = binary_header + 4;
       memcpy(&nb_data, binary_header, 2);
       binary_header = binary_header + 2;     
-      int index = findLink(string(textptr), externalType::function);
+      int index = findLink(string(textptr).substr(2, 100), externalType::function);
       if (index > -1)
       {
 #ifndef __TEST_DEBUG
