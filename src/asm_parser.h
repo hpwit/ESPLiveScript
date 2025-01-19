@@ -7,7 +7,7 @@ using namespace std;
 #include <stdlib.h>
 #include <memory>
 #include <vector>
-#include <list>
+//#include <list>
 
 // #include <iostream>
 // #include <functional>
@@ -1013,13 +1013,8 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     {
       return ps;
     }
-/*
-    int i = findLink(string(ps.getText()), externalType::function);
-    if (i == -1)
-    {
-      asm_Error.error = 1;
-      asm_Error.error_message = string_format("External function %s not found\n", ps.getText());
-    */
+
+
   //  else
   //  {
       // string debugsav=ps.debugtxt;
@@ -1032,6 +1027,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     {
       result_parse_line *ps1 = getInstrAtPos(index);
       ps1->op = opCodeType::external_call;
+      ps1->align=true;
     }
       // ps.debugtxt = "call ext function";
       // ps.op = opCodeType::external_call;
@@ -2030,7 +2026,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
      // binary_header = binary_header + 4;
       memcpy(&nb_data, binary_header, 2);
       binary_header = binary_header + 2;     
-      int index = findLink(string(textptr), externalType::function);
+      int index = findLink(string(textptr).substr(2, 100), externalType::function);
       if (index > -1)
       {
 #ifndef __TEST_DEBUG
@@ -2188,7 +2184,9 @@ executable _createExcutablefromBinary(Binary *bin)
 {
   executable exe;
   error_message_struct error;
-  exe.error.error = 0;
+  exe.error.error = 0; 
+
+  printf("on cree un executbale de taiile %d et data %d \n",bin->instruction_size,bin->data_size);
   uint32_t *exec = (uint32_t *)heap_caps_malloc(bin->instruction_size, MALLOC_CAP_EXEC);
   if (binary_data != NULL)
     free(binary_data);
@@ -2262,6 +2260,8 @@ return bin;
 Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
 {
   Binary bin;
+  bin.binary_data=NULL;
+  bin.function_data=NULL;
   bin.error.error = 0;
   _asm_parsed.clear();
 
@@ -2299,7 +2299,7 @@ Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
   {
 
     bin.error = err;
-    // bin.error.error = 1;
+     bin.error.error = 1;
   }
   _asm_parsed.clear();
   all_text.clear();
@@ -2344,7 +2344,7 @@ void loadBinary(char *name, fs::FS &fs, Binary *bin)
   if (strcmp(ver, "ESPLiveScript1.0.1") != 0)
   {
     bin->error.error = 1;
-    bin->error.error_message = "wrong format";
+    bin->error.error_message = string_format("wrong format expected ESPLiveScript1.0.1 got %s",(const char *)ver);
     return;
   }
 
@@ -2474,7 +2474,7 @@ error_message_struct executeBinary(executable ex, uint32_t handle)
   Arguments args;
   return executeBinary(ex.functions[0].name, ex, handle, NULL, args);
 }
-void freeBinary(executable *ex)
+void freeExecutable(executable *ex)
 {
   if (ex->start_program != NULL)
   {
@@ -2490,8 +2490,8 @@ void freeBinary(executable *ex)
     heap_caps_free(ex->data);
   }
   ex->data = NULL;
-  binary_data = NULL;
-  tmp_exec = NULL;
+ // binary_data = NULL;
+ // tmp_exec = NULL;
 }
 #endif
 #endif

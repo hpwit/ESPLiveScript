@@ -14,7 +14,7 @@ __ASM__ void sync()\n\
 \"entry a1,32\" \n\
 \"l32r a4,@__handle_\" \n\
 \"l32i a10,a4,0\" \n\
-\"callExt a8,_sync\"\n\
+\"callExt a8,@__sync\"\n\
 \"retw.n\" \n\
 }@";
 string division="\

@@ -357,7 +357,7 @@ public:
 
         if (exeExist)
         {
-            freeBinary(&_executecmd);
+            freeExecutable(&_executecmd);
         }
         exeExist = false;
 
@@ -397,7 +397,7 @@ public:
 #endif
         }
 
-        // freeBinary(&_executecmd);
+        // freeExecutable(&_executecmd);
 #endif
 #endif
     }
@@ -464,7 +464,7 @@ public:
             __run_handle_index = 9999;
         }
 
-        // freeBinary(&_executecmd);
+        // freeExecutable(&_executecmd);
 #endif
     }
 
@@ -548,7 +548,7 @@ public:
         {
             uint32_t memb = esp_get_free_heap_size();
             printf("Free memory before:%ld\r\n", esp_get_free_heap_size());
-            freeBinary(&_executecmd);
+            freeExecutable(&_executecmd);
             _isRunning = false;
             uint32_t mema = esp_get_free_heap_size();
             printf("Free memory after:%ld freed:%ld\r\n", mema, mema - memb);
