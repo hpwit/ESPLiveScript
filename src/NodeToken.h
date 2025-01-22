@@ -55,9 +55,9 @@ int __sav_arg = 0;
 bool _asPointer = false;
 bool found;
 string struct_name = "";
-list<int> nb_args;
+vector<int> nb_args;
 vector<string> sigs;
-list<int> nb_sav_args;
+vector<int> nb_sav_args;
 
 // list<string> _header;
 
@@ -337,20 +337,7 @@ Text footer;
 Text *bufferText;
 
 class NodeToken;
-typedef struct NodeTokenStruct
-{
-    NodeToken *parent = NULL;
-    uint16_t _total_size = 1;
-    uint16_t target = EOF_TEXTARRAY;
-    uint16_t textref = EOF_TEXTARRAY;
-    uint16_t stack_pos = 0;
-    bool isPointer = false;
-    bool asPointer = false;
-    uint8_t _nodetype = (int)UnknownNode;
 
-    uint8_t type = (int)TokenUnknown;
-    uint8_t _vartype = EOF_VARTYPE;
-} NodeTokenStruct;
 void _visittypeNode(NodeToken *nd);
 void _visitnumberNode(NodeToken *nd);
 void _visitbinOpNode(NodeToken *nd);
@@ -395,7 +382,9 @@ void _visittestNode(NodeToken *nd);
 void _visitternaryIfNode(NodeToken *nd);
 void _visitcallConstructorNode(NodeToken *nd);
 void _visitUnknownNode(NodeToken *nd);
-
+void *__objectbuff;
+NodeToken *__tmpToken;
+vector<NodeToken *> *__vtmp;
 // NodeToken *tmpToken;
 class NodeToken
 {
@@ -403,7 +392,21 @@ class NodeToken
 public:
     NodeToken()
     {
+
         children = NULL;
+
+        parent = NULL;
+
+        _total_size = 1;
+        target = EOF_TEXTARRAY;
+        textref = EOF_TEXTARRAY;
+        stack_pos = 0;
+        isPointer = false;
+        asPointer = false;
+        _nodetype = (int)UnknownNode;
+
+        type = (int)TokenUnknown;
+        _vartype = EOF_VARTYPE;
     }
     NodeToken(nodeType tt)
     {
@@ -539,10 +542,7 @@ public:
         j->parent = this;
         if (children == NULL)
         {
-            void *vecttmp = malloc(sizeof(vector<NodeToken *>));
-            vector<NodeToken *> *vtmp = new (vecttmp) vector<NodeToken *>();
-
-            children = vtmp;
+            children = new vector<NodeToken *>();
         }
         children->push_back(j);
         return j;
@@ -552,10 +552,7 @@ public:
         j->parent = this;
         if (children == NULL)
         {
-            void *vecttmp = malloc(sizeof(vector<NodeToken *>));
-            vector<NodeToken *> *vtmp = new (vecttmp) vector<NodeToken *>();
-
-            children = vtmp;
+            children = new vector<NodeToken *>();
         }
         // children->push_front(j);
         children->insert(children->begin(), j);
@@ -580,81 +577,73 @@ public:
     }
     NodeToken *addChild(NodeToken nd)
     {
-      //  printf("add child\n");
-        nd.parent = this;
-        void *buff = malloc(sizeof(NodeToken));
+        //nd.parent = this;
+        // nd.children->clear();
 
-        if (buff == NULL)
-        {
-            // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
-            return NULL;
-        }
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        NodeToken *tmpToken = new (buff) NodeToken();
-        memcpy((void *)buff, (void *)&nd, sizeof(NodeToken));
-
-        tmpToken->children = NULL;
-        /*
-               tmpToken->type = nd.type;
-         tmpToken->textref = nd.textref;
-         tmpToken->_vartype = nd._vartype;
-         tmpToken->_nodetype = nd._nodetype;
-         tmpToken->isPointer = nd.isPointer;
-         tmpToken->asPointer = nd.asPointer;
-         tmpToken->_total_size = nd._total_size;
-         tmpToken->stack_pos = nd.stack_pos;
-         tmpToken->target = nd.target;*/
-        // tmp->children->shrink_to_fit();
-        // tmp->parent = this;
+        __tmpToken = new NodeToken();
+              __tmpToken->type = nd.type;
+         __tmpToken->textref = nd.textref;
+        __tmpToken->_vartype = nd._vartype;
+         __tmpToken->_nodetype = nd._nodetype;
+         __tmpToken->isPointer = nd.isPointer;
+         __tmpToken->asPointer = nd.asPointer;
+         __tmpToken->_total_size = nd._total_size;
+         __tmpToken->stack_pos = nd.stack_pos;
+         __tmpToken->target = nd.target;
+         __tmpToken->parent=this;
+        __tmpToken->children = NULL;
         if (children == NULL)
         {
-            void *vecttmp = malloc(sizeof(vector<NodeToken *>));
-            vector<NodeToken *> *vtmp = new (vecttmp) vector<NodeToken *>();
-
-            children = vtmp;
+            children = new vector<NodeToken *>();
         }
-        children->push_back(tmpToken);
-        return tmpToken;
+        children->push_back(__tmpToken);
+        return __tmpToken;
     }
     NodeToken *addChildFront(NodeToken nd)
     {
         nd.parent = this;
-        nd.children->clear();
-        void *buff = malloc(sizeof(NodeToken));
+        // nd.children->clear();
+        __tmpToken = new NodeToken();
+                     __tmpToken->type = nd.type;
+         __tmpToken->textref = nd.textref;
+        __tmpToken->_vartype = nd._vartype;
+         __tmpToken->_nodetype = nd._nodetype;
+         __tmpToken->isPointer = nd.isPointer;
+         __tmpToken->asPointer = nd.asPointer;
+         __tmpToken->_total_size = nd._total_size;
+         __tmpToken->stack_pos = nd.stack_pos;
+         __tmpToken->target = nd.target;
+         __tmpToken->parent=this;
+        __tmpToken->children = NULL;
 
-        if (buff == NULL)
-        {
-            // printf("impossinlme pour crear %s %lu\n",nodeTypeNames[j._nodetype].c_str(),sizeof(NodeToken));
-            return NULL;
-        }
-        // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
-        // memcpy((void *)tmpToken, (void *)&nd, sizeof(NodeToken));
-        NodeToken *tmpToken = new (buff) NodeToken();
-        memcpy((void *)buff, (void *)&nd, sizeof(NodeToken));
-
-        tmpToken->children = NULL;
+        __tmpToken->children = NULL;
         if (children == NULL)
         {
-            void *vecttmp = malloc(sizeof(vector<NodeToken *>));
-            vector<NodeToken *> *vtmp = new (vecttmp) vector<NodeToken *>();
+            children = new vector<NodeToken *>();
 
-            children = vtmp;
+            // children = __vtmp;
         }
-        children->insert(children->begin(), tmpToken);
-        return tmpToken;
+        children->insert(children->begin(), __tmpToken);
+        return __tmpToken;
     }
     void clear(bool all)
     {
-       // printf("on efface %s\n",getTokenText());
+        // printf("on efface %s\n",getTokenText());
         if (children != NULL)
         {
-            for (NodeToken *child : *children)
+            // printf("clearing nodetype %d %d\n",_nodetype,children->size());
+            for (int i = 0; i < children->size(); i++)
             {
-                 //printf("  on efface %s\n",child->getTokenText());
+                //   printf("child :%i\n",i);
+                NodeToken *child = children->at(i);
+                // printf("  on efface %s\n",child->getTokenText());
                 if (child != NULL)
-                {   
+                {
                     child->clearAll();
+                    child->parent = NULL;
                     free(child);
+                    child = NULL;
                 }
             }
 
@@ -961,7 +950,7 @@ public:
             break;
         }
     }
-
+    vector<NodeToken *> *children = NULL;
     NodeToken *parent = NULL;
     uint16_t _total_size = 1;
     uint16_t target = EOF_TEXTARRAY;
@@ -973,62 +962,118 @@ public:
 
     uint8_t type = (int)TokenUnknown;
     uint8_t _vartype = EOF_VARTYPE;
-
-    vector<NodeToken *> *children;
 };
 
 Script main_script;
 Script extra_script;
 NodeToken program = NodeToken(programNode);
 NodeToken *current_node;
-int search_result_index=-1;
+int search_result_index = -1;
 NodeToken *search_result;
 NodeToken *tmp_sav;
-vector<NodeToken> _functions;
+vector<NodeToken *> _functions;
 class Context
 {
 public:
-    Context() {}
+    Context()
+    {
+        children = NULL;
+        variables = NULL;
+    }
     void clear()
     {
-        variables.clear();
-        variables.shrink_to_fit();
-        for (Context child : children)
+        if (variables != NULL)
         {
-            child.clear();
+            for (NodeToken *nd : *variables)
+            {
+                free(nd);
+            }
+            variables->clear();
+            variables->shrink_to_fit();
+            free(variables);
+            variables = NULL;
         }
-        children.clear();
-        children.shrink_to_fit();
+        if (children != NULL)
+        {
+            for (int i = 0; i < children->size(); i++)
+            {
+                Context *child = children->at(i);
+                child->clear();
+                free(child);
+                child = NULL;
+            }
+            children->clear();
+            children->shrink_to_fit();
+            free(children);
+            children = NULL;
+        }
     }
     Context *addChild(Context cntx)
     {
+
         cntx.parent = this;
-        children.push_back(cntx);
-        vector<Context>::iterator it = children.end();
-        it--;
-        return &*it;
+
+        Context *tmpcntx = new Context();
+        memcpy((void *)tmpcntx, (void *)&cntx, sizeof(Context));
+
+        tmpcntx->children = NULL;
+
+        if (children == NULL)
+        {
+            // void *vecttmp = malloc(sizeof(vector<Context *>));
+            children = new vector<Context *>();
+
+            // children = vtmp;
+        }
+        children->push_back(tmpcntx);
+
+        return tmpcntx;
     }
     Context *addChild()
     {
         // cntx.parent = this;
-        children.push_back(Context());
-        vector<Context>::iterator it = children.end();
-        it--;
-        (&*it)->parent = this;
-        return &*it;
+        return addChild(Context());
     }
     void addFunction(NodeToken *nd)
     {
-        NodeToken tmp = NodeToken(nd);
-        printf("add funcion %s\n", nd->getTokenText());
-        _functions.push_back(tmp);
-        printf("duplicate add funcion %s\n", nd->getTokenText());
-        (&_functions.back())->copyChildren(nd);
-        printf("end add funcion %s\n", nd->getTokenText());
+        NodeToken *__tmpToken = new NodeToken();
+                      __tmpToken->type = nd->type;
+         __tmpToken->textref = nd->textref;
+        __tmpToken->_vartype = nd->_vartype;
+         __tmpToken->_nodetype = nd->_nodetype;
+         __tmpToken->isPointer = nd->isPointer;
+         __tmpToken->asPointer = nd->asPointer;
+         __tmpToken->_total_size = nd->_total_size;
+         __tmpToken->stack_pos = nd->stack_pos;
+         __tmpToken->target = nd->target;
+         __tmpToken->parent=NULL;
+        __tmpToken->children = NULL;
+        // printf("add funcion %s\n", nd->getTokenText());
+        _functions.push_back(__tmpToken);
+        // printf("duplicate add funcion %s\n", nd->getTokenText());
+        (_functions.back())->copyChildren(nd);
+        // printf("end add funcion %s\n", nd->getTokenText());
     }
     void addVariable(NodeToken nd)
     {
-        variables.push_back(nd);
+        __tmpToken = new NodeToken();
+              __tmpToken->type = nd.type;
+         __tmpToken->textref = nd.textref;
+        __tmpToken->_vartype = nd._vartype;
+         __tmpToken->_nodetype = nd._nodetype;
+         __tmpToken->isPointer = nd.isPointer;
+         __tmpToken->asPointer = nd.asPointer;
+         __tmpToken->_total_size = nd._total_size;
+         __tmpToken->stack_pos = nd.stack_pos;
+         __tmpToken->target = nd.target;
+         //__tmpToken->parent=this;
+        __tmpToken->children = NULL;
+        if (variables == NULL)
+        {
+            variables = new vector<NodeToken *>();
+        }
+        variables->push_back(__tmpToken);
+        // return tmpToken;
     }
     bool findCandidate(char *str)
     {
@@ -1039,10 +1084,10 @@ public:
         if (str == NULL)
             return false;
 
-        for (vector<NodeToken>::iterator it = _functions.begin(); it != _functions.end(); ++it)
+        for (vector<NodeToken *>::iterator it = _functions.begin(); it != _functions.end(); ++it)
         {
 
-            if (strstr((*it).getTokenText(), str) == (*it).getTokenText())
+            if (strstr((*it)->getTokenText(), str) == (*it)->getTokenText())
             {
                 return true;
             }
@@ -1060,38 +1105,38 @@ public:
     void findFunction(Token *t)
     {
         // NodeTo
-search_result_index=-1;
+        search_result_index = -1;
         search_result = NULL;
         char *tocmp;
         if (t->getText() == NULL)
             return;
-    int tmp_index=0;
-        for (vector<NodeToken>::iterator it = _functions.begin(); it != _functions.end(); ++it)
+        int tmp_index = 0;
+        for (vector<NodeToken *>::iterator it = _functions.begin(); it != _functions.end(); ++it)
         {
 
-            if (strstr((*it).getTokenText(), "Args") != NULL)
+            if (strstr((*it)->getTokenText(), "Args") != NULL)
             {
-                int l = strstr((*it).getTokenText(), "Args") - (*it).getTokenText();
+                int l = strstr((*it)->getTokenText(), "Args") - (*it)->getTokenText();
                 if (l > 0)
                     l--;
-                if (strncmp((*it).getTokenText(), t->getText(), l) == 0)
+                if (strncmp((*it)->getTokenText(), t->getText(), l) == 0)
                 {
-                    search_result = &*it;
-                    search_result_index=tmp_index;
+                    search_result = *it;
+                    search_result_index = tmp_index;
                     return;
                 }
             }
             else
             {
 
-                if (strcmp((*it).getTokenText(), t->getText()) == 0)
+                if (strcmp((*it)->getTokenText(), t->getText()) == 0)
                 {
-                    search_result = &*it;
-                    search_result_index=tmp_index;
+                    search_result = *it;
+                    search_result_index = tmp_index;
                     return;
                 }
             }
-tmp_index++;
+            tmp_index++;
         }
 
         // looking in the external
@@ -1106,15 +1151,18 @@ tmp_index++;
         if (t == NULL)
             return;
         // //printf("lokking for variable |%s| dans %s  already %d variables defined \n", t->text.c_str(),name.c_str(),variables.size());
-        for (vector<NodeToken>::iterator it = variables.begin(); it != variables.end(); ++it)
+        if (variables != NULL)
         {
-
-            if ((*it).getTokenText() != NULL)
+            for (vector<NodeToken *>::iterator it = variables->begin(); it != variables->end(); ++it)
             {
-                if (strcmp((*it).getTokenText(), t) == 0)
+
+                if ((*it)->getTokenText() != NULL)
                 {
-                    search_result = &*it;
-                    return;
+                    if (strcmp((*it)->getTokenText(), t) == 0)
+                    {
+                        search_result = *it;
+                        return;
+                    }
                 }
             }
         }
@@ -1124,16 +1172,19 @@ tmp_index++;
             while (c_cntx != NULL)
             {
                 // ////printf("lokking for variable |%s| dans %s %d branches\n", t->text.c_str(),c_cntx->name.c_str(),c_cntx->variables.size());
-                for (vector<NodeToken>::iterator it = c_cntx->variables.begin(); it != c_cntx->variables.end(); ++it)
+                if (c_cntx->variables != NULL)
                 {
-                    // ////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
-                    if ((*it).getTokenText() != NULL)
+                    for (vector<NodeToken *>::iterator it = c_cntx->variables->begin(); it != c_cntx->variables->end(); ++it)
                     {
-                        //  //////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
-                        if (strcmp((*it).getTokenText(), t) == 0)
+                        // ////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
+                        if ((*it)->getTokenText() != NULL)
                         {
-                            search_result = &*it;
-                            return;
+                            //  //////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
+                            if (strcmp((*it)->getTokenText(), t) == 0)
+                            {
+                                search_result = *it;
+                                return;
+                            }
                         }
                     }
                 }
@@ -1146,19 +1197,21 @@ tmp_index++;
     }
     void findVariable(Token *t, bool isCreation)
     {
+        findVariable(t->getText(), isCreation);
+        /*
         search_result = NULL;
 
         if (t->getText() == NULL)
             return;
         // //printf("lokking for variable |%s| dans %s  already %d variables defined \n", t->text.c_str(),name.c_str(),variables.size());
-        for (vector<NodeToken>::iterator it = variables.begin(); it != variables.end(); ++it)
+        for (vector<NodeToken*>::iterator it = variables->begin(); it != variables->end(); ++it)
         {
 
-            if ((*it).getTokenText() != NULL)
+            if ((*it)->getTokenText() != NULL)
             {
-                if (strcmp((*it).getTokenText(), t->getText()) == 0)
+                if (strcmp((*it)->getTokenText(), t->getText()) == 0)
                 {
-                    search_result = &*it;
+                    search_result = *it;
                     return;
                 }
             }
@@ -1169,15 +1222,15 @@ tmp_index++;
             while (c_cntx != NULL)
             {
                 // ////printf("lokking for variable |%s| dans %s %d branches\n", t->text.c_str(),c_cntx->name.c_str(),c_cntx->variables.size());
-                for (vector<NodeToken>::iterator it = c_cntx->variables.begin(); it != c_cntx->variables.end(); ++it)
+                for (vector<NodeToken*>::iterator it = c_cntx->variables->begin(); it != c_cntx->variables->end(); ++it)
                 {
                     // ////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
-                    if ((*it).getTokenText() != NULL)
+                    if ((*it)->getTokenText() != NULL)
                     {
                         //  //////printf("is equalt to |%s|\n", (*it)._token->text.c_str());
-                        if (strcmp((*it).getTokenText(), t->getText()) == 0)
+                        if (strcmp((*it)->getTokenText(), t->getText()) == 0)
                         {
-                            search_result = &*it;
+                            search_result = *it;
                             return;
                         }
                     }
@@ -1187,10 +1240,11 @@ tmp_index++;
         }
         search_result = NULL;
         return;
+        */
     }
     Context *parent = NULL;
-    vector<Context> children;
-    vector<NodeToken> variables;
+    vector<Context *> *children;
+    vector<NodeToken *> *variables;
 };
 Context main_context;
 Context *current_cntx;
@@ -1198,11 +1252,11 @@ error_message_struct Error;
 
 Stack<NodeToken> nodeTokenList;
 Stack<string> targetList;
-list<NodeToken *> sav_token;
-list<NodeToken *> change_type;
+vector<NodeToken *> sav_token;
+vector<NodeToken *> change_type;
 // NodeToken *lastFunctionType;
 NodeToken *lasttype;
-list<NodeToken *> _node_token_stack;
+vector<NodeToken *> _node_token_stack;
 // NodeToken _uniquesave;
 void copyPrty(NodeToken *from, NodeToken *to)
 
@@ -1480,6 +1534,7 @@ string findForWhile()
 void buildParents(NodeToken *__nd)
 
 {
+
     // return; //new
     // printf("klkkmkml %s\r\n",__nd->getTokenText());
     if (__nd->children_size() > 0)
@@ -2417,7 +2472,7 @@ void _visitblockStatementNode(NodeToken *nd)
 }
 void _visitdefFunctionNode(NodeToken *nd)
 {
-    printf("compiling %s\n", nd->getTokenText());
+    // printf("compiling %s\n", nd->getTokenText());
     bufferText = &content;
     isStructFunction = false;
     if (nd->type == TokenUserDefinedVariableMemberFunction)
@@ -2501,7 +2556,7 @@ void _visitstatementNode(NodeToken *nd)
 void _visitprogramNode(NodeToken *nd)
 {
     //
-    printf("visit program\n");
+    // printf("visit program\n");
     point_regnum = 5;
 
     // content.clear();
@@ -3284,7 +3339,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
 
 void _visitcallFunctionNode(NodeToken *nd)
 {
-    printf("compiling  call function %s\n", nd->getTokenText());
+    // printf("compiling  call function %s\n", nd->getTokenText());
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
 
     if (t->getChildAtPos(1)->children_size() >= _TRIGGER)
