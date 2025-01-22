@@ -1559,6 +1559,19 @@ Token t;
                     t.type = (int)TokenExternal;
                   //  printf("ereeeeeeee\n");
                 }
+                if(t.getType()==TokenKeywordDefine)
+                {
+                    //printf("on est ici\n");
+                    if((_tks->back()).getType()==TokenDiese)
+                    {
+                       //printf("on est ici");
+                        _tks->pop_back();
+                    }
+                    else
+                    {
+                        t.type=TokenUnknown;
+                    }
+                }
                 if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
                 {
 
