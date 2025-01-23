@@ -1599,6 +1599,8 @@ Token t;
                 if(t.getType()==TokenKeywordDefine)
                 {
                     //printf("on est ici\n");
+                    if(!_for_display)
+                    {
                     if((_tks->back()).getType()==TokenDiese)
                     {
                        //printf("on est ici");
@@ -1607,6 +1609,7 @@ Token t;
                     else
                     {
                         t.type=TokenUnknown;
+                    }
                     }
                 }
                 if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)

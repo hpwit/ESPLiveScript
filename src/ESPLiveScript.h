@@ -312,7 +312,7 @@ public:
         displayStat();
         if (bin.error.error == 1)
         {
-            pushToConsole("WTF", true);
+            //pushToConsole("WTF", true);
             pushToConsole(bin.error.error_message.c_str(), true);
             freeBinary(&bin);
         }
@@ -346,7 +346,7 @@ public:
         }
         else
         {
-            pushToConsole("WTF", true);
+           // pushToConsole(bin.error.error_message.c_str(), true);
         }
 
         return results;
@@ -2106,7 +2106,7 @@ public:
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
-        printf("entering function %s \r\n", current()->getText());
+       // printf("entering function %s \r\n", current()->getText());
         if (isExternal)
         {
             ext_function = true;
@@ -3614,6 +3614,7 @@ void saveBin(Console *cons, vector<string> args)
 void binload(Console *cons, vector<string> args)
 {
     Binary bin;
+   // printf("we are here\n");
     Arguments _args;
     if (args.size() > 0)
     {
@@ -3630,6 +3631,7 @@ void binload(Console *cons, vector<string> args)
         loadBinary((char *)(fileSystem.current_path + args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
         if (bin.error.error)
         {
+            //Serial.printf("oioioioe ZZZ");
             pushToConsole(bin.error.error_message.c_str(), true);
             return;
         }
@@ -3644,14 +3646,14 @@ void binload(Console *cons, vector<string> args)
         if (_executecmd.error.error == 1)
         {
             // exeExist = false;
-            // Serial.printf(termColor.Red);
+         Serial.printf("oioioioe");
 
             pushToConsole(_executecmd.error.error_message.c_str(), true);
         }
         else
         {
-            if (SCExecutable.exeExist)
-            {
+           // if (SCExecutable.exeExist)
+            //{
 
                 exeExist = true;
                 if (true)
@@ -3675,7 +3677,7 @@ void binload(Console *cons, vector<string> args)
                     // executeBinary("main", executecmd);
                     LedOS.pushToConsole("Execution done.", true);
                 }
-            }
+           // }
         }
     }
     else
