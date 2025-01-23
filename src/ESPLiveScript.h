@@ -28,6 +28,7 @@ NodeToken *_d;
 */
 string signature;
 Token __t;
+/*
 class _arguments
 {
 public:
@@ -78,6 +79,7 @@ public:
     }
     vector<_arguments> _args;
 };
+*/
 #include "asm_parser.h"
 #include "execute.h"
 void prettyPrint(NodeToken *_nd, string ident)

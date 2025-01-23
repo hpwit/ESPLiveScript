@@ -10,6 +10,7 @@ using namespace std;
 #ifndef _MAX_PROG_AT_ONCE
 #define _MAX_PROG_AT_ONCE 10
 #endif
+
 executable executecmd;
 volatile bool useOfSync;
 

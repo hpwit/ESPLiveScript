@@ -788,4 +788,22 @@ string getRegType(asmInstruction instr, int pos)
   }
 }
 
+enum varTypeEnum
+{
+    __none__,
+    __uint8_t__,
+    __uint16_t__,
+    __uint32_t__,
+    __int__,
+    __s_int__,
+    __float__,
+    __void__,
+    __CRGB__,
+    __CRGBW__,
+    __char__,
+    __Args__,
+    __bool__,
+    __userDefined__,
+    __unknown__
+};
 #endif

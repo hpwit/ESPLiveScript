@@ -2179,7 +2179,7 @@ error_message_struct createAbsoluteJump(uint8_t *exec, parsedLines *asm_parsed, 
 }
 */
 #ifndef __TEST_DEBUG
-
+/*
 executable _createExcutablefromBinary(Binary *bin)
 {
   executable exe;
@@ -2226,7 +2226,7 @@ executable _createExcutablefromBinary(Binary *bin)
   return exe;
 }
 
-/*
+
 Binary _createBinary(parsedLines *asm_parsed)
 {
 
@@ -2305,6 +2305,7 @@ Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
   all_text.clear();
   return bin;
 }
+/*
 void freeBinary(Binary *bin)
 {
   if (bin->binary_data)
@@ -2313,7 +2314,7 @@ void freeBinary(Binary *bin)
     free(bin->function_data);
   // delete(bin);
 }
-
+*/
 void saveBinary(char *name, fs::FS &fs, Binary *bin)
 {
   File root = fs.open(name, FILE_WRITE);
@@ -2334,7 +2335,7 @@ void saveBinary(char *name, fs::FS &fs, Binary *bin)
   root.write(bin->function_data, bin->function_size);
   root.close();
 }
-
+/*
 void loadBinary(char *name, fs::FS &fs, Binary *bin)
 {
   File root = fs.open(name);
@@ -2492,6 +2493,7 @@ void freeExecutable(executable *ex)
   ex->data = NULL;
  // binary_data = NULL;
  // tmp_exec = NULL;
-}
+} */
+#include "execute_asm.h"
 #endif
 #endif
