@@ -1473,114 +1473,8 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   return main_error;
 }
 
-/*
-error_message_struct parseASM(string s, vector<result_parse_line> *asm_parsed)
-{
-  vector<string> lines = split(s, "\n");
-  return parseASM(&lines, asm_parsed);
-}
-*/
-/*
-void createAddress(parsedLines *asm_parsed)
-{
-  uint32_t add_instr = 0;
-  uint32_t add_data = 0;
-  // printf("create address\r\n");
-  // vector<result_parse_line>::iterator it = (*asm_parsed).begin();
-  // int i = 0;
-  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
-  {
 
-    if ((*it)->op != opCodeType::data && (*it)->op != opCodeType::number)
-    {
 
-      // printf("%s %s\n\r",it->debugtxt.c_str(), it->name.c_str());
-      // result_parse_line  *re_sparse=&asmParsed[i];
-
-      (*it)->address = add_instr;
-      if ((*it)->align == true)
-      {
-        // printf("%s %s %d\n\r",it->debugtxt.c_str(), it->name.c_str(),add_instr & 3);
-        if ((add_instr & 3) != 0)
-        {
-          result_parse_line add_op;
-
-          if ((add_instr & 3) == 2)
-          {
-            add_op.size = 2;
-            add_op.bincode = bin_nop_n(0);
-          }
-          if ((add_instr & 3) == 1)
-          {
-            add_op.size = 3;
-            add_op.bincode = bin_nop(0);
-          }
-          if ((add_instr & 3) == 3)
-          {
-            add_op.size = 5;
-            add_op.bincode = bin_nop(0);
-          }
-          add_op.address = add_instr;
-          // add_op.debugtxt = string_format("nop filler %d", add_op.size);
-
-          asm_Error.error = 0;
-          (*it)->address = add_instr + add_op.size;
-          // printf("function not aligned\t %s \t %s\n", it->debugtxt.c_str(), it->name.c_str());
-          // printf("one insert \n");
-          it = asm_parsed->insert(it, add_op);
-          // printf("apres insert \n");
-          it++;
-          add_instr = add_instr + add_op.size;
-          // add_instr += 4 - (add_instr & 3);
-        }
-      }
-      add_instr += (*it)->size;
-    }
-    else
-    {
-      // we suppose that above it's the label
-      (*it)->address = add_data;
-      vector<result_parse_line *>::iterator prev_it = it--;
-      it++;
-      (*prev_it)->bincode = add_data;
-      if (it != asm_parsed->end())
-        add_data += (*it)->size;
-    }
-  }
-  printf("Done\r\n");
-}
-*/
-void dumpmem(uint32_t *dump)
-{
-  /*
-  printf("\n%s", "                   ");
-  for (int i = 0; i < 8; i++)
-  {
-    printf("-----");
-  }
-  printf("\n%s", "                   ");
-  for (int i = 0; i < 8; i++)
-  {
-    printf(" %02x |", i);
-  }
-  printf("\n");
-  printf("%s", "                   ");
-  for (int i = 0; i < 8; i++)
-  {
-    printf("-----");
-  }
-  for (int j = 0; j < 30; j++)
-  {
-    printf("\nline:%2d %8x: ", j, dump);
-    for (int i = 0; i < 2; i++)
-    {
-      printf(" %02x | %02x | %02x | %02x |", ((*dump)) & 0xFF, ((*dump) >> 8) & 0xFF, ((*dump) >> 16) & 0xFF, ((*dump) >> 24) & 0xFF);
-      dump++;
-    }
-  }
-  printf("\n\n\n");
-  */
-}
 
 void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
 {
@@ -1604,7 +1498,7 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
     }
   }
 }
-
+/*
 void flagLabel32aligned(parsedLines *asm_parsed)
 {
   // return;
@@ -1636,72 +1530,13 @@ void flagLabel32aligned(parsedLines *asm_parsed)
 #endif
   //  printf("Done.\r\n");
 }
-/*
-error_message_struct calculateJump(parsedLines *asm_parsed)
-{
-
-#ifdef __CONSOLE_ESP32
-  LedOS.pushToConsole("alculating jumps ...");
-
-#else
-  // printf("Calculating jumps ... ");
-#endif
-
-  error_message_struct error;
-  error.error = 0;
-  error.error_message = "";
-
-  // return error;
-  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
-  {
-    result_parse_line *parse_line = *it;
-    if ((parse_line->op == opCodeType::jump) || (parse_line->op == opCodeType::jump_32aligned))
-    {
-      int index = findLabel(string(parse_line->getText()), asm_parsed);
-      if (index != -1)
-      {
-        if (parse_line->calculateOfssetJump)
-        {
-          parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address, getInstrAtPos(index)->address);
-        }
-        else
-        {
-          error.error = 1;
-          // error.error_message += string_format("asm_Error:No method to calcuylate jump offset for %s\n", parse_line->debugtxt.c_str());
-        }
-      }
-      else
-      {
-        error.error = 1;
-        error.error_message += string_format("line : %d label %s not found\n", parse_line->line, parse_line->getText());
-      }
-    }
-    else if (parse_line->op == opCodeType::external_call)
-    {
-      int index = findLink(string(parse_line->getText()), externalType::function);
-      if (index > -1)
-      {
-        if (parse_line->calculateOfssetJump)
-        {
-          parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address, (uint32_t)external_links[index].ptr);
-        }
-      }
-      else
-      {
-        error.error = 1;
-        error.error_message += string_format("line : %d external function %s not found\n", parse_line->line, parse_line->getText());
-      }
-    }
-  }
-  // printf("Done.\r\n");
-  return error;
-}
 */
+
 error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
 {
 
 #ifdef __CONSOLE_ESP32
-  LedOS.pushToConsole("alculating jumps 2...");
+//  LedOS.pushToConsole("alculating jumps 2...");
 
 #else
   // printf("Calculating jumps2 ... ");
@@ -1737,47 +1572,7 @@ error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
         error.error_message += string_format("line : %d label %s not found\n\r", parse_line->line, parse_line->getText());
       }
     }
-    /*
-    else if (parse_line->op == opCodeType::external_call)
-    {
 
-      int index = findLink(string(parse_line->getText()), externalType::function);
-      if (index > -1)
-      {
-        if (parse_line->calculateOfssetJump)
-        {
-          // printf("calculate ext %s\n\r",parse_line->getText());
-          parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address + (uint32_t)_exec, (uint32_t)external_links[index].ptr);
-          memcpy(exec + parse_line->address, &parse_line->bincode, parse_line->size);
-        }
-      }
-      else
-      {
-        error.error = 1;
-        error.error_message += string_format("line : %d external function %s not found\n", parse_line->line, parse_line->getText());
-      }
-    }*/
-    /*
-    else if (parse_line->op == opCodeType::external_var)
-    {
-
-int index = findLink(string(parse_line->getText()), externalType::value);
-if(index>-1)
-{
-  if (parse_line->calculateOfssetJump)
-        {
-         printf("calculate ext %x for %x jump size%d\n\r",(uint32_t)(&(external_links[index].ptr)),parse_line->address+(uint32_t)_exec,parse_line->address+(uint32_t)_exec-(uint32_t)(&(external_links[index].ptr)));
-          parse_line->bincode = parse_line->calculateOfssetJump(parse_line->bincode, parse_line->address+(uint32_t)_exec,(uint32_t)((external_links[index].ptr)));
-        memcpy(exec + parse_line->address, &parse_line->bincode, parse_line->size);
-        }
-
-}
-else{
-  error.error=1;
-  error.error_message+=string_format("line : %d external variable %s not found\n", parse_line->line, parse_line->getText());
-}
-    }
-    */
   }
   // printf("Done.\r\n");
   return error;
@@ -2097,85 +1892,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
 
   return error;
 }
-/*
-error_message_struct createAbsoluteJump(uint8_t *exec, parsedLines *asm_parsed, uint32_t address, uint32_t _exec)
-{
-  error_message_struct error;
-  int nb_data = 0;
-  int tmp_data = 0;
-  printf("\n\rabsolute jums\n\r");
-  for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
-  {
-    if ((*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label)
-    {
-      //  it++;
-      // uint32_t content = (*(it))->address + address;
-      uint32_t content = (*it)->bincode + address;
-      //  it--; // à cause de l'"it++"
-      // printf("on veut mapper address:%s %ld\r\n",(*it)->getText(),(*it)->bincode);
-      // (*it)->address = content;
-      // printf("absoluit line:%d\r\n",nb_data*4);
-      uint32_t *new_adr = (uint32_t *)exec + nb_data; // (*asm_parsed)[i].address / 4;
-      // printf("new content %x atr adress %x\n",content,(uint32_t)new_adr);
-      nb_data++;
-      memcpy(new_adr, &content, 4);
-      printf("datalabl:%s\n\r", (*it)->getText());
-    }
-    else if ((*it)->op == opCodeType::external_var_label)
-    {
-      int index = findLink(string((*it)->getText()).substr(6, 100), externalType::value);
-      if (index > -1)
-      {
-        uint32_t content = (uint32_t)((external_links[index].ptr));
-        //  it--; // à cause de l'"it++"
-        // printf("on veut mapper address:%s %ld\r\n",(*it)->getText(),(*it)->bincode);
-        // (*it)->address = content;
-        // printf("absoluit line:%d\r\n",nb_data*4);
-        uint32_t *new_adr = (uint32_t *)exec + nb_data; // (*asm_parsed)[i].address / 4;
-        // printf("new content %x atr adress %x\n",content,(uint32_t)new_adr);
-        nb_data++;
-        memcpy(new_adr, &content, 4);
-        printf("external var:%s\n\r", (*it)->getText());
-      }
-      else
-      {
-        error.error = 1;
-        // printf("b ou foune\r\n");
-        error.error_message += string_format("line : %d external variable %s not found\n\r", (*it)->line, (*it)->getText());
-      }
-    }
-    else if ((*it)->op == opCodeType::external_call)
-    {
-      // printf("calculate ext %s\n\r", (*it)->getText());
-      int index = findLink(string((*it)->getText()), externalType::function);
-      if (index > -1)
-      {
-        if ((*it)->calculateOfssetJump)
-        {
-          // printf("calculate ext %s\n\r", (*it)->getText());
-          (*it)->bincode = (*it)->calculateOfssetJump((*it)->bincode, (*it)->address + (uint32_t)_exec, (uint32_t)external_links[index].ptr);
-          memcpy(exec + (*it)->address, &(*it)->bincode, (*it)->size);
-          printf("external func:%s\n\r", (*it)->getText());
-        }
-      }
-      else
-      {
-        error.error = 1;
-        // printf("b ou foune\r\n");
-        error.error_message += string_format("line : %d external function %s not found\n\r", (*it)->line, (*it)->getText());
-      }
-    }
-    else if ((*it)->op == opCodeType::data)
-    {
-      memcpy(binary_data + (*it)->address, exec + _instr_size + tmp_data, (*it)->size);
-      tmp_data += (*it)->size;
 
-      printf("data %s\n\r", (*(it - 1))->getText());
-    }
-  }
-  return error;
-}
-*/
 #ifndef __TEST_DEBUG
 
 executable _createExcutablefromBinary(Binary *bin)
@@ -2224,36 +1941,7 @@ executable _createExcutablefromBinary(Binary *bin)
   return exe;
 }
 
-/*
-Binary _createBinary(parsedLines *asm_parsed)
-{
 
-Binary bin;
-
-  updateMem();
-
-  error_message_struct error = calculateJump(tmp_exec, asm_parsed);
-  if (error.error == 1)
-  {
-
-    bin.error = error;
-    _asm_parsed.clear();
-    all_text.clear();
-    return bin;
-  }
-
-  uint8_t *rr = createBinaryHeader(asm_parsed);
-
-
-bin.binary_data=tmp_exe;
-bin.function_data=rr;
-bin.function_size=;
-bin.data_size=_data_size;
-bin.instruction_size=_instr_size;
-return bin;
-}
-
-*/
 
 Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
 {
@@ -2374,11 +2062,7 @@ executable createExectutable(Binary *bin)
   executable exec;
   exec.binary_size = 0;
   exec.data_size = 0;
-  // _asm_parsed.clear();
 
-  __parser_debug = false;
-
-  // Binary bin = createBinary(_footer, _header, _content,display);
   exec = _createExcutablefromBinary(bin);
 
   freeBinary(bin);
@@ -2399,12 +2083,7 @@ void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
       "callx8 a15"
       : : "r"(j) //, "r"(c)
       :);
-#ifdef __CONSOLE_ESP32
-  // LedOS.pushToConsole("Execution Done.",true);
-#else
-  // printf("Execution Done.\n");
-#endif
-  // free(exec);
+
 }
 
 error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments)

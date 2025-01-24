@@ -80,6 +80,7 @@ public:
 };
 #include "asm_parser.h"
 #include "execute.h"
+#ifdef __TEST_DEBUG
 void prettyPrint(NodeToken *_nd, string ident)
 {
     NodeToken nd = NodeToken(*_nd);
@@ -122,37 +123,7 @@ void prettyPrint(NodeToken *_nd, string ident)
     // printf("we go back\n");
 }
 
-void prettyPrint2(NodeToken nd, string ident)
-{
-    /*
-        printf("%s%s\t isPointer:%d\t asPointer:%d\t", ident.c_str(), nodeTypeNames[nd._nodetype].c_str(), nd.isPointer, nd.asPointer); //, tokenNames[nd._token.type].c_str());
-
-        printf("%s\t%s ", tokenNames[nd.type].c_str(), nd.getTokenText());
-        // printf("\n");
-        if (nd.getVarType() != NULL)
-        {
-
-            printf("%s total size:%d stackpos:%d\n", varTypeEnumNames[nd.getVarType()->_varType].c_str(), nd._total_size, nd.stack_pos);
-        }
-        else
-        {
-            printf("\n");
-        }
-
-        ident += "|--";
-        // printf("nb chilrend\t\t%d\n",nd.children_size());
-        // if(nd.children!=NULL)
-        //{
-        for (NodeToken *t : nd.children)
-        {
-            // printf("child:%d\n",i);
-            prettyPrint2(*t, ident);
-            //  printf("on finit child:%d\n",i);
-        }
-        // }
-        // printf("we go back\n");
-        */
-}
+#endif
 
 class Parser
 {

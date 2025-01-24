@@ -2,8 +2,6 @@
 #ifndef __ASM_EXTERNAL
 #define __ASM_EXTERNAL
 #include <stdio.h>
-//#include <vector>
-//#include <string>
 
 #include "asm_struct_enum.h"
 
@@ -115,19 +113,7 @@ int findLink(string label, externalType op)
  return -1;
 }
 
-/*
-error_message_struct link()
-{
-    vector<result_parse_line>::iterator it=asmParsed.begin();
-  for(it;it<asmParsed.end();it++)
-  {
-    if(it->opCodeType==opCodeType::external_var || it->opCodeType==opCodeType::external_call)
-    {
-        int index=findLink(it->name,it->opCodeType);
-    }
-  }
-}
-*/
+
 
 
 #endif
