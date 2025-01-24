@@ -2019,6 +2019,7 @@ void saveBinary(char *name, fs::FS &fs, Binary *bin)
   root.write(bin->binary_data, bin->tmp_instruction_size);
   root.write(bin->function_data, bin->function_size);
   root.close();
+  
 }
 
 void loadBinary(char *name, fs::FS &fs, Binary *bin)

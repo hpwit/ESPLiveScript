@@ -657,7 +657,7 @@ public:
             {
                 return;
             }
-            current_node->getChildAtPos(current_node->children_size() - 1)->getChildAtPos(2)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
+            current_node->getChildAtPos(current_node->children_size() - 1)->getChildAtPos(0)->getChildAtPos(0)->copyChildren(_node_token_stack.back());
             _node_token_stack.pop_back();
             isStructFunction = false;
             Error.error = 0;
@@ -964,9 +964,10 @@ public:
         }
 
         // NodeExtCallFunction function = NodeExtCallFunction(t);
+            _nd.target=search_result_index;
         current_node = current_node->addChild(_nd);
         // current_node->copyChildren(search_result);
-        current_node->addChild(NodeToken(search_result->getChildAtPos(0)));
+       // current_node->addChild(NodeToken(search_result->getChildAtPos(0)));
 
         // if (search_result->getChildAtPos(0)->_vartype == __float__ and change_type.size() > 0)
         //   change_type.back()->_vartype = __float__;
@@ -983,20 +984,20 @@ public:
                 }
             }
         }
-        NodeToken *o = current_node->addChild(NodeToken(search_result->getChildAtPos(1)));
-        o->copyChildren(search_result->getChildAtPos(1));
+      //  NodeToken *o = current_node->addChild(NodeToken(search_result->getChildAtPos(1)));
+      //  o->copyChildren(search_result->getChildAtPos(1));
 
         // sav_nb_arg = function._link->getChildAtPos(1)->children_size();
 
-        nb_sav_args.push_back(current_node->getChildAtPos(1)->children_size());
+        nb_sav_args.push_back(search_result->getChildAtPos(1)->children_size());
         if (isStructFunction)
         {
             // nb_sav_args.push_back( nb_sav_args.back()-1);
             isStructFunction = false;
         }
-        for (int i = 0; i < current_node->getChildAtPos(1)->children_size(); i++)
+        for (int i = 0; i < search_result->getChildAtPos(1)->children_size(); i++)
         {
-            if (current_node->getChildAtPos(1)->getChildAtPos(i)->_vartype == __Args__)
+            if (search_result->getChildAtPos(1)->getChildAtPos(i)->_vartype == __Args__)
             {
 
                 nb_sav_args.pop_back();
@@ -1004,7 +1005,7 @@ public:
             }
         }
 
-        current_node->_vartype = current_node->getChildAtPos(0)->_vartype;
+        current_node->_vartype = search_result->getChildAtPos(0)->_vartype;
 
         current_node->addChild(_node_token_stack.back());
         _node_token_stack.pop_back();
@@ -3578,6 +3579,7 @@ void saveBin(Console *cons, vector<string> args)
         __parser_debug = false;
         bin = p.parse_cBinary(&cons->script);
         saveBinary((char *)(fileSystem.current_path + args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
+        freeBinary(&bin);
     }
     else
         LedOS.pushToConsole("filename missing ...", true);
