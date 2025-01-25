@@ -1743,7 +1743,7 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
   return _binary_header;
 }
 
-error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, uint32_t address, uint32_t _exec, executable *finalexe, int offset)
+error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, uint8_t *_binary_data, uint32_t _exec, executable *finalexe, int offset)
 {
   error_message_struct error;
   uint16_t nb_data = 0;
@@ -1751,13 +1751,17 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
   uint16_t nb_objects = 0;
   uint8_t type;
   uint16_t text_size;
+  uint32_t address;
+  
   uint32_t bincode;
   uint32_t _address;
   uint16_t size;
 
   char *textptr;
   char *textptr2;
-
+ #ifndef __TEST_DEBUG
+  address=(uint32_t)_binary_data;
+  #endif
   memcpy(&nb_objects, binary_header, 2);
   binary_header = binary_header + 2;
   // printf("nb objecst %u\n", nb_objects);
@@ -1852,7 +1856,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       binary_header = binary_header + 2;
       memcpy(&size, binary_header, 2);
       binary_header = binary_header + 2;
-      memcpy(binary_data + _address, exec + offset + tmp_data, size);
+      memcpy(_binary_data + _address, exec + offset + tmp_data, size);
     }
     break;
 
@@ -1903,11 +1907,10 @@ executable _createExcutablefromBinary(Binary *bin)
 
   // printf("on cree un executbale de taiile %d et data %d \n",bin->instruction_size,bin->data_size);
   uint32_t *exec = (uint32_t *)heap_caps_malloc(bin->instruction_size, MALLOC_CAP_EXEC);
-  if (binary_data != NULL)
-    free(binary_data);
-  binary_data = (uint8_t *)malloc(bin->data_size);
 
-  error = decodeBinaryHeader(bin->binary_data, bin->function_data, (uint32_t)binary_data, (uint32_t)exec, &exe, bin->instruction_size);
+ uint8_t * _binary_data = (uint8_t *)malloc(bin->data_size);
+
+  error = decodeBinaryHeader(bin->binary_data, bin->function_data, _binary_data, (uint32_t)exec, &exe, bin->instruction_size);
 
   if (exe.functions.size() == 0)
   {
@@ -1934,7 +1937,7 @@ executable _createExcutablefromBinary(Binary *bin)
     exe.functions[i].address = (uint32_t)((exe.functions[i].address) / 4);
   }
   exe.start_program = exec;
-  exe.data = binary_data;
+  exe.data = _binary_data;
   exe.binary_size = _instr_size;
   exe.data_size = _data_size;
 
