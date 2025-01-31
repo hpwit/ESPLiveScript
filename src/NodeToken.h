@@ -2294,7 +2294,7 @@ void _visitcallConstructorNode(NodeToken *nd)
         bufferText->addAfter("movi a6,0");
         bufferText->addAfter(string_format("loop_label_%d:", for_if_num));
     }
-    bufferText->addAfter("mov a11,a5");
+    bufferText->addAfter("mov a10,a5");
     // bufferText->addAfter("mov a10,a2");
     bufferText->addAfter(string_format("call8 @_%s._@%s()", nd->getVarType()->varName.c_str(), nd->getVarType()->varName.c_str()));
     if (size > 1)
@@ -2334,7 +2334,7 @@ void _visitlocalVariableNode(NodeToken *nd)
                 // bufferText->addAfter(string_format("l32i a%d,a1,%d", register_numl.get(),start-(int)(start/1000)*1000));
                 asmInstruction asmInstr = v->load[0];
                 // bufferText->addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), start/1000));
-                bufferText->addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), 3, start / 1000));
+                bufferText->addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), 2, start / 1000));
                 translateType(globalType.get(), v->_varType, register_numl.get());
                 // bufferText->addAfter(string_format("l16si a%d,a%d,%d", register_numl.get(),register_numl.get(),start/1000));
             }
@@ -3356,7 +3356,7 @@ NodeToken *func=_functions[nd->target];
                       // bufferText->addAfterNoDouble(string_format("l32r a%d,@_stack_%s", save,nd->getTokenText())); // point_regnum
         if (func->getChildAtPos(1)->children_size() == 0 and t->type == TokenUserDefinedVariableMemberFunction)
         {
-            bufferText->addAfter(bufferText->sp.pop(), string_format("mov a11,a3"));
+            bufferText->addAfter(bufferText->sp.pop(), string_format("mov a10,a2"));
         }
         for (int i = 0; i < func->getChildAtPos(1)->children_size(); i++)
         {
@@ -3376,12 +3376,12 @@ NodeToken *func=_functions[nd->target];
                     // printf("*******onr en ocoi******\r\n");
                     if (!isStructFunction)
                     {
-                        bufferText->addAfter(bufferText->sp.pop(), string_format("mov a11,a%d", register_numl.get()));
+                        bufferText->addAfter(bufferText->sp.pop(), string_format("mov a10,a%d", register_numl.get()));
                     }
                     else
                     {
                         // bufferText->pop();
-                        bufferText->addAfter(bufferText->sp.pop(), string_format("mov a11,a3"));
+                        bufferText->addAfter(bufferText->sp.pop(), string_format("mov a10,a2"));
                     }
                 }
                 else
@@ -3973,7 +3973,7 @@ void _visitstoreLocalVariableNode(NodeToken *nd)
 
                 if (isStructFunction)
                 {
-                    bufferText->addAfter(string_format("addi a%d,a%d,%d", point_regnum, 3, (int)(nd->stack_pos / 1000)));
+                    bufferText->addAfter(string_format("addi a%d,a%d,%d", point_regnum, 2, (int)(nd->stack_pos / 1000)));
                 }
                 else
                 {
@@ -4147,7 +4147,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
     bufferText->end();
     if (isStructFunction)
     {
-        bufferText->addAfter(string_format("s32i a3,a1,%d", _STACK_SIZE));
+        bufferText->addAfter(string_format("s32i a2,a1,%d", _STACK_SIZE));
     }
     bufferText->sp.pop();
     // if(!nd->isPointer)
