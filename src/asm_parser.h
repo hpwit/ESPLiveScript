@@ -671,6 +671,15 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
 
     return ps;
   }
+   if (sp.opcde.compare("blti") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_blti, 3, bin_blti);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
   if (sp.opcde.compare("bltu") == 0)
   {
 

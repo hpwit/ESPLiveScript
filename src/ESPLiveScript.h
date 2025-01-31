@@ -3,7 +3,7 @@
 #pragma once
 
 #include <string>
-#include <variant>
+//#include <variant>
 #include <vector>
 using namespace std;
 
@@ -2093,13 +2093,23 @@ public:
         // Token func = *current();
         NodeToken nd;
         main_context.findFunction(current());
+        bool isdeclaration= false;
         if (search_result != NULL) // if (current_cntx->findFunction(current()) != NULL)
         {
 
-            Error.error = 1;
-            Error.error_message = string_format("function already %s  declared in the scope for %s", current()->getText(), linepos().c_str());
-            next();
-            return;
+            if(search_result->_nodetype!=declarationFunctionNode)
+            {
+
+                Error.error = 1;
+                Error.error_message = string_format("function already %s  declared in the scope for %s", current()->getText(), linepos().c_str());
+                next();
+                return;
+            }
+            else
+            {
+                isdeclaration=true;
+            }
+
         }
         if (ext_function)
         {
@@ -2154,7 +2164,11 @@ public:
         }
         // printf("signature %s%s\r\n", current_node->getTokenText(), signature.c_str());
         current_node->setTokenText(string_format("%s%s", current_node->getTokenText(), signature.c_str()));
-        main_context.addFunction(current_node);
+        if(!isdeclaration)
+        {
+             main_context.addFunction(current_node);
+        }
+
 
         if (!Match(TokenCloseParenthesis))
         {
@@ -2168,7 +2182,7 @@ public:
         {
             if (Match(TokenSemicolon))
             {
-                ;
+                
                 Error.error = 0;
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
@@ -2182,6 +2196,15 @@ public:
                 next();
                 return;
             }
+        }
+        else if (Match(TokenSemicolon))
+        {
+            (_functions.back())->_nodetype=declarationFunctionNode;
+                Error.error = 0;
+                current_cntx = current_cntx->parent;
+                current_node = current_node->parent;
+                next();
+                return;
         }
         else
         {

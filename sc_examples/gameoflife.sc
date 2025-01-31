@@ -1,21 +1,13 @@
-//external CRGB *leds;
-//external CRGB *ope;
 
-//external void clear();
-//external void show();
-//external void display(int h);
-//external CRGB hsv(uint8_t h, uint8_t s, uint8_t v);
-//external void resetStat();
-//external CRGB hsv2(uint8_t h,uint8_t s,uint8_t v);
-//external void __feed();
-
-char copy[96,128];
-uint8_t line1[128];
-uint8_t linec[128];
+ 
+ #define width 128
+ #define height 128
+ import rand
+char copy[height,width];
+uint8_t line1[width];
+uint8_t linec[width];
 int size;
-int height;
-int width;
-//int res;
+
 CRGB palette[18];
 int kl[18];
 
@@ -57,7 +49,7 @@ res=res+copy[j+1,i-1]+copy[j+1,i+1]+copy[j+1,i];
          int po = 0;
          int gh = width * j + i;
          int l = copy[j,i];
-         int gh2 = j * 128 + i;
+         int gh2 = j * width + i;
 if(res==3)
 
 //int hqs=0;
@@ -95,8 +87,7 @@ else
 int main()
 {
 resetStat();
-   width = 128;
-   height = 96;
+
    for (int h = 0; h < width * height; h++)
  {
 //      display(rand(2));

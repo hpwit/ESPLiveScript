@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <variant>
+//#include <variant>
 
 using namespace std;
 
@@ -210,6 +210,7 @@ enum nodeType
     ternaryIfNode,
     callConstructorNode,
     defInputArgumentsNode,
+    declarationFunctionNode,
     UnknownNode
 
 };
@@ -261,6 +262,7 @@ string nodeTypeNames[] =
         "ternaryIfNode",
         "callConstructorNode",
         "defInputArgumentsNode",
+        "declarationFunctionNode",
         "UnknownNode"
 
 #endif
@@ -1927,6 +1929,7 @@ void _visitoperatorNode(NodeToken *nd)
         bufferText->addAfter(string_format("srl a%d,a%d", register_numl.get(), register_numl.get()).c_str());
         break;
     case TokenSubstraction:
+    {
         if (ff)
         {
             asmInstr = subs;
@@ -1935,9 +1938,33 @@ void _visitoperatorNode(NodeToken *nd)
         {
             asmInstr = sub;
         }
-        bufferText->addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get()));
+       string new_line = string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get());
+
+        string _last = bufferText->back();
+        string tocmp = string_format("movi a%d,", register_numr.get());
+        // printf("to found %s\r\n",_last,tocmp);
+        if (_last.compare(0, tocmp.size(), tocmp) == 0)
+        {
+            //   printf("to found %s\r\n",_last,tocmp);
+            int a, b;
+            sscanf(_last.c_str(), "movi a%d,%d", &a, &b);
+            if (b >= -128 and b <= 127)
+            {
+                bufferText->pop();
+                bufferText->addAfter(string_format("addi a%d,a%d,-%d", register_numl.get(), register_numl.get(), b));
+            }
+            else
+            {
+                bufferText->addAfter(new_line);
+            }
+        }
+        else
+        {
+            bufferText->addAfter(new_line);
+        }
         // bufferText->addAfter(string_format("sub a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
         // return;
+    }
         break;
     case TokenSlash:
         // bufferText->addAfter(string_format("quou a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
@@ -2006,21 +2033,35 @@ void _visitoperatorNode(NodeToken *nd)
         {
 
             sscanf(nd->getChildAtPos(1)->getTokenText(), "%d", &__num);
-
-            if (ff)
+            if(__num>2)
             {
-                bufferText->addAfter(string_format("mov.s f10,f%d", register_numl.get()));
-                asmInstr = muls;
+                if (ff)
+                {
+                    bufferText->addAfter(string_format("mov.s f10,f%d", register_numl.get()));
+                    asmInstr = muls;
+                }
+                else
+                {
+                    bufferText->addAfter(string_format("mov a10,a%d", register_numl.get()));
+                    asmInstr = mull;
+                }
+                for (int k = 1; k < __num; k++)
+                {
+                    bufferText->addAfter(string_format("%s %s%d,%s%d,%s10", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str()));
+                }
             }
             else
             {
-                bufferText->addAfter(string_format("mov a10,a%d", register_numl.get()));
-                asmInstr = mull;
+                if(ff)
+                {
+asmInstr = muls;
+                }
+                else{
+ asmInstr = mull;
+                }
+                bufferText->addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(),register_numl.get()));
             }
-            for (int k = 1; k < __num; k++)
-            {
-                bufferText->addAfter(string_format("%s %s%d,%s%d,%s10", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str()));
-            }
+
         }
     }
     break;
@@ -3414,7 +3455,7 @@ NodeToken *func=_functions[nd->target];
     }
     else
     {
-        _visitCallFunctionTemplate(nd, 11, false);
+        _visitCallFunctionTemplate(nd, 10, false);
     }
     int start = nd->stack_pos;
     // printf("ini\r\n");
@@ -3721,7 +3762,7 @@ void _visitdefInputArgumentsNode(NodeToken *nd)
     }
     else
     {
-        int reg_num = 3;
+        int reg_num = 2;
         for (int i = 0; i < nd->children_size(); i++)
         {
             // printf("ee\r\n");

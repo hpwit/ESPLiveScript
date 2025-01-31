@@ -2,7 +2,7 @@
 #ifndef __ASM_EXECUTE
 #define __ASM_EXECUTE
 #include <vector>
-#include <variant>
+//#include <variant>
 #ifndef __RUN_CORE
 #define __RUN_CORE 0
 #endif
