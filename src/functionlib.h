@@ -48,7 +48,7 @@ __ASM__ float __div(float a,float b)\n\
 \"divn.s f0, f2, f6\"\n\
 \"retw.n\"\n\
 }@";
-
+#if _TRIGGER ==0
 string _rand="\
 __ASM__ uint32_t rand(uint32_t mod) \n\
 {\n\
@@ -67,7 +67,25 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 //\"s32i a15,a4,0\" \n\
 \"retw.n\" \n\
 }@";
-
+#else
+string _rand="\__ASM__ uint32_t rand(uint32_t mod) \n\
+{\n\
+\"entry a1,56\" \n\
+//\"l32r a4,@_stack_rand(d)\" \n\
+//\"l32i a3,a4,0\" \n\
+\"rsr a14,234\" \n\
+\"mov a13,a14\" \n\
+\"mull a14,a14,a14\" \n\
+\"mull a14,a14,a13\" \n\
+\"mull a14,a14,a14\" \n\
+\"add a14,a14,a13\" \n\
+\"addi a14,a13,1\" \n\
+\"remu a2,a14,a2\" \n\
+//\"l32r a4,@_stackr\" \n\
+//\"s32i a15,a4,0\" \n\
+\"retw.n\" \n\
+}@";
+#endif
 string _copycode="\
 __ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
 { \n\

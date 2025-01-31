@@ -2493,7 +2493,9 @@ void _visitdefFunctionNode(NodeToken *nd)
     bufferText->addAfter(string_format("@_%s:", nd->getTokenText()));
     bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
     int sav = 9;
+    #if _TRIGGER==0
     bufferText->addAfterNoDouble(string_format("l32r a%d,@_stack_%s", sav, nd->getTokenText()));
+    #endif
     if (saveReg)
     {
         bufferText->addAfter("ssi f15,a1,16");
@@ -3298,7 +3300,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
     bufferText->end();
     for (int i = 0; i < nd->getChildAtPos(0)->children_size(); i++)
     {
-        if (i < 6)
+        if (i < 7)
         {
             if (saveinstack[i] == true)
             {
@@ -3763,10 +3765,14 @@ void _visitdefInputArgumentsNode(NodeToken *nd)
     else
     {
         int reg_num = 2;
+        int stek=((nd->parent->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE;
         for (int i = 0; i < nd->children_size(); i++)
         {
+             int start = nd->getChildAtPos(i)->stack_pos;
             // printf("ee\r\n");
-            int start = nd->getChildAtPos(i)->stack_pos;
+            if(reg_num<=7)
+            {
+           
             // if (nd->getChildAtPos(i)->isPointer)
             //{
             // printf("ee p\r\n");
@@ -3788,6 +3794,14 @@ void _visitdefInputArgumentsNode(NodeToken *nd)
                 bufferText->addAfter(string_format("%s a%d,a1,%d", asmInstructionsName[asmInstr].c_str(), reg_num, start));
             }
             reg_num++;
+            }
+            else
+            {
+                asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->load[0];
+                bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(),stek+ start-nd->getChildAtPos(6)->stack_pos));
+                 asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
+                bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(), start));
+            }
             /*
             }
             else
@@ -4599,6 +4613,49 @@ void optimize(Text *text)
                     }
                 }
             }
+        }
+    }
+string before=" ";
+int indexbefore=0;
+    for(int i=0;i<text->size();i++)
+    {
+        if(*text->getChildAtPos(i)!=NULL)
+        {
+        string tmp=string((*text->getChildAtPos(i)));
+        if(tmp.compare(" ")!=0 && tmp!="")
+        {
+        vector<string> d2 = split(tmp, " ");
+        // printf("on regarde %s %s\n\r",before.c_str(),tmp.c_str());
+        if(d2[0].compare("mov")==0)
+        {
+        // printf("on regarde mov |%s|%s|\n\r",before.c_str(),tmp.c_str());
+            vector<string> d= split(before, " ");
+
+            if (  d[0].compare("mull") == 0 or d[0].compare("sub") == 0 or d[0].compare("add") == 0  or d[0].compare("mov") == 0 or d[0].compare("movi") == 0 or d[0].compare("l32i") == 0 or d[0].compare("l32r") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("addi") == 0)        
+            {
+                vector<string> p=split(d[1],",");
+                 vector<string> p2=split(d2[1],",");
+                 if(p[0].compare(p2[1])==0)
+                 {
+                   // prtinf("replace %s\n %s by %s\n\r",before.c_str(),tmp.c_str(),)
+                    text->replaceText(indexbefore, " ");
+                    string newstr=d[0]+" "+p2[0];
+                    for (int k=1;k<p.size();k++)
+                    {
+                        newstr=newstr+","+p[k];
+                    }
+          //           printf("replace %s\n %s by %s\n\r",before.c_str(),tmp.c_str(),newstr.c_str());
+                    text->replaceText(i,newstr);
+                    tmp=newstr;
+                 }
+            }     
+        } 
+        
+           
+            before=tmp;
+            indexbefore=i;
+        }
+        
         }
     }
 }
