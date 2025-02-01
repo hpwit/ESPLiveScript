@@ -627,6 +627,11 @@ public:
             // nd.copyChildren(search_result);
             if (search_result->_nodetype == defGlobalVariableNode)
                 nd._nodetype = globalVariableNode;
+            else if(search_result->_nodetype == defLocalVariableNodeAsRegister)
+            {
+                 nd._nodetype = localVariableNodeAsRegister;
+                 nd.target=search_result->target;
+            }
             else
                 nd._nodetype = localVariableNode;
 
@@ -1347,6 +1352,9 @@ public:
                 case storeLocalVariableNode:
                     _d->_nodetype = localVariableNode;
                     break;
+                case storeLocalVariableNodeAsRegister:
+                    _d->_nodetype = localVariableNodeAsRegister;
+                    break;
                 }
                 __t = sav_t.back();
                 switch (__t.type)
@@ -1603,6 +1611,7 @@ public:
             // //printf("entering f %d %s %s %x\n", current_cntx->_global->children_size(), current_cntx->_global->name.c_str(), current()->text.c_str(), (uint64_t)current_cntx->_global);
             // current_cntx = current_cntx->addChild(cntx);
             current_cntx = current_cntx->addChild(Context());
+           
             // current_cntx = k;
             // string target =string_format("label_%d%s",for_if_num,current_cntx->name.c_str());
             targetList.push(string_format("label_%d", for_if_num));
@@ -1619,8 +1628,16 @@ public:
                 next();
                 current_node = current_node->addChild(NodeToken(statementNode));
                 //  __current.push( current());
+ _is_variable_as_register=false;
 
+ if(_for_depth_reg<=_MAX_FOR_DEPTH_REG)
+ {
+     _is_variable_as_register=true;
+ }
+  
                 parseStatement();
+                _for_depth_reg++;
+                 _is_variable_as_register=false;
                 // __sav_pos = _tks->position;
                 // deleteNotNeededToken(__current.pop(), current());
                 //  _tks->position = __sav_pos;
@@ -1678,6 +1695,7 @@ public:
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
                 //  current_node=current_node->parent;
+                _for_depth_reg--;
                 return;
             }
             else
@@ -1807,7 +1825,15 @@ public:
                     if (search_result->_nodetype == defGlobalVariableNode)
                         nd._nodetype = globalVariableNode;
                     else
+                    {
+                        if(search_result->_nodetype == defLocalVariableNodeAsRegister)
+                        {
+                        nd._nodetype= localVariableNodeAsRegister;
+                        nd.target=search_result->target;
+                        }
+                    else
                         nd._nodetype = localVariableNode; // globalVariableNode;
+                    }
                     nd.type = TokenUserDefinedVariableMemberFunction;
                     nd.isPointer = true;
                     nd._total_size = search_result->getVarType()->total_size;
@@ -1845,6 +1871,11 @@ public:
                 if (_uniquesave.getNodeTokenType() == defLocalVariableNode)
                 {
                     _uniquesave._nodetype = (int)storeLocalVariableNode;
+                }
+                else if(_uniquesave.getNodeTokenType() == defLocalVariableNodeAsRegister)
+                {
+_uniquesave._nodetype = (int)storeLocalVariableNodeAsRegister;
+
                 }
                 else
                 {
@@ -2019,6 +2050,15 @@ public:
         NodeToken _t = nodeTokenList.pop();
 
         copyPrty(&_t, &_nd);
+       // if(_is_variable_as_register)
+       //  _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
+       // else
+       if(_is_variable_as_register)
+       {
+       _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
+       _nd.target=_for_depth_reg;
+       }
+       else
         _nd = NodeToken(_nd, defLocalVariableNode);
 
         // NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
@@ -2052,7 +2092,13 @@ public:
             NodeToken _t = nodeTokenList.pop();
 
             copyPrty(&_t, &_nd);
-            _nd = NodeToken(_nd, defLocalVariableNode);
+           if(_is_variable_as_register)
+          { 
+       _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
+       _nd.target=_for_depth_reg;
+          }
+       else
+        _nd = NodeToken(_nd, defLocalVariableNode);
             //  NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
             // _nd._nodetype=(int)defLocalVariableNode;
             // arg.addChild(var);
@@ -2075,6 +2121,9 @@ public:
 #ifdef PARSER_DEBUG
         updateMem();
 #endif
+_for_depth_reg=2;
+if(isStructFunction)
+_for_depth_reg++;
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
@@ -2721,6 +2770,8 @@ public:
 
             if (d._nodetype == storeGlobalVariableNode)
                 d._nodetype = globalVariableNode;
+            else if (d._nodetype == storeLocalVariableNodeAsRegister)
+            d._nodetype = localVariableNodeAsRegister;
             else
                 d._nodetype = localVariableNode;
             d.type = TokenUserDefinedVariableMemberFunction;

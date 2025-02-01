@@ -11,6 +11,9 @@ using namespace std;
 #include "tokenizer.h"
 #include "asm_external.h"
 
+#define _MAX_FOR_DEPTH_REG 0
+int _for_depth_reg=0;
+bool _is_variable_as_register=false;
 void pushToConsole(string str, bool force)
 {
 #ifdef __CONSOLE_ESP32
@@ -174,6 +177,7 @@ enum nodeType
     operatorNode,
     globalVariableNode,
     localVariableNode,
+    localVariableNodeAsRegister,
     blockStatementNode,
     defFunctionNode,
     statementNode,
@@ -193,7 +197,9 @@ enum nodeType
     defExtGlobalVariableNode,
     defGlobalVariableNode,
     defLocalVariableNode,
+    defLocalVariableNodeAsRegister,
     storeLocalVariableNode,
+    storeLocalVariableNodeAsRegister,
     storeGlobalVariableNode,
     storeExtGlocalVariableNode,
     ifNode,
@@ -226,6 +232,7 @@ string nodeTypeNames[] =
         "operatorNode",
         "globalVariableNode",
         "localVariableNode",
+        "localVariableNodeAsRegister",
         "blockStatementNode",
         "defFunctionNode",
         "statementNode",
@@ -245,7 +252,9 @@ string nodeTypeNames[] =
         "defExtGlobalVariableNode",
         "defGlobalVariableNode",
         "defLocalVariableNode",
+        "defLocalVariableNodeAsRegister",
         "storeLocalVariableNode",
+        "storeLocalVariableNodeAsRegister",
         "storeGlobalVariableNode",
         "storeExtGlocalVariableNode",
         "ifNode",
@@ -347,6 +356,7 @@ void _visitunitaryOpNode(NodeToken *nd);
 void _visitoperatorNode(NodeToken *nd);
 void _visitglobalVariableNode(NodeToken *nd);
 void _visitlocalVariableNode(NodeToken *nd);
+void _visitlocalVariableNodeAsRegister(NodeToken *nd);
 void _visitblockStatementNode(NodeToken *nd);
 void _visitdefFunctionNode(NodeToken *nd);
 void _visitstatementNode(NodeToken *nd);
@@ -368,6 +378,7 @@ void _visitdefExtGlobalVariableNode(NodeToken *nd);
 void _visitdefGlobalVariableNode(NodeToken *nd);
 void _visitdefLocalVariableNode(NodeToken *nd);
 void _visitstoreLocalVariableNode(NodeToken *nd);
+void _visitstoreLocalVariableNodeAsRegister(NodeToken *nd);
 void _visitstoreGlobalVariableNode(NodeToken *nd);
 void _visitstoreExtGlocalVariableNode(NodeToken *nd);
 void _visitifNode(NodeToken *nd);
@@ -899,7 +910,12 @@ public:
         case ifNode:
             _visitifNode(this);
             break;
-
+            case localVariableNodeAsRegister:
+ _visitlocalVariableNodeAsRegister(this);
+ break;
+             case storeLocalVariableNodeAsRegister:
+ _visitstoreLocalVariableNodeAsRegister(this);
+ break;
         case elseNode:
             _visitelseNode(this);
             break;
@@ -1226,6 +1242,7 @@ void copyPrty(NodeToken *from, NodeToken *to)
     to->stack_pos = from->stack_pos;
     to->_vartype = from->_vartype;
     to->type = from->type;
+    //to->target=from->target;
     to->_total_size = to->_total_size * from->getVarType()->_varSize;
 }
 varTypeEnum findfloat(NodeToken *nd)
@@ -1330,6 +1347,47 @@ void createNodeVariable(Token *_var, bool isStore)
         }
     }
     break;
+        case defLocalVariableNodeAsRegister:
+    {
+        if (isStore == true)
+        {
+            // NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
+            v._nodetype = storeLocalVariableNodeAsRegister;
+            v.target=search_result->target;
+            //  asPointer=false;
+            //  return;
+        }
+        else
+        {
+            // NodeLocalVariable v = NodeLocalVariable(_var);
+            v._nodetype = (int)localVariableNodeAsRegister;
+            v.target=search_result->target;
+            // current_node->asPointer=asPointer;
+            //  return;
+        }
+    }
+    break;
+    case localVariableNodeAsRegister:
+    {
+        if (isStore == true)
+        {
+            // NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
+            v._nodetype = storeLocalVariableNodeAsRegister;
+            v.target=search_result->target;
+            // current_node->asPointer=asPointer;
+            //  asPointer=false;
+            //  return;
+        }
+        else
+        {
+            // NodeLocalVariable v = NodeLocalVariable(_var);
+            v._nodetype = (int)localVariableNodeAsRegister;
+            v.target=search_result->target;
+            // current_node->asPointer=asPointer;
+            //  return;
+        }
+    }
+    break;
     case defLocalVariableNode:
     {
         if (isStore == true)
@@ -1343,7 +1401,7 @@ void createNodeVariable(Token *_var, bool isStore)
         else
         {
             // NodeLocalVariable v = NodeLocalVariable(_var);
-            v._nodetype = (int)localVariableNode;
+            v._nodetype = localVariableNode;
             // current_node->asPointer=asPointer;
             //  return;
         }
@@ -1354,7 +1412,8 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore == true)
         {
             //  NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
-            v._nodetype = (int)storeLocalVariableNode;
+            
+            v._nodetype = storeLocalVariableNode;
             // current_node->asPointer=asPointer;
             //            return;
         }
@@ -1411,14 +1470,14 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore == true)
         {
             //  NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
-            v._nodetype = (int)storeLocalVariableNode;
+            v._nodetype = storeLocalVariableNode;
             // current_node->asPointer=asPointer;
             //            return;
         }
         else
         {
             // NodeLocalVariable v = NodeLocalVariable(_var);
-            v._nodetype = (int)localVariableNode;
+            v._nodetype = localVariableNode;
             // current_node->asPointer=asPointer;
             // §            return;
         }
@@ -1454,7 +1513,10 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
     break;
     case defLocalVariableNode:
     {
+
         NodeToken v = NodeToken(var, defLocalVariableNode);
+        if(_is_variable_as_register)
+        v._nodetype=defLocalVariableNodeAsRegister;
         copyPrty(&nd, &v);
         return v;
     }
@@ -1465,6 +1527,12 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
 
         copyPrty(&nd, &var);
         NodeToken v = NodeToken(var, defLocalVariableNode);
+                if(_is_variable_as_register)
+                {
+        v._nodetype=defLocalVariableNodeAsRegister;
+        v.target=_for_depth_reg;
+                }
+         copyPrty(&nd, &v);
         //  NodeDefLocalVariable v = NodeDefLocalVariable(var);
 
         return v;
@@ -1576,6 +1644,15 @@ string _data_sav;
 Stack<varTypeEnum> globalType = Stack<varTypeEnum>(__int__);
 
 void _visittypeNode(NodeToken *nd) {}
+void _visitstoreLocalVariableNodeAsRegister(NodeToken *nd)
+{
+ bufferText->addAfter(string_format("mov a%d,a%d",nd->target,register_numl.get()));
+}
+void _visitlocalVariableNodeAsRegister(NodeToken *nd)
+{
+    bufferText->addAfter(string_format("mov a%d,a%d",register_numl.get(),nd->target));
+    register_numl.decrease();
+}
 void _visitnumberNode(NodeToken *nd)
 {
     // //printf("in number\n");
