@@ -8,7 +8,7 @@
 using namespace std;
 
 #ifndef _TRIGGER
-#define _TRIGGER 0
+#define _TRIGGER 20
 #endif
 
 #ifndef __TEST_DEBUG

@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-//#include <variant>
+// #include <variant>
 
 using namespace std;
 
@@ -11,9 +11,9 @@ using namespace std;
 #include "tokenizer.h"
 #include "asm_external.h"
 
-#define _MAX_FOR_DEPTH_REG 0
-int _for_depth_reg=0;
-bool _is_variable_as_register=false;
+#define _MAX_FOR_DEPTH_REG 3
+int _for_depth_reg = 0;
+bool _is_variable_as_register = false;
 void pushToConsole(string str, bool force)
 {
 #ifdef __CONSOLE_ESP32
@@ -590,21 +590,21 @@ public:
     }
     NodeToken *addChild(NodeToken nd)
     {
-        //nd.parent = this;
-        // nd.children->clear();
+        // nd.parent = this;
+        //  nd.children->clear();
 
         // printf("ok pour crear %s\n",nodeTypeNames[j._nodetype].c_str());
         __tmpToken = new NodeToken();
-              __tmpToken->type = nd.type;
-         __tmpToken->textref = nd.textref;
+        __tmpToken->type = nd.type;
+        __tmpToken->textref = nd.textref;
         __tmpToken->_vartype = nd._vartype;
-         __tmpToken->_nodetype = nd._nodetype;
-         __tmpToken->isPointer = nd.isPointer;
-         __tmpToken->asPointer = nd.asPointer;
-         __tmpToken->_total_size = nd._total_size;
-         __tmpToken->stack_pos = nd.stack_pos;
-         __tmpToken->target = nd.target;
-         __tmpToken->parent=this;
+        __tmpToken->_nodetype = nd._nodetype;
+        __tmpToken->isPointer = nd.isPointer;
+        __tmpToken->asPointer = nd.asPointer;
+        __tmpToken->_total_size = nd._total_size;
+        __tmpToken->stack_pos = nd.stack_pos;
+        __tmpToken->target = nd.target;
+        __tmpToken->parent = this;
         __tmpToken->children = NULL;
         if (children == NULL)
         {
@@ -618,16 +618,16 @@ public:
         nd.parent = this;
         // nd.children->clear();
         __tmpToken = new NodeToken();
-                     __tmpToken->type = nd.type;
-         __tmpToken->textref = nd.textref;
+        __tmpToken->type = nd.type;
+        __tmpToken->textref = nd.textref;
         __tmpToken->_vartype = nd._vartype;
-         __tmpToken->_nodetype = nd._nodetype;
-         __tmpToken->isPointer = nd.isPointer;
-         __tmpToken->asPointer = nd.asPointer;
-         __tmpToken->_total_size = nd._total_size;
-         __tmpToken->stack_pos = nd.stack_pos;
-         __tmpToken->target = nd.target;
-         __tmpToken->parent=this;
+        __tmpToken->_nodetype = nd._nodetype;
+        __tmpToken->isPointer = nd.isPointer;
+        __tmpToken->asPointer = nd.asPointer;
+        __tmpToken->_total_size = nd._total_size;
+        __tmpToken->stack_pos = nd.stack_pos;
+        __tmpToken->target = nd.target;
+        __tmpToken->parent = this;
         __tmpToken->children = NULL;
 
         __tmpToken->children = NULL;
@@ -910,12 +910,12 @@ public:
         case ifNode:
             _visitifNode(this);
             break;
-            case localVariableNodeAsRegister:
- _visitlocalVariableNodeAsRegister(this);
- break;
-             case storeLocalVariableNodeAsRegister:
- _visitstoreLocalVariableNodeAsRegister(this);
- break;
+        case localVariableNodeAsRegister:
+            _visitlocalVariableNodeAsRegister(this);
+            break;
+        case storeLocalVariableNodeAsRegister:
+            _visitstoreLocalVariableNodeAsRegister(this);
+            break;
         case elseNode:
             _visitelseNode(this);
             break;
@@ -1055,16 +1055,16 @@ public:
     void addFunction(NodeToken *nd)
     {
         NodeToken *__tmpToken = new NodeToken();
-                      __tmpToken->type = nd->type;
-         __tmpToken->textref = nd->textref;
+        __tmpToken->type = nd->type;
+        __tmpToken->textref = nd->textref;
         __tmpToken->_vartype = nd->_vartype;
-         __tmpToken->_nodetype = nd->_nodetype;
-         __tmpToken->isPointer = nd->isPointer;
-         __tmpToken->asPointer = nd->asPointer;
-         __tmpToken->_total_size = nd->_total_size;
-         __tmpToken->stack_pos = nd->stack_pos;
-         __tmpToken->target = nd->target;
-         __tmpToken->parent=NULL;
+        __tmpToken->_nodetype = nd->_nodetype;
+        __tmpToken->isPointer = nd->isPointer;
+        __tmpToken->asPointer = nd->asPointer;
+        __tmpToken->_total_size = nd->_total_size;
+        __tmpToken->stack_pos = nd->stack_pos;
+        __tmpToken->target = nd->target;
+        __tmpToken->parent = NULL;
         __tmpToken->children = NULL;
         // printf("add funcion %s\n", nd->getTokenText());
         _functions.push_back(__tmpToken);
@@ -1075,16 +1075,16 @@ public:
     void addVariable(NodeToken nd)
     {
         __tmpToken = new NodeToken();
-              __tmpToken->type = nd.type;
-         __tmpToken->textref = nd.textref;
+        __tmpToken->type = nd.type;
+        __tmpToken->textref = nd.textref;
         __tmpToken->_vartype = nd._vartype;
-         __tmpToken->_nodetype = nd._nodetype;
-         __tmpToken->isPointer = nd.isPointer;
-         __tmpToken->asPointer = nd.asPointer;
-         __tmpToken->_total_size = nd._total_size;
-         __tmpToken->stack_pos = nd.stack_pos;
-         __tmpToken->target = nd.target;
-         //__tmpToken->parent=this;
+        __tmpToken->_nodetype = nd._nodetype;
+        __tmpToken->isPointer = nd.isPointer;
+        __tmpToken->asPointer = nd.asPointer;
+        __tmpToken->_total_size = nd._total_size;
+        __tmpToken->stack_pos = nd.stack_pos;
+        __tmpToken->target = nd.target;
+        //__tmpToken->parent=this;
         __tmpToken->children = NULL;
         if (variables == NULL)
         {
@@ -1216,7 +1216,6 @@ public:
     void findVariable(Token *t, bool isCreation)
     {
         findVariable(t->getText(), isCreation);
-       
     }
     Context *parent = NULL;
     vector<Context *> *children;
@@ -1242,7 +1241,7 @@ void copyPrty(NodeToken *from, NodeToken *to)
     to->stack_pos = from->stack_pos;
     to->_vartype = from->_vartype;
     to->type = from->type;
-    //to->target=from->target;
+    // to->target=from->target;
     to->_total_size = to->_total_size * from->getVarType()->_varSize;
 }
 varTypeEnum findfloat(NodeToken *nd)
@@ -1347,13 +1346,13 @@ void createNodeVariable(Token *_var, bool isStore)
         }
     }
     break;
-        case defLocalVariableNodeAsRegister:
+    case defLocalVariableNodeAsRegister:
     {
         if (isStore == true)
         {
             // NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
             v._nodetype = storeLocalVariableNodeAsRegister;
-            v.target=search_result->target;
+            v.target = search_result->target;
             //  asPointer=false;
             //  return;
         }
@@ -1361,7 +1360,7 @@ void createNodeVariable(Token *_var, bool isStore)
         {
             // NodeLocalVariable v = NodeLocalVariable(_var);
             v._nodetype = (int)localVariableNodeAsRegister;
-            v.target=search_result->target;
+            v.target = search_result->target;
             // current_node->asPointer=asPointer;
             //  return;
         }
@@ -1373,7 +1372,7 @@ void createNodeVariable(Token *_var, bool isStore)
         {
             // NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
             v._nodetype = storeLocalVariableNodeAsRegister;
-            v.target=search_result->target;
+            v.target = search_result->target;
             // current_node->asPointer=asPointer;
             //  asPointer=false;
             //  return;
@@ -1382,7 +1381,7 @@ void createNodeVariable(Token *_var, bool isStore)
         {
             // NodeLocalVariable v = NodeLocalVariable(_var);
             v._nodetype = (int)localVariableNodeAsRegister;
-            v.target=search_result->target;
+            v.target = search_result->target;
             // current_node->asPointer=asPointer;
             //  return;
         }
@@ -1412,7 +1411,7 @@ void createNodeVariable(Token *_var, bool isStore)
         if (isStore == true)
         {
             //  NodeStoreLocalVariable v = NodeStoreLocalVariable(_var);
-            
+
             v._nodetype = storeLocalVariableNode;
             // current_node->asPointer=asPointer;
             //            return;
@@ -1515,8 +1514,8 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
     {
 
         NodeToken v = NodeToken(var, defLocalVariableNode);
-        if(_is_variable_as_register)
-        v._nodetype=defLocalVariableNodeAsRegister;
+        if (_is_variable_as_register)
+            v._nodetype = defLocalVariableNodeAsRegister;
         copyPrty(&nd, &v);
         return v;
     }
@@ -1527,12 +1526,12 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
 
         copyPrty(&nd, &var);
         NodeToken v = NodeToken(var, defLocalVariableNode);
-                if(_is_variable_as_register)
-                {
-        v._nodetype=defLocalVariableNodeAsRegister;
-        v.target=_for_depth_reg;
-                }
-         copyPrty(&nd, &v);
+        if (_is_variable_as_register)
+        {
+            v._nodetype = defLocalVariableNodeAsRegister;
+            v.target = _for_depth_reg;
+        }
+        // copyPrty(&nd, &v);
         //  NodeDefLocalVariable v = NodeDefLocalVariable(var);
 
         return v;
@@ -1646,11 +1645,12 @@ Stack<varTypeEnum> globalType = Stack<varTypeEnum>(__int__);
 void _visittypeNode(NodeToken *nd) {}
 void _visitstoreLocalVariableNodeAsRegister(NodeToken *nd)
 {
- bufferText->addAfter(string_format("mov a%d,a%d",nd->target,register_numl.get()));
+    bufferText->addAfter(string_format("mov a%d,a%d", nd->target, register_numl.get()));
 }
 void _visitlocalVariableNodeAsRegister(NodeToken *nd)
 {
-    bufferText->addAfter(string_format("mov a%d,a%d",register_numl.get(),nd->target));
+    bufferText->addAfter(string_format("movr a%d,a%d", register_numl.get(), nd->target));
+     bufferText->sp.push(bufferText->get());
     register_numl.decrease();
 }
 void _visitnumberNode(NodeToken *nd)
@@ -2015,7 +2015,7 @@ void _visitoperatorNode(NodeToken *nd)
         {
             asmInstr = sub;
         }
-       string new_line = string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get());
+        string new_line = string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get());
 
         string _last = bufferText->back();
         string tocmp = string_format("movi a%d,", register_numr.get());
@@ -2042,7 +2042,7 @@ void _visitoperatorNode(NodeToken *nd)
         // bufferText->addAfter(string_format("sub a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
         // return;
     }
-        break;
+    break;
     case TokenSlash:
         // bufferText->addAfter(string_format("quou a%d,a%d,a%d", register_numl.get(), register_numl.get(), register_numr.get()));
         if (ff)
@@ -2110,7 +2110,7 @@ void _visitoperatorNode(NodeToken *nd)
         {
 
             sscanf(nd->getChildAtPos(1)->getTokenText(), "%d", &__num);
-            if(__num>2)
+            if (__num > 2)
             {
                 if (ff)
                 {
@@ -2129,16 +2129,16 @@ void _visitoperatorNode(NodeToken *nd)
             }
             else
             {
-                if(ff)
+                if (ff)
                 {
-asmInstr = muls;
+                    asmInstr = muls;
                 }
-                else{
- asmInstr = mull;
+                else
+                {
+                    asmInstr = mull;
                 }
-                bufferText->addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(),register_numl.get()));
+                bufferText->addAfter(string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numl.get()));
             }
-
         }
     }
     break;
@@ -2570,9 +2570,9 @@ void _visitdefFunctionNode(NodeToken *nd)
     bufferText->addAfter(string_format("@_%s:", nd->getTokenText()));
     bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
     int sav = 9;
-    #if _TRIGGER==0
+#if _TRIGGER == 0
     bufferText->addAfterNoDouble(string_format("l32r a%d,@_stack_%s", sav, nd->getTokenText()));
-    #endif
+#endif
     if (saveReg)
     {
         bufferText->addAfter("ssi f15,a1,16");
@@ -3141,7 +3141,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
         if (i >= 4)
             saveinstack[i] = true;
     }
-    NodeToken *func=_functions[nd->target];
+    NodeToken *func = _functions[nd->target];
 
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
     if (t == NULL)
@@ -3420,7 +3420,7 @@ void _visitcallFunctionNode(NodeToken *nd)
 {
     // printf("compiling  call function %s\n", nd->getTokenText());
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
-NodeToken *func=_functions[nd->target];
+    NodeToken *func = _functions[nd->target];
     if (func->getChildAtPos(1)->children_size() >= _TRIGGER)
     { //  printf("token type %d\r\n",nd->_link->getChildAtPos(0)->_token->_vartype->_varType);
         // printf("we ar ehere\n");
@@ -3762,7 +3762,7 @@ void _visitextCallFunctionNode(NodeToken *nd)
     NodeToken *t = nd;
     _visitCallFunctionTemplate(nd, 10, true);
     int start = nd->stack_pos;
-    varType *v =_functions[nd->target]->getChildAtPos(0)->getVarType();
+    varType *v = _functions[nd->target]->getChildAtPos(0)->getVarType();
     if (v->_varType == __float__)
     {
         bufferText->addAfter(string_format("wfr f%d,a%d", register_numl.get(), 10));
@@ -3842,41 +3842,41 @@ void _visitdefInputArgumentsNode(NodeToken *nd)
     else
     {
         int reg_num = 2;
-        int stek=((nd->parent->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE;
+        int stek = ((nd->parent->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE;
         for (int i = 0; i < nd->children_size(); i++)
         {
-             int start = nd->getChildAtPos(i)->stack_pos;
+            int start = nd->getChildAtPos(i)->stack_pos;
             // printf("ee\r\n");
-            if(reg_num<=7)
+            if (reg_num <= 7)
             {
-           
-            // if (nd->getChildAtPos(i)->isPointer)
-            //{
-            // printf("ee p\r\n");
-            //  int start = nd->getChildAtPos(i)->stack_pos;
-            // bufferText->addAfter(string_format("l32i a15,a%d,%d", sav, start - _STACK_SIZE)); // point reg_bnum
-            //
-            if (nd->getChildAtPos(i)->isPointer)
-            {
-                bufferText->addAfter(string_format("s32i a%d,a1,%d", reg_num, start));
-            }
-            else if (nd->getChildAtPos(i)->getVarType()->_varType == __float__)
-            {
-                bufferText->addAfter(string_format("s32i a%d,a1,%d", reg_num, start));
-                // bufferText->addAfter(string_format("%s %s15,%s1,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), getRegType(asmInstr, 1).c_str(), start));
-            }
-            else
-            {
-                asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
-                bufferText->addAfter(string_format("%s a%d,a1,%d", asmInstructionsName[asmInstr].c_str(), reg_num, start));
-            }
-            reg_num++;
+
+                // if (nd->getChildAtPos(i)->isPointer)
+                //{
+                // printf("ee p\r\n");
+                //  int start = nd->getChildAtPos(i)->stack_pos;
+                // bufferText->addAfter(string_format("l32i a15,a%d,%d", sav, start - _STACK_SIZE)); // point reg_bnum
+                //
+                if (nd->getChildAtPos(i)->isPointer)
+                {
+                    bufferText->addAfter(string_format("s32i a%d,a1,%d", reg_num, start));
+                }
+                else if (nd->getChildAtPos(i)->getVarType()->_varType == __float__)
+                {
+                    bufferText->addAfter(string_format("s32i a%d,a1,%d", reg_num, start));
+                    // bufferText->addAfter(string_format("%s %s15,%s1,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), getRegType(asmInstr, 1).c_str(), start));
+                }
+                else
+                {
+                    asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
+                    bufferText->addAfter(string_format("%s a%d,a1,%d", asmInstructionsName[asmInstr].c_str(), reg_num, start));
+                }
+                reg_num++;
             }
             else
             {
                 asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->load[0];
-                bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(),stek+ start-nd->getChildAtPos(6)->stack_pos));
-                 asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
+                bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(), stek + start - nd->getChildAtPos(6)->stack_pos));
+                asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
                 bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(), start));
             }
             /*
@@ -4101,7 +4101,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
     if (nd->asPointer or (nd->isPointer)) // && nd->children_size() == 0))
         point_regnum++;
     int savreg_num = point_regnum;
-    point_regnum = 3;
+    point_regnum = 7;
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
@@ -4692,47 +4692,248 @@ void optimize(Text *text)
             }
         }
     }
-string before=" ";
-int indexbefore=0;
-    for(int i=0;i<text->size();i++)
+   
+    string before = " ";
+    int indexbefore = 0;
+    for (int i = 0; i < text->size(); i++)
     {
-        if(*text->getChildAtPos(i)!=NULL)
+        if (*text->getChildAtPos(i) != NULL)
         {
-        string tmp=string((*text->getChildAtPos(i)));
-        if(tmp.compare(" ")!=0 && tmp!="")
-        {
-        vector<string> d2 = split(tmp, " ");
-        // printf("on regarde %s %s\n\r",before.c_str(),tmp.c_str());
-        if(d2[0].compare("mov")==0)
-        {
-        // printf("on regarde mov |%s|%s|\n\r",before.c_str(),tmp.c_str());
-            vector<string> d= split(before, " ");
-
-            if (  d[0].compare("mull") == 0 or d[0].compare("sub") == 0 or d[0].compare("add") == 0  or d[0].compare("mov") == 0 or d[0].compare("movi") == 0 or d[0].compare("l32i") == 0 or d[0].compare("l32r") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("addi") == 0)        
+            string tmp = string((*text->getChildAtPos(i)));
+            if (tmp.compare(" ") != 0 && tmp != "")
             {
-                vector<string> p=split(d[1],",");
-                 vector<string> p2=split(d2[1],",");
-                 if(p[0].compare(p2[1])==0)
-                 {
-                   // prtinf("replace %s\n %s by %s\n\r",before.c_str(),tmp.c_str(),)
-                    text->replaceText(indexbefore, " ");
-                    string newstr=d[0]+" "+p2[0];
-                    for (int k=1;k<p.size();k++)
+                vector<string> d2 = split(tmp, " ");
+                // printf("on regarde %s %s\n\r",before.c_str(),tmp.c_str());
+                if (d2[0].compare("mov") == 0)
+                {
+                    // printf("on regarde mov |%s|%s|\n\r",before.c_str(),tmp.c_str());
+                    vector<string> d = split(before, " ");
+
+                    if (d[0].compare("mull") == 0 or d[0].compare("quou") == 0 or d[0].compare("quos") == 0 or d[0].compare("sub") == 0 or d[0].compare("add") == 0 or d[0].compare("mov") == 0 or d[0].compare("movi") == 0 or d[0].compare("l32i") == 0 or d[0].compare("l32r") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("addi") == 0)
                     {
-                        newstr=newstr+","+p[k];
+                        vector<string> p = split(d[1], ",");
+                        vector<string> p2 = split(d2[1], ",");
+                        if (p[0].compare(p2[1]) == 0)
+                        {
+                            // prtinf("replace %s\n %s by %s\n\r",before.c_str(),tmp.c_str(),)
+                            text->replaceText(indexbefore, " ");
+                            string newstr = d[0] + " " + p2[0];
+                            for (int k = 1; k < p.size(); k++)
+                            {
+                                newstr = newstr + "," + p[k];
+                            }
+                            //           printf("replace %s\n %s by %s\n\r",before.c_str(),tmp.c_str(),newstr.c_str());
+                            text->replaceText(i, newstr);
+                            tmp = newstr;
+                        }
                     }
-          //           printf("replace %s\n %s by %s\n\r",before.c_str(),tmp.c_str(),newstr.c_str());
-                    text->replaceText(i,newstr);
-                    tmp=newstr;
-                 }
-            }     
-        } 
-        
-           
-            before=tmp;
-            indexbefore=i;
+                }
+
+                before = tmp;
+                indexbefore = i;
+            }
         }
-        
+    }
+    
+    vector<string> from;
+    vector<string> to;
+    vector<int> index;
+    for (int i = 0; i < text->size(); i++)
+    {
+        if (*text->getChildAtPos(i) != NULL)
+        {  
+           
+            string tmp = string((*text->getChildAtPos(i)));
+            if (tmp.compare(" ") != 0 && tmp != "")
+            {
+                // printf("on est %d %s\n",i,tmp.c_str());
+                vector<string> d = split(tmp, " ");
+                if (d[0].compare("movr") == 0)
+                {
+                    vector<string> d1 = split(d[1], ",");
+                    index.push_back(i);
+                    from.push_back(d1[0]);
+                    to.push_back(d1[1]);
+                }
+                if (index.size() > 0)
+                {
+                    if (d[0].compare("bnez") == 0 or d[0].compare("beqz") == 0)
+                    {
+                        vector<string> d2 = split(d[1], ",");
+                        string newstr = d[0] + " ";
+                        bool found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[0].compare(from[mp]) == 0)
+                            {
+                                newstr = newstr + to[mp] + ",";
+                                text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ;
+                            }
+                        }
+                        if (!found)
+                            newstr = newstr + d2[0] + ",";
+                        newstr = newstr + d2[1];
+                        text->replaceText(i, newstr);
+                        index.clear();
+                        index.shrink_to_fit();
+                        from.clear();
+                        from.shrink_to_fit();
+                        to.clear();
+                        to.shrink_to_fit();
+                    }
+                    else if(d[0].compare("mov") == 0)
+                    {
+                         vector<string> d2 = split(d[1], ",");
+                        string newstr = d[0] + " " + d2[0] + ",";
+                        bool found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[1].compare(from[mp]) == 0)
+                            {
+                                newstr = newstr + to[mp] ;
+                                text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ;
+                            }
+                        }
+                        if (!found)
+                            newstr = newstr + d2[1] ;
+                            
+                        text->replaceText(i, newstr);
+                        index.clear();
+                        index.shrink_to_fit();
+                        from.clear();
+                        from.shrink_to_fit();
+                        to.clear();
+                        to.shrink_to_fit();
+
+                    }
+                    else if (d[0].compare("bge") == 0 or d[0].compare("blt") == 0 or d[0].compare("beq") == 0 or d[0].compare("bne") == 0)
+                    {
+
+                        vector<string> d2 = split(d[1], ",");
+                        string newstr = d[0] + " ";
+                        bool found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[0].compare(from[mp]) == 0)
+                            {
+                                newstr = newstr + to[mp] + ",";
+                                text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ;
+                            }
+                        }
+                        if (!found)
+                            newstr = newstr + d2[0] + ",";
+                        found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[1].compare(from[mp]) == 0)
+                            {
+                                newstr = newstr + to[mp] + ",";
+                                text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ;
+                            }
+                        }
+                        if (!found)
+                            newstr = newstr + d2[1] + ",";
+
+                        newstr = newstr + d2[2];
+                        text->replaceText(i, newstr);
+                        index.clear();
+                        index.shrink_to_fit();
+                        from.clear();
+                        from.shrink_to_fit();
+                        to.clear();
+                        to.shrink_to_fit();
+                    }
+                    else if ( d[0].compare("float.s")==0 or  d[0].compare("l32i") == 0  or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("addi") == 0)
+                    {
+                        vector<string> d2 = split(d[1], ",");
+                        string newstr = d[0] + " " + d2[0] + ",";
+                        bool found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[1].compare(from[mp]) == 0)
+                            {
+                                newstr = newstr + to[mp] + ",";
+                                text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ;
+                            }
+                        }
+                        if (!found)
+                            newstr = newstr + d2[1] + ",";
+                        newstr = newstr + d2[2];
+                        text->replaceText(i, newstr);
+                        index.clear();
+                        index.shrink_to_fit();
+                        from.clear();
+                        from.shrink_to_fit();
+                        to.clear();
+                        to.shrink_to_fit();
+                    }
+                    else if (d[0].compare("mull") == 0 or d[0].compare("sub") == 0 or d[0].compare("add") == 0 or d[0].compare("quou") == 0 or d[0].compare("quos") == 0)
+                    {
+                        vector<string> d2 = split(d[1], ",");
+                        string newstr = d[0] + " " + d2[0] + ",";
+                        bool found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[1].compare(from[mp]) == 0)
+                            {
+                                newstr = newstr + to[mp] + ",";
+                                text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ;
+                            }
+                        }
+                        if (!found)
+                            newstr = newstr + d2[1] + ",";
+                        found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+
+                            if (d2[2].compare(from[mp]) == 0)
+                            {
+                                newstr = newstr + to[mp];
+                                found = true;
+                                ;
+                                ;
+                                text->replaceText(index[mp], " ");
+                            }
+                        }
+                        if (!found)
+                            newstr = newstr + d2[2];
+                        text->replaceText(i, newstr);
+                        index.clear();
+                        index.shrink_to_fit();
+                        from.clear();
+                        from.shrink_to_fit();
+                        to.clear();
+                        to.shrink_to_fit();
+                    }
+                    else
+                    {
+                                                index.clear();
+                        index.shrink_to_fit();
+                        from.clear();
+                        from.shrink_to_fit();
+                        to.clear();
+                        to.shrink_to_fit();
+                    }
+                }
+            }
         }
     }
 }
