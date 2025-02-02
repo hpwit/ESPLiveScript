@@ -2554,6 +2554,8 @@ void _visitdefFunctionNode(NodeToken *nd)
     if (nd->type == TokenUserDefinedVariableMemberFunction)
         isStructFunction = true;
     header.addAfter(string_format(".global @_%s", nd->getTokenText()));
+   if (!isStructFunction)
+    header.addAfter(string_format(".global @__%s", nd->getTokenText()));
     // string variables = "";
     if (!isStructFunction)
     {
@@ -2565,8 +2567,40 @@ void _visitdefFunctionNode(NodeToken *nd)
         header.addAfter(string_format(".var %d%s", nd->getChildAtPos(1)->children_size(), variables.c_str()));
     }
 
-    header.addAfter(string_format("@_stack_%s:", nd->getTokenText()));
+    header.addAfter(string_format("@_stack__%s:", nd->getTokenText()));
     header.addAfter(string_format(".bytes %d", (nd->getChildAtPos(1)->children_size() + 1) * 4));
+  
+      if (!isStructFunction)
+    {
+      bufferText->addAfter(string_format("@__%s:", nd->getTokenText()));
+  bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
+    NodeToken *variaToken=nd->getChildAtPos(1);
+    if(variaToken->children_size()>0)
+    {
+         bufferText->addAfter(string_format("l32r a9,@_stack__%s", nd->getTokenText()));
+    }
+    for(int k=0;k<variaToken->children_size();k++)
+    {
+         //int start = variaToken->getChildAtPos(k)->stack_pos;
+      
+                // printf("ee p\r\n");
+                int start = variaToken->getChildAtPos(k)->stack_pos;
+                for (int j = 0; j < variaToken->getChildAtPos(k)->getVarType()->size; j++)
+                {
+                   asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->load[0];
+                    bufferText->addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), k+10,getRegType(asmInstr, 1).c_str(), 9, start - _STACK_SIZE)); // point_regnum
+//asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->store[0];
+  //                  bufferText->addAfter(string_format("%s %s%d,%s9,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), k+10,getRegType(asmInstr, 1).c_str(), start));
+                    start += variaToken->getChildAtPos(k)->getVarType()->sizes[j];
+                }
+            //}
+         
+    }
+        bufferText->addAfter(string_format("call8 @_%s", nd->getTokenText()));
+    bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
+    }
+
+   
     bufferText->addAfter(string_format("@_%s:", nd->getTokenText()));
     bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
     int sav = 9;
@@ -2606,6 +2640,8 @@ void _visitdefFunctionNode(NodeToken *nd)
         bufferText->addAfter("l32i a13,a1,24");
     }
     bufferText->addAfter(string_format("retw.n"));
+
+
     isStructFunction = false;
     bufferText = &footer;
 }

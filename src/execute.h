@@ -580,7 +580,7 @@ void executeOnly(string prog)
         args.clear();
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999,this, args);
-          res = executeBinary("@_" + prog, _executecmd, 9999, this,args);
+          res = executeBinary("@__" + prog, _executecmd, 9999, this,args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -597,7 +597,7 @@ void executeOnly(string prog)
         }
 #ifndef __TEST_DEBUG
                 error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this,args);
-          res = executeBinary("@_" + prog, _executecmd, 9999,this,args);
+          res = executeBinary("@__" + prog, _executecmd, 9999,this,args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -616,7 +616,7 @@ void executeOnly(string prog)
         if (core == 0 or core == 1)
         {
             vector<string> __args;
-            __args.push_back("@_" + prog);
+            __args.push_back("@__" + prog);
             _run(__args, true, core, arguments);
         }
         else
@@ -676,7 +676,7 @@ static void _run_task(void *pvParameters)
     else
     {
          error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index,exec, d);
-         res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec,exec->args);
+         res = executeBinary("@__main", exec->df.exe, exec->__run_handle_index, exec,exec->args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
