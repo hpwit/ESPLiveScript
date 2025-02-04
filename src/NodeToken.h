@@ -93,7 +93,7 @@ Stack<int> register_numl = Stack<int>(15);
 bool isInFunction = false;
 // list<int> _sp;
 
-list<int> _compare;
+vector<int> _compare;
 
 // token *__current;
 int __sav_pos;
@@ -1650,7 +1650,7 @@ void _visitstoreLocalVariableNodeAsRegister(NodeToken *nd)
 void _visitlocalVariableNodeAsRegister(NodeToken *nd)
 {
     bufferText->addAfter(string_format("movr a%d,a%d", register_numl.get(), nd->target));
-     bufferText->sp.push(bufferText->get());
+    bufferText->sp.push(bufferText->get());
     register_numl.decrease();
 }
 void _visitnumberNode(NodeToken *nd)
@@ -2554,8 +2554,8 @@ void _visitdefFunctionNode(NodeToken *nd)
     if (nd->type == TokenUserDefinedVariableMemberFunction)
         isStructFunction = true;
     header.addAfter(string_format(".global @_%s", nd->getTokenText()));
-   if (!isStructFunction)
-    header.addAfter(string_format(".global @__%s", nd->getTokenText()));
+    if (!isStructFunction)
+        header.addAfter(string_format(".global @__%s", nd->getTokenText()));
     // string variables = "";
     if (!isStructFunction)
     {
@@ -2569,38 +2569,36 @@ void _visitdefFunctionNode(NodeToken *nd)
 
     header.addAfter(string_format("@_stack__%s:", nd->getTokenText()));
     header.addAfter(string_format(".bytes %d", (nd->getChildAtPos(1)->children_size() + 1) * 4));
-  
-      if (!isStructFunction)
+
+    if (!isStructFunction)
     {
-      bufferText->addAfter(string_format("@__%s:", nd->getTokenText()));
-  bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
-    NodeToken *variaToken=nd->getChildAtPos(1);
-    if(variaToken->children_size()>0)
-    {
-         bufferText->addAfter(string_format("l32r a9,@_stack__%s", nd->getTokenText()));
-    }
-    for(int k=0;k<variaToken->children_size();k++)
-    {
-         //int start = variaToken->getChildAtPos(k)->stack_pos;
-      
-                // printf("ee p\r\n");
-                int start = variaToken->getChildAtPos(k)->stack_pos;
-                for (int j = 0; j < variaToken->getChildAtPos(k)->getVarType()->size; j++)
-                {
-                   asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->load[0];
-                    bufferText->addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), k+10,getRegType(asmInstr, 1).c_str(), 9, start - _STACK_SIZE)); // point_regnum
-//asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->store[0];
-  //                  bufferText->addAfter(string_format("%s %s%d,%s9,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), k+10,getRegType(asmInstr, 1).c_str(), start));
-                    start += variaToken->getChildAtPos(k)->getVarType()->sizes[j];
-                }
+        bufferText->addAfter(string_format("@__%s:", nd->getTokenText()));
+        bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
+        NodeToken *variaToken = nd->getChildAtPos(1);
+        if (variaToken->children_size() > 0)
+        {
+            bufferText->addAfter(string_format("l32r a9,@_stack__%s", nd->getTokenText()));
+        }
+        for (int k = 0; k < variaToken->children_size(); k++)
+        {
+            // int start = variaToken->getChildAtPos(k)->stack_pos;
+
+            // printf("ee p\r\n");
+            int start = variaToken->getChildAtPos(k)->stack_pos;
+            for (int j = 0; j < variaToken->getChildAtPos(k)->getVarType()->size; j++)
+            {
+                asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->load[0];
+                bufferText->addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), k + 10, getRegType(asmInstr, 1).c_str(), 9, start - _STACK_SIZE)); // point_regnum
+                                                                                                                                                                                                                 // asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->store[0];
+                //                   bufferText->addAfter(string_format("%s %s%d,%s9,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), k+10,getRegType(asmInstr, 1).c_str(), start));
+                start += variaToken->getChildAtPos(k)->getVarType()->sizes[j];
+            }
             //}
-         
-    }
+        }
         bufferText->addAfter(string_format("call8 @_%s", nd->getTokenText()));
-    bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
+        bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
     }
 
-   
     bufferText->addAfter(string_format("@_%s:", nd->getTokenText()));
     bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
     int sav = 9;
@@ -2640,7 +2638,6 @@ void _visitdefFunctionNode(NodeToken *nd)
         bufferText->addAfter("l32i a13,a1,24");
     }
     bufferText->addAfter(string_format("retw.n"));
-
 
     isStructFunction = false;
     bufferText = &footer;
@@ -4728,7 +4725,7 @@ void optimize(Text *text)
             }
         }
     }
-   
+
     string before = " ";
     int indexbefore = 0;
     for (int i = 0; i < text->size(); i++)
@@ -4770,15 +4767,15 @@ void optimize(Text *text)
             }
         }
     }
-    
+
     vector<string> from;
     vector<string> to;
     vector<int> index;
     for (int i = 0; i < text->size(); i++)
     {
         if (*text->getChildAtPos(i) != NULL)
-        {  
-           
+        {
+
             string tmp = string((*text->getChildAtPos(i)));
             if (tmp.compare(" ") != 0 && tmp != "")
             {
@@ -4820,16 +4817,16 @@ void optimize(Text *text)
                         to.clear();
                         to.shrink_to_fit();
                     }
-                    else if(d[0].compare("mov") == 0)
+                    else if (d[0].compare("mov") == 0)
                     {
-                         vector<string> d2 = split(d[1], ",");
+                        vector<string> d2 = split(d[1], ",");
                         string newstr = d[0] + " " + d2[0] + ",";
                         bool found = false;
                         for (int mp = 0; mp < index.size(); mp++)
                         {
                             if (d2[1].compare(from[mp]) == 0)
                             {
-                                newstr = newstr + to[mp] ;
+                                newstr = newstr + to[mp];
                                 text->replaceText(index[mp], " ");
 
                                 found = true;
@@ -4837,8 +4834,8 @@ void optimize(Text *text)
                             }
                         }
                         if (!found)
-                            newstr = newstr + d2[1] ;
-                            
+                            newstr = newstr + d2[1];
+
                         text->replaceText(i, newstr);
                         index.clear();
                         index.shrink_to_fit();
@@ -4846,7 +4843,6 @@ void optimize(Text *text)
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
-
                     }
                     else if (d[0].compare("bge") == 0 or d[0].compare("blt") == 0 or d[0].compare("beq") == 0 or d[0].compare("bne") == 0)
                     {
@@ -4891,7 +4887,7 @@ void optimize(Text *text)
                         to.clear();
                         to.shrink_to_fit();
                     }
-                    else if ( d[0].compare("float.s")==0 or  d[0].compare("l32i") == 0  or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("addi") == 0)
+                    else if (d[0].compare("float.s") == 0 or d[0].compare("l32i") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("addi") == 0)
                     {
                         vector<string> d2 = split(d[1], ",");
                         string newstr = d[0] + " " + d2[0] + ",";
@@ -4961,7 +4957,7 @@ void optimize(Text *text)
                     }
                     else
                     {
-                                                index.clear();
+                        index.clear();
                         index.shrink_to_fit();
                         from.clear();
                         from.shrink_to_fit();

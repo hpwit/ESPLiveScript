@@ -192,6 +192,8 @@ public:
         current_node = &program;
         sigs.clear();
         _userDefinedTypes.clear();
+        _compare.clear();
+        _compare.shrink_to_fit();
         nodeTokenList.clear();
         program.clearAll();
         sav_t.clear();
@@ -256,6 +258,8 @@ public:
         change_type.clear();
         sav_token.clear();
         _node_token_stack.clear();
+        _compare.clear();
+        _compare.shrink_to_fit();
         for (NodeToken *h : _functions)
         {
         
@@ -344,6 +348,7 @@ public:
         main_script.addContent((char *)str->c_str());
         return compileBinary();
     }
+    #ifdef __CONSOLE_ESP32
     Executable parse_c(list<string> *_script)
     {
         main_script.clear();
@@ -372,6 +377,7 @@ public:
         main_script.addContent((char *)sc.c_str());
         return compileBinary();
     }
+    #endif
     void getVariable(bool isStore)
     {
 
