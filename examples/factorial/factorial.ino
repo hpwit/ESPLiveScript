@@ -1,19 +1,20 @@
 #include "ESPLiveScript.h"
 
-string script = "\
-int fact(int h)\n\
-{\n\
-   if(h==1)\n\
-   {  \n\
-     return 1;\n\
-   }  \n\
-  return h*fact(h-1);\n\
-}\n\
-\n\
-void main(int g)\n\
-{  \n\
-   printf(\"factorial of %d is %d\",g,fact(g));\n\
-}";
+string script = R"EOF(
+int fact(int h)
+{
+   if(h==1)
+   {  
+     return 1;
+   } 
+  return h*fact(h-1);
+}
+
+void main(int g)
+{  
+   printfln("factorial of %d is %d",g,fact(g));
+}
+)EOF";
 
 void setup()
 {

@@ -5,18 +5,11 @@
 //  Version  Author        Date
 //   1.0.0    JEM(ZRanger1) 12/08/2020
 
-save_reg
-external void show();
-external CRGB *leds;
-external CRGB hsv(int h, int s, int v);
-external void dp(float h);
-external void display(int h);
-external void resetStat();
-external void clear();
-define maxIterations 15 
-define width 128 
-define height 96 
-define scale 0.5
+
+#define maxIterations 15 
+#define width 128 
+#define height 96 
+#define scale 0.5
 uint32_t __deltamillis[1];
 
 uint32_t __baseTime[1];

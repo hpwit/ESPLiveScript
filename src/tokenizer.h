@@ -1,6 +1,6 @@
 #include <regex.h>
 #include <stdio.h>
-#include <list>
+//#include <list>
 #include <string>
 #include "memory.h"
 #include <vector>
@@ -1301,7 +1301,7 @@ bool _for_display = false;
 int _token_line;
 int _sav_token_line = 0;
 int pos_in_line = 0;
-list<token>::iterator _index_token;
+//list<token>::iterator _index_token;
 string vchar;
 
 int tokenizer(Script *script, bool update, bool increae_line,

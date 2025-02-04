@@ -1,11 +1,4 @@
-//safe_mode
-external void show();
-external CRGB leds[12288];
-external void clear();
-external float sin(float angle);
-external CRGB hsv(int h,int s,int v);
 
-char g[]="il fut %d ";
 uint8_t ghostp[72]={  
   1,9,9,9,1,9,9,9,1,
   1,1,9,1,1,1,9,1,1,

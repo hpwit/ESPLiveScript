@@ -1645,7 +1645,7 @@ Stack<varTypeEnum> globalType = Stack<varTypeEnum>(__int__);
 void _visittypeNode(NodeToken *nd) {}
 void _visitstoreLocalVariableNodeAsRegister(NodeToken *nd)
 {
-    bufferText->addAfter(string_format("mov a%d,a%d", nd->target, register_numl.get()));
+    bufferText->addAfter(bufferText->sp.pop(),string_format("mov a%d,a%d", nd->target, register_numl.get()));
 }
 void _visitlocalVariableNodeAsRegister(NodeToken *nd)
 {
@@ -3407,7 +3407,8 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
             globalType.pop();
         }
     }
-    bufferText->end();
+    
+   // bufferText->end();
     for (int i = 0; i < nd->getChildAtPos(0)->children_size(); i++)
     {
         if (i < 7)
@@ -3435,6 +3436,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
             }
         }
     }
+    
     if (isExtCall)
     {
         bufferText->addAfter(string_format("callExt a8,@_%s", nd->getTokenText()));
@@ -3607,7 +3609,7 @@ void _visitcallFunctionNode(NodeToken *nd)
             bufferText->addAfter(string_format("mov a%d,a10", register_numl.get()));
         }
         // bufferText->sp.push(bufferText->get());
-        bufferText->sp.push(bufferText->get());
+      bufferText->sp.push(bufferText->get());
         register_numl.decrease();
     }
 }
