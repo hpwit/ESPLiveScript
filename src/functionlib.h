@@ -48,6 +48,38 @@ __ASM__ float __div(float a,float b)\n\
 \"divn.s f0, f2, f6\"\n\
 \"retw.n\"\n\
 }@";
+char * _div[]={
+"@___div(d|d):",
+"entry a1,16",
+"div0.s f3, f2",
+"nexp01.s f4, f2",
+"const.s f5, 1",
+"maddn.s f5, f4, f3",
+"mov.s f6, f3",
+"mov.s f7, f2",
+"nexp01.s f2, f1",
+"maddn.s f6, f5, f6",
+"const.s f5, 1",
+"const.s f0, 0",
+"neg.s f8, f2",
+"maddn.s f5, f4, f6",
+"maddn.s f0, f8, f3",
+"mkdadj.s f7, f1",
+"maddn.s f6, f5, f6",
+"maddn.s f8, f4, f0",
+"const.s f3, 1",
+"maddn.s f3, f4, f6",
+"maddn.s f0, f8, f6",
+"neg.s f2, f2",
+"maddn.s f6, f3, f6",
+"maddn.s f2, f4, f0",
+"addexpm.s f0, f7",
+"addexp.s f6, f7",
+"divn.s f0, f2, f6",
+"retw.n"
+};
+int _div_size=28;
+
 #if _TRIGGER ==0
 string _rand="\
 __ASM__ uint32_t rand(uint32_t mod) \n\

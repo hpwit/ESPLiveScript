@@ -175,6 +175,7 @@ public:
     void parse()
     {
 
+addfloatdivision=false;
         point_regnum = 4;
         point_regnum = 4;
         stack_size = 0;
@@ -332,7 +333,7 @@ public:
 
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
-        main_script.addContent((char *)division.c_str());
+       // main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)base_ext_functions.c_str());
         main_script.addContent((char *)str->c_str());
         return compile();
@@ -343,7 +344,7 @@ public:
 
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
-        main_script.addContent((char *)division.c_str());
+      //  main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)base_ext_functions.c_str());
         main_script.addContent((char *)str->c_str());
         return compileBinary();
@@ -353,7 +354,7 @@ public:
     {
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
-        main_script.addContent((char *)division.c_str());
+       // main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)base_ext_functions.c_str());
         string sc = "";
         for (string s : *_script)
@@ -367,7 +368,7 @@ public:
     {
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
-        main_script.addContent((char *)division.c_str());
+      //  main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)base_ext_functions.c_str());
         string sc = "";
         for (string s : *_script)
@@ -3664,6 +3665,16 @@ void saveBin(Console *cons, vector<string> args)
     else
         LedOS.pushToConsole("filename missing ...", true);
 }
+void displaybin(Console *cons, vector<string> args)
+{
+    Binary bin;
+    if (args.size() > 0)
+    {
+        loadBinary((char *)(fileSystem.current_path + args[0]).c_str(), *fileSystem.current_mount->fs, &bin);
+        displayBinary(&bin);
+        freeBinary(&bin);
+    }
+}
 void binload(Console *cons, vector<string> args)
 {
     Binary bin;
@@ -3824,6 +3835,7 @@ public:
         LedOS.addKeywordCommand("comp", compile_c, "Compile  a program");
         LedOS.addKeywordCommand("createbin", saveBin, "Compile  a program into binary");
         LedOS.addKeywordCommand("executebin", binload, "executebin");
+        LedOS.addKeywordCommand("displaybin", displaybin, "displaybin");
         LedOS.addKeywordCommand("./", binload, "executebin");
         LedOS.addKeywordCommand("list", listExec, "list the compiled programs");
         LedOS.addKeywordCommand("free", free, "free the binary free x will free the program with handle x");

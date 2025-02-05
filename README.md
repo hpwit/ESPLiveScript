@@ -125,33 +125,31 @@ If you execute the following program [firstlight.ino](examples/firstlight/firstl
  ```C
 #include "ESPLiveScript.h"
 
-string script="\
-void main()\n\
-{\n\
-for(int i=0;i<20;i++)\n\
-    {\n\
-        printfln(\"i:%2d 3xi:%2d\",i,3*i);\n\
-    }\n\
-}";
-void setup() {
+string script = R"EOF(
+void main()
+{
+for(int i=0;i<20;i++)
+    {
+        printfln("i:%2d  3*i:%2d",i,3*i);
+    }
+}
+)EOF";
+void setup()
+{
   // put your setup code here, to run once:
   Serial.begin(115200);
-  Parser _parser;
-  Executable exec=_parser.parseScript(&script);
-  if(exec.isExeExists())
+
+  Parser p;
+  Executable exec = p.parseScript(&script);
+  if (exec.isExeExists())
   {
     exec.execute("main");
   }
-  else
-  {
-    Serial.println(exec.error.error_message.c_str());
-  }
-
 }
 
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
-
 }
  ```
 the output will be:
@@ -217,46 +215,48 @@ In this example we do calculate the factorial:
 ```C
 #include "ESPLiveScript.h"
 
-string script="\
-int fact(int h)\n\
-{\n\
-   if(h==1)\n\
-   {  \n\
-     return 1;\n\
-   }  \n\
-  return h*fact(h-1);\n\
-}\n\
-\n\
-void main(int g)\n\
-{  \n\
-   printfln(\"factorial of %d is %d\",g,fact(g));\n\
-}";
-
-void setup() {
-  // put your setup code here, to run once:
-Serial.begin(115200);
-
-Parser p;
-Executable exec=p.parseScript(&script);
-if(exec.isExeExists())
+string script = R"EOF(
+int fact(int h)
 {
-  Arguments args;
-  args.add(5);
-  exec.execute("main",args);
-  args.clear();
-   args.add(6);
-  exec.execute("main",args);
-   args.clear();
-   args.add(7);
-  exec.execute("main",args);
+   if(h==1)
+   {  
+     return 1;
+   } 
+  return h*fact(h-1);
 }
 
+void main(int g)
+{  
+   printfln("factorial of %d is %d",g,fact(g));
+}
+)EOF";
+
+void setup()
+{
+    // put your setup code here, to run once:
+    Serial.begin(115200);
+
+    Parser p;
+    Executable exec = p.parseScript(&script);
+    if (exec.isExeExists())
+    {
+        Arguments args;
+        args.add(5);
+        exec.execute("main", args);
+        args.clear();
+        args.add(6);
+        exec.execute("main", args);
+        args.clear();
+        args.add(7);
+        exec.execute("main", args);
+    }
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-
+void loop()
+{
+    // put your main code here, to run repeatedly:
 }
+
 ```
 
 
@@ -289,13 +289,9 @@ With the ESPScript is not able to code everything with the same efficiency as th
 ## Access to 'pre compiled' variables
 You need in your sketch that your variable needs to be accessible from the scripts:
 ```
-addExternal("name_of_the_variable_int_the_script", externalType::value, (void *)&address_to_the_variable);
+addExternalVariable("name_of_the_variable_int_the_script", type,other details, (void *)&address_to_the_variable);
 ```
 
-In your script you need to declare your variable as external:
-```
-external type name_of_the_variable_int_the_script;
-```
 You  read and write the variables. 
 NB: a variable can also be an array.
 
@@ -303,60 +299,59 @@ Example:
 ```C
 #include "ESPLiveScript.h"
 
-string script="\
-external int value;\n\
-external uint16_t *array;\n\
-//external uint16_t array[10]; is the same \n\
-void fillArray()\n\
-{\n\
-  for(int i=0;i<10;i++)\n\
-  {\n\
-    array[i]=i*3;\n\
-  }\n\
-}\n\
-void change()\n\
-{\n\
-value=value+2;\n\
-}\n\
-void main()\n\
-{  \n\
-   printfln(\"value: %d \",value);\n\
-}";
-
-int variable=0;
-uint16_t _array[10];
-void setup() {
-  // put your setup code here, to run once:
-Serial.begin(115200);
-
-Parser p;
-addExternal("value", externalType::value, (void *)&variable);
-addExternal("array", externalType::value, (void *)_array);
-Executable exec=p.parseScript(&script);
-if(exec.isExeExists())
+string script = R"EOF(
+void fillArray()
 {
-  
- variable=5;
- exec.execute("main");
-  variable=240;
- exec.execute("main");
- variable=15;
- printf("old value:%d ",variable);
- exec.execute("change");
- printf("new value:%d\n",variable);
- exec.execute("fillArray");
- for (int i=0;i<10;i++)
- {
-  printf("%d:%d\n",i,_array[i]);
- }
+  for(int i=0;i<10;i++)
+  {
+    array[i]=i*3;
+  }
+}
+void change()
+{
+value=value+2;
+}
+void main()
+{  
+   printfln("value: %d ",value);
+}
+)EOF";
+
+int variable = 0;
+uint16_t _array[10];
+void setup()
+{
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+
+  Parser p;
+  addExternalVariable("value", "int", "", (void *)&variable);
+  addExternalVariable("array", "int *", "", (void *)_array);
+  Executable exec = p.parseScript(&script);
+  if (exec.isExeExists())
+  {
+
+    variable = 5;
+    exec.execute("main");
+    variable = 240;
+    exec.execute("main");
+    variable = 15;
+    printf("old value:%d ", variable);
+    exec.execute("change");
+    printf("new value:%d\n", variable);
+    exec.execute("fillArray");
+    for (int i = 0; i < 10; i++)
+    {
+      printf("%d:%d\n", i, _array[i]);
+    }
+  }
 }
 
-}
-
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
-
 }
+
 ```
 
 NB: here we did call three different functions all defined in the script.
@@ -394,72 +389,72 @@ old value:15 new value:17
 You can call 'core' functions which would be to complicated to reproduced in scripting (like fft , showing leds ...)
 
 ```
-addExternal("funtion name", externalType::function, (void *)function);
+addExternalFunction("funtion name", "outputtype","signature", (void *)function);
 ```
-In your script you need to declare your variable as external:
-```
-external type function_name;
-```
+
 
 Example
 ```C
 #include "ESPLiveScript.h"
 
-string script="\
-external float calc(int h);\n\
-external void displayfloat(float nb);\n\
-void main()\n\
-{\n\
- float h=calc(52);\n\
- displayfloat(h);\n\
-}";
-
-void displayfloat(float nb)
+string script = R"EOF(
+void main()
 {
-  printf("from pre-compiled %f\n",nb);
+ float h=calc(52);
+ displayfloat(h);
+ otherfunction();
+}
+)EOF";
+
+void displayfloat(float nb) {
+  printf("from pre-compiled %f\n", nb);
 }
 
-float calcul(int pos)
-{
-  return (float)(pos/34.0);
+float calcul(int pos) {
+  return (float)(pos / 34.0);
+}
+void otherfunction() {
+  printf("from other function\n");
 }
 
 void setup() {
   // put your setup code here, to run once:
-Serial.begin(115200);
+  Serial.begin(115200);
 
-  addExternal("calc", externalType::function, (void *)calcul);
-  addExternal("displayfloat", externalType::function, (void *)displayfloat);
-Parser p;
-Executable exec=p.parseScript(&script);
+  addExternalFunction("calc", "float", "int", (void *)calcul);
+  addExternalFunction("displayfloat", "void", "float", (void *)displayfloat);
+  addExternalFunction("otherfunction", "void", "", (void *)otherfunction);
+  Parser p;
+  Executable exec = p.parseScript(&script);
 
-if(exec.isExeExists())
-{
- exec.execute("main");
-}
-
+  if (exec.isExeExists()) {
+    exec.execute("main");
+  }
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-
 }
+
 ```
 
 Result:
 ```
 ***********PARSING DONE*********
 ***********COMPILING DONE*********
-max used memory: 7572 maxstack:1964  started 265984 free mem:258484 consumed 7500 time:28ms
-max used memory: 7572 maxstack:1964  started 265984 free mem:263600 consumed 2384 time:40ms
+max used memory: 8428 maxstack:1920  started 266780 free mem:258468 consumed 8312 time:30ms
+max used memory: 8428 maxstack:1920  started 266780 free mem:263520 consumed 3260 time:41ms
 ***********AFTER CLEAN*********
+***********CREATE BINARY*********
+Creation of an 208 bytes binary and 116 bytes data
+
+Parsing 79 assembly lines ...
+
+max used memory: 8428 maxstack:1920  started 266780 free mem:265652 consumed 1128 time:107ms
 ***********CREATE EXECUTABLE*********
-Creation of an 160 bytes binary and 56 bytes data
-
-Parsing 59 assembly lines ...
-
-max used memory: 7572 maxstack:1964  started 265984 free mem:265124 consumed 860 time:92ms
-from pre-compiled 1.529412
+max used memory: 8428 maxstack:1920  started 266780 free mem:265172 consumed 1608 time:118ms
+ from pre-compiled 1.529412
+from other function
 ```
 
 
@@ -576,54 +571,55 @@ struct new_type
   }
 }
 ```
-NB: not like in a class you do not have constructor or destructor (at least not yet :) ).
+
 
 Example:
 ```C
 #include "ESPLiveScript.h"
 
-string script="\
-struct new_type\n\
-{\n\
-  float f;\n\
-  int index;\n\
-  void display(int multi)\n\
-  {\n\
-    printfln(\"from object:%d\",multi);\n\
-  }\n\
-  void func2() \n\
-  {\n\
-    display(f*index);\n\
-  }\n\
-}\n\
-\n\
-new_type var;\n\
-void main()\n\
-{\n\
- var.f=0.8;\n\
- var.index=12;\n\
- var.func2();\n\
- var.display(23);\n\
-}";
-
-
-void setup() {
-  // put your setup code here, to run once:
-Serial.begin(115200);
-
-Parser p;
-Executable exec=p.parseScript(&script);
-if(exec.isExeExists())
+string script = R"EOF(
+struct new_type
 {
- exec.execute("main");
+  float f;
+  int index;
+  void display(int multi)
+  {
+    printfln("from Object:%d",multi);
+  }
+  void func2() 
+  {
+    display(f*index);
+  }
 }
 
+new_type var;
+void main()
+{
+ var.f=0.8;
+ var.index=12;
+ var.func2();
+ var.display(23);
+}
+)EOF";
+
+void setup()
+{
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+
+  Parser p;
+  Executable exec = p.parseScript(&script);
+  if (exec.isExeExists())
+  {
+    exec.execute("main");
+  }
 }
 
-void loop() {
+void loop()
+{
   // put your main code here, to run repeatedly:
-
 }
+
 ```
 
 Result:
@@ -645,7 +641,32 @@ NB 1: you can have arrays of objects : `new_type arr[10] `
 
 NB 2: the functions needs to be in order i.e you cannot all a function which has not be defined previously. (for the moment)
 
-NB 3: Due to some memory alignment concern, for the moment you need to order the variable by order of size. Here is the order of size:
+NB 4: You can have structure constructors
+
+```C
+struct varname
+{
+  float h;
+  uint16_t k;
+  char c;
+  varname()
+  {
+    ...
+  }
+  varname(int j)
+  {
+    h=j/23;
+  }
+}
+
+....
+
+varname d; //it is equivalent to varname d=varname();
+varname d2=varname(23);
+```
+
+
+NB 4: Due to some memory alignment concern, for the moment you need to order the variable by order of size. Here is the order of size:
   - `float, uint32_t, int`
   - `s_int, uint16_t`
   - `uint8_t, CRGB, CRGBW`
@@ -668,30 +689,6 @@ struct varname
   uint16_t k;
   char c;
 }
-```
-
-you can have structure constructors
-
-```C
-struct varname
-{
-  float h;
-  uint16_t k;
-  char c;
-  varname()
-  {
-    ...
-  }
-  varname(int j)
-  {
-    h=j/23;
-  }
-}
-
-....
-
-varname d; //it is equivalent to varname d=varname();
-varname d2=varname(23);
 ```
 
 

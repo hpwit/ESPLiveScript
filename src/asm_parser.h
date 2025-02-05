@@ -671,7 +671,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
 
     return ps;
   }
-   if (sp.opcde.compare("blti") == 0)
+  if (sp.opcde.compare("blti") == 0)
   {
 
     result_parse_line ps = parseOperandes(sp.operandes, 3, op_blti, 3, bin_blti);
@@ -788,7 +788,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   {
     return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);
   }
-   if (sp.opcde.compare("movr") == 0)
+  if (sp.opcde.compare("movr") == 0)
   {
     return parseOperandes(sp.operandes, 2, op_mov, 3, bin_mov);
   }
@@ -1486,9 +1486,6 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   return main_error;
 }
 
-
-
-
 void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
 {
   for (vector<result_parse_line *>::iterator it = asm_parsed->begin(); it != asm_parsed->end(); it++)
@@ -1549,7 +1546,7 @@ error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
 {
 
 #ifdef __CONSOLE_ESP32
-//  LedOS.pushToConsole("alculating jumps 2...");
+  //  LedOS.pushToConsole("alculating jumps 2...");
 
 #else
   // printf("Calculating jumps2 ... ");
@@ -1585,7 +1582,6 @@ error_message_struct calculateJump(uint8_t *exec, parsedLines *asm_parsed)
         error.error_message += string_format("line : %d label %s not found\n\r", parse_line->line, parse_line->getText());
       }
     }
-
   }
   // printf("Done.\r\n");
   return error;
@@ -1765,16 +1761,16 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
   uint8_t type;
   uint16_t text_size;
   uint32_t address;
-  
+
   uint32_t bincode;
   uint32_t _address;
   uint16_t size;
 
   char *textptr;
   char *textptr2;
- #ifndef __TEST_DEBUG
-  address=(uint32_t)_binary_data;
-  #endif
+#ifndef __TEST_DEBUG
+  address = (uint32_t)_binary_data;
+#endif
   memcpy(&nb_objects, binary_header, 2);
   binary_header = binary_header + 2;
   // printf("nb objecst %u\n", nb_objects);
@@ -1921,7 +1917,7 @@ executable _createExcutablefromBinary(Binary *bin)
   // printf("on cree un executbale de taiile %d et data %d \n",bin->instruction_size,bin->data_size);
   uint32_t *exec = (uint32_t *)heap_caps_malloc(bin->instruction_size, MALLOC_CAP_EXEC);
 
- uint8_t * _binary_data = (uint8_t *)malloc(bin->data_size);
+  uint8_t *_binary_data = (uint8_t *)malloc(bin->data_size);
 
   error = decodeBinaryHeader(bin->binary_data, bin->function_data, _binary_data, (uint32_t)exec, &exe, bin->instruction_size);
 
@@ -1956,8 +1952,6 @@ executable _createExcutablefromBinary(Binary *bin)
 
   return exe;
 }
-
-
 
 Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
 {
@@ -2016,6 +2010,36 @@ void freeBinary(Binary *bin)
   // delete(bin);
 }
 
+void displayBinary(Binary *bin)
+{
+  printf("char _bin[%d]={\n", 19 + 8 + bin->tmp_instruction_size + bin->function_size);
+  printf("'E','S','P','L','i','v','e','S','c','r','i','p','t','1','.','0','.','1',0x0");
+// char g[]="ESPLiveScript1.0.1";
+
+  printf(",0x%x", bin->tmp_instruction_size& 0xff);
+   printf(",0x%x", bin->tmp_instruction_size/256);
+  printf(",0x%x", bin->instruction_size& 0xff);
+  printf(",0x%x", bin->instruction_size/256);
+  printf(",0x%x", bin->data_size& 0xff);
+   printf(",0x%x", bin->data_size/256);
+  printf(",0x%x", bin->function_size&0xff);
+  printf(",0x%x", bin->function_size/256);
+  for (int i = 0; i < bin->tmp_instruction_size; i++)
+  {
+    if(*(bin->binary_data + i)>=32 and *(bin->binary_data + i)<125)
+    printf(",'%c'", *(bin->binary_data + i));
+    else
+    printf(",0x%x", *(bin->binary_data + i));
+  }
+  for (int i = 0; i < bin->function_size; i++)
+  {    
+    if(*(bin->function_data + i)>=32 and *(bin->function_data + i)<125)
+    printf(",'%c'", *(bin->function_data + i));
+    else
+    printf(",0x%x", *(bin->function_data + i));
+  }
+  printf("}\n");
+}
 void saveBinary(char *name, fs::FS &fs, Binary *bin)
 {
   File root = fs.open(name, FILE_WRITE);
@@ -2035,7 +2059,35 @@ void saveBinary(char *name, fs::FS &fs, Binary *bin)
   root.write(bin->binary_data, bin->tmp_instruction_size);
   root.write(bin->function_data, bin->function_size);
   root.close();
-  
+}
+
+void binaryFromArray(char *_array,Binary *bin)
+{
+  bin->error.error = 0;
+  char ver[19];
+  char *arr=_array;
+  if (strncmp(_array, "ESPLiveScript1.0.1",18) != 0)
+  {
+    bin->error.error = 1;
+    bin->error.error_message = string_format("wrong format expected ESPLiveScript1.0.1 got %s", (const char *)ver);
+    return;
+  }
+  arr+=19;
+  memcpy(&bin->tmp_instruction_size,arr,2);
+  arr+=2;
+   memcpy(&bin->instruction_size,arr,2);
+  arr+=2;
+    memcpy(&bin->data_size,arr,2);
+  arr+=2; 
+      memcpy(&bin->function_size,arr,2);
+  arr+=2; 
+   uint8_t *tmp = (uint8_t *)malloc(bin->tmp_instruction_size);
+   bin->binary_data = tmp;
+   memcpy(tmp,arr,bin->tmp_instruction_size);
+   arr+=bin->tmp_instruction_size;
+   uint8_t *tmp2 = (uint8_t *)malloc(bin->function_size);
+   bin->function_data = tmp2;
+   memcpy(tmp2,arr,bin->function_size);
 }
 
 void loadBinary(char *name, fs::FS &fs, Binary *bin)
@@ -2100,13 +2152,13 @@ void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
       "callx8 a15"
       : : "r"(j) //, "r"(c)
       :);
-
 }
 
 error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments)
 {
   error_message_struct res;
   // uint32_t toexecute;
+// printf("execut %d\n", handle);
   res.error = 0;
   for (int i = 0; i < ex.functions.size(); i++)
   {
@@ -2115,7 +2167,7 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
     {
       ftofind = ex.functions[i].name.substr(0, ex.functions[i].name.find_first_of("("));
     }
-
+ // printf("coparing %s\n",ftofind.c_str());
     if (ftofind.compare(function) == 0)
     {
       // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
@@ -2123,10 +2175,13 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
       //
       ex.functions[i].address = (uint32_t)(ex.start_program + ex.functions[i].address);
       uint32_t *t = (uint32_t *)ex.data;
+    // t++;
+      *t = handle;
+     t++;
       *t = handle;
       t++;
       *t = (uint32_t)exePtr;
-
+   //   printf("exx %x\n",(uint32_t)exePtr);
       uint8_t *var = (ex.data + ex.functions[i].variableaddress);
       if (ex.functions[i].args_num == arguments._args.size())
       {
@@ -2159,7 +2214,7 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
     }
   }
   res.error = 1;
-  res.error_message = string_format("Impossible to execute %s: not found\n", function.c_str());
+  res.error_message = string_format("Immpossible to execute %s: not found\n", function.c_str());
   return res;
 }
 

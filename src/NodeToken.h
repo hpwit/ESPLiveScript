@@ -41,6 +41,7 @@ uint32_t __startStackMemory;
 uint32_t __MaxStackMemory;
 uint32_t __endtime;
 uint32_t __starttime;
+bool addfloatdivision=false;
 int savestacksize = 0;
 bool oneFunction = false;
 
@@ -2051,6 +2052,7 @@ void _visitoperatorNode(NodeToken *nd)
             bufferText->addAfter(string_format("mov.s f2,f%d", register_numr.get()));
             bufferText->addAfter("call8  @___div(d|d)");
             bufferText->addAfter(string_format("mov.s f%d,f0", register_numl.get()));
+            addfloatdivision=true;
         }
         else
         {
@@ -2566,17 +2568,19 @@ void _visitdefFunctionNode(NodeToken *nd)
         }
         header.addAfter(string_format(".var %d%s", nd->getChildAtPos(1)->children_size(), variables.c_str()));
     }
-
+if(nd->getChildAtPos(1)->children_size()>-1)
+{
     header.addAfter(string_format("@_stack__%s:", nd->getTokenText()));
     header.addAfter(string_format(".bytes %d", (nd->getChildAtPos(1)->children_size() + 1) * 4));
-
+}
     if (!isStructFunction)
     {
         bufferText->addAfter(string_format("@__%s:", nd->getTokenText()));
-        bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
+       
         NodeToken *variaToken = nd->getChildAtPos(1);
         if (variaToken->children_size() > 0)
         {
+             bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
             bufferText->addAfter(string_format("l32r a9,@_stack__%s", nd->getTokenText()));
         }
         for (int k = 0; k < variaToken->children_size(); k++)
@@ -2595,8 +2599,11 @@ void _visitdefFunctionNode(NodeToken *nd)
             }
             //}
         }
+        if (variaToken->children_size() > 0)
+        {
         bufferText->addAfter(string_format("call8 @_%s", nd->getTokenText()));
         bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
+        }
     }
 
     bufferText->addAfter(string_format("@_%s:", nd->getTokenText()));
@@ -2678,18 +2685,18 @@ void _visitprogramNode(NodeToken *nd)
 
     //  header.addAfter("@_stack:");
     // header.addAfter(".bytes 60");
-    header.addAfter("@__handle_:");
-    header.addAfter(".bytes 4");
-    header.addAfter("@__execaddr_:");
-    header.addAfter(".bytes 4");
-    header.addAfter("@__sync:");
-    header.addAfter(".bytes 4");
-    header.addAfter("@_stackr:");
-    header.addAfter(".bytes 32");
-    header.addAfter(".global @__footer");
-
-    footer.addAfter("@__footer:");
-    footer.addAfter("entry a1,144");
+    header.addBefore("@__handle_:");
+    header.addBefore(".bytes 4");
+    header.addBefore("@__execaddr_:");
+    header.addBefore(".bytes 4");
+    header.addBefore("@__sync:");
+    header.addBefore(".bytes 4");
+   // header.addAfter("@_stackr:");
+    //header.addAfter(".bytes 32");
+    
+    footer.addBefore(" ");
+   //footer.addAfter("@__footer:");
+   //footer.addAfter("entry a1,144");
 
     // header.addAfter("__basetime:");
     // header.addAfter(".bytes 4");
@@ -2710,7 +2717,32 @@ void _visitprogramNode(NodeToken *nd)
         } // NEW
 #endif
     }
+
+    //footer.addAfter("retw.n");
+    
+    if(footer.size()>1)
+    {
+        header.addAfter(".global @__footer");
     footer.addAfter("retw.n");
+    footer.begin();
+     
+    footer.addBefore("entry a1,144");
+   footer.begin();
+    footer.addBefore("@__footer:");
+    }
+
+    if(addfloatdivision)
+    {
+        header.addAfter(" .global @___div(d|d)");
+ header.addAfter("@_stack___div(d|d):");
+ header.addAfter(".bytes 12");
+ content.end();
+ for(int i=0;i<_div_size;i++)
+ {
+    content.addAfter(string(_div[i]));
+ }
+    }
+    
 }
 void _visitassignementNode(NodeToken *nd)
 {
@@ -4688,7 +4720,10 @@ void optimize(Text *text)
                 {
                     str = "__";
                 }
-
+                else if(tmp.find("callExt")!=-1)
+                {
+                    str="__";
+                }
                 else
                 {
                     vector<string> d = split(tmp, " ");
@@ -4773,6 +4808,7 @@ void optimize(Text *text)
     vector<string> from;
     vector<string> to;
     vector<int> index;
+    
     for (int i = 0; i < text->size(); i++)
     {
         if (*text->getChildAtPos(i) != NULL)
@@ -4790,8 +4826,35 @@ void optimize(Text *text)
                     from.push_back(d1[0]);
                     to.push_back(d1[1]);
                 }
+               if( strncmp(d[0].c_str(),"b",1)==0)
+               {
+                    vector<string> d2 = split(d[1], ",");
+                     found=false;
+                     int ind=-1;
+                    for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[0].compare(to[mp]) == 0)
+                            {
+                                found = true;
+                                ind=mp;
+                            }
+                        }
+                        if(found)
+                        {
+                            vector<string>::iterator nth = from.begin() + ind;
+                            from.erase(nth);
+                            nth = to.begin() + ind;
+                            to.erase(nth);
+                            vector<int>::iterator nth2 = index.begin() + ind;
+                            index.erase(nth2);
+                        }
+               }
+                
                 if (index.size() > 0)
                 {
+                    
+                     
+
                     if (d[0].compare("bnez") == 0 or d[0].compare("beqz") == 0)
                     {
                         vector<string> d2 = split(d[1], ",");
@@ -4811,33 +4874,6 @@ void optimize(Text *text)
                         if (!found)
                             newstr = newstr + d2[0] + ",";
                         newstr = newstr + d2[1];
-                        text->replaceText(i, newstr);
-                        index.clear();
-                        index.shrink_to_fit();
-                        from.clear();
-                        from.shrink_to_fit();
-                        to.clear();
-                        to.shrink_to_fit();
-                    }
-                    else if (d[0].compare("mov") == 0)
-                    {
-                        vector<string> d2 = split(d[1], ",");
-                        string newstr = d[0] + " " + d2[0] + ",";
-                        bool found = false;
-                        for (int mp = 0; mp < index.size(); mp++)
-                        {
-                            if (d2[1].compare(from[mp]) == 0)
-                            {
-                                newstr = newstr + to[mp];
-                                text->replaceText(index[mp], " ");
-
-                                found = true;
-                                ;
-                            }
-                        }
-                        if (!found)
-                            newstr = newstr + d2[1];
-
                         text->replaceText(i, newstr);
                         index.clear();
                         index.shrink_to_fit();
@@ -4889,6 +4925,35 @@ void optimize(Text *text)
                         to.clear();
                         to.shrink_to_fit();
                     }
+                    else if (d[0].compare("mov") == 0)
+                    {
+
+                        vector<string> d2 = split(d[1], ",");
+                        string newstr = d[0] + " " + d2[0] + ",";
+                        bool found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[1].compare(from[mp]) == 0)
+                            {
+                                newstr = newstr + to[mp];
+                                text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ;
+                            }
+                        }
+                        if (!found)
+                            newstr = newstr + d2[1];
+
+                        text->replaceText(i, newstr);
+                        index.clear();
+                        index.shrink_to_fit();
+                        from.clear();
+                        from.shrink_to_fit();
+                        to.clear();
+                        to.shrink_to_fit();
+                    }
+                    
                     else if (d[0].compare("float.s") == 0 or d[0].compare("l32i") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("addi") == 0)
                     {
                         vector<string> d2 = split(d[1], ",");
@@ -4957,14 +5022,16 @@ void optimize(Text *text)
                         to.clear();
                         to.shrink_to_fit();
                     }
-                    else
+                    else if(d[0].find_first_of(":")!=std::string::npos or d[0].compare("call8") == 0 or d[0].compare("callExt") == 0)
                     {
+                        
                         index.clear();
                         index.shrink_to_fit();
                         from.clear();
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
+                        
                     }
                 }
             }

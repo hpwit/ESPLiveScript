@@ -663,6 +663,7 @@ static void _run_task(void *pvParameters)
     //  _exe_args *_fg = exec->df;
     exec->_isRunning = true;
     Arguments d;
+    //printf("as a ttaks:%d\n\r",exec->__run_handle_index);
     if (exec->df.args.size() > 0)
     {
                 error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec,d);
