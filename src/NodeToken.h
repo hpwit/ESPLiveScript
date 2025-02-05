@@ -4720,10 +4720,11 @@ void optimize(Text *text)
                 {
                     str = "__";
                 }
+                /*
                 else if(tmp.find("callExt")!=-1)
                 {
                     str="__";
-                }
+                }*/
                 else
                 {
                     vector<string> d = split(tmp, " ");

@@ -316,6 +316,20 @@ public:
         }
         _executecmd = _executable;
     }
+    void createExecutableFromBinary(Binary *bin)
+    {
+        _executecmd=createExectutable(bin);
+        if (_executecmd.error.error == 0)
+        {
+
+            exeExist = true;
+        }
+        else
+        {
+            printf("%s\n\r",_executecmd.error.error_message.c_str());
+            exeExist = false;
+        }
+    }
     void setExecutable(executable _executable)
     {
         _executecmd = _executable;
