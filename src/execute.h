@@ -316,6 +316,7 @@ public:
         }
         _executecmd = _executable;
     }
+    #ifndef __TEST_DEBUG
     void createExecutableFromBinary(Binary *bin)
     {
         _executecmd=createExectutable(bin);
@@ -330,6 +331,7 @@ public:
             exeExist = false;
         }
     }
+    #endif
     void setExecutable(executable _executable)
     {
         _executecmd = _executable;

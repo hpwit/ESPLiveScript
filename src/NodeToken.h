@@ -41,7 +41,7 @@ uint32_t __startStackMemory;
 uint32_t __MaxStackMemory;
 uint32_t __endtime;
 uint32_t __starttime;
-bool addfloatdivision=false;
+bool addfloatdivision = false;
 int savestacksize = 0;
 bool oneFunction = false;
 
@@ -1646,7 +1646,7 @@ Stack<varTypeEnum> globalType = Stack<varTypeEnum>(__int__);
 void _visittypeNode(NodeToken *nd) {}
 void _visitstoreLocalVariableNodeAsRegister(NodeToken *nd)
 {
-    bufferText->addAfter(bufferText->sp.pop(),string_format("mov a%d,a%d", nd->target, register_numl.get()));
+    bufferText->addAfter(bufferText->sp.pop(), string_format("mov a%d,a%d", nd->target, register_numl.get()));
 }
 void _visitlocalVariableNodeAsRegister(NodeToken *nd)
 {
@@ -1782,7 +1782,9 @@ void _visitnumberNode(NodeToken *nd)
             }
             else
             {
+                // printf("Pour %s\n",bufferText->current().c_str());
                 bufferText->addAfter(string_format("movi a%d,%d", register_numl.get(), __num)); // nd->_token->text.c_str()));
+                                                                                                // printf("on a %s\n",bufferText->current().c_str());
                 bufferText->sp.push(bufferText->get());
                 register_numl.decrease();
             }
@@ -1793,13 +1795,14 @@ void _visitnumberNode(NodeToken *nd)
 void _visitbinOpNode(NodeToken *nd)
 {
 
-    // //printf("bin operator\n");
+    // printf("bin operator\n");
     // register_numl.displaystack();
     register_numl.duplicate();
     // register_numr.duplicate();
     // if (nd->getChildAtPos(0)->visitNode != NULL)
     nd->getChildAtPos(0)->visitNode();
-    // register_numl.displaystack();
+    // printf("ddd %s\n",bufferText->back().c_str());
+    //  register_numl.displaystack();
     register_numl.duplicate();
     // register_numr.duplicate();
     if (nd->type != TokenPower)
@@ -1968,7 +1971,8 @@ void _visitoperatorNode(NodeToken *nd)
         }
         string new_line = string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get());
 
-        string _last = bufferText->back();
+        string _last = bufferText->current();
+        ; // bufferText->back();
         string tocmp = string_format("movi a%d,", register_numr.get());
         // printf("to found %s\r\n",_last,tocmp);
         if (_last.compare(0, tocmp.size(), tocmp) == 0)
@@ -1978,7 +1982,8 @@ void _visitoperatorNode(NodeToken *nd)
             sscanf(_last.c_str(), "movi a%d,%d", &a, &b);
             if (b >= -128 and b <= 127)
             {
-                bufferText->pop();
+                // bufferText->pop();
+                bufferText->blankCurrent();
                 bufferText->addAfter(string_format("addi a%d,a%d,%d", register_numl.get(), register_numl.get(), b));
             }
             else
@@ -2018,9 +2023,9 @@ void _visitoperatorNode(NodeToken *nd)
         }
         string new_line = string_format("%s %s%d,%s%d,%s%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), register_numl.get(), getRegType(asmInstr, 1).c_str(), register_numl.get(), getRegType(asmInstr, 2).c_str(), register_numr.get());
 
-        string _last = bufferText->back();
+        string _last = bufferText->current();
         string tocmp = string_format("movi a%d,", register_numr.get());
-        // printf("to found %s\r\n",_last,tocmp);
+        //  printf("to found %s %s\r\n", bufferText->current().c_str(), tocmp.c_str());
         if (_last.compare(0, tocmp.size(), tocmp) == 0)
         {
             //   printf("to found %s\r\n",_last,tocmp);
@@ -2028,7 +2033,8 @@ void _visitoperatorNode(NodeToken *nd)
             sscanf(_last.c_str(), "movi a%d,%d", &a, &b);
             if (b >= -128 and b <= 127)
             {
-                bufferText->pop();
+                // bufferText->pop();
+                bufferText->blankCurrent();
                 bufferText->addAfter(string_format("addi a%d,a%d,-%d", register_numl.get(), register_numl.get(), b));
             }
             else
@@ -2052,7 +2058,7 @@ void _visitoperatorNode(NodeToken *nd)
             bufferText->addAfter(string_format("mov.s f2,f%d", register_numr.get()));
             bufferText->addAfter("call8  @___div(d|d)");
             bufferText->addAfter(string_format("mov.s f%d,f0", register_numl.get()));
-            addfloatdivision=true;
+            addfloatdivision = true;
         }
         else
         {
@@ -2568,19 +2574,19 @@ void _visitdefFunctionNode(NodeToken *nd)
         }
         header.addAfter(string_format(".var %d%s", nd->getChildAtPos(1)->children_size(), variables.c_str()));
     }
-if(nd->getChildAtPos(1)->children_size()>-1)
-{
-    header.addAfter(string_format("@_stack__%s:", nd->getTokenText()));
-    header.addAfter(string_format(".bytes %d", (nd->getChildAtPos(1)->children_size() + 1) * 4));
-}
+    if (nd->getChildAtPos(1)->children_size() > -1)
+    {
+        header.addAfter(string_format("@_stack__%s:", nd->getTokenText()));
+        header.addAfter(string_format(".bytes %d", (nd->getChildAtPos(1)->children_size() + 1) * 4));
+    }
     if (!isStructFunction)
     {
         bufferText->addAfter(string_format("@__%s:", nd->getTokenText()));
-       
+
         NodeToken *variaToken = nd->getChildAtPos(1);
         if (variaToken->children_size() > 0)
         {
-             bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
+            bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
             bufferText->addAfter(string_format("l32r a9,@_stack__%s", nd->getTokenText()));
         }
         for (int k = 0; k < variaToken->children_size(); k++)
@@ -2601,8 +2607,8 @@ if(nd->getChildAtPos(1)->children_size()>-1)
         }
         if (variaToken->children_size() > 0)
         {
-        bufferText->addAfter(string_format("call8 @_%s", nd->getTokenText()));
-        bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
+            bufferText->addAfter(string_format("call8 @_%s", nd->getTokenText()));
+            bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
         }
     }
 
@@ -2691,12 +2697,12 @@ void _visitprogramNode(NodeToken *nd)
     header.addBefore(".bytes 4");
     header.addBefore("@__sync:");
     header.addBefore(".bytes 4");
-   // header.addAfter("@_stackr:");
-    //header.addAfter(".bytes 32");
-    
+    // header.addAfter("@_stackr:");
+    // header.addAfter(".bytes 32");
+
     footer.addBefore(" ");
-   //footer.addAfter("@__footer:");
-   //footer.addAfter("entry a1,144");
+    // footer.addAfter("@__footer:");
+    // footer.addAfter("entry a1,144");
 
     // header.addAfter("__basetime:");
     // header.addAfter(".bytes 4");
@@ -2718,31 +2724,30 @@ void _visitprogramNode(NodeToken *nd)
 #endif
     }
 
-    //footer.addAfter("retw.n");
-    
-    if(footer.size()>1)
+    // footer.addAfter("retw.n");
+
+    if (footer.size() > 1)
     {
         header.addAfter(".global @__footer");
-    footer.addAfter("retw.n");
-    footer.begin();
-     
-    footer.addBefore("entry a1,144");
-   footer.begin();
-    footer.addBefore("@__footer:");
+        footer.addAfter("retw.n");
+        footer.begin();
+
+        footer.addBefore("entry a1,144");
+        footer.begin();
+        footer.addBefore("@__footer:");
     }
 
-    if(addfloatdivision)
+    if (addfloatdivision)
     {
         header.addAfter(" .global @___div(d|d)");
- header.addAfter("@_stack___div(d|d):");
- header.addAfter(".bytes 12");
- content.end();
- for(int i=0;i<_div_size;i++)
- {
-    content.addAfter(string(_div[i]));
- }
+        header.addAfter("@_stack___div(d|d):");
+        header.addAfter(".bytes 12");
+        content.end();
+        for (int i = 0; i < _div_size; i++)
+        {
+            content.addAfter(string(_div[i]));
+        }
     }
-    
 }
 void _visitassignementNode(NodeToken *nd)
 {
@@ -2978,7 +2983,7 @@ void _visitcomparatorNode(NodeToken *nd)
         return;
     }
     // printf("test node\n\r");
-    // nd->getChildAtPos(0)->visitNode();
+    //  nd->getChildAtPos(0)->visitNode();
     nd = nd->getChildAtPos(0);
     nd->_total_size = nd->parent->_total_size;
     nd->setTargetText(string(nd->parent->getTargetText()));
@@ -3107,7 +3112,7 @@ void _visitcomparatorNode(NodeToken *nd)
     }
     else
     {
-        if (nd->_total_size > 116)
+        if (nd->_total_size > 127)
         {
             switch (nd->type)
             {
@@ -3439,8 +3444,8 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
             globalType.pop();
         }
     }
-    
-   // bufferText->end();
+
+    // bufferText->end();
     for (int i = 0; i < nd->getChildAtPos(0)->children_size(); i++)
     {
         if (i < 7)
@@ -3468,7 +3473,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
             }
         }
     }
-    
+
     if (isExtCall)
     {
         bufferText->addAfter(string_format("callExt a8,@_%s", nd->getTokenText()));
@@ -3641,7 +3646,7 @@ void _visitcallFunctionNode(NodeToken *nd)
             bufferText->addAfter(string_format("mov a%d,a10", register_numl.get()));
         }
         // bufferText->sp.push(bufferText->get());
-      bufferText->sp.push(bufferText->get());
+        bufferText->sp.push(bufferText->get());
         register_numl.decrease();
     }
 }
@@ -4809,7 +4814,7 @@ void optimize(Text *text)
     vector<string> from;
     vector<string> to;
     vector<int> index;
-    
+
     for (int i = 0; i < text->size(); i++)
     {
         if (*text->getChildAtPos(i) != NULL)
@@ -4822,25 +4827,102 @@ void optimize(Text *text)
                 vector<string> d = split(tmp, " ");
                 if (d[0].compare("movr") == 0)
                 {
+                    int ind = -1;
+                    found = false;
                     vector<string> d1 = split(d[1], ",");
+                    for (int mp = 0; mp < index.size(); mp++)
+                    {
+                        if (d1[1].compare(to[mp]) == 0)
+                        {
+                            found = true;
+                            ind = mp;
+                        }
+                    }
+                    if (found)
+                    {
+                        vector<string>::iterator nth = from.begin() + ind;
+                        from.erase(nth);
+                        nth = to.begin() + ind;
+                        to.erase(nth);
+                        vector<int>::iterator nth2 = index.begin() + ind;
+                        index.erase(nth2);
+                    }
+
+                    found = false;
+                    for (int mp = 0; mp < index.size(); mp++)
+                    {
+                        if (d1[0].compare(from[mp]) == 0)
+                        {
+                            found = true;
+                            ind = mp;
+                        }
+                    }
+                    if (found)
+                    {
+                        vector<string>::iterator nth = from.begin() + ind;
+                        from.erase(nth);
+                        nth = to.begin() + ind;
+                        to.erase(nth);
+                        vector<int>::iterator nth2 = index.begin() + ind;
+                        index.erase(nth2);
+                    }
+
                     index.push_back(i);
                     from.push_back(d1[0]);
                     to.push_back(d1[1]);
                 }
-               if( strncmp(d[0].c_str(),"b",1)==0)
-               {
+
+                if (strncmp(d[0].c_str(), "b", 1) == 0)
+                {
                     vector<string> d2 = split(d[1], ",");
-                     found=false;
-                     int ind=-1;
+                    found = false;
+                    int ind = -1;
                     for (int mp = 0; mp < index.size(); mp++)
+                    {
+                        if (d2[0].compare(to[mp]) == 0)
                         {
-                            if (d2[0].compare(to[mp]) == 0)
+                            found = true;
+                            ind = mp;
+                        }
+                    }
+                    if (found)
+                    {
+                        vector<string>::iterator nth = from.begin() + ind;
+                        from.erase(nth);
+                        nth = to.begin() + ind;
+                        to.erase(nth);
+                        vector<int>::iterator nth2 = index.begin() + ind;
+                        index.erase(nth2);
+                    }
+                }
+
+                if (index.size() > 0)
+                {
+                    // printf("ddd :%s\n",*text->getChildAtPos(i));
+                    if (d[0].compare("bnez") == 0 or d[0].compare("beqz") == 0)
+                    {
+                        vector<string> d2 = split(d[1], ",");
+                        string newstr = d[0] + " ";
+                        int ind = -1;
+                        bool found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[0].compare(from[mp]) == 0)
                             {
+                                newstr = newstr + to[mp] + ",";
+                                text->replaceText(index[mp], " ");
+
                                 found = true;
-                                ind=mp;
+                                ind = mp;
+                                ;
                             }
                         }
-                        if(found)
+                        if (!found)
+                            newstr = newstr + d2[0] + ",";
+                        newstr = newstr + d2[1];
+                        text->replaceText(i, newstr);
+                        /*
+                        if (found)
                         {
                             vector<string>::iterator nth = from.begin() + ind;
                             from.erase(nth);
@@ -4849,39 +4931,16 @@ void optimize(Text *text)
                             vector<int>::iterator nth2 = index.begin() + ind;
                             index.erase(nth2);
                         }
-               }
-                
-                if (index.size() > 0)
-                {
-                    
-                     
-
-                    if (d[0].compare("bnez") == 0 or d[0].compare("beqz") == 0)
-                    {
-                        vector<string> d2 = split(d[1], ",");
-                        string newstr = d[0] + " ";
-                        bool found = false;
-                        for (int mp = 0; mp < index.size(); mp++)
-                        {
-                            if (d2[0].compare(from[mp]) == 0)
-                            {
-                                newstr = newstr + to[mp] + ",";
-                                text->replaceText(index[mp], " ");
-
-                                found = true;
-                                ;
-                            }
-                        }
-                        if (!found)
-                            newstr = newstr + d2[0] + ",";
-                        newstr = newstr + d2[1];
-                        text->replaceText(i, newstr);
+                        */
+                        /*
                         index.clear();
                         index.shrink_to_fit();
                         from.clear();
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
+                        */
+                        // printf("new %s\n",newstr.c_str());
                     }
                     else if (d[0].compare("bge") == 0 or d[0].compare("blt") == 0 or d[0].compare("beq") == 0 or d[0].compare("bne") == 0)
                     {
@@ -4889,6 +4948,7 @@ void optimize(Text *text)
                         vector<string> d2 = split(d[1], ",");
                         string newstr = d[0] + " ";
                         bool found = false;
+                        int ind = -1;
                         for (int mp = 0; mp < index.size(); mp++)
                         {
                             if (d2[0].compare(from[mp]) == 0)
@@ -4897,11 +4957,22 @@ void optimize(Text *text)
                                 text->replaceText(index[mp], " ");
 
                                 found = true;
+                                ind = mp;
                                 ;
                             }
                         }
                         if (!found)
                             newstr = newstr + d2[0] + ",";
+
+                        if (found)
+                        {
+                            vector<string>::iterator nth = from.begin() + ind;
+                            from.erase(nth);
+                            nth = to.begin() + ind;
+                            to.erase(nth);
+                            vector<int>::iterator nth2 = index.begin() + ind;
+                            index.erase(nth2);
+                        }
                         found = false;
                         for (int mp = 0; mp < index.size(); mp++)
                         {
@@ -4909,7 +4980,7 @@ void optimize(Text *text)
                             {
                                 newstr = newstr + to[mp] + ",";
                                 text->replaceText(index[mp], " ");
-
+                                ind = mp;
                                 found = true;
                                 ;
                             }
@@ -4919,17 +4990,58 @@ void optimize(Text *text)
 
                         newstr = newstr + d2[2];
                         text->replaceText(i, newstr);
+
+                        if (found)
+                        {
+                            vector<string>::iterator nth = from.begin() + ind;
+                            from.erase(nth);
+                            nth = to.begin() + ind;
+                            to.erase(nth);
+                            vector<int>::iterator nth2 = index.begin() + ind;
+                            index.erase(nth2);
+                        }
+                        /*
                         index.clear();
                         index.shrink_to_fit();
                         from.clear();
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
+                        */
+                        //printf("new %s\n", newstr.c_str());
                     }
-                    else if (d[0].compare("mov") == 0)
+                    else if (d[0].compare("movi") == 0 or d[0].compare("rsr") == 0 or d[0].compare("wsr") == 0 or d[0].compare("ssl") == 0)
+                    {
+                        vector<string> d2 = split(d[1], ",");
+                        int ind;
+                        found = false;
+
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[0].compare(from[mp]) == 0)
+                            {
+                                // newstr = newstr + to[mp];
+                                // text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ind = mp;
+                            }
+                        }
+                        if (found)
+                        {
+                            vector<string>::iterator nth = from.begin() + ind;
+                            from.erase(nth);
+                            nth = to.begin() + ind;
+                            to.erase(nth);
+                            vector<int>::iterator nth2 = index.begin() + ind;
+                            index.erase(nth2);
+                        }
+                    }
+                    else if (d[0].compare("neg") == 0 or d[0].compare("abs") == 0 or d[0].compare("mov") == 0 or d[0].compare("sll") == 0 or d[0].compare("srl") == 0)
                     {
 
                         vector<string> d2 = split(d[1], ",");
+                        int ind;
                         string newstr = d[0] + " " + d2[0] + ",";
                         bool found = false;
                         for (int mp = 0; mp < index.size(); mp++)
@@ -4940,24 +5052,50 @@ void optimize(Text *text)
                                 text->replaceText(index[mp], " ");
 
                                 found = true;
-                                ;
+                                ind = mp;
                             }
                         }
                         if (!found)
                             newstr = newstr + d2[1];
 
                         text->replaceText(i, newstr);
+                        found = false;
+
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[0].compare(from[mp]) == 0)
+                            {
+                                // newstr = newstr + to[mp];
+                                // text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ind = mp;
+                            }
+                        }
+                        if (found)
+                        {
+                            vector<string>::iterator nth = from.begin() + ind;
+                            from.erase(nth);
+                            nth = to.begin() + ind;
+                            to.erase(nth);
+                            vector<int>::iterator nth2 = index.begin() + ind;
+                            index.erase(nth2);
+                        }
+                        /*
                         index.clear();
                         index.shrink_to_fit();
                         from.clear();
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
+                        */
+                       // printf("new %s\n", newstr.c_str());
                     }
-                    
-                    else if (d[0].compare("float.s") == 0 or d[0].compare("l32i") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("addi") == 0)
+
+                    else if (d[0].compare("round.s") == 0 or d[0].compare("floor.s") == 0 or d[0].compare("float.s") == 0 or d[0].compare("l32i") == 0 or d[0].compare("s32i") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16si") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("s8i") == 0 or d[0].compare("s16i") == 0 or d[0].compare("addi") == 0 or d[0].compare("trunc.s") == 0)
                     {
                         vector<string> d2 = split(d[1], ",");
+                        int ind;
                         string newstr = d[0] + " " + d2[0] + ",";
                         bool found = false;
                         for (int mp = 0; mp < index.size(); mp++)
@@ -4966,7 +5104,7 @@ void optimize(Text *text)
                             {
                                 newstr = newstr + to[mp] + ",";
                                 text->replaceText(index[mp], " ");
-
+                                ind = mp;
                                 found = true;
                                 ;
                             }
@@ -4975,15 +5113,42 @@ void optimize(Text *text)
                             newstr = newstr + d2[1] + ",";
                         newstr = newstr + d2[2];
                         text->replaceText(i, newstr);
+
+                        found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[0].compare(from[mp]) == 0)
+                            {
+                                // newstr = newstr + to[mp] + ",";
+                                // text->replaceText(index[mp], " ");
+                                ind = mp;
+                                found = true;
+                                ;
+                            }
+                        }
+                        if (found)
+                        {
+                            vector<string>::iterator nth = from.begin() + ind;
+                            from.erase(nth);
+                            nth = to.begin() + ind;
+                            to.erase(nth);
+                            vector<int>::iterator nth2 = index.begin() + ind;
+                            index.erase(nth2);
+                        }
+                        /*
                         index.clear();
                         index.shrink_to_fit();
                         from.clear();
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
+                        */
+                      //  printf("new %s\n", newstr.c_str());
                     }
-                    else if (d[0].compare("mull") == 0 or d[0].compare("sub") == 0 or d[0].compare("add") == 0 or d[0].compare("quou") == 0 or d[0].compare("quos") == 0)
+                    else if (d[0].compare("remu") == 0 or d[0].compare("or") == 0 or d[0].compare("and") == 0 or d[0].compare("mull") == 0 or d[0].compare("sub") == 0 or d[0].compare("add") == 0 or d[0].compare("quou") == 0 or d[0].compare("quos") == 0)
                     {
+                        int ind = -1;
+
                         vector<string> d2 = split(d[1], ",");
                         string newstr = d[0] + " " + d2[0] + ",";
                         bool found = false;
@@ -4995,11 +5160,13 @@ void optimize(Text *text)
                                 text->replaceText(index[mp], " ");
 
                                 found = true;
+                                ind = mp;
                                 ;
                             }
                         }
                         if (!found)
                             newstr = newstr + d2[1] + ",";
+
                         found = false;
                         for (int mp = 0; mp < index.size(); mp++)
                         {
@@ -5008,31 +5175,58 @@ void optimize(Text *text)
                             {
                                 newstr = newstr + to[mp];
                                 found = true;
-                                ;
-                                ;
+                                ind = mp;
+
                                 text->replaceText(index[mp], " ");
                             }
                         }
                         if (!found)
                             newstr = newstr + d2[2];
+
+                        found = false;
+                        for (int mp = 0; mp < index.size(); mp++)
+                        {
+                            if (d2[0].compare(from[mp]) == 0)
+                            {
+                                // newstr = newstr + to[mp] + ",";
+                                //   text->replaceText(index[mp], " ");
+
+                                found = true;
+                                ind = mp;
+                                ;
+                            }
+                        }
+
+                        if (found)
+                        {
+                            vector<string>::iterator nth = from.begin() + ind;
+                            from.erase(nth);
+                            nth = to.begin() + ind;
+                            to.erase(nth);
+                            vector<int>::iterator nth2 = index.begin() + ind;
+                            index.erase(nth2);
+                        }
                         text->replaceText(i, newstr);
+
+                       // printf("new %s\n", newstr.c_str());
+                        /*
                         index.clear();
                         index.shrink_to_fit();
                         from.clear();
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
+                        */
                     }
-                    else if(d[0].find_first_of(":")!=std::string::npos or d[0].compare("call8") == 0 or d[0].compare("callExt") == 0)
+                    else if (d[0].find_first_of(":") != std::string::npos or d[0].compare("call8") == 0 or d[0].compare("callExt") == 0)
                     {
-                        
+
                         index.clear();
                         index.shrink_to_fit();
                         from.clear();
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
-                        
                     }
                 }
             }
