@@ -231,6 +231,26 @@ public:
         else
             return "";
     }
+    string current()
+    {
+        return string(*_it);
+    }
+    void blankCurrent()
+    {
+        int pos = findText(" ");
+        if(pos>-1)
+        {
+            *_it=_texts[pos];
+        }
+        else
+        {
+            string str=" ";
+            m = (char *)malloc(str.size() + 1);
+            memcpy(m, str.c_str(), str.size());
+            m[str.size()] = 0;
+            *_it=m;
+        }
+    }
     string front()
     {
         if (_texts.size() > 0)

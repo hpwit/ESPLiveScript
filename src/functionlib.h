@@ -1,10 +1,10 @@
 #include <string>
-#include <list>
+
 #pragma once
 #ifndef __FUNCTION_LIB
 #define __FUNCTION_LIB
 
- list<int> add_on;
+// vector<int> add_on;
 //string division="";
 string _sync="\
 uint32_t _handle_;\n\
@@ -14,7 +14,7 @@ __ASM__ void sync()\n\
 \"entry a1,32\" \n\
 \"l32r a4,@__handle_\" \n\
 \"l32i a10,a4,0\" \n\
-\"callExt _sync\"\n\
+\"callExt a8,@__sync\"\n\
 \"retw.n\" \n\
 }@";
 string division="\
@@ -48,7 +48,39 @@ __ASM__ float __div(float a,float b)\n\
 \"divn.s f0, f2, f6\"\n\
 \"retw.n\"\n\
 }@";
+char * _div[]={
+"@___div(d|d):",
+"entry a1,16",
+"div0.s f3, f2",
+"nexp01.s f4, f2",
+"const.s f5, 1",
+"maddn.s f5, f4, f3",
+"mov.s f6, f3",
+"mov.s f7, f2",
+"nexp01.s f2, f1",
+"maddn.s f6, f5, f6",
+"const.s f5, 1",
+"const.s f0, 0",
+"neg.s f8, f2",
+"maddn.s f5, f4, f6",
+"maddn.s f0, f8, f3",
+"mkdadj.s f7, f1",
+"maddn.s f6, f5, f6",
+"maddn.s f8, f4, f0",
+"const.s f3, 1",
+"maddn.s f3, f4, f6",
+"maddn.s f0, f8, f6",
+"neg.s f2, f2",
+"maddn.s f6, f3, f6",
+"maddn.s f2, f4, f0",
+"addexpm.s f0, f7",
+"addexp.s f6, f7",
+"divn.s f0, f2, f6",
+"retw.n"
+};
+int _div_size=28;
 
+#if _TRIGGER ==0
 string _rand="\
 __ASM__ uint32_t rand(uint32_t mod) \n\
 {\n\
@@ -67,7 +99,25 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 //\"s32i a15,a4,0\" \n\
 \"retw.n\" \n\
 }@";
-
+#else
+string _rand="\__ASM__ uint32_t rand(uint32_t mod) \n\
+{\n\
+\"entry a1,56\" \n\
+//\"l32r a4,@_stack_rand(d)\" \n\
+//\"l32i a3,a4,0\" \n\
+\"rsr a14,234\" \n\
+\"mov a13,a14\" \n\
+\"mull a14,a14,a14\" \n\
+\"mull a14,a14,a13\" \n\
+\"mull a14,a14,a14\" \n\
+\"add a14,a14,a13\" \n\
+\"addi a14,a13,1\" \n\
+\"remu a2,a14,a2\" \n\
+//\"l32r a4,@_stackr\" \n\
+//\"s32i a15,a4,0\" \n\
+\"retw.n\" \n\
+}@";
+#endif
 string _copycode="\
 __ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
 { \n\
@@ -143,8 +193,8 @@ loop();\n\
 }\n\
 ";
 string base_ext_functions="\n\
-define true 1\n\
-define false 0\n\
+#define true 1\n\
+#define false 0\n\
 @";
 
 //external void printfln(char * s,Args a);\n

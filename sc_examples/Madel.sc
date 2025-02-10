@@ -5,11 +5,15 @@
 //  Version  Author        Date
 //   1.0.0    JEM(ZRanger1) 12/08/2020
 
+//save_reg
+
 
 #define maxIterations 15 
 #define width 128 
 #define height 96 
-#define scale 0.5
+
+external CRGB leds[height,width];
+#define scale 1
 uint32_t __deltamillis[1];
 
 uint32_t __baseTime[1];
@@ -35,7 +39,7 @@ __ASM__ uint32_t millis()
 float cR = -0.94299;
 float cI = 0.3162;
 
-float cX, cY, fX, fY;
+float cX, cY;//, fX, fY;
 
 // timers used to animate movement and color
 float t1, t2;
@@ -70,37 +74,39 @@ void beforeRender()
 
 void render2D(int x1, int y1)
 {
-   float x = (x1 / width - 0.5) / scale;
-   float y = (y1 / height - 0.5) / scale;
-   int iter;
-   for (iter = 0; iter < maxIterations; iter++)
+   float x0 = (x1*2.7)/ width-2.1 ;
+   float y0 = (y1*2.2)/height - 1.1;
+   float x = 0 ;
+    float y = 0;
+    float x2=0;
+    float y2=0;
+   int iter=0;
+   while (iter < maxIterations  && x2+y2<=4)
    {
-      float x2 = x ^ 2;
-      float y2 = y ^ 2;
-      if ((int)(x2 + y2) >= 4)
-      {
-         break;
-      }
-      fX = x2 - y2 + cX;
-      fY = 2 * x * y + cY;
+
+     float fX = x2 - y2 + x0;
+      y = 2 * x * y + y0;
       x = fX;
-      y = fY;
+       x2 = x *x ;
+       y2 = y *y;
+       iter++;
+    
    }
 
    if (iter < maxIterations)
    {
-      leds[width * y1 + x1] = hsv((t2 + iter / maxIterations) * 255, 255, 255);
+      leds[y1, x1] = hsv(t2+(iter / maxIterations) * 255, 255, 255);
    }
    else
    {
-      leds[width * y1 + x1] = CRGB(0, 0, 0);
+      leds[y1,x1] = CRGB(0, 0, 0);
    }
 }
 
 void main()
 {
-   clear();
-   resetStat();
+  // clear();
+   //resetStat();
 
    int h = 1;
    while (true)
@@ -113,7 +119,7 @@ void main()
             render2D(i, j);
          }
       }
-      // show();
-      sync();
+   show();
+ //     sync();
    }
 }

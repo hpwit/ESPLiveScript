@@ -1,6 +1,6 @@
 #include <regex.h>
 #include <stdio.h>
-#include <list>
+//#include <list>
 #include <string>
 #include "memory.h"
 #include <vector>
@@ -542,10 +542,40 @@ typedef struct
 {
     string name;
     string content;
-    string hh;
+    //string hh;
 } _define;
 
 vector<_define> define_list;
+vector<_define> external_define_list;
+
+int getExternalDefine(string name)
+{
+    for (int i=0;i<external_define_list.size();i++)
+    {
+        if (external_define_list[i].name.compare(name) == 0)
+        {
+            // printf("one rrent %s\n",(*it).content.c_str());
+            return i;
+        }
+    }
+    return -1;
+}
+void addExternalDefine(string name,string content)
+{
+    int index=getExternalDefine(name);
+    _define t;
+    t.name=name;
+    t.content=" "+content;
+    if(index==-1)
+    {
+       // printf("one ajoue\n");
+        external_define_list.push_back(t);
+    }
+    else
+    {
+        (&external_define_list[index])->content=" "+content;
+    }
+}
 
 const char *getDefine(string name)
 {
@@ -573,6 +603,13 @@ void deleteDefine()
     }
     define_list.clear();
     define_list.shrink_to_fit();
+    //we upload the external define
+    for(int i=0;i<external_define_list.size();i++)
+    {
+       // printf("on ajoute dans la define %s %s\n",external_define_list[i].name.c_str(),external_define_list[i].content.c_str());
+        define_list.push_back(external_define_list[i]);
+        // printf("on push exter|%s|\n",external_define_list[i].content.c_str());
+    }
 }
 
 #ifdef __CONSOLE_ESP32
@@ -1264,7 +1301,7 @@ bool _for_display = false;
 int _token_line;
 int _sav_token_line = 0;
 int pos_in_line = 0;
-list<token>::iterator _index_token;
+//list<token>::iterator _index_token;
 string vchar;
 
 int tokenizer(Script *script, bool update, bool increae_line,
@@ -1559,6 +1596,22 @@ Token t;
                     t.type = (int)TokenExternal;
                   //  printf("ereeeeeeee\n");
                 }
+                if(t.getType()==TokenKeywordDefine)
+                {
+                    //printf("on est ici\n");
+                    if(!_for_display)
+                    {
+                    if((_tks->back()).getType()==TokenDiese)
+                    {
+                       //printf("on est ici");
+                        _tks->pop_back();
+                    }
+                    else
+                    {
+                        t.type=TokenUnknown;
+                    }
+                    }
+                }
                 if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
                 {
 
@@ -1636,6 +1689,7 @@ Token t;
                             newdef.content = newdef.content + c2;
                             c2 = script->nextChar();
                         }
+                       // printf("on push |%s|\n",newdef.content.c_str());
                         define_list.push_back(newdef);
                         if (increae_line)
                             _token_line++;

@@ -2,7 +2,7 @@
 #ifndef __ASM_EXECUTE
 #define __ASM_EXECUTE
 #include <vector>
-#include <variant>
+//#include <variant>
 #ifndef __RUN_CORE
 #define __RUN_CORE 0
 #endif
@@ -316,6 +316,22 @@ public:
         }
         _executecmd = _executable;
     }
+    #ifndef __TEST_DEBUG
+    void createExecutableFromBinary(Binary *bin)
+    {
+        _executecmd=createExectutable(bin);
+        if (_executecmd.error.error == 0)
+        {
+
+            exeExist = true;
+        }
+        else
+        {
+            printf("%s\n\r",_executecmd.error.error_message.c_str());
+            exeExist = false;
+        }
+    }
+    #endif
     void setExecutable(executable _executable)
     {
         _executecmd = _executable;
@@ -357,7 +373,7 @@ public:
 
         if (exeExist)
         {
-            freeBinary(&_executecmd);
+            freeExecutable(&_executecmd);
         }
         exeExist = false;
 
@@ -397,7 +413,7 @@ public:
 #endif
         }
 
-        // freeBinary(&_executecmd);
+        // freeExecutable(&_executecmd);
 #endif
 #endif
     }
@@ -464,7 +480,7 @@ public:
             __run_handle_index = 9999;
         }
 
-        // freeBinary(&_executecmd);
+        // freeExecutable(&_executecmd);
 #endif
     }
 
@@ -548,7 +564,7 @@ public:
         {
             uint32_t memb = esp_get_free_heap_size();
             printf("Free memory before:%ld\r\n", esp_get_free_heap_size());
-            freeBinary(&_executecmd);
+            freeExecutable(&_executecmd);
             _isRunning = false;
             uint32_t mema = esp_get_free_heap_size();
             printf("Free memory after:%ld freed:%ld\r\n", mema, mema - memb);
@@ -580,7 +596,7 @@ void executeOnly(string prog)
         args.clear();
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999,this, args);
-          res = executeBinary("@_" + prog, _executecmd, 9999, this,args);
+          res = executeBinary("@__" + prog, _executecmd, 9999, this,args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -597,7 +613,7 @@ void executeOnly(string prog)
         }
 #ifndef __TEST_DEBUG
                 error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this,args);
-          res = executeBinary("@_" + prog, _executecmd, 9999,this,args);
+          res = executeBinary("@__" + prog, _executecmd, 9999,this,args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -616,7 +632,7 @@ void executeOnly(string prog)
         if (core == 0 or core == 1)
         {
             vector<string> __args;
-            __args.push_back("@_" + prog);
+            __args.push_back("@__" + prog);
             _run(__args, true, core, arguments);
         }
         else
@@ -663,6 +679,7 @@ static void _run_task(void *pvParameters)
     //  _exe_args *_fg = exec->df;
     exec->_isRunning = true;
     Arguments d;
+    //printf("as a ttaks:%d\n\r",exec->__run_handle_index);
     if (exec->df.args.size() > 0)
     {
                 error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec,d);
@@ -676,7 +693,7 @@ static void _run_task(void *pvParameters)
     else
     {
          error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index,exec, d);
-         res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec,exec->args);
+         res = executeBinary("@__main", exec->df.exe, exec->__run_handle_index, exec,exec->args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);

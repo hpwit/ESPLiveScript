@@ -1,19 +1,12 @@
 import rand 
-define max_nb_balls 200 
-define rmax 6 
-define rmin 3 
-define width 128 
-define height 96 
-define panel_width 128 
-define panel_height 96 
-external CRGB leds[panel_height, panel_width];
-external void show();
-external void clear();
-external CRGB hsv(int h, int s, int v);
-external float sin(float angle);
-external void display(int g);
-external void resetStat();
-external void dp(float h);
+#define max_nb_balls 200 
+#define rmax 8 
+#define rmin 8 
+#define width 128 
+#define height 96 
+#define panel_width 128 
+#define panel_height 96 
+
 
 struct ball
 {
@@ -36,8 +29,8 @@ struct ball
             {
                v = 255 * (1 - distance ^ 2 / (r4));
                CRGB cc = hsv(color, 255, v);
-               leds[j, i] = cc;
-               leds[j][2 * xc - i] = cc;
+               leds[j*panel_width +i] = cc;
+               leds[j*panel_width+(int)(2 * xc - i)] = cc;
                leds[(int)(2 * xc - i) + (int)(2 * yc - j) * panel_width] = cc;
                leds[i + (int)(2 * yc - j) * panel_width] = cc;
             }
@@ -93,13 +86,14 @@ void main(int num)
    {
       num = 1;
    }
+   printfln("numberof balls:%d",num);
    resetStat();
    uint32_t h;
    while (true)
    {
       for (int i = 0; i < width; i++)
          for (int j = 0; j < height; j++)
-            leds[j, i] = hsv(i + h + j, 255, 180);
+            leds[j*panel_width+ i] = hsv(i + h + j, 255, 180);
 
       for (int i = 0; i < num; i++)
          Balls[i].updateBall();

@@ -171,7 +171,14 @@ uint32_t jump_bnez(uint32_t value, uint32_t current_address, uint32_t destinatio
     uint32_t dif = destination_address - current_address - 4;
     return value + ((dif << 12) & 0xFFF000);
 }
+operandeType op_blti[3] = {operandeType::registers, operandeType::l0_15, operandeType::label};
+uint32_t bin_blti(uint32_t *values)
+{
 
+    return 0xA6 + (((values[1] << 12) & 0xF000)) + (((values[0] << 8) & 0xF00)) ;
+
+    // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
 operandeType op_blt[3] = {operandeType::registers, operandeType::registers, operandeType::label};
 uint32_t bin_blt(uint32_t *values)
 {
@@ -544,7 +551,7 @@ uint32_t bin_retw_n(uint32_t *values)
 }
 
 operandeType op_global[1] = {operandeType::label};
-operandeType op_callExt[1] = { operandeType::label};
+operandeType op_callExt[2] = { operandeType::registers,operandeType::label};
 operandeType op_movExt[2] = {operandeType::registers, operandeType::label};
 uint32_t bin_movExt(uint32_t *values)
 {
