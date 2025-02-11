@@ -2122,6 +2122,7 @@ void _visitoperatorNode(NodeToken *nd)
             {
                 if (ff)
                 {
+                    bufferText->blankCurrent();
                     bufferText->addAfter(string_format("mov.s f10,f%d", register_numl.get()));
                     asmInstr = muls;
                 }
@@ -2139,6 +2140,7 @@ void _visitoperatorNode(NodeToken *nd)
             {
                 if (ff)
                 {
+                    bufferText->blankCurrent();
                     asmInstr = muls;
                 }
                 else
@@ -4769,8 +4771,58 @@ void optimize(Text *text)
         }
     }
 
+    vector<string> d;
+    vector<string> d2;
+    vector<string> d1;
     string before = " ";
     int indexbefore = 0;
+    // on va dealer abec les floats
+    string torep = " ";
+    for (int i = 0; i < text->size(); i++)
+    {
+        string tmp = string((*text->getChildAtPos(i)));
+        if (tmp.compare(" ") != 0 && tmp != "")
+        {
+            d = split(tmp, " ");
+            if (d[0].compare("float.s") == 0)
+            {
+                if (tmp.compare(before) == 0)
+                {
+                    text->replaceText(indexbefore, " ");
+                    before = " ";
+                }
+                else
+                {
+                    before = tmp;
+                    indexbefore = i;
+                    d2 = split(d[1], ",");
+                    torep = d2[1];
+                }
+            }
+            else if (d[0].find_first_of(":") != std::string::npos or d[0].compare("call8") == 0 or d[0].compare("callExt") == 0)
+            {
+                before = " ";
+                torep = " ";
+            }
+            else if (d.size() > 1)
+            {
+
+                d2 = split(d[1], ",");
+                if (d2[0].compare(torep) == 0)
+                {
+                    before = " ";
+                    torep = " ";
+                }
+            }
+        }
+    }
+    d.clear();
+    d1.clear();
+    d2.clear();
+
+    before = " ";
+    indexbefore = 0;
+
     for (int i = 0; i < text->size(); i++)
     {
         if (*text->getChildAtPos(i) != NULL)
@@ -4824,12 +4876,12 @@ void optimize(Text *text)
             if (tmp.compare(" ") != 0 && tmp != "")
             {
                 // printf("on est %d %s\n",i,tmp.c_str());
-                vector<string> d = split(tmp, " ");
+                d = split(tmp, " ");
                 if (d[0].compare("movr") == 0)
                 {
                     int ind = -1;
                     found = false;
-                    vector<string> d1 = split(d[1], ",");
+                    d1 = split(d[1], ",");
                     for (int mp = 0; mp < index.size(); mp++)
                     {
                         if (d1[1].compare(to[mp]) == 0)
@@ -4874,7 +4926,7 @@ void optimize(Text *text)
 
                 if (strncmp(d[0].c_str(), "b", 1) == 0)
                 {
-                    vector<string> d2 = split(d[1], ",");
+                    d2 = split(d[1], ",");
                     found = false;
                     int ind = -1;
                     for (int mp = 0; mp < index.size(); mp++)
@@ -4901,7 +4953,7 @@ void optimize(Text *text)
                     // printf("ddd :%s\n",*text->getChildAtPos(i));
                     if (d[0].compare("bnez") == 0 or d[0].compare("beqz") == 0)
                     {
-                        vector<string> d2 = split(d[1], ",");
+                        d2 = split(d[1], ",");
                         string newstr = d[0] + " ";
                         int ind = -1;
                         bool found = false;
@@ -4945,7 +4997,7 @@ void optimize(Text *text)
                     else if (d[0].compare("bge") == 0 or d[0].compare("blt") == 0 or d[0].compare("beq") == 0 or d[0].compare("bne") == 0)
                     {
 
-                        vector<string> d2 = split(d[1], ",");
+                        d2 = split(d[1], ",");
                         string newstr = d[0] + " ";
                         bool found = false;
                         int ind = -1;
@@ -5008,11 +5060,11 @@ void optimize(Text *text)
                         to.clear();
                         to.shrink_to_fit();
                         */
-                        //printf("new %s\n", newstr.c_str());
+                        // printf("new %s\n", newstr.c_str());
                     }
                     else if (d[0].compare("movi") == 0 or d[0].compare("rsr") == 0 or d[0].compare("wsr") == 0 or d[0].compare("ssl") == 0)
                     {
-                        vector<string> d2 = split(d[1], ",");
+                        d2 = split(d[1], ",");
                         int ind;
                         found = false;
 
@@ -5040,7 +5092,7 @@ void optimize(Text *text)
                     else if (d[0].compare("neg") == 0 or d[0].compare("abs") == 0 or d[0].compare("mov") == 0 or d[0].compare("sll") == 0 or d[0].compare("srl") == 0)
                     {
 
-                        vector<string> d2 = split(d[1], ",");
+                        d2 = split(d[1], ",");
                         int ind;
                         string newstr = d[0] + " " + d2[0] + ",";
                         bool found = false;
@@ -5089,12 +5141,12 @@ void optimize(Text *text)
                         to.clear();
                         to.shrink_to_fit();
                         */
-                       // printf("new %s\n", newstr.c_str());
+                        // printf("new %s\n", newstr.c_str());
                     }
 
                     else if (d[0].compare("round.s") == 0 or d[0].compare("floor.s") == 0 or d[0].compare("float.s") == 0 or d[0].compare("l32i") == 0 or d[0].compare("s32i") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16si") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("s8i") == 0 or d[0].compare("s16i") == 0 or d[0].compare("addi") == 0 or d[0].compare("trunc.s") == 0)
                     {
-                        vector<string> d2 = split(d[1], ",");
+                        d2 = split(d[1], ",");
                         int ind;
                         string newstr = d[0] + " " + d2[0] + ",";
                         bool found = false;
@@ -5143,13 +5195,13 @@ void optimize(Text *text)
                         to.clear();
                         to.shrink_to_fit();
                         */
-                      //  printf("new %s\n", newstr.c_str());
+                        //  printf("new %s\n", newstr.c_str());
                     }
                     else if (d[0].compare("remu") == 0 or d[0].compare("or") == 0 or d[0].compare("and") == 0 or d[0].compare("mull") == 0 or d[0].compare("sub") == 0 or d[0].compare("add") == 0 or d[0].compare("quou") == 0 or d[0].compare("quos") == 0)
                     {
                         int ind = -1;
 
-                        vector<string> d2 = split(d[1], ",");
+                        d2 = split(d[1], ",");
                         string newstr = d[0] + " " + d2[0] + ",";
                         bool found = false;
                         for (int mp = 0; mp < index.size(); mp++)
@@ -5208,7 +5260,7 @@ void optimize(Text *text)
                         }
                         text->replaceText(i, newstr);
 
-                       // printf("new %s\n", newstr.c_str());
+                        // printf("new %s\n", newstr.c_str());
                         /*
                         index.clear();
                         index.shrink_to_fit();
@@ -5232,4 +5284,16 @@ void optimize(Text *text)
             }
         }
     }
+
+    index.shrink_to_fit();
+    from.clear();
+    from.shrink_to_fit();
+    to.clear();
+    to.shrink_to_fit();
+    d.clear();
+    d.shrink_to_fit();
+    d1.clear();
+    d1.shrink_to_fit();
+    d2.clear();
+    d2.shrink_to_fit();
 }
