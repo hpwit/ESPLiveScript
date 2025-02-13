@@ -43,6 +43,10 @@ In the sc_examples directory you will find examples of complexe scripts.
   * [Arrays and multidimensional arrays](#arrays-and-multidimensionnal-arrays)
   * [Structures](#structures)
 
+- [Saving Executables](#saving-executables)
+  * [Saving/executing the binary](#savingexecuting-the-binary)
+  * [Executing the binary](#executing-the-binary)
+  * [Binded functions](#binded-functions)
 - [What you can do with the language](#what-you-can-do-with-the-language)
   * [Use of define](#use-of-define)
 
@@ -50,6 +54,10 @@ In the sc_examples directory you will find examples of complexe scripts.
   * [How to cope with several binaries](#how-to-cope-with-several-binaries)
   * [Task synchronization](#task-synchronization)
   * [Pre and post kill](#pre-and-post-kill)
+
+- [Advanced stuff](#advanced-stuff)
+  * [Pointer to the executable](#pointer-to-the-executable)
+      * [Use of the executable pointer  for interrupts](#use-the-exectubale-pointer-for-interrupts)
 
 - [Conclusion](#conclusion)
 
@@ -154,15 +162,6 @@ void loop()
  ```
 the output will be:
 ```
-***********PARSING DONE*********
-***********COMPILING DONE*********
-max used memory: 7064 maxstack:2156  started 265960 free mem:258796 consumed 7164 time:30ms
-max used memory: 7064 maxstack:2156  started 265960 free mem:262940 consumed 3020 time:41ms
-***********AFTER CLEAN*********
-***********CREATE EXECUTABLE*********
-Creation of an 208 bytes binary and 70 bytes data
-Parsing 75 assembly lines ...
-max used memory: 7064 maxstack:2156  started 265960 free mem:265000 consumed 960 time:104ms
 i: 0 3*i: 0
 i: 1 3*i: 3
 i: 2 3*i: 6
@@ -185,7 +184,9 @@ i:18 3*i:54
 i:19 3*i:57
 ```
 
-**NB: if you have several functions it the same script you can call any of the function**
+**NB 1 : if you have several functions it the same script you can call any of the function**
+
+**NB 2 : You can have information about the compiling process by activating the debug mode during the compilation** 
 
 ## Error object
 the `Executable` class has an `error` member
@@ -262,15 +263,6 @@ void loop()
 
 result:
 ```
-***********PARSING DONE*********
-***********COMPILING DONE*********
-max used memory: 8468 maxstack:2304  started 265896 free mem:257328 consumed 8568 time:33ms
-max used memory: 8468 maxstack:2304  started 265896 free mem:262196 consumed 3700 time:44ms
-***********AFTER CLEAN*********
-***********CREATE EXECUTABLE*********
-Creation of an 272 bytes binary and 90 bytes data
-Parsing 98 assembly lines ...
-max used memory: 8468 maxstack:2304  started 265896 free mem:264808 consumed 1088 time:121ms
 factorial of 5 is 120
 factorial of 6 is 720
 factorial of 7 is 5040
@@ -282,7 +274,7 @@ factorial of 7 is 5040
 <!-- TOC --><a name="callingaccessing-pre-compiled-functionsvariables-from-espscript"></a>
 ## Calling/accessing 'pre compiled' functions/variables from ESPScript
 
-With the ESPScript is not able to code everything with the same efficiency as the espressif compiler plus it doesn't gfive you accès to WiFi, bluetooth, SPI, I2C, ... Futhermore, it will not be concievable to rewrite functions like the one the the FastLED library or any other library. Hence the ESPScript can call pre-compiled functions. In other case you can need to access a 'precompile' variable which is changed by another process for instance.
+With the ESPScript is not able to code everything with the same efficiency as the espressif compiler plus it doesn't gfive you access to WiFi, bluetooth, SPI, I2C, ... Futhermore, it will not be concievable to rewrite functions like the one the the FastLED library or any other library. Hence the ESPScript can call pre-compiled functions. In other case you can need to access a 'precompile' variable which is changed by another process for instance.
 
 
 <!-- TOC --><a name="access-to-pre-compiled-variables"></a>
@@ -358,18 +350,7 @@ NB: here we did call three different functions all defined in the script.
 
 Result:
 ```
-***********PARSING DONE*********
-***********COMPILING DONE*********
-max used memory: 9172 maxstack:2112  started 265376 free mem:256100 consumed 9276 time:40ms
-max used memory: 9172 maxstack:2112  started 265376 free mem:261868 consumed 3508 time:52ms
-***********AFTER CLEAN*********
-***********CREATE EXECUTABLE*********
-Creation of an 264 bytes binary and 75 bytes data
-
-Parsing 99 assembly lines ...
-
-max used memory: 9172 maxstack:2112  started 265376 free mem:264168 consumed 1208 time:129ms
- value: 5 
+value: 5 
 value: 240 
 old value:15 new value:17
 0:0
@@ -440,19 +421,6 @@ void loop() {
 
 Result:
 ```
-***********PARSING DONE*********
-***********COMPILING DONE*********
-max used memory: 8428 maxstack:1920  started 266780 free mem:258468 consumed 8312 time:30ms
-max used memory: 8428 maxstack:1920  started 266780 free mem:263520 consumed 3260 time:41ms
-***********AFTER CLEAN*********
-***********CREATE BINARY*********
-Creation of an 208 bytes binary and 116 bytes data
-
-Parsing 79 assembly lines ...
-
-max used memory: 8428 maxstack:1920  started 266780 free mem:265652 consumed 1128 time:107ms
-***********CREATE EXECUTABLE*********
-max used memory: 8428 maxstack:1920  started 266780 free mem:265172 consumed 1608 time:118ms
  from pre-compiled 1.529412
 from other function
 ```
@@ -500,15 +468,6 @@ void main()
 you will get
 
 ```
-***********PARSING DONE*********
-***********COMPILING DONE*********
-max used memory: 7988 maxstack:2112  started 265528 free mem:257492 consumed 8036 time:32ms
-max used memory: 7988 maxstack:2112  started 265528 free mem:262424 consumed 3104 time:44ms
-***********AFTER CLEAN*********
-***********CREATE EXECUTABLE*********
-Creation of an 232 bytes binary and 60 bytes data
-Parsing 82 assembly lines ...
-max used memory: 7988 maxstack:2112  started 265528 free mem:264784 consumed 744 time:111ms
 Overflow error line 0 max size: 10 got 11
 ```
 
@@ -624,16 +583,6 @@ void loop()
 
 Result:
 ```
-***********PARSING DONE*********
-***********COMPILING DONE*********
-max used memory: 11060 maxstack:1836  started 265840 free mem:254916 consumed 10924 time:40ms
-max used memory: 11060 maxstack:1836  started 265840 free mem:260924 consumed 4916 time:52ms
-***********AFTER CLEAN*********
-***********CREATE EXECUTABLE*********
-Creation of an 312 bytes binary and 104 bytes data
-Parsing 114 assembly lines ...
-max used memory: 11060 maxstack:1836  started 265840 free mem:263380 consumed 2460 time:147ms
-
 from object:9
 from structobjecture:23
 ```
@@ -690,6 +639,144 @@ struct varname
   char c;
 }
 ```
+
+# Saving executables
+You can save the executables into SPIFF or SD card to re execute afterwards or recompile.
+
+## Saving/Executing the binary
+```C
+#include "ESPLiveScript.h"
+#include <LittleFS.h> 
+#include "FS.h"
+string script = R"EOF(
+void main()
+{
+for(int i=0;i<20;i++)
+    {
+        printfln("i:%2d  3*i:%2d",i,3*i);
+    }
+}
+)EOF";
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+
+  Parser p;
+  Binary bin = p.parseScriptBinary(&script);
+  Binary bin2;
+  LittleFS.begin(true);
+  if (!bin.error.error) {
+
+    saveBinary("/test.bin", LittleFS, &bin);
+    freeBinary(&bin);
+
+    loadBinary("/test.bin", LittleFS, &bin2);
+    Executable ex;
+   
+    ex.createExecutableFromBinary(&bin2);
+    if (ex.isExeExists())
+      ex.execute("main");
+
+
+  } else {
+    printf("%s\n\r", bin.error.error_message.c_str());
+  }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+}
+```
+
+## Executing the binary
+
+If you need to only execute the binary. You do no need the entire library but only the runtime. `#include "ESPLivescriptRuntime.h"`
+
+```C
+#include "ESPLivescriptRuntime.h"
+#include <LittleFS.h>
+#include "FS.h"
+
+void setup()
+{
+    // put your setup code here, to run once:
+    Serial.begin(115200);
+
+    Binary bin2;
+    LittleFS.begin(true);
+
+    loadBinary("/test.bin", LittleFS, &bin2);
+    Executable ex;
+    if (bin2.error.error)
+    {
+        Serial.printf("%s\n", bin2.error.error_message.c_str());
+    }
+    else
+    {
+        ex.createExecutableFromBinary(&bin2);
+        if (ex.isExeExists())
+            ex.execute("main");
+    }
+}
+
+void loop()
+{
+    // put your main code here, to run repeatedly:
+}
+
+```
+## Binded functions
+
+The binded functions/variables are not exported with the binary. If the orginal binary has been compile with binded functions or variables using `addExternalFunction` or `addExternalVariable` to be able to execute the binary you will need to add the same bindings.
+
+ie : If you have this script
+```C
+#include "ESPLiveScript.h"
+#include <LittleFS.h> 
+#include "FS.h"
+string script = R"EOF(
+void main()
+{
+....
+show();
+
+}
+)EOF";
+
+....
+
+void show()
+{
+  displaygraphics();
+}
+
+addExternalFunction("show","void","",(void *)show())
+
+saveBinary("/test.bin", LittleFS, &bin);
+
+```
+then the executing script should be
+
+```C
+#include "ESPLivescriptRuntime.h"
+#include <LittleFS.h>
+#include "FS.h"
+
+void show()
+{
+  displaygraphics();
+}
+....
+
+
+addExternalFunction("show","void","",(void *)show())
+....
+
+loadBinary("/test.bin", LittleFS, &bin2);
+
+```
+
 
 
 # What you can do with the language
@@ -876,6 +963,96 @@ void setup()
 }
 ```
 
+# Advanced stuff
+
+## Pointer to the executable
+
+The compiler/runtime has an internal variable `_execaddr_` which contains the pointer to the executable itself.
+
+### Use the exectubale pointer for interrupts
+You can use this variable to register interrupt.
+
+```C
+#include "ESPLiveScript.h"
+#include "driver/gpio.h"
+
+typedef struct
+{
+  Executable *ptr;
+  char *name;
+  uint32_t last;
+  uint32_t _new;
+} call_isr;
+call_isr isr_struct;
+
+
+static void IRAM_ATTR gpio_isr_handler(void *args) {
+  call_isr *ll = (call_isr *)args;
+  unsigned long currentTime = millis();
+
+  if ((currentTime - ll->last) > 100) {
+    ll->ptr->executeOnly(string(ll->name));
+    ll->last = currentTime;  // Update the last interrupt time
+  }
+}
+void setup_gpio_interrupt(Executable *ptr, char *str, int pin_num) {
+  printf("Setting up the interrupt\n");
+  gpio_config_t io_conf = {
+    .pin_bit_mask = (1ULL << pin_num),
+    .mode = GPIO_MODE_INPUT,
+    .pull_up_en = GPIO_PULLUP_ENABLE,
+    .pull_down_en = GPIO_PULLDOWN_DISABLE,  // Disable pull-down
+    .intr_type = GPIO_INTR_NEGEDGE,
+  };
+
+  gpio_config(&io_conf);
+  gpio_install_isr_service(ESP_INTR_FLAG_LEVEL1);
+  call_isr *_isr_struct = &isr_struct;
+  _isr_struct->ptr = ptr;
+  _isr_struct->name = str;
+  _isr_struct->last = millis();
+  gpio_isr_handler_add((gpio_num_t)pin_num, gpio_isr_handler, _isr_struct);
+}
+
+string script = R"EOF(
+int number=0;
+void increase()
+{
+  number++;
+}
+
+void main()
+{  
+   pinInterrupt(_execaddr_, "increase", 23);
+   while(true)
+   {
+     printfln("number:%d",number);
+   }
+}
+)EOF";
+
+void setup() {
+  Serial.begin(115200);
+  addExternalFunction("pinInterrupt", "void", "uint32_t,char *,int", (void *)setup_gpio_interrupt);
+  Parser p;
+  Executable exec = p.parseScript(&script);
+  if (exec.isExeExists()) {
+    exec.execute("main");
+  }
+  else {
+  printf("Error:%s\n",exec.error.error_message.c_str());
+  }
+  // put your setup code here, to run once:
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+}
+
+```
+[![Tetris](http://img.youtube.com/vi/nx-Y8qRdbSQ/0.jpg)](https://www.youtube.com/shorts/nx-Y8qRdbSQ)
+
+
 # Conclusion
 
 This is my first try at creating such a thing. You can see a video of me talking about it [live on youtube](https://www.youtube.com/watch?v=iOzKHQxdNJM) where I use the compiler with ledOS.
@@ -885,6 +1062,9 @@ Please have a look at [Starlight](https://github.com/MoonModules/StarLight/commi
 I will add an issue for all the functionalities you want to see added in the; compiler.
 
 As always enjoy and have fun.
+
+New version coming with some improvements. look at the [project board](https://github.com/users/hpwit/projects/1/views/1)
+
 
 
 

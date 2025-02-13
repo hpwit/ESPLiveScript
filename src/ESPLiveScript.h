@@ -285,10 +285,11 @@ addfloatdivision=false;
         }
         else
         {
-           // pushToConsole(bin.error.error_message.c_str(), true);
+           //pushToConsole(bin.error.error_message.c_str(), true);
            //freeBinary(&bin);
-                       updateMem();
-            displayStat();
+             //          updateMem();
+            results.error=bin.error;
+           // displayStat();
         }
 
         return results;
