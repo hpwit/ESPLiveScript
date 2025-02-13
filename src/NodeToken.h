@@ -3,7 +3,10 @@
 #include <string>
 #include <vector>
 // #include <variant>
+
+#ifndef __TEST_DEBUG
 #include "esp_log.h"
+#endif
 using namespace std;
 
 #include "string_function.h"
@@ -19,8 +22,11 @@ void pushToConsole(string str, bool force)
 #ifdef __CONSOLE_ESP32
     LedOS.pushToConsole(str, force);
 #else
-
+#ifndef __TEST_DEBUG
     ESP_LOGD("ESPLiveScript","%s\r\n", str.c_str());
+    #else
+    printf("%s\r\n", str.c_str());
+    #endif
 
 #endif
 }
@@ -2807,7 +2813,7 @@ void _visitternaryIfNode(NodeToken *nd)
     nd->getChildAtPos(0)->visitNode();
     register_numl.pop();
     bufferText->addAfter(string_format("beqz a%d,%s", register_numl.get(), nd->getTargetText()));
-    /*
+    
             register_numr.clear();
     register_numl.clear();
     register_numl.push(15);
@@ -2815,20 +2821,20 @@ void _visitternaryIfNode(NodeToken *nd)
 
     register_numl.push(15);
     register_numr.push(15);
-    */
+    
     register_numl.duplicate();
     nd->getChildAtPos(1)->visitNode();
     register_numl.pop();
     bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
     bufferText->addAfter(string_format("%s:", nd->getTargetText()));
-    /*
+    
     register_numr.clear();
     register_numl.clear();
     register_numl.push(15);
     register_numr.push(15);
 
     register_numl.push(15);
-    register_numr.push(15);*/
+    register_numr.push(15);
     register_numl.duplicate();
     nd->getChildAtPos(2)->visitNode();
     register_numl.pop();
@@ -2860,22 +2866,25 @@ void _visittestNode(NodeToken *nd)
     string compop = "";
     string compo2 = "";
     // to compose
-    int h;
+    int h=999;
 
     if (nd->getChildAtPos(1)->_vartype == __float__)
     {
         switch (nd->type)
         {
         case TokenLessThan:
+        h = numl;
             compop = "olt.s"; // greater or equal
             //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
             compo2 = "bf";
             break;
         case TokenDoubleEqual:
+        h = numl;
             compop = "oeq.s"; // not equal
             compo2 = "bf";
             break;
         case TokenNotEqual:
+        h = numl;
             compop = "oeq.s"; // equal
             compo2 = "bt";
             break;
@@ -2894,6 +2903,7 @@ void _visittestNode(NodeToken *nd)
             compo2 = "bf";
             break;
         case TokenLessOrEqualThan:
+        h = numl;
             compop = "ole.s"; // not equal
             compo2 = "bf";
 
