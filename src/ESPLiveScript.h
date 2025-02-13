@@ -28,56 +28,7 @@ NodeToken *_d;
 */
 string signature;
 Token __t;
-class _arguments
-{
-public:
-    _arguments()
-    {
-        vartype = __unknown__;
-    }
-    _arguments(int val)
-    {
-        vartype = __int__;
-        intval = val;
-    }
-    _arguments(float val)
-    {
-        vartype = __float__;
-        floatval = val;
-    }
 
-    varTypeEnum vartype;
-    int intval;
-    float floatval;
-};
-
-class Arguments
-{
-public:
-    Arguments() {}
-    void add(int val)
-    {
-        _args.push_back(_arguments(val));
-    }
-    void add(float val)
-    {
-        _args.push_back(_arguments(val));
-    }
-    void clear()
-    {
-        _args.clear();
-        _args.shrink_to_fit();
-    }
-    void add(_arguments a)
-    {
-        _args.push_back(a);
-    }
-    int size()
-    {
-        return _args.size();
-    }
-    vector<_arguments> _args;
-};
 #include "asm_parser.h"
 #include "execute.h"
 #ifdef __TEST_DEBUG
@@ -272,18 +223,28 @@ addfloatdivision=false;
         all_text.clear();
         all_targets.clear();
 
-        updateMem();
-        displayStat();
 
         pushToConsole("***********AFTER CLEAN*********");
 
+        updateMem();
+        displayStat("afterclen");
 #ifndef __TEST_DEBUG
         pushToConsole("***********CREATE BINARY*********");
-        bin = createBinary(&footer, &header, &content, __parser_debug);
+     bin = createBinary(&footer, &header, &content, __parser_debug);
+                updateMem();
+        displayStat();
         content.clear();
+                updateMem();
+        displayStat();
         header.clear();
+                updateMem();
+        displayStat();
         footer.clear();
+                updateMem();
+        displayStat();
         change_type.clear();
+        _asm_parsed.clear();
+        all_text.clear();
         updateMem();
         displayStat();
         if (bin.error.error == 1)
@@ -301,12 +262,14 @@ addfloatdivision=false;
         Executable results;
 
         Binary bin = compileBinary();
+//bin.error.error=1;
         if (bin.error.error == 0)
         {
 #ifndef __TEST_DEBUG
             pushToConsole("***********CREATE EXECUTABLE*********");
 
             executable _executecmd = createExectutable(&bin);
+           //  freeBinary(&bin);
             results.setExecutable(_executecmd);
             results.error = _executecmd.error;
             updateMem();
@@ -323,6 +286,9 @@ addfloatdivision=false;
         else
         {
            // pushToConsole(bin.error.error_message.c_str(), true);
+           //freeBinary(&bin);
+                       updateMem();
+            displayStat();
         }
 
         return results;
@@ -4036,35 +4002,5 @@ public:
 };
 __INIT_TOKEN _init_token;
 #endif
-void artiPrintf(char const *format, ...)
-{
-    va_list argp;
-    va_start(argp, format);
-    vprintf(format, argp);
-    // printf("\r\n");
-    va_end(argp);
-}
-void artiPrintfln(char const *format, ...)
-{
-    va_list argp;
-    va_start(argp, format);
-    vprintf(format, argp);
-    printf("\r\n");
-    va_end(argp);
-}
-void showError(int line, uint32_t size, uint32_t got)
-{
-    pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
-}
-class INIT_PARSER
-{
-public:
-    INIT_PARSER()
-    {
-        addExternalFunction("printf", "void", "char *,Args", (void *)artiPrintf);
-        addExternalFunction("printfln", "void", "char *,Args", (void *)artiPrintfln);
-        addExternalFunction("error", "void", "int,uint32_t,uint32_t", (void *)&showError);
-    }
-};
-INIT_PARSER initialization_parser;
+
 #endif

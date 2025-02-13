@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 // #include <variant>
-
+#include "esp_log.h"
 using namespace std;
 
 #include "string_function.h"
@@ -19,11 +19,9 @@ void pushToConsole(string str, bool force)
 #ifdef __CONSOLE_ESP32
     LedOS.pushToConsole(str, force);
 #else
-#ifndef __TEST_DEBUG
-    Serial.printf("%s\r\n", str.c_str());
-#else
-    printf("%s\r\n", str.c_str());
-#endif
+
+    ESP_LOGD("ESPLiveScript","%s\r\n", str.c_str());
+
 #endif
 }
 
@@ -115,9 +113,13 @@ void initMem()
     // printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
 #endif
 }
+void displayStat(char * text)
+{
+    pushToConsole(string_format(" %s :max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms",text, __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
+}
 void displayStat()
 {
-    pushToConsole(string_format("max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms", __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
+displayStat("");
 }
 void updateMem()
 {
@@ -1812,7 +1814,7 @@ void _visitbinOpNode(NodeToken *nd)
     }
     else
     {
-        bufferText->addAfter("");
+        bufferText->addAfter(" ");
         bufferText->sp.push(bufferText->get());
     }
     // register_numr.pop();
@@ -2256,7 +2258,7 @@ void _visitglobalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         //  regnum = point_regnum;
     }
-    string body = "";
+    //string body = "";
     // register_numl++;
     // bufferText->addAfter(string_format("l32r a%d,%s", point_regnum, nd->_token->text.c_str()));
     if (nd->isPointer && nd->children_size() > 0) // leds[g];
@@ -3715,7 +3717,7 @@ void _visitextGlobalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         //  regnum = point_regnum;
     }
-    string body = "";
+   // string body = "";
     // register_numl++;
 
     if (!nd->isPointer)
@@ -4181,7 +4183,7 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         // regnum = point_regnum;
     }
-    string body = "";
+    //string body = "";
     // register_numl++;
     for (int h = 0; h < v->size - 1; h++)
     {
@@ -4340,7 +4342,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         regnum = point_regnum;
     }
-    string body = "";
+   // string body = "";
     int savreg_num = point_regnum;
     point_regnum = 4;
     // register_numl++;
@@ -4748,7 +4750,7 @@ void optimize(Text *text)
                             //{
                             if (str.compare(tmp) == 0)
                             {
-                                //  printf("%s found \r\n", tmp.c_str());
+                                // printf("%s found \r\n", tmp.c_str());
                                 text->replaceText(i, " ");
                                 //")
                             }
@@ -4766,21 +4768,36 @@ void optimize(Text *text)
                             }
                         }
                     }
+                    d.clear();
+                    d.shrink_to_fit();
                 }
             }
         }
     }
+
+
+
 
     vector<string> d;
     vector<string> d2;
     vector<string> d1;
     string before = " ";
     int indexbefore = 0;
+
+;
+
+    before = " ";
+    indexbefore = 0;
     // on va dealer abec les floats
     string torep = " ";
     for (int i = 0; i < text->size(); i++)
     {
+    
         string tmp = string((*text->getChildAtPos(i)));
+        if(*text->getChildAtPos(i)==NULL)
+        {
+            printf("************************** %d \n\r",i);
+        }
         if (tmp.compare(" ") != 0 && tmp != "")
         {
             d = split(tmp, " ");

@@ -3,8 +3,9 @@
 #define __ASM_EXTERNAL
 #include <stdio.h>
 
+#ifdef __ASM_PARSER
 #include "asm_struct_enum.h"
-
+#endif
 vector<asm_external> external_links;
 
 uint32_t external_links_array[60];

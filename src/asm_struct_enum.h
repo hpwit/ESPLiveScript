@@ -11,6 +11,7 @@ using namespace std;
 #define EOF_TEXTARRAY 9999
 #define EOF_VARTYPE 255
 int __exe_size=0;
+
 template <class T>
 class Stack
 {
@@ -135,6 +136,7 @@ public:
                     #ifdef __TEST_DEBUG
        // printf(" find text:%d %s\r\n",pos,str.c_str());
         #endif
+
             return pos;
         }
          m = (char *)malloc(str.size() + 1);
@@ -171,33 +173,7 @@ public:
         position++;
         // }
     }
-    /*
-    void addAfter(string str)
-    {
-        int pos = findText(str);
-        if (pos > -1)
-        {
-            _it = _texts.insert(next(_it), _texts[pos]);
-        }
-        else
-        {
-            char *m = (char *)malloc(str.size() + 1);
-            memcpy(m, str.c_str(), str.size());
-            m[str.size()] = 0;
-
-            if(_it==_texts.end())
-            {
-                _texts.push_back(m);
-                _it=_texts.end();
-                _it--;
-            }
-            else
-            {
-             _it = _texts.insert(next(_it), m);
-            }
-        }
-        position++;
-    }*/
+   
     void addAfter(string str)
     {
         int pos = findText((char *)str.c_str());
@@ -270,8 +246,18 @@ public:
     {
         if (_texts.size() > 0)
         {
+            if(_texts.front() !=NULL)
+            {
+              // printf("we tray to look to  delete:|%s|\n",_texts.front());
             if (!isReused(0))
-                free(_texts[0]);
+            {
+             //printf("we tray to delete:|%s|\n",_texts.front());
+                free(_texts.front());
+               
+              //printf("we delted the string\n\r");
+            }
+            }
+             _texts[0]=NULL;
             _texts.erase(_texts.begin());
         }
     }
@@ -314,14 +300,26 @@ public:
     {
         if (pos >= 0 and pos < size())
         {
+           // printf("repalce |%s| by  |%s|\r\n",_texts[pos],str.c_str());
             if (!isReused(pos))
             {
                 free(_texts[pos]);
             }
-            m = (char *)malloc(str.size() + 1);
+             int _pos = findText((char *)str.c_str());
+             _pos=-1;
+             if(_pos>-1 && _texts[_pos]!=NULL)
+             {
+             //   printf("exeist already %d:%d |%s| and |%s|\n\r",_pos,pos,str.c_str(),_texts[_pos]);
+                
+                 _texts[pos] =  _texts[_pos];
+             }
+             else{
+               // printf("we add |%s|\n\r",str.c_str());
+                 m = (char *)malloc(str.size() + 1);
             memcpy(m, str.c_str(), str.size());
             m[str.size()] = 0;
             _texts[pos] = m;
+             }
         }
     }
     vector<char *>::iterator getChildAtPos(int pos)
@@ -359,7 +357,7 @@ public:
             char *c1 = _texts[i];
             if (c1 != NULL)
             {
-                if (i != _texts.size() - 1)
+                if (i < _texts.size() - 2)
                 {
                     for (int j = i + 1; j < _texts.size(); j++)
                     {
@@ -411,7 +409,7 @@ public:
         char *c = _texts[pos];
         for (int i = 0; i < _texts.size(); i++)
         {
-            if (i != pos and strcmp(c, _texts[i]) == 0)
+            if (i != pos && c== _texts[i])
             {
                 return true;
             }
@@ -427,7 +425,7 @@ public:
                 free(_texts.back());
             }
             _texts.pop_back();
-            _texts.shrink_to_fit();
+           // _texts.shrink_to_fit();
             position--;
             _it = _texts.end();
             _it--;
@@ -487,7 +485,24 @@ enum class operandeType
   l0_FFFFFFFF,
 
 };
-
+enum varTypeEnum
+{
+    __none__,
+    __uint8_t__,
+    __uint16_t__,
+    __uint32_t__,
+    __int__,
+    __s_int__,
+    __float__,
+    __void__,
+    __CRGB__,
+    __CRGBW__,
+    __char__,
+    __Args__,
+    __bool__,
+    __userDefined__,
+    __unknown__
+};
 enum class opCodeType
 {
   standard,
@@ -808,4 +823,54 @@ string getRegType(asmInstruction instr, int pos)
   }
 }
 
+class _arguments
+{
+public:
+    _arguments()
+    {
+        vartype = __unknown__;
+    }
+    _arguments(int val)
+    {
+        vartype = __int__;
+        intval = val;
+    }
+    _arguments(float val)
+    {
+        vartype = __float__;
+        floatval = val;
+    }
+
+    varTypeEnum vartype;
+    int intval;
+    float floatval;
+};
+
+class Arguments
+{
+public:
+    Arguments() {}
+    void add(int val)
+    {
+        _args.push_back(_arguments(val));
+    }
+    void add(float val)
+    {
+        _args.push_back(_arguments(val));
+    }
+    void clear()
+    {
+        _args.clear();
+        _args.shrink_to_fit();
+    }
+    void add(_arguments a)
+    {
+        _args.push_back(a);
+    }
+    int size()
+    {
+        return _args.size();
+    }
+    vector<_arguments> _args;
+};
 #endif
