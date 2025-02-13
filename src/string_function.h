@@ -58,25 +58,6 @@ std::string trim(std::string s)
   
   return s.replace(0,s.find_first_not_of(" \n\r\t"),"");
 }
-/*
-string _numToBytes(uint32_t __num)
-{
-                string val = ".bytes 4";
-                uint8_t c = __num & 0xff;
-                val = val +" "+string_format("%02x", c);
-                // val=val+'A';
-                __num = __num / 256;
-                c = __num & 0xff;
-                val = val +" "+string_format("%02x", c);
-                // val=val+'A';
-                __num = __num / 256;
-                c = __num & 0xff;
-                val = val +" "+string_format("%02x", c);
-                // val=val+'A';
-                __num = __num / 256;
-                c = __num & 0xff;
-                val = val +" "+string_format("%02x", c);
-return val;
-        }
-        */
+
+
 #endif

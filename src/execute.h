@@ -2,7 +2,7 @@
 #ifndef __ASM_EXECUTE
 #define __ASM_EXECUTE
 #include <vector>
-//#include <variant>
+// #include <variant>
 #ifndef __RUN_CORE
 #define __RUN_CORE 0
 #endif
@@ -24,7 +24,6 @@ typedef struct _xSemaphoreHandle
     int h;
 };
 typedef _xSemaphoreHandle *xSemaphoreHandle;
-
 
 #endif
 typedef struct
@@ -85,8 +84,8 @@ public:
             execPtr[i] = NULL;
         }
         nb_concurrent_programs = 0;
-      addExternalFunction("_sync", "void","uint32_t", (void *)syncExt);
-     //   addExternal("feed", externalType::function, (void *)feedTheDog);
+        addExternalFunction("_sync", "void", "uint32_t", (void *)syncExt);
+        //   addExternal("feed", externalType::function, (void *)feedTheDog);
     }
     int getHandle(Executable *exec)
     {
@@ -298,8 +297,8 @@ public:
     {
         exeExist = false;
         __run_handle_index = 9999;
-        _executecmd.binary_size=0;
-         _executecmd.data_size=0;
+        _executecmd.binary_size = 0;
+        _executecmd.data_size = 0;
         // args.clear();
         // args.shrink_to_fit();
     }
@@ -316,10 +315,10 @@ public:
         }
         _executecmd = _executable;
     }
-    #ifndef __TEST_DEBUG
+#ifndef __TEST_DEBUG
     void createExecutableFromBinary(Binary *bin)
     {
-        _executecmd=createExectutable(bin);
+        _executecmd = createExectutable(bin);
         if (_executecmd.error.error == 0)
         {
 
@@ -327,11 +326,11 @@ public:
         }
         else
         {
-            printf("%s\n\r",_executecmd.error.error_message.c_str());
+            printf("%s\n\r", _executecmd.error.error_message.c_str());
             exeExist = false;
         }
     }
-    #endif
+#endif
     void setExecutable(executable _executable)
     {
         _executecmd = _executable;
@@ -361,11 +360,9 @@ public:
 #ifndef __TEST_DEBUG
         if (_isRunning)
         {
-#ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Something Already running kill it first ...", true);
-#else
-            Serial.printf("Something Already running kill it first ...\r\n");
-#endif
+
+            pushToConsole("Something Already running kill it first ...", true);
+
             kill();
         }
 
@@ -387,11 +384,9 @@ public:
 #ifndef __TEST_DEBUG
         if (_isRunning and !isHalted)
         {
-#ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Halting the program ...", true);
-#else
-            Serial.printf("Halting the program...\r\n");
-#endif
+
+            pushToConsole("Halting the program ...", true);
+
             resetSync = true;
 
             runningPrograms.freeSync();
@@ -406,11 +401,7 @@ public:
             vTaskDelay(10);
 
             // vTaskDelay(20);
-#ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Program Halted.", true);
-#else
-            Serial.printf("Program Halted.\r\n");
-#endif
+            pushToConsole("Program Halted.", true);
         }
 
         // freeExecutable(&_executecmd);
@@ -437,11 +428,8 @@ public:
 #ifndef __TEST_DEBUG
         if (_isRunning)
         {
-#ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Stopping the program ...", true);
-#else
-            Serial.printf("Stopping the program...\r\n");
-#endif
+            pushToConsole("Stopping the program ...", true);
+
             // printf("old mask %d\r\n",runningPrograms.getMask());
             toResetSync = true;
             while (!toResetSync)
@@ -465,11 +453,8 @@ public:
 
             runningPrograms.postkill();
             // vTaskDelay(20);
-#ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Program stopped.", true);
-#else
-            Serial.printf("Program stopped.\r\n");
-#endif
+            pushToConsole("Program stopped.", true);
+
             vTaskDelay(10);
             runningPrograms.removeHandle(__run_handle_index);
             // printf("new mask %d\r\n",runningPrograms.getMask());
@@ -523,11 +508,7 @@ public:
 
             if (__run_handle_index == 9999)
             {
-#ifdef __CONSOLE_ESP32
-                LedOS.pushToConsole("too many programs at once", true);
-#else
-                Serial.printf("too many programs at once\r\n");
-#endif
+                pushToConsole("too many programs at once", true);
             }
             string taskname;
             if (name.compare("Unknow") == 0)
@@ -536,19 +517,11 @@ public:
                 taskname = string_format("%s_%d", name.c_str(), __run_handle_index);
             xTaskCreateUniversal(_run_task, taskname.c_str(), 4096 * 2, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), core);
 
-#ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Execution on going CTRL + k to stop", true);
-#else
-            Serial.printf("Execution on going CTRL + k to stop\r\n");
-#endif
+            pushToConsole("Execution on going CTRL + k to stop", true);
         }
         else
         {
-#ifdef __CONSOLE_ESP32
-            LedOS.pushToConsole("Nothing to execute.", true);
-#else
-            Serial.printf("Nothing to execute\r\n");
-#endif
+            pushToConsole("Nothing to execute.", true);
         }
 #endif
         return __run_handle_index;
@@ -579,24 +552,26 @@ public:
         return exeExist;
     }
 #ifndef __TEST_DEBUG
-void executeOnly(string prog)
-{
-     args.clear();
+    void executeOnly(string prog)
+    {
+        args.clear();
 #ifndef __TEST_DEBUG
         // res = executeBinary("@__footer", _executecmd, 9999, args);
-         error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999,this,args);
+        error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
         }
 #endif
-}
+    }
     void execute(string prog)
     {
         args.clear();
+        Arguments d;
 #ifndef __TEST_DEBUG
-        error_message_struct res = executeBinary("@__footer", _executecmd, 9999,this, args);
-          res = executeBinary("@__" + prog, _executecmd, 9999, this,args);
+        error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
+
+        res = executeBinary("@__" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -607,13 +582,18 @@ void executeOnly(string prog)
     void execute(string prog, Arguments arguments)
     {
         args.clear();
+        Arguments d;
         for (int i = 0; i < arguments._args.size(); i++)
         {
             args.add(arguments._args[i]);
         }
 #ifndef __TEST_DEBUG
-                error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this,args);
-          res = executeBinary("@__" + prog, _executecmd, 9999,this,args);
+        error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
+        if (res.error)
+        {
+            pushToConsole(res.error_message, true);
+        }
+        res = executeBinary("@__" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -679,12 +659,12 @@ static void _run_task(void *pvParameters)
     //  _exe_args *_fg = exec->df;
     exec->_isRunning = true;
     Arguments d;
-    //printf("as a ttaks:%d\n\r",exec->__run_handle_index);
+    // printf("as a ttaks:%d\n\r",exec->__run_handle_index);
     if (exec->df.args.size() > 0)
     {
-                error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index, exec,d);
-          
-         res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec,exec->args);
+        error_message_struct res = executeBinary("@__footer", exec->df.exe, exec->__run_handle_index, exec, d);
+
+        res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec, exec->args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -692,8 +672,8 @@ static void _run_task(void *pvParameters)
     }
     else
     {
-         error_message_struct res = executeBinary("@__footer",  exec->df.exe, exec->__run_handle_index,exec, d);
-         res = executeBinary("@__main", exec->df.exe, exec->__run_handle_index, exec,exec->args);
+        error_message_struct res = executeBinary("@__footer", exec->df.exe, exec->__run_handle_index, exec, d);
+        res = executeBinary("@__main", exec->df.exe, exec->__run_handle_index, exec, exec->args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -747,7 +727,7 @@ public:
 
         if (df.name.size() > 0)
         {
-        deleteExe(df.name);
+            deleteExe(df.name);
             _scExecutables.push_back(df);
         }
         else
@@ -778,7 +758,7 @@ public:
         if (exec != NULL)
         {
 #ifndef __TEST_DEBUG
-          
+
             exec->execute("main");
 #endif
         }
@@ -930,20 +910,20 @@ public:
     {
         for (int i = 0; i < _scExecutables.size(); i++)
         {
-    
-            pushToConsole(string_format(" %2d | %20s isRunning:%d| %6d | %6d |%s", i + 1, _scExecutables[i].name.c_str(), _scExecutables[i].isRunning(), _scExecutables[i]._executecmd.binary_size, _scExecutables[i]._executecmd.data_size,_scExecutables[i].error.error_message.c_str()), true);
+
+            pushToConsole(string_format(" %2d | %20s isRunning:%d| %6d | %6d |%s", i + 1, _scExecutables[i].name.c_str(), _scExecutables[i].isRunning(), _scExecutables[i]._executecmd.binary_size, _scExecutables[i]._executecmd.data_size, _scExecutables[i].error.error_message.c_str()), true);
         }
     }
 
-        vector<exe_info> getListExecutables()
+    vector<exe_info> getListExecutables()
+    {
+        vector<exe_info> res;
+        for (int i = 0; i < _scExecutables.size(); i++)
         {
-            vector<exe_info> res;
-            for(int i=0;i<_scExecutables.size();i++)
-            {
-                    res.push_back(getExecutableInfo(i));
-            }
-            return res;
+            res.push_back(getExecutableInfo(i));
         }
+        return res;
+    }
     void killAndFreeRunningProgram()
     {
         for (int i = 0; i < _scExecutables.size(); i++)
@@ -973,12 +953,12 @@ public:
     }
     exe_info getExecutableInfo(int pos)
     {
-       exe_info inf;
-        if(pos<0 or pos>=_scExecutables.size())
+        exe_info inf;
+        if (pos < 0 or pos >= _scExecutables.size())
         {
-                return inf;
+            return inf;
         }
-          Executable *f =&_scExecutables[pos];
+        Executable *f = &_scExecutables[pos];
         if (f != NULL)
         {
             inf.data_size = f->_executecmd.data_size;
