@@ -2813,7 +2813,7 @@ void _visitternaryIfNode(NodeToken *nd)
     nd->getChildAtPos(0)->visitNode();
     register_numl.pop();
     bufferText->addAfter(string_format("beqz a%d,%s", register_numl.get(), nd->getTargetText()));
-    
+    /*
             register_numr.clear();
     register_numl.clear();
     register_numl.push(15);
@@ -2822,12 +2822,13 @@ void _visitternaryIfNode(NodeToken *nd)
     register_numl.push(15);
     register_numr.push(15);
     
+*/
     register_numl.duplicate();
     nd->getChildAtPos(1)->visitNode();
     register_numl.pop();
     bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
     bufferText->addAfter(string_format("%s:", nd->getTargetText()));
-    
+    /*
     register_numr.clear();
     register_numl.clear();
     register_numl.push(15);
@@ -2835,6 +2836,7 @@ void _visitternaryIfNode(NodeToken *nd)
 
     register_numl.push(15);
     register_numr.push(15);
+    */
     register_numl.duplicate();
     nd->getChildAtPos(2)->visitNode();
     register_numl.pop();
