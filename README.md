@@ -37,6 +37,9 @@ In the sc_examples directory you will find examples of complexe scripts.
   * [Calling/accessing 'pre compiled' functions/variables from ESPScript](#callingaccessing-pre-compiled-functionsvariables-from-espscript)
   * [Access to 'pre compiled' variables](#access-to-pre-compiled-variables)
   * [Calling 'pre-compiled' functions](#calling-pre-compiled-functions)
+
+- [CRGB and hue function](#crgb-and-hue-function)
+
 - [Safe mode and arrays](#safe-mode-and-arrays)
 
 - [Variables types](#variables-types)
@@ -54,6 +57,8 @@ In the sc_examples directory you will find examples of complexe scripts.
   * [How to cope with several binaries](#how-to-cope-with-several-binaries)
   * [Task synchronization](#task-synchronization)
   * [Pre and post kill](#pre-and-post-kill)
+
+- [Performances]()
 
 - [Advanced stuff](#advanced-stuff)
   * [Pointer to the executable](#pointer-to-the-executable)
@@ -424,6 +429,60 @@ Result:
  from pre-compiled 1.529412
 from other function
 ```
+
+# CRGB and Hue function
+
+If you are playing with leds the compiler has the CRGB object implemented.
+```C
+CRGB color=CRGB(red,gree,blue);
+```
+I did not recreate the hue function but if you are using FastLED library like I mostly do for the fast math functions you can have access to the hsv object/function
+to use it add the `#define USE_FASTLED` in that case `#include "FastLED.h` must be before `"ESPLiveScript.h"` as in the example below:
+
+example:
+```C
+#define USE_FASTLED
+#include "FastLED.h"
+#include "ESPLiveScript.h"
+#define NUM_LEDS 256
+#define DATA_PIN 15
+CRGB leds[NUM_LEDS];
+void show() {
+  FastLED.show();
+}
+string script = R"EOF(
+void main()
+{
+   int k=0;
+   while(true)
+   {
+    for (int i=0;i<128;i++)
+      for(int j=0;j<96;j++)
+          leds[j*16+i]=hsv(i+j+k,255,255);
+    k++;
+    show();
+   }
+}
+)EOF";
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
+  FastLED.setBrightness(30);
+  addExternalVariable("leds", "CRGB *", "", (void *)leds);
+  addExternalFunction("show", "void", "", (void *)show);
+  Parser p;
+  Executable exec = p.parseScript(&script);
+  if (exec.isExeExists()) {
+    exec.execute("main");
+  }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+}
+```
+
 
 
 <!-- TOC --><a name="safe-mode-and-arrays"></a>
@@ -962,6 +1021,24 @@ void setup()
  ...
 }
 ```
+
+# Performances
+
+Here are the comparison between the the precompiled version and ESPlivescript. As ESPLiveScript is almost like C no code conversion was needed.
+I will try to convert the code for other scripting languages to have a full comparison.
+All the animations are run over 128x96 leds panel. The scripts can be found in the sc_examples directory:
+
+|Script|Precompiled|EspLiveScript|% loss in performance|
+|:----|:----:|:----:|:----:|
+|Rainbow|240fps|209fps|12.9%|
+|20 boucing balls|160fps|139 fps|13.1%|
+|Octo|88fps|75fps|14.8%|
+|MandelBrot (50 iterations)|11fps|11fps|0%|
+|Caculation of fib(40)|17s|32s|47.7%|
+
+
+We can notice that the simpliest programs tends to be largely faster when precompiled but more the performance for more complex programs seem to be around less than 15% and even on par with the precompiled one. As stated above to be fair with the ESPLiveScript a comparison with other scripting languages should be made.
+
 
 # Advanced stuff
 

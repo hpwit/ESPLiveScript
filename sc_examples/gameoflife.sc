@@ -27,9 +27,9 @@ void create_leds(int o)
    int l = copy[j,i];
 
 if(res==3)
-alive=true;
+   alive=true;
 else
-          alive=(l==1 && res==2)?true:false;
+   alive=(l==1 && res==2)?true:false;
          if (alive)
          {
             leds[j,i] = color;
@@ -48,7 +48,6 @@ else
 
 int main()
 {
-resetStat();
    for (int h = 0; h < width * height; h++)
  {
    copy[h]=0;
