@@ -1,30 +1,27 @@
-src/NodeToken.h:4069:29: error: Using object that points to local variable '__f' that is out of scope. [invalidLifetime]
+src/NodeToken.h:4071:29: error: Using object that points to local variable '__f' that is out of scope. [invalidLifetime]
                         c = __num & 0xff;
                             ^
-src/NodeToken.h:4060:58: note: Address of variable taken here.
+src/NodeToken.h:4062:58: note: Address of variable taken here.
                         __num = (uint32_t)(*((uint32_t *)&__f));
                                                          ^
-src/NodeToken.h:4058:31: note: Variable created here.
+src/NodeToken.h:4060:31: note: Variable created here.
                         float __f = 0;
                               ^
-src/NodeToken.h:4069:29: note: Using object that points to local variable '__f' that is out of scope.
+src/NodeToken.h:4071:29: note: Using object that points to local variable '__f' that is out of scope.
                         c = __num & 0xff;
                             ^
-src/NodeToken.h:4072:33: error: Using object that points to local variable '__f' that is out of scope. [invalidLifetime]
+src/NodeToken.h:4074:33: error: Using object that points to local variable '__f' that is out of scope. [invalidLifetime]
                         __num = __num / 256;
                                 ^
-src/NodeToken.h:4060:58: note: Address of variable taken here.
+src/NodeToken.h:4062:58: note: Address of variable taken here.
                         __num = (uint32_t)(*((uint32_t *)&__f));
                                                          ^
-src/NodeToken.h:4058:31: note: Variable created here.
+src/NodeToken.h:4060:31: note: Variable created here.
                         float __f = 0;
                               ^
-src/NodeToken.h:4072:33: note: Using object that points to local variable '__f' that is out of scope.
+src/NodeToken.h:4074:33: note: Using object that points to local variable '__f' that is out of scope.
                         __num = __num / 256;
                                 ^
-src/string_function.h:40:35: information: --check-library: There is no matching configuration for function std::runtime_error() [checkLibraryFunction]
-    if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
-                                  ^
 src/string_function.h:44:17: information: --check-library: There is no matching configuration for function std::string() [checkLibraryFunction]
     return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
                 ^
@@ -94,142 +91,142 @@ src/NodeToken.h:2583:89: information: --check-library: There is no matching conf
 src/NodeToken.h:2758:30: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
             content.addAfter(string(_div[i]));
                              ^
-src/NodeToken.h:3003:23: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:3005:23: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
     nd->setTargetText(string(nd->parent->getTargetText()));
                       ^
-src/NodeToken.h:3246:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3248:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
             if (nd->getChildAtPos(0)->getChildAtPos(j)->findMaxArgumentSize() - 1 >= i)
                                       ^
-src/NodeToken.h:3272:34: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3274:34: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
         if (t->getChildAtPos(0)->getChildAtPos(i)->isPointer)
                                  ^
-src/NodeToken.h:3275:35: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3277:35: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
             nd->getChildAtPos(0)->getChildAtPos(i)->visitNode();
                                   ^
-src/NodeToken.h:3291:45: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3293:45: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 if (func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType == __Args__)
                                             ^
-src/NodeToken.h:3295:57: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3297:57: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 globalType.push(func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
                                                         ^
-src/NodeToken.h:3296:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3298:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 nd->getChildAtPos(0)->getChildAtPos(i)->visitNode();
                                       ^
-src/NodeToken.h:3303:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3305:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 nd->getChildAtPos(0)->getChildAtPos(i)->visitNode();
                                       ^
-src/NodeToken.h:3306:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3308:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
             if (nd->getChildAtPos(0)->getChildAtPos(i)->getVarType() != NULL and convert)
                                       ^
-src/NodeToken.h:3307:71: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3309:71: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
                                                                       ^
-src/NodeToken.h:3313:52: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3315:52: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 _vartype = func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType;
                                                    ^
-src/NodeToken.h:3316:53: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3318:53: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     _vartype = t->getChildAtPos(0)->getChildAtPos(i)->getVarType()->_varType;
                                                     ^
-src/NodeToken.h:3330:49: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3332:49: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 _vartype = t->getChildAtPos(0)->getChildAtPos(i)->getVarType()->_varType;
                                                 ^
-src/NodeToken.h:3354:42: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3356:42: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 if (t->getChildAtPos(0)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == numberNode)
                                          ^
-src/NodeToken.h:3378:62: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3380:62: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     for (int k = 0; k < t->getChildAtPos(0)->getChildAtPos(i)->getChildAtPos(0)->getVarType()->size; k++)
                                                              ^
-src/NodeToken.h:3385:46: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3387:46: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     if (t->getChildAtPos(0)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == callFunctionNode)
                                              ^
-src/NodeToken.h:3397:46: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3399:46: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     if (t->getChildAtPos(0)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == extCallFunctionNode)
                                              ^
-src/NodeToken.h:3409:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3411:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     else if (t->getChildAtPos(0)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == localVariableNode)
                                                   ^
-src/NodeToken.h:3413:138: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3415:138: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                             bufferText->addAfter(bufferText->sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(0)->getChildAtPos(i)->getChildAtPos(0)->stack_pos));
                                                                                                                                          ^
-src/NodeToken.h:3418:138: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3420:138: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                             bufferText->addAfter(bufferText->sp.pop(), string_format("l32i a%d,a1,%d", regbase + i, t->getChildAtPos(0)->getChildAtPos(i)->getChildAtPos(0)->stack_pos));
                                                                                                                                          ^
-src/NodeToken.h:3421:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3423:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     else if (t->getChildAtPos(2)->getChildAtPos(i)->getChildAtPos(0)->_nodetype == globalVariableNode)
                                                   ^
-src/NodeToken.h:3471:49: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3473:49: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     v = func->getChildAtPos(1)->getChildAtPos(i)->getVarType();
                                                 ^
-src/NodeToken.h:3473:47: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3475:47: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     v = nd->getChildAtPos(0)->getChildAtPos(i)->getVarType();
                                               ^
-src/NodeToken.h:3530:41: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3532:41: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
             if (func->getChildAtPos(1)->getChildAtPos(i)->isPointer)
                                         ^
-src/NodeToken.h:3535:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3537:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 nd->getChildAtPos(0)->getChildAtPos(i)->visitNode();
                                       ^
-src/NodeToken.h:3537:53: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3539:53: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 int start = func->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE;
                                                     ^
-src/NodeToken.h:3561:57: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3563:57: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 globalType.push(func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->_varType);
                                                         ^
-src/NodeToken.h:3564:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3566:39: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 nd->getChildAtPos(0)->getChildAtPos(i)->visitNode();
                                       ^
-src/NodeToken.h:3567:53: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3569:53: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 int start = func->getChildAtPos(1)->getChildAtPos(i)->stack_pos - _STACK_SIZE + func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->total_size;
                                                     ^
-src/NodeToken.h:3568:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3570:51: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 int tot = func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1;
                                                   ^
-src/NodeToken.h:3569:61: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3571:61: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                 for (int j = 0; j < func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size; j++)
                                                             ^
-src/NodeToken.h:3572:47: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3574:47: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     if (nd->getChildAtPos(0)->getChildAtPos(i)->getVarType() != NULL)
                                               ^
-src/NodeToken.h:3574:79: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3576:79: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                         translateType(globalType.get(), nd->getChildAtPos(0)->getChildAtPos(i)->getVarType()->_varType, register_numl.get());
                                                                               ^
-src/NodeToken.h:3583:54: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3585:54: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     start -= func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->sizes[tot - j];
                                                      ^
-src/NodeToken.h:3584:71: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3586:71: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                     asmInstruction asmInstr = func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->store[tot - j];
                                                                       ^
-src/NodeToken.h:3592:58: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3594:58: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                         if (j == func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1)
                                                          ^
-src/NodeToken.h:3604:58: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
+src/NodeToken.h:3606:58: information: --check-library: There is no matching configuration for function NodeToken::getChildAtPos() [checkLibraryFunction]
                         if (j == func->getChildAtPos(1)->getChildAtPos(i)->getVarType()->size - 1)
                                                          ^
-src/NodeToken.h:3757:29: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:3759:29: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
                 string sd = string(nd->getTargetText());
                             ^
-src/NodeToken.h:4039:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:4041:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
             string str = string(nd->getChildAtPos(0)->getTokenText());
                          ^
-src/NodeToken.h:4236:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:4238:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
         string sd = string(nd->getTargetText());
                     ^
-src/NodeToken.h:4414:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:4416:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
         string sd = string(nd->getTargetText());
                     ^
-src/NodeToken.h:4671:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:4673:21: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
     string target = string(nd->getTokenText());
                     ^
-src/NodeToken.h:4729:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:4731:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
             string tmp = string((*text->getChildAtPos(i)));
                          ^
-src/NodeToken.h:4806:22: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:4808:22: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
         string tmp = string((*text->getChildAtPos(i)));
                      ^
-src/NodeToken.h:4857:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:4859:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
             string tmp = string((*text->getChildAtPos(i)));
                          ^
-src/NodeToken.h:4902:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
+src/NodeToken.h:4904:26: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
             string tmp = string((*text->getChildAtPos(i)));
                          ^
 src/asm_parser.h:502:16: information: --check-library: There is no matching configuration for function string() [checkLibraryFunction]
@@ -748,16 +745,16 @@ src/asm_struct_enum.h:309:20: note: Assignment '_pos=-1', assigned value is -1
 src/asm_struct_enum.h:310:21: note: Condition '_pos>-1' is always false
              if(_pos>-1 && _texts[_pos]!=NULL)
                     ^
-src/NodeToken.h:3231:11: style: Condition 't==NULL' is always false [knownConditionTrueFalse]
+src/NodeToken.h:3233:11: style: Condition 't==NULL' is always false [knownConditionTrueFalse]
     if (t == NULL)
           ^
-src/NodeToken.h:3214:12: note: Assuming that condition 'nd==NULL' is not redundant
+src/NodeToken.h:3216:12: note: Assuming that condition 'nd==NULL' is not redundant
     if (nd == NULL)
            ^
-src/NodeToken.h:3230:20: note: Assignment 't=nd', assigned value is 0
+src/NodeToken.h:3232:20: note: Assignment 't=nd', assigned value is 0
     NodeToken *t = nd; // cntx.findFunction(nd->_token);
                    ^
-src/NodeToken.h:3231:11: note: Condition 't==NULL' is always false
+src/NodeToken.h:3233:11: note: Condition 't==NULL' is always false
     if (t == NULL)
           ^
 src/execute.h:435:20: style: Condition '!toResetSync' is always false [knownConditionTrueFalse]
@@ -769,7 +766,7 @@ src/execute.h:434:27: note: Assignment 'toResetSync=true', assigned value is 1
 src/execute.h:435:20: note: Condition '!toResetSync' is always false
             while (!toResetSync)
                    ^
-src/NodeToken.h:4065:25: warning: %lu in format string (no. 1) requires 'unsigned long *' but the argument type is 'unsigned int *'. [invalidScanfArgType_int]
+src/NodeToken.h:4067:25: warning: %lu in format string (no. 1) requires 'unsigned long *' but the argument type is 'unsigned int *'. [invalidScanfArgType_int]
                         sscanf(ndt->getTokenText(), "%lu", &__num);
                         ^
 src/execute.h:543:13: warning: %ld in format string (no. 1) requires 'long' but the argument type is 'unsigned int'. [invalidPrintfArgType_sint]
@@ -808,10 +805,10 @@ src/NodeToken.h:2433:82: information: --check-library: Function translateType() 
 src/NodeToken.h:2782:111: information: --check-library: Function translateType() should have <noreturn> configuration [checkLibraryNoReturn]
             translateType(globalType.get(), nd->getChildAtPos(1)->getVarType()->_varType, register_numl.get());
                                                                                                               ^
-src/NodeToken.h:3623:50: information: --check-library: Function _visitCallFunctionTemplate() should have <noreturn> configuration [checkLibraryNoReturn]
+src/NodeToken.h:3625:50: information: --check-library: Function _visitCallFunctionTemplate() should have <noreturn> configuration [checkLibraryNoReturn]
         _visitCallFunctionTemplate(nd, 10, false);
                                                  ^
-src/NodeToken.h:3805:106: information: --check-library: Function translateType() should have <noreturn> configuration [checkLibraryNoReturn]
+src/NodeToken.h:3807:106: information: --check-library: Function translateType() should have <noreturn> configuration [checkLibraryNoReturn]
                 translateType(__int__, nd->getChildAtPos(0)->getVarType()->_varType, register_numl.get());
                                                                                                          ^
 src/execute_asm.h:9:37: information: --check-library: Function heap_caps_free() should have <noreturn> configuration [checkLibraryNoReturn]
@@ -838,7 +835,7 @@ src/execute_asm.h:421:29: information: --check-library: Function heap_caps_free(
 src/execute_asm.h:446:89: information: --check-library: Function pushToConsole() should have <noreturn> configuration [checkLibraryNoReturn]
     pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
                                                                                         ^
-src/execute_asm.h:455:90: information: --check-library: Function addExternalFunction() should have <noreturn> configuration [checkLibraryNoReturn]
+src/execute_asm.h:683:90: information: --check-library: Function addExternalFunction() should have <noreturn> configuration [checkLibraryNoReturn]
         addExternalFunction("error", "void", "int,uint32_t,uint32_t", (void *)&showError);
                                                                                          ^
 src/execute.h:70:18: information: --check-library: Function vTaskDelay() should have <noreturn> configuration [checkLibraryNoReturn]
@@ -913,22 +910,22 @@ src/NodeToken.h:1562:11: note: Assuming that condition 'p!=NULL' is not redundan
 src/NodeToken.h:1556:12: note: Null pointer dereference
     while (p->_nodetype != forNode and p->_nodetype != whileNode)
            ^
-src/NodeToken.h:3210:26: warning: Either the condition 'nd==NULL' is redundant or there is possible null pointer dereference: nd. [nullPointerRedundantCheck]
+src/NodeToken.h:3212:26: warning: Either the condition 'nd==NULL' is redundant or there is possible null pointer dereference: nd. [nullPointerRedundantCheck]
     int staack_offset = (nd->getChildAtPos(0)->children_size() - 7) * 4;
                          ^
-src/NodeToken.h:3214:12: note: Assuming that condition 'nd==NULL' is not redundant
+src/NodeToken.h:3216:12: note: Assuming that condition 'nd==NULL' is not redundant
     if (nd == NULL)
            ^
-src/NodeToken.h:3210:26: note: Null pointer dereference
+src/NodeToken.h:3212:26: note: Null pointer dereference
     int staack_offset = (nd->getChildAtPos(0)->children_size() - 7) * 4;
                          ^
-src/NodeToken.h:3635:9: warning: Either the condition 'v==NULL' is redundant or there is possible null pointer dereference: v. [nullPointerRedundantCheck]
+src/NodeToken.h:3637:9: warning: Either the condition 'v==NULL' is redundant or there is possible null pointer dereference: v. [nullPointerRedundantCheck]
     if (v->size > 1)
         ^
-src/NodeToken.h:3629:11: note: Assuming that condition 'v==NULL' is not redundant
+src/NodeToken.h:3631:11: note: Assuming that condition 'v==NULL' is not redundant
     if (v == NULL)
           ^
-src/NodeToken.h:3635:9: note: Null pointer dereference
+src/NodeToken.h:3637:9: note: Null pointer dereference
     if (v->size > 1)
         ^
 src/asm_struct_enum.h:622:28: style: C-style pointer casting [cstyleCast]
@@ -943,7 +940,7 @@ src/execute.h:657:25: style: C-style pointer casting [cstyleCast]
 src/NodeToken.h:1690:43: portability: Casting from float * to unsigned int * is not portable due to different binary data representations on different platforms. [invalidPointerCast]
             uint32_t __num = (uint32_t)(*((uint32_t *)&__f));
                                           ^
-src/NodeToken.h:4060:46: portability: Casting from float * to unsigned int * is not portable due to different binary data representations on different platforms. [invalidPointerCast]
+src/NodeToken.h:4062:46: portability: Casting from float * to unsigned int * is not portable due to different binary data representations on different platforms. [invalidPointerCast]
                         __num = (uint32_t)(*((uint32_t *)&__f));
                                              ^
 src/asm_struct_enum.h:309:18: style: Redundant initialization for '_pos'. The initialized value is overwritten before it is read. [redundantInitialization]
@@ -991,22 +988,22 @@ src/ESPLiveScript.h:130:22: note: point_regnum is assigned
 src/ESPLiveScript.h:131:22: note: point_regnum is overwritten
         point_regnum = 4;
                      ^
-src/NodeToken.h:3221:9: style:inconclusive: Found duplicate branches for 'if' and 'else'. [duplicateBranch]
+src/NodeToken.h:3223:9: style:inconclusive: Found duplicate branches for 'if' and 'else'. [duplicateBranch]
         if (isExtCall)
         ^
-src/NodeToken.h:3223:9: note: Found duplicate branches for 'if' and 'else'.
+src/NodeToken.h:3225:9: note: Found duplicate branches for 'if' and 'else'.
         else
         ^
-src/NodeToken.h:3221:9: note: Found duplicate branches for 'if' and 'else'.
+src/NodeToken.h:3223:9: note: Found duplicate branches for 'if' and 'else'.
         if (isExtCall)
         ^
-src/NodeToken.h:4691:13: style:inconclusive: Found duplicate branches for 'if' and 'else'. [duplicateBranch]
+src/NodeToken.h:4693:13: style:inconclusive: Found duplicate branches for 'if' and 'else'. [duplicateBranch]
             if (strlen(nd->getChildAtPos(i)->getTokenText()) > 0)
             ^
-src/NodeToken.h:4693:13: note: Found duplicate branches for 'if' and 'else'.
+src/NodeToken.h:4695:13: note: Found duplicate branches for 'if' and 'else'.
             else
             ^
-src/NodeToken.h:4691:13: note: Found duplicate branches for 'if' and 'else'.
+src/NodeToken.h:4693:13: note: Found duplicate branches for 'if' and 'else'.
             if (strlen(nd->getChildAtPos(i)->getTokenText()) > 0)
             ^
 src/NodeToken.h:1532:9: style: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
@@ -1015,16 +1012,16 @@ src/NodeToken.h:1532:9: style: Consecutive return, break, continue, goto or thro
 src/NodeToken.h:1647:9: style: Consecutive return, break, continue, goto or throw statements are unnecessary. [duplicateBreak]
         break;
         ^
-src/NodeToken.h:3586:25: style: The scope of the variable 'sav' can be reduced. [variableScope]
+src/NodeToken.h:3588:25: style: The scope of the variable 'sav' can be reduced. [variableScope]
                     int sav;
                         ^
-src/NodeToken.h:3898:9: style: The scope of the variable 'sav' can be reduced. [variableScope]
+src/NodeToken.h:3900:9: style: The scope of the variable 'sav' can be reduced. [variableScope]
     int sav = 9;
         ^
-src/NodeToken.h:4051:21: style: The scope of the variable 'c' can be reduced. [variableScope]
+src/NodeToken.h:4053:21: style: The scope of the variable 'c' can be reduced. [variableScope]
             uint8_t c;
                     ^
-src/NodeToken.h:4985:29: style: The scope of the variable 'ind' can be reduced. [variableScope]
+src/NodeToken.h:4987:29: style: The scope of the variable 'ind' can be reduced. [variableScope]
                         int ind = -1;
                             ^
 src/asm_parser.h:82:9: style: The scope of the variable 'add_size' can be reduced. [variableScope]
@@ -1084,76 +1081,76 @@ src/NodeToken.h:2474:9: note: Shadowed declaration
 src/NodeToken.h:2487:13: note: Shadow variable
         int start = nd->stack_pos;
             ^
-src/NodeToken.h:3910:21: style: Local variable 'start' shadows outer variable [shadowVariable]
+src/NodeToken.h:3912:21: style: Local variable 'start' shadows outer variable [shadowVariable]
                 int start = nd->getChildAtPos(i)->stack_pos;
                     ^
-src/NodeToken.h:3906:17: note: Shadowed declaration
+src/NodeToken.h:3908:17: note: Shadowed declaration
             int start = nd->getChildAtPos(i)->stack_pos;
                 ^
-src/NodeToken.h:3910:21: note: Shadow variable
+src/NodeToken.h:3912:21: note: Shadow variable
                 int start = nd->getChildAtPos(i)->stack_pos;
                     ^
-src/NodeToken.h:4860:32: style: Local variable 'd2' shadows outer variable [shadowVariable]
+src/NodeToken.h:4862:32: style: Local variable 'd2' shadows outer variable [shadowVariable]
                 vector<string> d2 = split(tmp, " ");
                                ^
-src/NodeToken.h:4792:20: note: Shadowed declaration
+src/NodeToken.h:4794:20: note: Shadowed declaration
     vector<string> d2;
                    ^
-src/NodeToken.h:4860:32: note: Shadow variable
+src/NodeToken.h:4862:32: note: Shadow variable
                 vector<string> d2 = split(tmp, " ");
                                ^
-src/NodeToken.h:4865:36: style: Local variable 'd' shadows outer variable [shadowVariable]
+src/NodeToken.h:4867:36: style: Local variable 'd' shadows outer variable [shadowVariable]
                     vector<string> d = split(before, " ");
                                    ^
-src/NodeToken.h:4791:20: note: Shadowed declaration
+src/NodeToken.h:4793:20: note: Shadowed declaration
     vector<string> d;
                    ^
-src/NodeToken.h:4865:36: note: Shadow variable
+src/NodeToken.h:4867:36: note: Shadow variable
                     vector<string> d = split(before, " ");
                                    ^
-src/NodeToken.h:4986:30: style: Local variable 'found' shadows outer variable [shadowVariable]
+src/NodeToken.h:4988:30: style: Local variable 'found' shadows outer variable [shadowVariable]
                         bool found = false;
                              ^
 src/NodeToken.h:64:6: note: Shadowed declaration
 bool found;
      ^
-src/NodeToken.h:4986:30: note: Shadow variable
+src/NodeToken.h:4988:30: note: Shadow variable
                         bool found = false;
                              ^
-src/NodeToken.h:5029:30: style: Local variable 'found' shadows outer variable [shadowVariable]
-                        bool found = false;
-                             ^
-src/NodeToken.h:64:6: note: Shadowed declaration
-bool found;
-     ^
-src/NodeToken.h:5029:30: note: Shadow variable
-                        bool found = false;
-                             ^
-src/NodeToken.h:5125:30: style: Local variable 'found' shadows outer variable [shadowVariable]
+src/NodeToken.h:5031:30: style: Local variable 'found' shadows outer variable [shadowVariable]
                         bool found = false;
                              ^
 src/NodeToken.h:64:6: note: Shadowed declaration
 bool found;
      ^
-src/NodeToken.h:5125:30: note: Shadow variable
+src/NodeToken.h:5031:30: note: Shadow variable
                         bool found = false;
                              ^
-src/NodeToken.h:5179:30: style: Local variable 'found' shadows outer variable [shadowVariable]
-                        bool found = false;
-                             ^
-src/NodeToken.h:64:6: note: Shadowed declaration
-bool found;
-     ^
-src/NodeToken.h:5179:30: note: Shadow variable
-                        bool found = false;
-                             ^
-src/NodeToken.h:5233:30: style: Local variable 'found' shadows outer variable [shadowVariable]
+src/NodeToken.h:5127:30: style: Local variable 'found' shadows outer variable [shadowVariable]
                         bool found = false;
                              ^
 src/NodeToken.h:64:6: note: Shadowed declaration
 bool found;
      ^
-src/NodeToken.h:5233:30: note: Shadow variable
+src/NodeToken.h:5127:30: note: Shadow variable
+                        bool found = false;
+                             ^
+src/NodeToken.h:5181:30: style: Local variable 'found' shadows outer variable [shadowVariable]
+                        bool found = false;
+                             ^
+src/NodeToken.h:64:6: note: Shadowed declaration
+bool found;
+     ^
+src/NodeToken.h:5181:30: note: Shadow variable
+                        bool found = false;
+                             ^
+src/NodeToken.h:5235:30: style: Local variable 'found' shadows outer variable [shadowVariable]
+                        bool found = false;
+                             ^
+src/NodeToken.h:64:6: note: Shadowed declaration
+bool found;
+     ^
+src/NodeToken.h:5235:30: note: Shadow variable
                         bool found = false;
                              ^
 src/asm_parser.h:1287:22: style: Local variable '__v' shadows outer variable [shadowVariable]
@@ -1576,13 +1573,13 @@ src/NodeToken.h:1137:15: style: Unused variable: tocmp [unusedVariable]
 src/NodeToken.h:2627:13: style: Variable 'sav' is assigned a value that is never used. [unreadVariable]
     int sav = 9;
             ^
-src/NodeToken.h:3213:17: style: Variable 'nbfloat' is assigned a value that is never used. [unreadVariable]
+src/NodeToken.h:3215:17: style: Variable 'nbfloat' is assigned a value that is never used. [unreadVariable]
     int nbfloat = 0;
                 ^
-src/NodeToken.h:3848:18: style: Variable 't' is assigned a value that is never used. [unreadVariable]
+src/NodeToken.h:3850:18: style: Variable 't' is assigned a value that is never used. [unreadVariable]
     NodeToken *t = nd;
                  ^
-src/NodeToken.h:4050:19: style: Variable '__num' is assigned a value that is never used. [unreadVariable]
+src/NodeToken.h:4052:19: style: Variable '__num' is assigned a value that is never used. [unreadVariable]
             __num = 0;
                   ^
 src/asm_parser.h:82:18: style: Variable 'add_size' is assigned a value that is never used. [unreadVariable]
@@ -1669,6 +1666,66 @@ src/execute.h:886:104: performance: Prefer prefix ++/-- operators for non-primit
 src/NodeToken.h:154:18: information: --check-library: Function displayStat() should have <noreturn> configuration [checkLibraryNoReturn]
     displayStat();
                  ^
+src/execute_asm.h:502:21: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+    uint8_t third = scale8( offset8, (256 / 3)); // max = 85
+                    ^
+src/execute_asm.h:530:41: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+                    uint8_t twothirds = scale8( offset8, ((256 * 2) / 3)); // max=170
+                                        ^
+src/execute_asm.h:544:41: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+                    uint8_t twothirds = scale8( offset8, ((256 * 2) / 3)); // max=170
+                                        ^
+src/execute_asm.h:576:37: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+                uint8_t twothirds = scale8( offset8, ((256 * 2) / 3)); // max=170
+                                    ^
+src/execute_asm.h:613:22: information: --check-library: There is no matching configuration for function scale8_video_LEAVING_R1_DIRTY() [checkLibraryFunction]
+    if( Gscale ) g = scale8_video_LEAVING_R1_DIRTY( g, Gscale);
+                     ^
+src/execute_asm.h:622:21: information: --check-library: There is no matching configuration for function scale8_video() [checkLibraryFunction]
+            desat = scale8_video( desat, desat);
+                    ^
+src/execute_asm.h:634:25: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+            if( r ) r = scale8( r, satscale) + 1;
+                        ^
+src/execute_asm.h:635:25: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+            if( g ) g = scale8( g, satscale) + 1;
+                        ^
+src/execute_asm.h:636:25: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+            if( b ) b = scale8( b, satscale) + 1;
+                        ^
+src/execute_asm.h:648:15: information: --check-library: There is no matching configuration for function scale8_video_LEAVING_R1_DIRTY() [checkLibraryFunction]
+        val = scale8_video_LEAVING_R1_DIRTY( val, val);
+              ^
+src/execute_asm.h:659:25: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+            if( r ) r = scale8( r, val) + 1;
+                        ^
+src/execute_asm.h:660:25: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+            if( g ) g = scale8( g, val) + 1;
+                        ^
+src/execute_asm.h:661:25: information: --check-library: There is no matching configuration for function scale8() [checkLibraryFunction]
+            if( b ) b = scale8( b, val) + 1;
+                        ^
+src/execute_asm.h:672:12: information: --check-library: There is no matching configuration for function CRGB() [checkLibraryFunction]
+    return CRGB(r,g,b);
+           ^
+src/execute_asm.h:517:35: information: --check-library: Function asm() should have <noreturn> configuration [checkLibraryNoReturn]
+                FORCE_REFERENCE(b);
+                                  ^
+src/execute_asm.h:525:39: information: --check-library: Function asm() should have <noreturn> configuration [checkLibraryNoReturn]
+                    FORCE_REFERENCE(b);
+                                      ^
+src/execute_asm.h:533:39: information: --check-library: Function asm() should have <noreturn> configuration [checkLibraryNoReturn]
+                    FORCE_REFERENCE(b);
+                                      ^
+src/execute_asm.h:548:39: information: --check-library: Function asm() should have <noreturn> configuration [checkLibraryNoReturn]
+                    FORCE_REFERENCE(b);
+                                      ^
+src/execute_asm.h:554:39: information: --check-library: Function asm() should have <noreturn> configuration [checkLibraryNoReturn]
+                    FORCE_REFERENCE(b);
+                                      ^
+src/execute_asm.h:685:70: information: --check-library: Function addExternalFunction() should have <noreturn> configuration [checkLibraryNoReturn]
+        addExternalFunction("hsv", "CRGB","int,int,int", (void *)hsv);
+                                                                     ^
 src/execute.h:321:23: information: --check-library: There is no matching configuration for function createExectutable() [checkLibraryFunction]
         _executecmd = createExectutable(bin);
                       ^
@@ -1888,13 +1945,13 @@ Parser p = Parser();
 src/NodeToken.h:1555:16: note: Shadow variable
     NodeToken *p = current_node;
                ^
-src/NodeToken.h:4869:40: style: Local variable 'p' shadows outer variable [shadowVariable]
+src/NodeToken.h:4871:40: style: Local variable 'p' shadows outer variable [shadowVariable]
                         vector<string> p = split(d[1], ",");
                                        ^
 src/ESPLiveScript.h:3492:8: note: Shadowed declaration
 Parser p = Parser();
        ^
-src/NodeToken.h:4869:40: note: Shadow variable
+src/NodeToken.h:4871:40: note: Shadow variable
                         vector<string> p = split(d[1], ",");
                                        ^
 src/ESPLiveScript.h:3514:33: performance: Function parameter 'variables' should be passed by const reference. [passedByValue]
