@@ -2027,13 +2027,22 @@ _uniquesave._nodetype = (int)storeLocalVariableNodeAsRegister;
        // if(_is_variable_as_register)
        //  _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
        // else
+        _is_variable_as_register=false;
+
+ if(_for_depth_reg<=_MAX_FOR_DEPTH_REG_2)
+ {
+     _is_variable_as_register=true;
+ }
        if(_is_variable_as_register)
        {
        _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
        _nd.target=_for_depth_reg;
+       _for_depth_reg++;
        }
        else
         _nd = NodeToken(_nd, defLocalVariableNode);
+
+ _is_variable_as_register=false;
 
         // NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
         // _nd._nodetype=(int)defLocalVariableNode;
@@ -3692,7 +3701,7 @@ void binload(Console *cons, vector<string> args)
                     // vector<string> d;
                     //  d.push_back("main");
                     LedOS.pushToConsole("***********START RUN *********");
-                    SCExecutable.executeAsTask("main", _args);
+                    SCExecutable.execute("main", _args);
                     // run(cons, d);
 
                     if (cons->cmode == keyword)

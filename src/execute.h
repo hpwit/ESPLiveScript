@@ -589,10 +589,7 @@ public:
         }
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
-        if (res.error)
-        {
-            pushToConsole(res.error_message, true);
-        }
+
         res = executeBinary("@__" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
