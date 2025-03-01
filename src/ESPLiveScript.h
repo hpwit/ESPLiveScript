@@ -1602,16 +1602,16 @@ addfloatdivision=false;
                 next();
                 current_node = current_node->addChild(NodeToken(statementNode));
                 //  __current.push( current());
- _is_variable_as_register=false;
-
- if(_for_depth_reg<=_MAX_FOR_DEPTH_REG)
+ _is_variable_as_register.set(false);
+//printf("in for :%d\n",_for_depth_reg.get());
+ if(_for_depth_reg.get()<=_MAX_FOR_DEPTH_REG)
  {
-     _is_variable_as_register=true;
+     _is_variable_as_register.set(true);
  }
   
                 parseStatement();
-                _for_depth_reg++;
-                 _is_variable_as_register=false;
+              //  _for_depth_reg++;
+                 _is_variable_as_register.set(false);
                 // __sav_pos = _tks->position;
                 // deleteNotNeededToken(__current.pop(), current());
                 //  _tks->position = __sav_pos;
@@ -1669,7 +1669,8 @@ addfloatdivision=false;
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
                 //  current_node=current_node->parent;
-                _for_depth_reg--;
+               // printf("end of for :%d\n", _for_depth_reg.get());
+                _for_depth_reg.decrease();
                 return;
             }
             else
@@ -1700,13 +1701,35 @@ addfloatdivision=false;
 
                 return;
             }
+             if(_for_depth_reg.get()<=_MAX_FOR_DEPTH_REG_2)
+ {
+     _is_variable_as_register.set(true);
+ }
+// else
+// _is_variable_as_register.set(false));
+
             nodeTokenList.push(createNodeLocalVariableForCreation(nodeTokenList.pop(), nodeTokenList.pop()));
-            current_cntx->addVariable(nodeTokenList.get()); // 31/12
+          //if(_for_depth_reg<=_MAX_FOR_DEPTH_REG_2)
+            //_for_depth_reg++;
+            //YBA 27/02
+            
+          //  NodeToken _nd=nodeTokenList.get();
+            _is_variable_as_register.set(false);
+  
+          
+            current_cntx->addVariable(nodeTokenList.get()); // 27/05
             if (Match(TokenComma))
             {
                 while (Match(TokenComma))
                 {
                     next();
+                    if(nodeTokenList.get()._nodetype==defLocalVariableNodeAsRegister)
+                    {
+                    NodeToken _nd=nodeTokenList.pop();
+                    _nd._nodetype=defLocalVariableNode;
+                    nodeTokenList.pop();
+                    nodeTokenList.push(_nd);
+                    }
                     nodeTokenList.push(nodeTokenList.get());
                     parseVariableForCreation();
                     if (Error.error)
@@ -2027,22 +2050,22 @@ _uniquesave._nodetype = (int)storeLocalVariableNodeAsRegister;
        // if(_is_variable_as_register)
        //  _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
        // else
-        _is_variable_as_register=false;
+        _is_variable_as_register.set(false);
 
- if(_for_depth_reg<=_MAX_FOR_DEPTH_REG_2)
+ if(_for_depth_reg.get()<=_MAX_FOR_DEPTH_REG_2)
  {
-     _is_variable_as_register=true;
+     _is_variable_as_register.set(true);
  }
-       if(_is_variable_as_register)
+       if(_is_variable_as_register.get())
        {
        _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
-       _nd.target=_for_depth_reg;
-       _for_depth_reg++;
+       _nd.target=_for_depth_reg.get();
+       _for_depth_reg.increase();
        }
        else
         _nd = NodeToken(_nd, defLocalVariableNode);
 
- _is_variable_as_register=false;
+ _is_variable_as_register.set(false);
 
         // NodeDefLocalVariable var = NodeDefLocalVariable(_nd);
         // _nd._nodetype=(int)defLocalVariableNode;
@@ -2075,10 +2098,10 @@ _uniquesave._nodetype = (int)storeLocalVariableNodeAsRegister;
             NodeToken _t = nodeTokenList.pop();
 
             copyPrty(&_t, &_nd);
-           if(_is_variable_as_register)
+           if(_is_variable_as_register.get())
           { 
        _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
-       _nd.target=_for_depth_reg;
+       _nd.target=_for_depth_reg.get();
           }
        else
         _nd = NodeToken(_nd, defLocalVariableNode);
@@ -2104,9 +2127,11 @@ _uniquesave._nodetype = (int)storeLocalVariableNodeAsRegister;
 #ifdef PARSER_DEBUG
         updateMem();
 #endif
-_for_depth_reg=2;
+//printf("set up\n");
+_for_depth_reg.push(2);
+_is_variable_as_register.push(false);
 if(isStructFunction)
-_for_depth_reg++;
+_for_depth_reg.increase();
         Error.error = 0;
         bool ext_function = false;
         bool is_asm = false;
@@ -2219,6 +2244,8 @@ _for_depth_reg++;
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
                 next();
+                _is_variable_as_register.pop();
+_for_depth_reg.pop();
                 return;
             }
             else
@@ -2236,6 +2263,8 @@ _for_depth_reg++;
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
                 next();
+                _is_variable_as_register.pop();
+_for_depth_reg.pop();
                 return;
         }
         else
@@ -2284,7 +2313,8 @@ _for_depth_reg++;
                 // printf("on a visité\r\n");
                 current_cntx = current_cntx->parent;
                 current_node = current_node->parent;
-
+_is_variable_as_register.pop();
+_for_depth_reg.pop();
                 return;
             }
             else
@@ -2295,7 +2325,8 @@ _for_depth_reg++;
                 return;
             }
         }
-
+_is_variable_as_register.pop();
+_for_depth_reg.pop();
         return;
     }
     void parseTerm()

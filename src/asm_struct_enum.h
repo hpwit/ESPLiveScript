@@ -65,6 +65,11 @@ public:
         push(sav);
         push(sav2);
     }
+    void set(T k)
+    {
+        pop();
+        push(k);
+    }
     void increase()
     {
         //  if( typeid(T).hash_code()==typeid(int).hash_code())

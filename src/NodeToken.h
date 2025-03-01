@@ -16,8 +16,8 @@ using namespace std;
 
 #define _MAX_FOR_DEPTH_REG 4
 #define _MAX_FOR_DEPTH_REG_2 2
-int _for_depth_reg = 0;
-bool _is_variable_as_register = false;
+//int _for_depth_reg = 0;
+//bool _is_variable_as_register = false;
 void pushToConsole(string str, bool force)
 {
 #ifdef __CONSOLE_ESP32
@@ -97,6 +97,8 @@ bool intest = false;
 Stack<int> register_numr = Stack<int>(15);
 Stack<int> register_numl = Stack<int>(15);
 bool isInFunction = false;
+Stack<int> _for_depth_reg;
+Stack<bool> _is_variable_as_register;
 // list<int> _sp;
 
 vector<int> _compare;
@@ -1524,8 +1526,13 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
     {
 
         NodeToken v = NodeToken(var, defLocalVariableNode);
-        if (_is_variable_as_register)
+        if (_is_variable_as_register.get())
+        {
             v._nodetype = defLocalVariableNodeAsRegister;
+              v.target = _for_depth_reg.get();
+                _for_depth_reg.increase();
+              _is_variable_as_register.set(false);
+        }
         copyPrty(&nd, &v);
         return v;
     }
@@ -1536,10 +1543,12 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
 
         copyPrty(&nd, &var);
         NodeToken v = NodeToken(var, defLocalVariableNode);
-        if (_is_variable_as_register)
+        if (_is_variable_as_register.get())
         {
             v._nodetype = defLocalVariableNodeAsRegister;
-            v.target = _for_depth_reg;
+                v.target = _for_depth_reg.get();
+                _for_depth_reg.increase();
+              _is_variable_as_register.set(false);
         }
         // copyPrty(&nd, &v);
         //  NodeDefLocalVariable v = NodeDefLocalVariable(var);
