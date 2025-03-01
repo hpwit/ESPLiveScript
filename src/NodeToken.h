@@ -2594,7 +2594,7 @@ void _visitdefFunctionNode(NodeToken *nd)
     if (nd->type == TokenUserDefinedVariableMemberFunction)
         isStructFunction = true;
     header.addAfter(string_format(".global @_%s", nd->getTokenText()));
-    if (!isStructFunction)
+    if (!isStructFunction and strncmp(nd->getTokenText(),"main",4)==0 and nd->getChildAtPos(1)->children_size()>0)
         header.addAfter(string_format(".global @__%s", nd->getTokenText()));
     // string variables = "";
     if (!isStructFunction)
@@ -2606,13 +2606,15 @@ void _visitdefFunctionNode(NodeToken *nd)
         }
         header.addAfter(string_format(".var %d%s", nd->getChildAtPos(1)->children_size(), variables.c_str()));
     }
-    if (nd->getChildAtPos(1)->children_size() > -1)
+    if (nd->getChildAtPos(1)->children_size() > 0 and strncmp(nd->getTokenText(),"main",4)==0)
     {
         header.addAfter(string_format("@_stack__%s:", nd->getTokenText()));
         header.addAfter(string_format(".bytes %d", (nd->getChildAtPos(1)->children_size() + 1) * 4));
     }
     if (!isStructFunction)
     {
+        if(strncmp(nd->getTokenText(),"main",4)==0 and nd->getChildAtPos(1)->children_size() > 0)
+        {
         bufferText->addAfter(string_format("@__%s:", nd->getTokenText()));
 
         NodeToken *variaToken = nd->getChildAtPos(1);
@@ -2643,6 +2645,7 @@ void _visitdefFunctionNode(NodeToken *nd)
         {
             bufferText->addAfter(string_format("call8 @_%s", nd->getTokenText()));
             bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
+        }
         }
     }
 

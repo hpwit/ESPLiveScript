@@ -570,8 +570,8 @@ public:
         Arguments d;
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
-
-        res = executeBinary("@__" + prog, _executecmd, 9999, this, args);
+        //if(prog.compare("main")==)
+        res = executeBinary("@_" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -590,7 +590,10 @@ public:
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
 
-        res = executeBinary("@__" + prog, _executecmd, 9999, this, args);
+if(arguments.size()>0)
+    res=executeBinary("@__" + prog, _executecmd, 9999, this, args);
+else
+        res = executeBinary("@_" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -609,7 +612,10 @@ public:
         if (core == 0 or core == 1)
         {
             vector<string> __args;
+            if(arguments.size()>0)
             __args.push_back("@__" + prog);
+            else
+            __args.push_back("@_" + prog);
             _run(__args, true, core, arguments);
         }
         else
