@@ -1749,10 +1749,14 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
       binary_header = binary_header + 4;
       if ((*it2)->op == opCodeType::variable)
       {
+        printf("string:%s\n",(*it)->getText());
         string stackstring = string((*it)->getText()).insert(2, "stack_");
-        // printf(" qss %s %ld  %s\r\n", stackstring.c_str(), getInstrAtPos(findLabel(stackstring, asm_parsed))->bincode, (*it2)->getText());
+         printf(" qss %s %d  %s\r\n", stackstring.c_str(), findLabel(stackstring, asm_parsed), (*it2)->getText()); 
+         if(findLabel(stackstring, asm_parsed)>-1)
+         {
         bc = getInstrAtPos(findLabel(stackstring, asm_parsed))->bincode;
         memcpy(binary_header, &bc, 4);
+         }
       }
       binary_header = binary_header + 4;
     }
