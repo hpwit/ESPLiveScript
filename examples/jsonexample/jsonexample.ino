@@ -29,11 +29,12 @@ void setup()
 
     Parser p;
     Executable exec = p.parseScript(&script);
+    printf("copmùpile done\n");
     if (exec.isExeExists())
     {
 
         exec.execute("main", "{\"dp\":{\"value\":6,\"test\":12},\"dp2\":4.5}");
-         exec.execute("main", "{\"dp\":{\"value\":10,\"test\":20}}");
+        exec.execute("main", "{\"dp\":{\"value\":10,\"test\":20},\"dp2\":7.5854}");
     }
     else
     {
