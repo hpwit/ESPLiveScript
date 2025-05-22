@@ -131,6 +131,7 @@ public:
         m[str.size()] = 0;
         _texts.push_back(m);
         position++;
+        str.clear();
         return _texts.size() - 1;
     }
     int addText(string str)
@@ -149,6 +150,7 @@ public:
         m[str.size()] = 0;
         _texts.push_back(m);
         position++;
+        str.clear();
         #ifdef __TEST_DEBUG
        // printf(" addtext:%d %s\r\n",_texts.size(),str.c_str());
         #endif
@@ -723,10 +725,18 @@ typedef struct
   int args_num;
 } globalcall;
 
+typedef struct {
+  
+    string json;
+    uint8_t type;
+    uint32_t address;
+} jsonVariable;
+
 typedef struct
 {
   error_message_struct error;
   vector<globalcall> functions;
+  vector<jsonVariable> jsonVars;
   uint32_t *start_program = NULL;
   uint8_t *data = NULL;
   uint32_t links;

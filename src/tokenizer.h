@@ -32,7 +32,7 @@ std::string string_format(const std::string &format, Args... args)
 */
 #endif
 
-
+bool  inJson=false;
 bool insecond=false;
 
 struct varType
@@ -298,7 +298,7 @@ string keywordTypeNames[] = {
 
 };
 
-#define nb_keywords 37
+#define nb_keywords 39
 #define nb_typeVariables 13
 string keyword_array[nb_keywords] =
     {"none", "uint8_t", "uint16_t", "uint32_t", "int", "s_int", "float", "void", "CRGB",
@@ -306,7 +306,7 @@ string keyword_array[nb_keywords] =
      "import", "from", "__ASM__",
      "define", "safe_mode", "_header_", "_content_", "and", "or", "continue",
      "break", "fabs", "abs", "save_reg",
-     "save_reg_abs", "struct","override"};
+     "save_reg_abs", "struct","override","json","as"};
 
 bool __isBlockComment = false;
 enum tokenType
@@ -390,7 +390,9 @@ enum tokenType
     TokenMinusEqual,
     TokenStarEqual,
     TokenSlashEqual,
-    TokenOverride
+    TokenOverride,
+    TokenJson,
+    TokenAs
 
 };
 
@@ -431,7 +433,9 @@ tokenType __keywordTypes[] = {
     TokenKeywordSaveReg,
     TokenKeywordSaveRegAbs,
     TokenKeywordStruct,
-    TokenOverride
+    TokenOverride,
+    TokenJson,
+    TokenAs
 
 };
 
@@ -516,7 +520,9 @@ string tokenNames[] = {
     "TokenMinusEqual",
     "TokenStarEqual",
     "TokenSlashEqual",
-    "TokenOverride"
+    "TokenOverride",
+    "TokenJson",
+    "TokenAs"
 
 #endif
 };
@@ -678,6 +684,9 @@ const char *tokenFormat[] = {
     termColor.BWhite,   // TokenStarEqual
     termColor.BWhite,   // TokenSlashEqual
     termColor.LMagenta,   // TokenSlashEqual
+    termColor.LMagenta,   // TokenStarEqual
+    termColor.LMagenta,   // TokenSlashEqual
+    termColor.LMagenta,   // TokenSlashEqual
 };
 
 /*
@@ -815,7 +824,7 @@ public:
             }
             else
             {
-                printf("jkjk\n");
+               
                 position = -1;
                
                 return 0;// (*it)[0];
@@ -1205,6 +1214,7 @@ int isUserDefined(string str)
 
 bool isIna_zA_Z_(unsigned char c)
 {
+    
     if (c >= 97 && c <= 122)
     {
         return true;
@@ -1214,6 +1224,10 @@ bool isIna_zA_Z_(unsigned char c)
         return true;
     }
     if (c == '_')
+    {
+        return true;
+    }
+    if( inJson == true  && c =='.')
     {
         return true;
     }
@@ -1222,6 +1236,7 @@ bool isIna_zA_Z_(unsigned char c)
 
 bool isIna_zA_Z_0_9(unsigned char c)
 {
+    
     if (c >= 97 && c <= 122)
     {
         return true;
@@ -1231,6 +1246,10 @@ bool isIna_zA_Z_0_9(unsigned char c)
         return true;
     }
     if (c == '_')
+    {
+        return true;
+    }
+    if( inJson == true  && c =='.')
     {
         return true;
     }
@@ -1297,10 +1316,12 @@ Token t;
     // int pos = 0;
     char c;
     char c2;
+   
     _define newdef;
     vchar.clear();
     if (update)
     {
+       // inJson=false;
         _tks->clear();
         for (int i = 0; i < __DEPTH; i++)
         {
@@ -1579,7 +1600,7 @@ Token t;
                     t.type = (int)TokenExternal;
                   //  printf("ereeeeeeee\n");
                 }
-                if(t.getType()==TokenKeywordDefine)
+               else if(t.getType()==TokenKeywordDefine)
                 {
                     //printf("on est ici\n");
                     if(!_for_display)
@@ -1595,7 +1616,12 @@ Token t;
                     }
                     }
                 }
-                if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
+                else if(t.getType()==TokenJson)
+                {
+                    
+                    inJson=true;
+                }
+                else  if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
                 {
 
                     nbReadToken--;
@@ -1609,7 +1635,7 @@ Token t;
             else
             {
                 t.type = (int)TokenIdentifier;
-
+                inJson=false;
                 if (_tks->size() >= __DEPTH)
                 {
 

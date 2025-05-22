@@ -579,6 +579,22 @@ public:
 #endif
     }
 
+    void execute (string prog, string json)
+    {
+        args.clear();
+        Arguments d;
+
+#ifndef __TEST_DEBUG
+        error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
+
+        res = executeBinary("@__" + prog, _executecmd, 9999, this, args,json);
+        if (res.error)
+        {
+            pushToConsole(res.error_message, true);
+        }
+#endif
+    }
+
     void execute(string prog, Arguments arguments)
     {
         args.clear();

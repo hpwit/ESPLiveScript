@@ -160,7 +160,7 @@ addfloatdivision=false;
         content.clear();
         header.clear();
         footer.clear();
-
+        jsonVar.clear();
         main_script.init();
         initMem();
         _tks = &__tks;
@@ -228,7 +228,7 @@ addfloatdivision=false;
 
         updateMem();
         displayStat("afterclen");
-#ifndef __TEST_DEBUG
+
         pushToConsole("***********CREATE BINARY*********");
      bin = createBinary(&footer, &header, &content, __parser_debug);
                 updateMem();
@@ -245,15 +245,17 @@ addfloatdivision=false;
         change_type.clear();
         _asm_parsed.clear();
         all_text.clear();
+        jsonVar.clear();
         updateMem();
         displayStat();
+        #ifndef __TEST_DEBUG
         if (bin.error.error == 1)
         {
             //pushToConsole("WTF", true);
             pushToConsole(bin.error.error_message.c_str(), true);
             freeBinary(&bin);
         }
-#endif
+        #endif
         return bin;
     }
     Executable compile()
@@ -265,7 +267,7 @@ addfloatdivision=false;
 //bin.error.error=1;
         if (bin.error.error == 0)
         {
-#ifndef __TEST_DEBUG
+
             pushToConsole("***********CREATE EXECUTABLE*********");
 
             executable _executecmd = createExectutable(&bin);
@@ -281,7 +283,7 @@ addfloatdivision=false;
 
                 pushToConsole(_executecmd.error.error_message.c_str(), true);
             }
-#endif
+
         }
         else
         {
@@ -1687,7 +1689,7 @@ addfloatdivision=false;
         {
             // printf("trying to create %s\n", current()->getText());
             parseType();
-
+    varTypeEnum d=nodeTokenList.get().getVarType()->_varType;
             if (Error.error)
             {
                 Error.error = 1;
@@ -1701,7 +1703,7 @@ addfloatdivision=false;
 
                 return;
             }
-             if(_for_depth_reg.get()<=_MAX_FOR_DEPTH_REG_2)
+             if(_for_depth_reg.get()<=_MAX_FOR_DEPTH_REG_2  and (d==__float__ or d==__int__ or d==__s_int__ or d==__uint8_t__ or d==__uint32_t__ or d==__uint16_t__))
  {
      _is_variable_as_register.set(true);
  }
@@ -3272,6 +3274,45 @@ _for_depth_reg.pop();
             {
                 saveRegAbs = true;
                 next();
+            }
+            else if(Match(TokenJson))
+            {
+                //printf("looking fo json:\n");
+                next();
+                  jsonStruct j;
+                  j.json=string(current()->getText());
+                 
+                  next();
+                  if(!Match(TokenAs))
+                  {
+                    Error.error=1;
+                    Error.error_message=string_format("Missing As in Json %s",linepos().c_str());
+                    return;
+                  }
+                  next();
+                  
+                  parseType();
+                  
+                  if (Error.error)
+                  {
+  
+                      return;
+                  
+                  }
+
+                  prev();
+                  j.type=current()->getVarType()->_varType;
+                 // next();
+                  next();
+                  j.variable=string(current()->getText());
+                  prev();
+                 // prev();
+                  
+                 //printf("ff %s %s\n",varTypeEnumNames[j.type].c_str(), j.variable.c_str());
+               
+
+                jsonVar.push_back(j);
+
             }
             else
             {

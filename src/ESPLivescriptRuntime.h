@@ -91,10 +91,18 @@ typedef struct
   int args_num;
 } globalcall;
 
+typedef struct {
+  
+    string json;
+    uint8_t type;
+    uint32_t address;
+} jsonVariable;
+
 typedef struct
 {
   error_message_struct error;
   vector<globalcall> functions;
+  vector<jsonVariable> jsonVars;
   uint32_t *start_program = NULL;
   uint8_t *data = NULL;
   uint32_t links;

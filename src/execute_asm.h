@@ -1,10 +1,27 @@
 #pragma once
 #ifndef __EXECUTE_ASM
 #define __EXECUTE_ASM
+#include <ArduinoJson.h>
 
-
+JsonVariant  getfromJson( JsonDocument obj, string str)
+{
+   vector<string> tile;
+   JsonVariant jso=obj;
+  tile = split(str, ".");
+   if(tile.size()>=1)
+      for(int i=0;i<tile.size()-1;i++)
+      {
+        //rintf("d:%s\n",tile[i]);
+        jso=jso[tile[i].c_str()];
+      }
+  JsonVariant res=jso[tile[tile.size()-1].c_str()];
+  //tile.empty();
+  tile.clear();
+  return res;
+}
 void freeBinary(Binary *bin)
 {
+  #ifndef __TEST_DEBUG
   if (bin->binary_data)
     heap_caps_free(bin->binary_data);
   if (bin->function_data)
@@ -12,6 +29,7 @@ void freeBinary(Binary *bin)
     bin->binary_data=NULL;
     bin->function_data=NULL;
   // delete(bin);
+  #endif
 }
 
 
@@ -68,10 +86,12 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       int index = findLink(string(textptr).substr(6, 100), externalType::value);
       if (index > -1)
       {
+        uint32_t content;
+        uint32_t *new_adr;
 #ifndef __TEST_DEBUG
-        uint32_t content = (uint32_t)((external_links[index].ptr));
+         content = (uint32_t)((external_links[index].ptr));
 
-        uint32_t *new_adr = (uint32_t *)exec + nb_data;
+         new_adr = (uint32_t *)exec + nb_data;
         memcpy(new_adr, &content, 4);
 #endif
         // printf("external var:%s\n\r", textptr);
@@ -99,18 +119,22 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       int index = findLink(string(textptr).substr(2, 100), externalType::function);
       if (index > -1)
       {
-#ifndef __TEST_DEBUG
+
         // printf("calculate ext %s\n\r", (*it)->getText());
         /*
         bincode = jump_call8(bincode, _address + (uint32_t)_exec, (uint32_t)external_links[index].ptr);
         memcpy(exec + _address, &bincode, 3);
         */
-
+       #ifndef __TEST_DEBUG
         uint32_t content = (uint32_t)((external_links[index].ptr));
 
         uint32_t *new_adr = (uint32_t *)exec + nb_data;
+        #else
+        uint32_t content;
+        uint32_t *new_adr;
+        #endif
         memcpy(new_adr, &content, 4);
-#endif
+
         // printf("external func:%s\n\r", textptr);
       }
       else
@@ -158,6 +182,25 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       // printf("funcrion %s adfrees:%d\n\r",gc.name .c_str(),gc.address);
       finalexe->functions.push_back(gc);
     }
+break;
+    case 5:
+    {
+      jsonVariable jso;
+      memcpy(&text_size, binary_header, 2);
+      binary_header = binary_header + 2;
+      textptr = (char *)binary_header;
+      binary_header = binary_header + text_size;
+      jso.json= string(textptr);
+      memcpy(&_address, binary_header, 4);
+      jso.address=_address;
+      binary_header = binary_header + 4;
+      uint8_t type;
+      memcpy(&type, binary_header, 1);
+      jso.type=type;
+      binary_header = binary_header + 1;
+      finalexe->jsonVars.push_back(jso);
+     // printf("found %s  %d %s\n",jso.json.c_str(),jso.address,varTypeEnumNames[jso.type].c_str());
+    }
     break;
     default:
       error.error = 1;
@@ -176,12 +219,20 @@ executable _createExcutablefromBinary(Binary *bin)
   exe.error.error = 0;
 
   //printf("on cree un executbale de taiile %d et data %d \n",bin->instruction_size,bin->data_size);
+  #ifndef __TEST_DEBUG
   uint32_t *exec = (uint32_t *)heap_caps_malloc(bin->instruction_size, MALLOC_CAP_EXEC);
+#else
+uint32_t *exec = (uint32_t *)malloc(bin->instruction_size);
+  #endif
 
   uint8_t *_binary_data = (uint8_t *)malloc(bin->data_size);
+  #ifndef __TEST_DEBUG
 
   error = decodeBinaryHeader(bin->binary_data, bin->function_data, _binary_data, (uint32_t)exec, &exe, bin->instruction_size);
 
+#else
+  error = decodeBinaryHeader(bin->binary_data, bin->function_data, _binary_data, 0, &exe, bin->instruction_size);
+#endif
   if (exe.functions.size() == 0)
   {
     exe.error.error = 1;
@@ -272,9 +323,10 @@ void binaryFromArray(char *_array,Binary *bin)
    bin->function_data = tmp2;
    memcpy(tmp2,arr,bin->function_size);
 }
-
+#ifndef __TEST_DEBUG
 void loadBinary(char *name, fs::FS &fs, Binary *bin)
 {
+
   File root = fs.open(name);
   bin->error.error = 0;
   char ver[19];
@@ -306,8 +358,9 @@ void loadBinary(char *name, fs::FS &fs, Binary *bin)
   root.read(tmp2, bin->function_size);
   bin->function_data = tmp2;
   root.close();
-}
 
+}
+#endif
 executable createExectutable(Binary *bin)
 {
 
@@ -324,7 +377,7 @@ executable createExectutable(Binary *bin)
 
 void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
 {
-
+  #ifndef __TEST_DEBUG
   string s = string_format("Executing asm code @%x", j);
   pushToConsole(s, false);
 
@@ -333,15 +386,73 @@ void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
       "callx8 a15"
       : : "r"(j) //, "r"(c)
       :);
+
+      #endif
 }
 
 
-error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments)
+error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments,string json)
 {
-  error_message_struct res;
+
+error_message_struct res;
   // uint32_t toexecute;
 // printf("execut %d\n", handle);
-  res.error = 0;
+if(json!="")
+{
+  JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, json);
+ res.error = 0;
+  // Test if parsing succeeds.
+  if (error) {
+    //Serial.print(F("deserializeJson() failed: "));
+   // Serial.println(error.f_str());
+    res.error=1;
+    res.error_message="deserializeJson() failed: ";
+    return res;
+  }
+   uint8_t *var = ex.data;
+  for(int i=0;i<ex.jsonVars.size();i++)
+  {
+   // printf(" taking:%s\n",ex.jsonVars[i].json.c_str());
+    JsonVariant p=getfromJson(doc,ex.jsonVars[i].json);
+    switch(ex.jsonVars[i].type)
+    {
+      case __uint32_t__:
+      {
+      uint32_t jk=(uint32_t)p;
+      
+      memcpy(var+ex.jsonVars[i].address, &jk, 4);
+     
+       }
+        break;
+      
+      case __int__:
+      { 
+      int jk=(int)p;
+     //  printf(" taking:%s %d %d\n",ex.jsonVars[i].json.c_str(),jk,ex.jsonVars[i].address);
+      memcpy((uint8_t*)(ex.data+ex.jsonVars[i].address), &jk, 4);
+      }
+      break;
+      case __float__:
+      {
+      float jk=(float)p;
+      memcpy(var+ex.jsonVars[i].address, &jk, 4);
+      }
+      break;
+      case __char__:
+      {
+      string jk=(string)p;
+      memcpy(var+ex.jsonVars[i].address, jk.c_str(), jk.size());
+      }
+      break;
+      default:
+      break;
+
+    }
+  }
+}
+
+ 
   for (int i = 0; i < ex.functions.size(); i++)
   {
     string ftofind = ex.functions[i].name;
@@ -355,14 +466,18 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
       // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
 
       //
+      #ifndef __TEST_DEBUG
       ex.functions[i].address = (uint32_t)(ex.start_program + ex.functions[i].address);
+      #endif
       uint32_t *t = (uint32_t *)ex.data;
     // t++;
       *t = handle;
      t++;
       *t = handle;
       t++;
+      #ifndef __TEST_DEBUG
       *t = (uint32_t)exePtr;
+      #endif
    //   printf("exx %x\n",(uint32_t)exePtr);
       uint8_t *var = (ex.data + ex.functions[i].variableaddress);
       if (ex.functions[i].args_num == arguments._args.size())
@@ -400,6 +515,11 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
   return res;
 }
 
+
+error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments)
+{
+  return executeBinary(function,ex,handle,exePtr,arguments,"");
+}
 error_message_struct executeBinary(executable ex, uint32_t handle)
 {
   Arguments args;
@@ -407,6 +527,7 @@ error_message_struct executeBinary(executable ex, uint32_t handle)
 }
 void freeExecutable(executable *ex)
 {
+  #ifndef __TEST_DEBUG
   if (ex->start_program != NULL)
   {
 
@@ -421,6 +542,7 @@ void freeExecutable(executable *ex)
     heap_caps_free(ex->data);
   }
   ex->data = NULL;
+  #endif
   // binary_data = NULL;
   // tmp_exec = NULL;
 }

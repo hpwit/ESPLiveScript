@@ -1654,6 +1654,17 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
       binary_header_size += 4; // argumetns address
     }
   }
+  //on ajoute les json
+  //printf("douiung the jds son\n");
+  for(int js=0;js<jsonVar.size();js++)
+  {
+    nb_objects++;
+    binary_header_size += 1;
+    binary_header_size += 2; // text size
+    binary_header_size += jsonVar[js].json.size() + 1;
+    binary_header_size += 4; //variable address
+    binary_header_size += 1; // type
+  }
   uint8_t *_binary_header = (uint8_t *)malloc(binary_header_size);
   // binary_header_size = 0;
   binary_header = _binary_header;
@@ -1664,6 +1675,7 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
     if ((*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label)
     {
       type = 0;
+     // printf("looking at %s %d\n",(*it)->getText(),(*it)->address);
       memcpy(binary_header, &type, 1);
       binary_header = binary_header + 1;
       memcpy(binary_header, &((*it)->bincode), 4);
@@ -1709,6 +1721,7 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
     else if ((*it)->op == opCodeType::data)
     {
       type = 3;
+      //printf("looking at %s %d\n",(*it)->getText(),(*it)->address);
       memcpy(binary_header, &type, 1);
       binary_header = binary_header + 1;
       memcpy(binary_header, &(*it)->address, 4);
@@ -1757,13 +1770,36 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
       binary_header = binary_header + 4;
     }
   }
+  //on ajoute les json
+ // printf("douiung the json\n");
+  for(int js=0;js<jsonVar.size();js++)
+  {
+    type=5;
+    memcpy(binary_header, &type, 1);
+    binary_header = binary_header + 1;
+    text_size = jsonVar[js].json.size() + 1;
+    memcpy(binary_header, &text_size, 2);
+    binary_header = binary_header + 2;
+    memcpy(binary_header, jsonVar[js].json.c_str(), text_size - 1);
+    binary_header[text_size - 1] = 0;
+    binary_header = binary_header + text_size;
+    int index = findLabel(string_format("%s%s","@_",jsonVar[js].variable.c_str()), asm_parsed);
+    //printf("ibndexw:%d %s\n",index,string_format("%s%s %s","@_",jsonVar[js].variable.c_str(),jsonVar[js].json.c_str()).c_str());
+    uint32_t bc = getInstrAtPos(index)->bincode;
+    //printf("%s%s %d\n","@_",jsonVar[js].variable.c_str(),bc);
+    memcpy(binary_header, &bc, 4);
+    binary_header = binary_header + 4;
+    memcpy(binary_header, &jsonVar[js].type, 1);
+    binary_header = binary_header + 1;
+
+  }
   // printf("encoding %d objce\r\n", nb_objects);
   return _binary_header;
 }
 
 
 
-#ifndef __TEST_DEBUG
+
 
 
 Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
@@ -1816,7 +1852,7 @@ Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
   all_text.clear();
   return bin;
 }
-
+#ifndef __TEST_DEBUG
 void saveBinary(char *name, fs::FS &fs, Binary *bin)
 {
   File root = fs.open(name, FILE_WRITE);
@@ -1837,7 +1873,8 @@ void saveBinary(char *name, fs::FS &fs, Binary *bin)
   root.write(bin->function_data, bin->function_size);
   root.close();
 }
+#endif
 #include "execute_asm.h"
 
-#endif
+
 #endif

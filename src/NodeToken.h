@@ -67,6 +67,15 @@ string struct_name = "";
 vector<int> nb_args;
 vector<string> sigs;
 vector<int> nb_sav_args;
+typedef struct 
+{
+    string json;
+     string variable;
+    varTypeEnum type;
+
+} jsonStruct;
+
+vector<jsonStruct> jsonVar;
 
 // list<string> _header;
 
@@ -91,6 +100,7 @@ bool safeMode = false;
 bool saveReg = false;
 bool saveRegAbs = false;
 bool intest = false;
+
 // list<int> _register_numl;
 
 // list<int> _register_numr;
@@ -4605,13 +4615,15 @@ void _visitwhileNode(NodeToken *nd)
     nd->getChildAtPos(0)->_total_size = (bufferText->get() - _compare.back()) * 3; // on estime que toutes les instructions ont la meme taille
 
     bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
+        if(nd->getChildAtPos(0)->getChildAtPos(0)->_nodetype!=numberNode)
+    {
     bufferText->putIteratorAtPos(_compare.back());
     intest = true;
     nd->getChildAtPos(0)->visitNode();
     intest = false;
     register_numl.pop();
-
     bufferText->putIteratorAtPos(bufferText->get());
+    }
     _compare.pop_back();
 }
 void _visitreturnNode(NodeToken *nd)
