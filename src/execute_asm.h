@@ -390,13 +390,11 @@ void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
       #endif
 }
 
-
-error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments,string json)
+error_message_struct updateParameters(executable ex,string json)
 {
-
-error_message_struct res;
   // uint32_t toexecute;
-// printf("execut %d\n", handle);
+ //printf("execut |%s|\n", json.c_str());
+error_message_struct res;
 if(json!="")
 {
   JsonDocument doc;
@@ -404,8 +402,8 @@ if(json!="")
  res.error = 0;
   // Test if parsing succeeds.
   if (error) {
-    //Serial.print(F("deserializeJson() failed: "));
-   // Serial.println(error.f_str());
+    Serial.print(F("deserializeJson() failed: "));
+   Serial.println(error.f_str());
     res.error=1;
     res.error_message="deserializeJson() failed: ";
     return res;
@@ -451,7 +449,21 @@ if(json!="")
     }
   }
 }
+else
+{
+  printf("no json\n");
+}
+return res;
+}
 
+error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments,string json)
+{
+
+error_message_struct res;
+ //printf("executvith %s %s\n",function.c_str(), json.c_str());
+res=updateParameters(ex,json);
+if(res.error==1)
+ return res;
  
   for (int i = 0; i < ex.functions.size(); i++)
   {
