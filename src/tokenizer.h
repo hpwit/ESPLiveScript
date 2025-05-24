@@ -182,7 +182,7 @@ varType _varTypes[] = {
     },
     {
         ._varType = __void__,
-        .varName = "void",
+        .varName = "d",
         ._varSize = 0,
         .load = {},
         .store = {},
