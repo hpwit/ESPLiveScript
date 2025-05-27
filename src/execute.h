@@ -797,7 +797,7 @@ public:
 #endif
         }
     }
-        void execute(string name, string json)
+        void executeJ(string name, string json)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
@@ -808,7 +808,7 @@ public:
 #endif
         }
     }
-    /*
+    
     void execute(string name, string function)
     {
         Executable *exec = findExecutable(name);
@@ -820,7 +820,7 @@ public:
 #endif
         }
     }
-    */
+    
      void execute(string name, string function,string json)
     {
         Executable *exec = findExecutable(name);
@@ -878,7 +878,7 @@ Arguments args;
 #endif
         }
     }
-    void executeAsTask(string name,string json)
+    void executeAsTaskJ(string name,string json)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
@@ -900,7 +900,7 @@ Arguments args;
 #endif
         }
     }
-    /*
+    
     void executeAsTask(string name, string function)
     {
         Executable *exec = findExecutable(name);
@@ -911,7 +911,7 @@ Arguments args;
             exec->executeAsTask(function);
 #endif
         }
-    } */
+    } 
     void executeAsTask(string name, int core, Arguments args)
     {
         Executable *exec = findExecutable(name);
