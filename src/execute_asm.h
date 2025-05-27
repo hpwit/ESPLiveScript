@@ -439,7 +439,7 @@ if(json!="")
       break;
       case __char__:
       {
-      string jk=(string)p;
+      string jk = p.as<const char*>();
       memcpy(var+ex.jsonVars[i].address, jk.c_str(), jk.size());
       }
       break;
