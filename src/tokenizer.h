@@ -1616,12 +1616,12 @@ Token t;
                     }
                     }
                 }
-                else if(t.getType()==TokenJson)
+              if(t.getType()==TokenJson)
                 {
                     
                     inJson=true;
                 }
-                else  if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
+              if ((t.getType() == TokenKeywordImport or t.getType() == TokenKeywordDefine) && !_for_display)
                 {
 
                     nbReadToken--;
