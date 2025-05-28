@@ -617,7 +617,23 @@ public:
         }
 #endif
     }
-
+ bool functionExist(string function)
+ {
+        for (int i = 0; i < _executecmd.functions.size(); i++)
+        {
+            string ftofind = _executecmd.functions[i].name;
+            if (_executecmd.functions[i].name.find_first_of("(") != string::npos)
+            {
+            ftofind = _executecmd.functions[i].name.substr(0, _executecmd.functions[i].name.find_first_of("("));
+            }
+            // printf("coparing %s\n",ftofind.c_str());
+            if (ftofind.compare("@__"+function) == 0)
+            {
+                return true;
+            }
+        }
+        return false;
+}
     void executeAsTask(string prog, int core, Arguments arguments,string json)
     {
 //printf("herqsd sqdsq\n");
@@ -808,7 +824,19 @@ public:
 #endif
         }
     }
-    
+    bool functionExist(string name, string function)
+    {
+
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+
+            return exec->functionExist(function);
+#endif
+        }
+        return false;
+    }
     void execute(string name, string function)
     {
         Executable *exec = findExecutable(name);

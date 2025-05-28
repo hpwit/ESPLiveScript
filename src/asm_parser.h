@@ -1293,10 +1293,9 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
         tmp_data_size += h;
       }
       _size += h;
-          __v.clear();
-    __v.shrink_to_fit();
+      __v.clear();
+      __v.shrink_to_fit();
     }
-
   }
   // printf("taille %d\r\n",_size);
   int _nb_align_label = 0;
@@ -1338,17 +1337,15 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   _instr_size = (_instr_size / 8) * 8 + 8;
   tmp_instr_size = _instr_size + (tmp_data_size / 4) * 4 + 4;
 
-
   string _d = string_format("Creation of an %d bytes binary and %d bytes data %d", _instr_size, _size, (tmp_data_size / 4) * 4 + 4);
   pushToConsole(_d);
 
-
-                updateMem();
-        displayStat("before mem");
+  updateMem();
+  displayStat("before mem");
   tmp_exec = (uint8_t *)malloc(tmp_instr_size);
   tmp_binary_data = tmp_exec + _instr_size;
-                updateMem();
-        displayStat("after mem");
+  updateMem();
+  displayStat("after mem");
   if (_size > 0)
   {
     //_size += ALIGN_DATA * _nb_data;
@@ -1359,7 +1356,6 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
 
   string d = string_format("Parsing %d assembly lines ... ", _header->size() + _content->size() + _footer->size());
   pushToConsole(d);
-
 
   int size = _header->size();
   int tmp_size = size;
@@ -1403,44 +1399,44 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   size = _content->size();
   for (int i = tmp_size; i < size + tmp_size; i++)
   {
-    if((_content->_texts[0])!=NULL)
+    if ((_content->_texts[0]) != NULL)
     {
-    if (__parser_debug)
-    {
-      printf("on parse line: %d : %s\r\n", i, _content->front().c_str());
-    }
-    if (_content->front().compare(" ") != 0 )
-    {
-      // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
-      line res = splitOpcodeOperande(_content->front());
-      if (!res.error)
+      if (__parser_debug)
       {
-        result_parse_line re_sparse = parseline(res, asm_parsed);
-        if (__parser_debug)
+        printf("on parse line: %d : %s\r\n", i, _content->front().c_str());
+      }
+      if (_content->front().compare(" ") != 0)
+      {
+        // printf("on parse line: %d : %s\r\n",i,_lines->front().c_str());
+        line res = splitOpcodeOperande(_content->front());
+        if (!res.error)
         {
-          // re_sparse.debugtxt = _lines->front();
-        }
-        //  printf("on parse line: %d : %s\r\n",i,_content->front().c_str());
-        re_sparse.line = i + 1;
-        // printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
+          result_parse_line re_sparse = parseline(res, asm_parsed);
+          if (__parser_debug)
+          {
+            // re_sparse.debugtxt = _lines->front();
+          }
+          //  printf("on parse line: %d : %s\r\n",i,_content->front().c_str());
+          re_sparse.line = i + 1;
+          // printf("%d %s %d\r\n",i+1,_lines->front().c_str(),sizeof(re_sparse));
 
-        if (asm_Error.error)
-        {
-          main_error.error = 1;
-          main_error.error_message += string_format("line:%d  %s %s\r\n", i, _content->front().c_str(), asm_Error.error_message.c_str());
-        }
-        else
-        {
-          // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
-          // asm_parsed->push_back(re_sparse);
-          addInstr(re_sparse, asm_parsed);
-          updateMem();
-          // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+          if (asm_Error.error)
+          {
+            main_error.error = 1;
+            main_error.error_message += string_format("line:%d  %s %s\r\n", i, _content->front().c_str(), asm_Error.error_message.c_str());
+          }
+          else
+          {
+            // printf("befoire line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+            // asm_parsed->push_back(re_sparse);
+            addInstr(re_sparse, asm_parsed);
+            updateMem();
+            // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
+          }
         }
       }
     }
-    }
-    //printf("on parse line: %d parseds\r\n", i);
+    // printf("on parse line: %d parseds\r\n", i);
     _content->pop_front();
     // printf("on delete line : %d \r\n", i);
   }
@@ -1490,8 +1486,8 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
     // free(binary_data);
     free(tmp_exec);
   }
-                  updateMem();
-        displayStat();
+  updateMem();
+  displayStat();
   return main_error;
 }
 
@@ -1654,15 +1650,15 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
       binary_header_size += 4; // argumetns address
     }
   }
-  //on ajoute les json
-  //printf("douiung the jds son\n");
-  for(int js=0;js<jsonVar.size();js++)
+  // on ajoute les json
+  // printf("douiung the jds son\n");
+  for (int js = 0; js < jsonVar.size(); js++)
   {
     nb_objects++;
     binary_header_size += 1;
     binary_header_size += 2; // text size
     binary_header_size += jsonVar[js].json.size() + 1;
-    binary_header_size += 4; //variable address
+    binary_header_size += 4; // variable address
     binary_header_size += 1; // type
   }
   uint8_t *_binary_header = (uint8_t *)malloc(binary_header_size);
@@ -1675,7 +1671,7 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
     if ((*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label)
     {
       type = 0;
-     // printf("looking at %s %d\n",(*it)->getText(),(*it)->address);
+      // printf("looking at %s %d\n",(*it)->getText(),(*it)->address);
       memcpy(binary_header, &type, 1);
       binary_header = binary_header + 1;
       memcpy(binary_header, &((*it)->bincode), 4);
@@ -1721,7 +1717,7 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
     else if ((*it)->op == opCodeType::data)
     {
       type = 3;
-      //printf("looking at %s %d\n",(*it)->getText(),(*it)->address);
+      // printf("looking at %s %d\n",(*it)->getText(),(*it)->address);
       memcpy(binary_header, &type, 1);
       binary_header = binary_header + 1;
       memcpy(binary_header, &(*it)->address, 4);
@@ -1770,11 +1766,11 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
       binary_header = binary_header + 4;
     }
   }
-  //on ajoute les json
- // printf("douiung the json\n");
-  for(int js=0;js<jsonVar.size();js++)
+  // on ajoute les json
+  // printf("douiung the json\n");
+  for (int js = 0; js < jsonVar.size(); js++)
   {
-    type=5;
+    type = 5;
     memcpy(binary_header, &type, 1);
     binary_header = binary_header + 1;
     text_size = jsonVar[js].json.size() + 1;
@@ -1783,24 +1779,18 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
     memcpy(binary_header, jsonVar[js].json.c_str(), text_size - 1);
     binary_header[text_size - 1] = 0;
     binary_header = binary_header + text_size;
-    int index = findLabel(string_format("%s%s","@_",jsonVar[js].variable.c_str()), asm_parsed);
-    //printf("ibndexw:%d %s\n",index,string_format("%s%s %s","@_",jsonVar[js].variable.c_str(),jsonVar[js].json.c_str()).c_str());
+    int index = findLabel(string_format("%s%s", "@_", jsonVar[js].variable.c_str()), asm_parsed);
+    // printf("ibndexw:%d %s\n",index,string_format("%s%s %s","@_",jsonVar[js].variable.c_str(),jsonVar[js].json.c_str()).c_str());
     uint32_t bc = getInstrAtPos(index)->bincode;
-    //printf("%s%s %d\n","@_",jsonVar[js].variable.c_str(),bc);
+    // printf("%s%s %d\n","@_",jsonVar[js].variable.c_str(),bc);
     memcpy(binary_header, &bc, 4);
     binary_header = binary_header + 4;
     memcpy(binary_header, &jsonVar[js].type, 1);
     binary_header = binary_header + 1;
-
   }
   // printf("encoding %d objce\r\n", nb_objects);
   return _binary_header;
 }
-
-
-
-
-
 
 Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
 {
@@ -1811,8 +1801,8 @@ Binary createBinary(Text *_footer, Text *_header, Text *_content, bool display)
   _asm_parsed.clear();
 
   __parser_debug = display;
-                  updateMem();
-        displayStat("before call parsem");
+  updateMem();
+  displayStat("before call parsem");
   error_message_struct err = parseASM(_footer, _header, _content, &_asm_parsed);
 
   _header->clear();
@@ -1875,6 +1865,5 @@ void saveBinary(char *name, fs::FS &fs, Binary *bin)
 }
 #endif
 #include "execute_asm.h"
-
 
 #endif
