@@ -596,7 +596,9 @@ char *getText()
   int16_t nameref=EOF_TEXTARRAY;
   uint32_t address;
   bool align;
-  // string debugtxt;
+  #ifdef __TEST_DEBUG
+   string debugtxt;
+  #endif
   int line;
   uint32_t (*calculateOfssetJump)(uint32_t value, uint32_t current_address, uint32_t destination_address) = NULL;
 };

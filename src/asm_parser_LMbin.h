@@ -179,6 +179,27 @@ uint32_t bin_blti(uint32_t *values)
 
     // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
 }
+uint32_t bin_bgei(uint32_t *values)
+{
+
+    return 0xE6 + (((values[1] << 12) & 0xF000)) + (((values[0] << 8) & 0xF00)) ;
+
+    // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
+uint32_t bin_bnei(uint32_t *values)
+{
+
+    return 0x66 + (((values[1] << 12) & 0xF000)) + (((values[0] << 8) & 0xF00)) ;
+
+    // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
+uint32_t bin_beqi(uint32_t *values)
+{
+
+    return 0x26 + (((values[1] << 12) & 0xF000)) + (((values[0] << 8) & 0xF00)) ;
+
+    // (( ((32-values[2]) <<4) & 0xF0 )) + (( (values[1] <<8) & 0xF00 )) + (( (values[0]) <<12) & 0x0F000)  + 0x10000 + (( ((32-values[2]) <<16) & 0x100000 ));
+}
 operandeType op_blt[3] = {operandeType::registers, operandeType::registers, operandeType::label};
 uint32_t bin_blt(uint32_t *values)
 {

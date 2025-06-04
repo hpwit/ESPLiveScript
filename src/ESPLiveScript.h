@@ -231,6 +231,7 @@ addfloatdivision=false;
 
         pushToConsole("***********CREATE BINARY*********");
      bin = createBinary(&footer, &header, &content, __parser_debug);
+       #ifndef __TEST_DEBUG
                 updateMem();
         displayStat();
         content.clear();
@@ -248,7 +249,7 @@ addfloatdivision=false;
         jsonVar.clear();
         updateMem();
         displayStat();
-        #ifndef __TEST_DEBUG
+      
         if (bin.error.error == 1)
         {
             //pushToConsole("WTF", true);

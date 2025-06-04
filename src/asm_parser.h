@@ -49,32 +49,44 @@ void addInstr(result_parse_line operande, parsedLines *asm_parsed)
     if (operande.align == true)
     {
       int add_size = 0;
+      uint32_t unst_local;
+
       int op = (_address_instr % ALIGN_INSTR);
-      /*
+     
         switch(op)
         {
           case 2:
           add_size=2;
+          unst_local=0xF03D;
+          memcpy(tmp_exec + operande.address,&unst_local,2);
           break;
           case 1:
           add_size=3;
+          unst_local=0x0020F0;
+          memcpy(tmp_exec + operande.address,&unst_local,3);
           break;
           case 3:
           add_size=5;
+          unst_local=0x0020F0;
+          memcpy(tmp_exec + operande.address,&unst_local,3);
+          unst_local=0xF03D;
+          memcpy(tmp_exec + operande.address+3,&unst_local,2);
           break;
           default:
           add_size=0;
           break;
         }
-        */
-      if (op > 0)
-        add_size = ALIGN_INSTR - op;
+        
+      //if (op > 0)
+      //  add_size = ALIGN_INSTR - op;
       operande.address += add_size;
     }
     memcpy(tmp_exec + operande.address, &operande.bincode, operande.size);
     // printf("parseASM instr %d\r\n",operande.address);
     _address_instr = operande.size + operande.address;
+    #ifndef __TEST_DEBUG
     if (operande.op != opCodeType::standard)
+    #endif
       asm_parsed->push_back(operande);
   }
   else
@@ -547,10 +559,11 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
       // res.error.error_message = string_format("label %s is already declared in line %d\n", res.name.c_str(), (*asm_parsed)[findLabel(res.name, asm_parsed)].line);
       asm_Error.error_message = string_format("label %s is already declare\n", res.getText());
     }
-    if (sp.opcde.substr(0, 2).compare("@_") == 0)
+   if (sp.opcde.substr(0, 2).compare("@_") == 0)
     {
       res.align = true;
     }
+    res.align=true;
     return res;
   }
   if (sp.opcde.compare("add") == 0)
@@ -675,6 +688,33 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   {
 
     result_parse_line ps = parseOperandes(sp.operandes, 3, op_blti, 3, bin_blti);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
+   if (sp.opcde.compare("bgei") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_blti, 3, bin_bgei);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
+     if (sp.opcde.compare("bnei") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_blti, 3, bin_bnei);
+    ps.op = opCodeType::jump;
+    ps.calculateOfssetJump = jump_blt;
+
+    return ps;
+  }
+     if (sp.opcde.compare("beqi") == 0)
+  {
+
+    result_parse_line ps = parseOperandes(sp.operandes, 3, op_blti, 3, bin_beqi);
     ps.op = opCodeType::jump;
     ps.calculateOfssetJump = jump_blt;
 
@@ -1059,6 +1099,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     result_parse_line ps;
     ps = parseOperandes(sp.operandes, 2, op_l32r, 3, bin_l32r);
     ps.op = opCodeType::jump_32aligned;
+   //ps.align=true;
     ps.calculateOfssetJump = jump_l32r;
     int index = findLabel(string(ps.getText()), asm_parsed);
     if (index > -1)
@@ -1249,7 +1290,7 @@ line splitOpcodeOperande(string s)
   res.operandes = operandes;
   return res;
 }
-
+void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed);
 error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, parsedLines *asm_parsed)
 {
   // list<string> lines = *_lines;
@@ -1393,7 +1434,9 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
         // printf("afetr line:%d mem:%u\r\n",i, esp_get_free_heap_size());
       }
     }
+  //  #ifndef __TEST_DEBUG
     _header->pop_front();
+   // #endif
   }
 
   size = _content->size();
@@ -1412,6 +1455,9 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
         if (!res.error)
         {
           result_parse_line re_sparse = parseline(res, asm_parsed);
+          #ifdef __TEST_DEBUG
+          re_sparse.debugtxt = _content->front();
+          #endif
           if (__parser_debug)
           {
             // re_sparse.debugtxt = _lines->front();
@@ -1437,7 +1483,9 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
       }
     }
     // printf("on parse line: %d parseds\r\n", i);
+     //   #ifndef __TEST_DEBUG
     _content->pop_front();
+   // #endif
     // printf("on delete line : %d \r\n", i);
   }
 
@@ -1455,6 +1503,7 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
       if (!res.error)
       {
         result_parse_line re_sparse = parseline(res, asm_parsed);
+        
         if (__parser_debug)
         {
           // re_sparse.debugtxt = _lines->front();
@@ -1478,7 +1527,9 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
         }
       }
     }
+    //  #ifndef __TEST_DEBUG
     _footer->pop_front();
+   // #endif
   }
   // printf("Done.\r\n");
   if (main_error.error == 1)
@@ -1488,6 +1539,9 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   }
   updateMem();
   displayStat();
+      #ifdef __TEST_DEBUG
+printparsdAsm(0,asm_parsed);
+     #endif
   return main_error;
 }
 
@@ -1508,8 +1562,10 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
       }
       else
       {
-        // printf("%8x \t %6x\t %s\n", re_sparse.address + start_address, re_sparse.bincode, re_sparse.debugtxt.c_str());
-      }
+        #ifdef __TEST_DEBUG
+         printf("%8x \t %6x\t %s\n", re_sparse.address + start_address, re_sparse.bincode, re_sparse.debugtxt.c_str());
+      #endif
+        }
     }
   }
 }

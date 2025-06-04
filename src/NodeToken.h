@@ -16,8 +16,8 @@ using namespace std;
 
 #define _MAX_FOR_DEPTH_REG 4
 #define _MAX_FOR_DEPTH_REG_2 2
-//int _for_depth_reg = 0;
-//bool _is_variable_as_register = false;
+// int _for_depth_reg = 0;
+// bool _is_variable_as_register = false;
 void pushToConsole(string str, bool force)
 {
 #ifdef __CONSOLE_ESP32
@@ -67,10 +67,10 @@ string struct_name = "";
 vector<int> nb_args;
 vector<string> sigs;
 vector<int> nb_sav_args;
-typedef struct 
+typedef struct
 {
     string json;
-     string variable;
+    string variable;
     varTypeEnum type;
 
 } jsonStruct;
@@ -1539,9 +1539,9 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
         if (_is_variable_as_register.get())
         {
             v._nodetype = defLocalVariableNodeAsRegister;
-              v.target = _for_depth_reg.get();
-                _for_depth_reg.increase();
-              _is_variable_as_register.set(false);
+            v.target = _for_depth_reg.get();
+            _for_depth_reg.increase();
+            _is_variable_as_register.set(false);
         }
         copyPrty(&nd, &v);
         return v;
@@ -1556,9 +1556,9 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
         if (_is_variable_as_register.get())
         {
             v._nodetype = defLocalVariableNodeAsRegister;
-                v.target = _for_depth_reg.get();
-                _for_depth_reg.increase();
-              _is_variable_as_register.set(false);
+            v.target = _for_depth_reg.get();
+            _for_depth_reg.increase();
+            _is_variable_as_register.set(false);
         }
         // copyPrty(&nd, &v);
         //  NodeDefLocalVariable v = NodeDefLocalVariable(var);
@@ -1674,19 +1674,19 @@ Stack<varTypeEnum> globalType = Stack<varTypeEnum>(__int__);
 void _visittypeNode(NodeToken *nd) {}
 void _visitstoreLocalVariableNodeAsRegister(NodeToken *nd)
 {
-    if(nd->getVarType()->_varType==__float__)
+    if (nd->getVarType()->_varType == __float__)
     {
- bufferText->addAfter(bufferText->sp.pop(), string_format("rfr a%d,f%d", nd->target, register_numl.get()));
+        bufferText->addAfter(bufferText->sp.pop(), string_format("rfr a%d,f%d", nd->target, register_numl.get()));
     }
     else
-    bufferText->addAfter(bufferText->sp.pop(), string_format("mov a%d,a%d", nd->target, register_numl.get()));
+        bufferText->addAfter(bufferText->sp.pop(), string_format("mov a%d,a%d", nd->target, register_numl.get()));
 }
 void _visitlocalVariableNodeAsRegister(NodeToken *nd)
 {
-    if(nd->getVarType()->_varType==__float__)
-    bufferText->addAfter(string_format("wfr f%d,a%d", register_numl.get(), nd->target));
+    if (nd->getVarType()->_varType == __float__)
+        bufferText->addAfter(string_format("wfr f%d,a%d", register_numl.get(), nd->target));
     else
-    bufferText->addAfter(string_format("movr a%d,a%d", register_numl.get(), nd->target));
+        bufferText->addAfter(string_format("movr a%d,a%d", register_numl.get(), nd->target));
     bufferText->sp.push(bufferText->get());
     register_numl.decrease();
 }
@@ -3162,8 +3162,81 @@ void _visitcomparatorNode(NodeToken *nd)
     }
     else
     {
-        if (nd->_total_size > 127)
+        if (nd->_total_size > 127) //127
         {
+            int f;
+            bool regular = true;
+            if (nd->getChildAtPos(1)->getChildAtPos(0)->_nodetype == numberNode)
+            {
+               
+                 f = stringToInt(nd->getChildAtPos(1)->getChildAtPos(0)->getTokenText());
+                switch (nd->type)
+                {
+                case TokenLessThan:
+               if((f>0 and f<=7 )or f==128)
+                {
+                     printf("on est icic\n");
+                    compop = "btli"; // not equal
+       
+                    //f++;
+                    regular=false;
+                }
+                    break;
+                case TokenDoubleEqual:
+                if(f>0 and f<=8)
+                {
+                    compop = "bnei"; // equal
+                    regular=false;
+                }
+                    break;
+                case TokenNotEqual:
+                                if(f>0 and f<=8)
+                {
+                    compop = "beqi"; // equal
+                    regular=false;
+                }
+                    break;
+                case TokenMoreOrEqualThan:
+                     if(f>0 and f<=8)
+                {
+                    compop = "bgei"; // not equal
+                                    h = numl; 
+                    numl = leftl;
+                    leftl = h;
+                   // f++;
+                    regular=false;
+                }
+                    break;
+                case TokenMoreThan:
+                if(f>0 and f<=7)
+                {
+                    compop = "bgei"; // not equal
+                                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    f++;
+                    regular=false;
+                }
+                    break;
+                case TokenLessOrEqualThan:
+        if(f>0 and f<=7)
+                {
+                    compop = "blti"; // not equal
+                                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    f++;
+                    regular=false;
+                }
+
+            
+                    break;
+                default:
+                    break;
+                }
+            }
+if(regular)
+{
             switch (nd->type)
             {
             case TokenLessThan:
@@ -3194,47 +3267,145 @@ void _visitcomparatorNode(NodeToken *nd)
             default:
                 break;
             }
+        }
+        if (regular)
+        {
             bufferText->addAfter(string_format("%s%s a%d,a%d,%s_if", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
-            bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
+
+        }
+        else
+        {
+ bufferText->blankCurrent();
+                if(f==128)
+                f=14;
+               bufferText->addAfter(string_format("%s%s a%d,%d,%s_if", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
+        }
+                    bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
             bufferText->addAfter(string_format("%s_if:", nd->getTargetText()));
             register_numl.increase();
         }
         else
         {
-            switch (nd->type)
+            int f;
+            bool regular = true;
+            if (nd->getChildAtPos(1)->getChildAtPos(0)->_nodetype == numberNode)
             {
-            case TokenLessThan:
-                compop = "bge"; // greater or equal blt
-                //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
-                break;
-            case TokenDoubleEqual:
-                compop = "bne"; // not equal beq
-                break;
-            case TokenNotEqual:
-                compop = "beq"; // equal
-                break;
-            case TokenMoreOrEqualThan:
-                compop = "blt"; // less then
-                break;
-            case TokenMoreThan:
-                compop = "bge"; // not equal
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                break;
-            case TokenLessOrEqualThan:
-                compop = "blt"; // not equal
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                break;
-            default:
-                break;
+               
+                 f = stringToInt(nd->getChildAtPos(1)->getChildAtPos(0)->getTokenText());
+                switch (nd->type)
+                {
+                case TokenLessThan:
+               if((f>0 and f<=7 )or f==128)
+                {
+                     printf("on est icic\n");
+                    compop = "bgei"; // not equal
+                                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    //f++;
+                    regular=false;
+                }
+                    break;
+                case TokenDoubleEqual:
+                if(f>0 and f<=8)
+                {
+                    compop = "bnei"; // equal
+                    regular=false;
+                }
+                    break;
+                case TokenNotEqual:
+                                if(f>0 and f<=8)
+                {
+                    compop = "beqi"; // equal
+                    regular=false;
+                }
+                    break;
+                case TokenMoreOrEqualThan:
+                     if(f>0 and f<=8)
+                {
+                    compop = "blti"; // not equal
+                                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                   // f++;
+                    regular=false;
+                }
+                    break;
+                case TokenMoreThan:
+                if(f>0 and f<=7)
+                {
+                    compop = "blti"; // not equal
+                                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    f++;
+                    regular=false;
+                }
+                    break;
+                case TokenLessOrEqualThan:
+        if(f>0 and f<=7)
+                {
+                    compop = "bgei"; // not equal
+                                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    f++;
+                    regular=false;
+                }
+
+            
+                    break;
+                default:
+                    break;
+                }
             }
-            bufferText->addAfter(string_format("%s%s a%d,a%d,%s_end", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
-            // bufferText->addAfter(_compare.back()+1,string_format("j %s_end", nd->target.c_str()));
-            // bufferText->addAfter(_compare.back()+2,string_format("%s_if:", nd->target.c_str()));
-            register_numl.increase();
+            if (regular)
+            {
+                switch (nd->type)
+                {
+                case TokenLessThan:
+                    compop = "bge"; // greater or equal blt
+                    //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
+                    break;
+                case TokenDoubleEqual:
+                    compop = "bne"; // not equal beq
+                    break;
+                case TokenNotEqual:
+                    compop = "beq"; // equal
+                    break;
+                case TokenMoreOrEqualThan:
+                    compop = "blt"; // less then
+                    break;
+                case TokenMoreThan:
+                    compop = "bge"; // not equal
+                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    break;
+                case TokenLessOrEqualThan:
+                    compop = "blt"; // not equal
+                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    break;
+                default:
+                    break;
+                }
+            }
+            if(regular)
+                bufferText->addAfter(string_format("%s%s a%d,a%d,%s_end", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
+              else
+              {
+                bufferText->blankCurrent();
+                if(f==128)
+                f=14;
+               bufferText->addAfter(string_format("%s%s a%d,%d,%s_end", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
+                
+            }
+               // bufferText->addAfter(_compare.back()+1,string_format("j %s_end", nd->target.c_str()));
+                // bufferText->addAfter(_compare.back()+2,string_format("%s_if:", nd->target.c_str()));
+                register_numl.increase();
+            
         }
     }
     // printf("out comparator\n");
@@ -3720,6 +3891,7 @@ void _visitforNode(NodeToken *nd)
     }
     else
     {
+        
         nd->getChildAtPos(3)->visitNode();
     }
     register_numl.pop();
@@ -3994,7 +4166,7 @@ void _visitdefInputArgumentsNode(NodeToken *nd)
                         asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
                         bufferText->addAfter(string_format("%s a%d,a1,%d", asmInstructionsName[asmInstr].c_str(), reg_num, start));
                     }
-                  // reg_num++;
+                    // reg_num++;
                 }
                 else
                 {
@@ -4004,9 +4176,8 @@ void _visitdefInputArgumentsNode(NodeToken *nd)
                     bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(), start));
                 }
             }
-            else if(nd->getChildAtPos(i)->getVarType()->_varType == __float__)
+            else if (nd->getChildAtPos(i)->getVarType()->_varType == __float__)
             {
-
             }
             reg_num++;
             /*
@@ -4462,8 +4633,9 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
 
             sscanf(tile[0].c_str(), "@%d", &nb);
         }
-        if (nb > 1 and sd.compare(0, 1, "@") == 0)
+        if (nb > 2 and sd.compare(0, 1, "@") == 0)
         {
+            //if(nd->children>2)
             bufferText->addAfter("movi a10,0");
         }
         for (int par = 0; par < nd->children_size(); par++)
@@ -4482,14 +4654,26 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
                     {
                         bufferText->addAfter(string_format("movi a11,%d", stringToInt((char *)tile[par + 1 + h].c_str())));
                         // bufferText->addAfter(string_format("mull a11,a10,a11"));
+                       if(nb>2)
                         bufferText->addAfter(string_format("mull a%d,a%d,a11", register_numl.get(), register_numl.get()));
+                        else
+                        bufferText->addAfter(string_format("mull a10,a%d,a11",  register_numl.get()));
                     }
+                    if(nb>2)
                     bufferText->addAfter(string_format("add a10,a10,a%d", register_numl.get()));
+                   //else
+                    // bufferText->addAfter("nop");
                 }
                 else
                 {
+   
+                    // bufferText->addAfter(string_format("mov a10,a%d", register_numl.get()));
                     bufferText->addAfter(string_format("add a%d,a10,a%d", register_numl.get(), register_numl.get()));
-                }
+                    //else
+                     //bufferText->addAfter(string_format("add a%d,a%d,a%d", register_numl.get(),register_numl.get(), register_numl.get()));
+                         //     if(nb<=2)
+                    //bufferText->addAfter("nop");
+                    }
             }
 
             // globalType.pop();
@@ -4615,14 +4799,14 @@ void _visitwhileNode(NodeToken *nd)
     nd->getChildAtPos(0)->_total_size = (bufferText->get() - _compare.back()) * 3; // on estime que toutes les instructions ont la meme taille
 
     bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
-        if(nd->getChildAtPos(0)->getChildAtPos(0)->_nodetype!=numberNode)
+    if (nd->getChildAtPos(0)->getChildAtPos(0)->_nodetype != numberNode)
     {
-    bufferText->putIteratorAtPos(_compare.back());
-    intest = true;
-    nd->getChildAtPos(0)->visitNode();
-    intest = false;
-    register_numl.pop();
-    bufferText->putIteratorAtPos(bufferText->get());
+        bufferText->putIteratorAtPos(_compare.back());
+        intest = true;
+        nd->getChildAtPos(0)->visitNode();
+        intest = false;
+        register_numl.pop();
+        bufferText->putIteratorAtPos(bufferText->get());
     }
     _compare.pop_back();
 }
@@ -4762,6 +4946,7 @@ void _visitUnknownNode(NodeToken *nd) {}
 
 void optimize(Text *text)
 {
+   // return;
     // return;
     // int regnum;
     for (int regnum = 3; regnum < 11; regnum++)
@@ -4843,6 +5028,7 @@ void optimize(Text *text)
     indexbefore = 0;
     // on va dealer abec les floats
     string torep = " ";
+
     for (int i = 0; i < text->size(); i++)
     {
 
@@ -5064,7 +5250,7 @@ void optimize(Text *text)
                         */
                         // printf("new %s\n",newstr.c_str());
                     }
-                    else if (d[0].compare("bge") == 0 or d[0].compare("blt") == 0 or d[0].compare("beq") == 0 or d[0].compare("bne") == 0)
+                    else if (d[0].compare("bge") == 0 or d[0].compare("blt") == 0 or d[0].compare("beq") == 0 or d[0].compare("bne") == 0 or d[0].compare("blti") == 0 or d[0].compare("bgei") == 0 or d[0].compare("beqi") == 0 or d[0].compare("bnei") == 0)
                     {
 
                         d2 = split(d[1], ",");
@@ -5073,6 +5259,7 @@ void optimize(Text *text)
                         int ind = -1;
                         for (int mp = 0; mp < index.size(); mp++)
                         {
+                            //printf("compare %s:%s\n",from[mp].c_str(),d2[0].c_str());
                             if (d2[0].compare(from[mp]) == 0)
                             {
                                 newstr = newstr + to[mp] + ",";
@@ -5349,6 +5536,25 @@ void optimize(Text *text)
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
+                    }
+                }
+            }
+        }
+    }
+    for (int i = 0; i < text->size(); i++)
+    {
+        string tmp = string((*text->getChildAtPos(i)));
+        if (*text->getChildAtPos(i) != NULL)
+        {
+            if (tmp.compare(" ") != 0 && tmp != "")
+            {
+                d = split(tmp, " ");
+                if (d[0].compare("mov") == 0)
+                {
+                    d2 = split(d[1], ",");
+                    if (d2[0].compare(d2[1]) == 0)
+                    {
+                        text->replaceText(i, " ");
                     }
                 }
             }
