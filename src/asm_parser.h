@@ -563,7 +563,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     {
       res.align = true;
     }
-    res.align=true;
+   // res.align=true;
     return res;
   }
   if (sp.opcde.compare("add") == 0)
@@ -1298,6 +1298,7 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   main_error.error = 0;
   main_error.error_message = "";
   optimize(_content);
+ 
 #ifdef __TEST_DEBUG
   _header->display();
   // content.display();

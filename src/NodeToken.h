@@ -49,6 +49,7 @@ uint32_t __starttime;
 bool addfloatdivision = false;
 int savestacksize = 0;
 bool oneFunction = false;
+bool onlyonestore = false;
 
 int stack_size = 0;
 
@@ -59,7 +60,7 @@ int block_statement_num = 0;
 int nb_argument = 0;
 
 int local_var_num = 0;
-
+int _for_num = 0;
 int __sav_arg = 0;
 bool _asPointer = false;
 bool found;
@@ -109,6 +110,10 @@ Stack<int> register_numl = Stack<int>(15);
 bool isInFunction = false;
 Stack<int> _for_depth_reg;
 Stack<bool> _is_variable_as_register;
+Stack<string> _in_for;
+string extvariablestore;
+int nbofextern = 0;
+bool boolextern = false;
 // list<int> _sp;
 
 vector<int> _compare;
@@ -239,7 +244,8 @@ enum nodeType
     callConstructorNode,
     defInputArgumentsNode,
     declarationFunctionNode,
-    UnknownNode
+    UnknownNode,
+    onlyNode
 
 };
 
@@ -295,6 +301,7 @@ string nodeTypeNames[] =
         "defInputArgumentsNode",
         "declarationFunctionNode",
         "UnknownNode"
+        "OnlyNode"
 
 #endif
 
@@ -1337,6 +1344,20 @@ void createNodeVariable(Token *_var, bool isStore)
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(var);
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(_var);
             v._nodetype = (int)storeExtGlocalVariableNode;
+            if (extvariablestore.size() > 0)
+            {
+                if (extvariablestore.compare(string(v.getTokenText())) != 0)
+                {
+                    nbofextern++;
+                }
+            }
+            else
+            {
+                extvariablestore = string(v.getTokenText());
+
+                nbofextern++;
+            }
+
             // current_node->asPointer=asPointer;
             //  return;
         }
@@ -1356,6 +1377,19 @@ void createNodeVariable(Token *_var, bool isStore)
         {
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(_var);
             v._nodetype = (int)storeExtGlocalVariableNode;
+            if (extvariablestore.size() > 0)
+            {
+                if (extvariablestore.compare(string(v.getTokenText())) != 0)
+                {
+                    nbofextern++;
+                }
+            }
+            else
+            {
+                extvariablestore = string(v.getTokenText());
+                printf("%s\n", v.getTokenText());
+                nbofextern++;
+            }
             // current_node->asPointer=asPointer;
             // return;
         }
@@ -3162,125 +3196,124 @@ void _visitcomparatorNode(NodeToken *nd)
     }
     else
     {
-        if (nd->_total_size > 127) //127
+        if (nd->_total_size > 127) // 127
         {
             int f;
             bool regular = true;
+
             if (nd->getChildAtPos(1)->getChildAtPos(0)->_nodetype == numberNode)
             {
-               
-                 f = stringToInt(nd->getChildAtPos(1)->getChildAtPos(0)->getTokenText());
+
+                f = stringToInt(nd->getChildAtPos(1)->getChildAtPos(0)->getTokenText());
                 switch (nd->type)
                 {
                 case TokenLessThan:
-               if((f>0 and f<=7 )or f==128)
-                {
-                     printf("on est icic\n");
-                    compop = "btli"; // not equal
-       
-                    //f++;
-                    regular=false;
-                }
+                    if ((f > 0 and f <= 7) or f == 128)
+                    {
+                        printf("on est icic\n");
+                        compop = "btli"; // not equal
+
+                        // f++;
+                        regular = false;
+                    }
                     break;
                 case TokenDoubleEqual:
-                if(f>0 and f<=8)
-                {
-                    compop = "bnei"; // equal
-                    regular=false;
-                }
+                    if (f > 0 and f <= 8)
+                    {
+                        compop = "bnei"; // equal
+                        regular = false;
+                    }
                     break;
                 case TokenNotEqual:
-                                if(f>0 and f<=8)
-                {
-                    compop = "beqi"; // equal
-                    regular=false;
-                }
+                    if (f > 0 and f <= 8)
+                    {
+                        compop = "beqi"; // equal
+                        regular = false;
+                    }
                     break;
                 case TokenMoreOrEqualThan:
-                     if(f>0 and f<=8)
-                {
-                    compop = "bgei"; // not equal
-                                    h = numl; 
-                    numl = leftl;
-                    leftl = h;
-                   // f++;
-                    regular=false;
-                }
+                    if (f > 0 and f <= 8)
+                    {
+                        compop = "bgei"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        // f++;
+                        regular = false;
+                    }
                     break;
                 case TokenMoreThan:
-                if(f>0 and f<=7)
-                {
-                    compop = "bgei"; // not equal
-                                    h = numl;
-                    numl = leftl;
-                    leftl = h;
-                    f++;
-                    regular=false;
-                }
+                    if (f > 0 and f <= 7)
+                    {
+                        compop = "bgei"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        f++;
+                        regular = false;
+                    }
                     break;
                 case TokenLessOrEqualThan:
-        if(f>0 and f<=7)
-                {
-                    compop = "blti"; // not equal
-                                    h = numl;
-                    numl = leftl;
-                    leftl = h;
-                    f++;
-                    regular=false;
-                }
+                    if (f > 0 and f <= 7)
+                    {
+                        compop = "blti"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        f++;
+                        regular = false;
+                    }
 
-            
                     break;
                 default:
                     break;
                 }
             }
-if(regular)
-{
-            switch (nd->type)
+            if (regular)
             {
-            case TokenLessThan:
-                compop = "blt"; // greater or equal
-                //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
-                break;
-            case TokenDoubleEqual:
-                compop = "beq"; // not equal
-                break;
-            case TokenNotEqual:
-                compop = "bne"; // equal
-                break;
-            case TokenMoreOrEqualThan:
-                compop = "bge"; // less then
-                break;
-            case TokenMoreThan:
-                compop = "blt"; // not equal
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                break;
-            case TokenLessOrEqualThan:
-                compop = "bge"; // not equal
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                break;
-            default:
-                break;
+                switch (nd->type)
+                {
+                case TokenLessThan:
+                    compop = "blt"; // greater or equal
+                    //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
+                    break;
+                case TokenDoubleEqual:
+                    compop = "beq"; // not equal
+                    break;
+                case TokenNotEqual:
+                    compop = "bne"; // equal
+                    break;
+                case TokenMoreOrEqualThan:
+                    compop = "bge"; // less then
+                    break;
+                case TokenMoreThan:
+                    compop = "blt"; // not equal
+                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    break;
+                case TokenLessOrEqualThan:
+                    compop = "bge"; // not equal
+                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    break;
+                default:
+                    break;
+                }
             }
-        }
-        if (regular)
-        {
-            bufferText->addAfter(string_format("%s%s a%d,a%d,%s_if", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
-
-        }
-        else
-        {
- bufferText->blankCurrent();
-                if(f==128)
-                f=14;
-               bufferText->addAfter(string_format("%s%s a%d,%d,%s_if", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
-        }
-                    bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
+            if (regular)
+            {
+                bufferText->addAfter(string_format("%s%s a%d,a%d,%s_if", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
+            }
+            else
+            {
+                bufferText->blankCurrent();
+                if (f == 128)
+                    f = 14;
+                bufferText->addAfter(string_format("%s%s a%d,%d,%s_if", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
+            }
+            bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
             bufferText->addAfter(string_format("%s_if:", nd->getTargetText()));
             register_numl.increase();
         }
@@ -3288,77 +3321,79 @@ if(regular)
         {
             int f;
             bool regular = true;
+
             if (nd->getChildAtPos(1)->getChildAtPos(0)->_nodetype == numberNode)
             {
-               
-                 f = stringToInt(nd->getChildAtPos(1)->getChildAtPos(0)->getTokenText());
+
+                f = stringToInt(nd->getChildAtPos(1)->getChildAtPos(0)->getTokenText());
                 switch (nd->type)
                 {
                 case TokenLessThan:
-               if((f>0 and f<=7 )or f==128)
-                {
-                     printf("on est icic\n");
-                    compop = "bgei"; // not equal
-                                    h = numl;
-                    numl = leftl;
-                    leftl = h;
-                    //f++;
-                    regular=false;
-                }
+                    if ((f > 0 and f <= 8) or f == 128)
+                    {
+                        printf("on est ici doublec\n");
+                        compop = "bgei"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        // f++;
+                        regular = false;
+                    }
                     break;
                 case TokenDoubleEqual:
-                if(f>0 and f<=8)
-                {
-                    compop = "bnei"; // equal
-                    regular=false;
-                }
+                    if (f > 0 and f <= 8)
+                    {
+                        compop = "bnei"; // equal
+                        regular = false;
+                        leftl = numl;
+                    }
                     break;
                 case TokenNotEqual:
-                                if(f>0 and f<=8)
-                {
-                    compop = "beqi"; // equal
-                    regular=false;
-                }
+                    if (f > 0 and f <= 8)
+                    {
+                        compop = "beqi"; // equal
+                        regular = false;
+                    }
                     break;
                 case TokenMoreOrEqualThan:
-                     if(f>0 and f<=8)
-                {
-                    compop = "blti"; // not equal
-                                    h = numl;
-                    numl = leftl;
-                    leftl = h;
-                   // f++;
-                    regular=false;
-                }
+                    if ((f > 0 and f <= 8) or f == 128)
+                    {
+                        compop = "blti"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        // f++;
+                        regular = false;
+                    }
                     break;
                 case TokenMoreThan:
-                if(f>0 and f<=7)
-                {
-                    compop = "blti"; // not equal
-                                    h = numl;
-                    numl = leftl;
-                    leftl = h;
-                    f++;
-                    regular=false;
-                }
+                    if (f > 0 and f <= 7)
+                    {
+                        compop = "blti"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        f++;
+                        regular = false;
+                    }
                     break;
                 case TokenLessOrEqualThan:
-        if(f>0 and f<=7)
-                {
-                    compop = "bgei"; // not equal
-                                    h = numl;
-                    numl = leftl;
-                    leftl = h;
-                    f++;
-                    regular=false;
-                }
+                    if (f > 0 and f <= 7)
+                    {
+                        compop = "bgei"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        f++;
+                        regular = false;
+                    }
 
-            
                     break;
                 default:
                     break;
                 }
             }
+
             if (regular)
             {
                 switch (nd->type)
@@ -3392,20 +3427,18 @@ if(regular)
                     break;
                 }
             }
-            if(regular)
+            if (regular)
                 bufferText->addAfter(string_format("%s%s a%d,a%d,%s_end", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
-              else
-              {
+            else
+            {
                 bufferText->blankCurrent();
-                if(f==128)
-                f=14;
-               bufferText->addAfter(string_format("%s%s a%d,%d,%s_end", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
-                
+                if (f == 128)
+                    f = 14;
+                bufferText->addAfter(string_format("%s%s a%d,%d,%s_end", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
             }
-               // bufferText->addAfter(_compare.back()+1,string_format("j %s_end", nd->target.c_str()));
-                // bufferText->addAfter(_compare.back()+2,string_format("%s_if:", nd->target.c_str()));
-                register_numl.increase();
-            
+            // bufferText->addAfter(_compare.back()+1,string_format("j %s_end", nd->target.c_str()));
+            // bufferText->addAfter(_compare.back()+2,string_format("%s_if:", nd->target.c_str()));
+            register_numl.increase();
         }
     }
     // printf("out comparator\n");
@@ -3879,42 +3912,82 @@ void _visitforNode(NodeToken *nd)
     register_numl.duplicate();
     nd->getChildAtPos(0)->visitNode();
     register_numl.pop();
-
-    bufferText->addAfter(string_format("%s:", nd->getTargetText()));
+    if (nd->getChildAtPos(nd->children_size() - 1)->_nodetype == onlyNode)
+    {
+        bufferText->addAfter(string_format("movExt a7,@_ext_%s", (nd->getChildAtPos(nd->children_size() - 1)->getTargetText())));
+        boolextern = true;
+    }
+    bufferText->addAfter(string_format("j test_%s", nd->getTargetText()));
+    bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
     _compare.push_back(bufferText->get());
 
     register_numl.duplicate();
+
+    nd->getChildAtPos(3)->visitNode();
     if (nd->children_size() > 4)
     {
-        nd->getChildAtPos(3)->visitNode();
-        nd->getChildAtPos(4)->visitNode();
+        if (nd->getChildAtPos(4)->_nodetype != onlyNode)
+        {
+            nd->getChildAtPos(4)->visitNode();
+        }
     }
-    else
+    if (nd->children_size() > 5)
     {
-        
-        nd->getChildAtPos(3)->visitNode();
+
+        nd->getChildAtPos(5)->visitNode();
     }
     register_numl.pop();
-
-    bufferText->addAfter(string_format("%s_continue:", nd->getTargetText()));
 
     register_numl.duplicate();
     nd->getChildAtPos(2)->visitNode();
     register_numl.pop();
-
+    switch (nd->getChildAtPos(1)->getChildAtPos(0)->type)
+    {
+    case TokenLessThan:
+        printf("on est ici doublecdd\n");
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenMoreOrEqualThan; // greater or equal
+        //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
+        break;
+    case TokenDoubleEqual:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenNotEqual;
+        break;
+    case TokenNotEqual:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenDoubleEqual;
+        break;
+    case TokenMoreOrEqualThan:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenLessThan;
+        break;
+    case TokenMoreThan:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenLessOrEqualThan;
+        break;
+    case TokenLessOrEqualThan:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenMoreThan;
+        break;
+    default:
+        break;
+    }
     int jumpsize = (bufferText->get() - _compare.back()) * 3;
     nd->getChildAtPos(1)->_total_size = jumpsize;
-    bufferText->putIteratorAtPos(_compare.back());
+    // bufferText->putIteratorAtPos(_compare.back());
+    bufferText->addAfter(string_format("test_%s:", nd->getTargetText()));
 
     register_numl.duplicate();
     nd->getChildAtPos(1)->visitNode();
     register_numl.pop();
 
     _compare.pop_back();
-    bufferText->putIteratorAtPos(bufferText->get());
-    bufferText->addAfter(string_format("j %s", nd->getTargetText()));
-    bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
+
+    bufferText->addAfter(string_format("%s_continue:", nd->getTargetText()));
+    bufferText->addAfter(string_format("%s_break:", nd->getTargetText()));
+    // bufferText->putIteratorAtPos(bufferText->get());
+    // bufferText->addAfter(string_format("j %s", nd->getTargetText()));
+    // bufferText->addAfter(string_format("%s:", nd->getTargetText()));
     // clearNodeToken(nd);
+    if (nd->getChildAtPos(nd->children_size() - 1)->_nodetype == onlyNode)
+    {
+
+        boolextern = false;
+    }
     return;
 }
 void _visitargumentNode(NodeToken *nd) {}
@@ -4635,7 +4708,7 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
         }
         if (nb > 2 and sd.compare(0, 1, "@") == 0)
         {
-            //if(nd->children>2)
+            // if(nd->children>2)
             bufferText->addAfter("movi a10,0");
         }
         for (int par = 0; par < nd->children_size(); par++)
@@ -4654,26 +4727,26 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
                     {
                         bufferText->addAfter(string_format("movi a11,%d", stringToInt((char *)tile[par + 1 + h].c_str())));
                         // bufferText->addAfter(string_format("mull a11,a10,a11"));
-                       if(nb>2)
-                        bufferText->addAfter(string_format("mull a%d,a%d,a11", register_numl.get(), register_numl.get()));
+                        if (nb > 2)
+                            bufferText->addAfter(string_format("mull a%d,a%d,a11", register_numl.get(), register_numl.get()));
                         else
-                        bufferText->addAfter(string_format("mull a10,a%d,a11",  register_numl.get()));
+                            bufferText->addAfter(string_format("mull a10,a%d,a11", register_numl.get()));
                     }
-                    if(nb>2)
-                    bufferText->addAfter(string_format("add a10,a10,a%d", register_numl.get()));
-                   //else
-                    // bufferText->addAfter("nop");
+                    if (nb > 2)
+                        bufferText->addAfter(string_format("add a10,a10,a%d", register_numl.get()));
+                    //  else
+                    //  bufferText->addAfter("nop");
                 }
                 else
                 {
-   
+
                     // bufferText->addAfter(string_format("mov a10,a%d", register_numl.get()));
                     bufferText->addAfter(string_format("add a%d,a10,a%d", register_numl.get(), register_numl.get()));
-                    //else
-                     //bufferText->addAfter(string_format("add a%d,a%d,a%d", register_numl.get(),register_numl.get(), register_numl.get()));
-                         //     if(nb<=2)
-                    //bufferText->addAfter("nop");
-                    }
+                    // else
+                    // bufferText->addAfter(string_format("add a%d,a%d,a%d", register_numl.get(),register_numl.get(), register_numl.get()));
+                    //         if(nb<=2)
+                    // bufferText->addAfter("nop");
+                }
             }
 
             // globalType.pop();
@@ -4693,8 +4766,10 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
         bufferText->addAfter(string_format("__test_safe_%d:", for_if_num));
         for_if_num++;
     }
-    bufferText->addAfter(string_format("movExt a%d,@_ext_%s",
-                                       point_regnum, nd->getTokenText()));
+    if (!boolextern)
+        bufferText->addAfter(string_format("movExt a%d,@_ext_%s", point_regnum, nd->getTokenText()));
+    else
+        bufferText->addAfter(string_format("mov a%d,a7", point_regnum));
     if (nd->isPointer && nd->children_size() > 0)
     {
         // f=f+number.f;
@@ -4799,6 +4874,7 @@ void _visitwhileNode(NodeToken *nd)
     nd->getChildAtPos(0)->_total_size = (bufferText->get() - _compare.back()) * 3; // on estime que toutes les instructions ont la meme taille
 
     bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
+    bufferText->addAfter(string_format("%s_break:", nd->getTargetText()));
     if (nd->getChildAtPos(0)->getChildAtPos(0)->_nodetype != numberNode)
     {
         bufferText->putIteratorAtPos(_compare.back());
@@ -4940,15 +5016,14 @@ void _visitcontinueNode(NodeToken *nd)
 void _visitbreakNode(NodeToken *nd)
 {
 
-    bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
+    bufferText->addAfter(string_format("j %s_break", nd->getTargetText()));
 }
 void _visitUnknownNode(NodeToken *nd) {}
 
 void optimize(Text *text)
 {
-   // return;
-    // return;
-    // int regnum;
+    //  return;
+    //  int regnum;
     for (int regnum = 3; regnum < 11; regnum++)
     {
         // regnum=9;
@@ -5259,7 +5334,7 @@ void optimize(Text *text)
                         int ind = -1;
                         for (int mp = 0; mp < index.size(); mp++)
                         {
-                            //printf("compare %s:%s\n",from[mp].c_str(),d2[0].c_str());
+                            // printf("compare %s:%s\n",from[mp].c_str(),d2[0].c_str());
                             if (d2[0].compare(from[mp]) == 0)
                             {
                                 newstr = newstr + to[mp] + ",";
@@ -5555,6 +5630,51 @@ void optimize(Text *text)
                     if (d2[0].compare(d2[1]) == 0)
                     {
                         text->replaceText(i, " ");
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < text->size(); i++)
+    {
+        string tmp = string((*text->getChildAtPos(i)));
+        if (*text->getChildAtPos(i) != NULL)
+        {
+            if (tmp.compare(" ") != 0 && tmp != "")
+            {
+                d = split(tmp, " ");
+                if (d[0].compare("l32i") == 0)
+                {
+                    tmp = string((*text->getChildAtPos(i - 1)));
+                    if(*text->getChildAtPos(i) != NULL)
+                    {
+                        if (tmp.compare(" ") != 0 && tmp != "")
+                        {
+                            d2= split(tmp, " ");
+                            if(d2[0].compare("s32i")==0)
+                            {
+                                if(d2[1].compare(d[1])==0)
+                                     text->replaceText(i, " ");
+                            }
+                        }
+                    }
+                }
+                
+                if (d[0].compare("lsi") == 0)
+                {
+                    tmp = string((*text->getChildAtPos(i - 1)));
+                    if(*text->getChildAtPos(i) != NULL)
+                    {
+                        if (tmp.compare(" ") != 0 && tmp != "")
+                        {
+                            d2= split(tmp, " ");
+                            if(d2[0].compare("ssi")==0)
+                            {
+                                if(d2[1].compare(d[1])==0)
+                                     text->replaceText(i, " ");
+                            }
+                        }
                     }
                 }
             }
