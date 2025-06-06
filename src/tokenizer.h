@@ -1163,7 +1163,7 @@ Token transNumber(string str)
         if (_tks->back().type == TokenSubstraction)
         {
             tokenType subtype = (tokenType)_tks->getTokenAtPos(_tks->size() - 2)->type;
-            if (subtype == TokenComma || subtype == TokenEqual || subtype == TokenDoubleEqual || subtype == TokenLessOrEqualThan || subtype == TokenDoubleEqual || subtype == TokenMoreThan || subtype == TokenMoreOrEqualThan || subtype == TokenNotEqual || subtype == TokenStarEqual || subtype == TokenPlusEqual || subtype == TokenOpenParenthesis)
+            if (subtype == TokenComma || subtype == TokenEqual || subtype == TokenDoubleEqual || subtype == TokenLessOrEqualThan || subtype == TokenMoreThan || subtype == TokenMoreOrEqualThan || subtype == TokenNotEqual || subtype == TokenStarEqual || subtype == TokenPlusEqual || subtype == TokenOpenParenthesis)
             {
                 str = "-" + str;
                 _tks->pop_back();
@@ -1494,6 +1494,7 @@ Token t;
             c2 = script->nextChar();
             if (c2 == '=')
             {
+                printf("kjkjkjkj\n");
                 // token t;
                 // t._vartype = NULL;
                 // t.type = TokenNotEqual;

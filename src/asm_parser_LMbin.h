@@ -98,6 +98,11 @@ uint32_t bin_add(uint32_t *values)
 {
     return (((values[2] << 4) & 0xF0)) + (((values[1] << 8) & 0xF00)) + (((values[0] << 12) & 0xF000)) + 0x800000;
 }
+uint32_t bin_salt(uint32_t *values)
+{
+    return (((values[2] << 4) & 0xF0)) + (((values[1] << 8) & 0xF00)) + (((values[0] << 12) & 0xF000)) + 0x720000;
+}
+
 
 
 uint32_t bin_quou(uint32_t *values)

@@ -1935,11 +1935,11 @@ void _visitunitaryOpNode(NodeToken *nd)
 
         nd->getChildAtPos(0)->visitNode();
         register_numl.pop();
-        bufferText->addAfter("movi a7,0");
+        bufferText->addAfter("movi a12,0");
         bufferText->addAfter(string_format("bnez a%d,label_not_%d", register_numl.get(), for_if_num));
-        bufferText->addAfter("movi a7,1");
+        bufferText->addAfter("movi a12,1");
         bufferText->addAfter(string_format("label_not_%d:", for_if_num));
-        bufferText->addAfter(string_format("mov a%d,a7", register_numl.get()));
+        bufferText->addAfter(string_format("mov a%d,a12", register_numl.get()));
         bufferText->sp.push(bufferText->get());
         register_numl.decrease();
         return;
@@ -2910,6 +2910,118 @@ void _visitternaryIfNode(NodeToken *nd)
     register_numl.pop();
     bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
 }
+
+bool isBranchImmediate(int val, bool inverse)
+{
+    if (!inverse)
+    {
+        switch (val)
+        {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 10:
+        case 12:
+        case 16:
+        case 32:
+        case 64:
+        case 128:
+        case 256:
+            return true;
+            break;
+        default:
+            return false;
+            break;
+        }
+    }
+    else
+    {
+        switch (val)
+        {
+            // case 1:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 9:
+        case 11:
+        case 15:
+        case 31:
+        case 63:
+        case 127:
+        case 255:
+            return true;
+            break;
+        default:
+            return false;
+            break;
+        }
+    }
+}
+
+int valBranchImmediate(int val)
+{
+    switch (val)
+    {
+    case 1:
+        return 1;
+        break;
+    case 2:
+        return 2;
+        break;
+    case 3:
+        return 3;
+        break;
+    case 4:
+        return 4;
+        break;
+    case 5:
+        return 5;
+        break;
+    case 6:
+        return 6;
+        break;
+    case 7:
+        return 7;
+        break;
+    case 8:
+        return 8;
+        break;
+    case 10:
+        return 9;
+        break;
+    case 12:
+        return 10;
+        break;
+    case 16:
+        return 11;
+        break;
+    case 32:
+        return 12;
+        break;
+    case 64:
+        return 13;
+        break;
+    case 128:
+        return 14;
+        break;
+    case 256:
+        return 14;
+        break;
+    default:
+        return 88;
+        break;
+    }
+}
+
 void _visittestNode(NodeToken *nd)
 {
 
@@ -3208,58 +3320,54 @@ void _visitcomparatorNode(NodeToken *nd)
                 switch (nd->type)
                 {
                 case TokenLessThan:
-                    if ((f > 0 and f <= 7) or f == 128)
+                    if (isBranchImmediate(f, false))
                     {
-                        printf("on est icic\n");
-                        compop = "btli"; // not equal
 
+                        compop = "blti"; // not equal
+                        leftl = numl;
                         // f++;
                         regular = false;
                     }
                     break;
                 case TokenDoubleEqual:
-                    if (f > 0 and f <= 8)
+                    if (isBranchImmediate(f, false))
                     {
                         compop = "bnei"; // equal
                         regular = false;
+                        leftl = numl;
                     }
                     break;
                 case TokenNotEqual:
-                    if (f > 0 and f <= 8)
+                    if (isBranchImmediate(f, false))
                     {
                         compop = "beqi"; // equal
                         regular = false;
+                        leftl = numl;
                     }
                     break;
                 case TokenMoreOrEqualThan:
-                    if (f > 0 and f <= 8)
+                    if (isBranchImmediate(f, false))
                     {
                         compop = "bgei"; // not equal
-                        h = numl;
-                        numl = leftl;
-                        leftl = h;
+                        leftl = numl;
                         // f++;
                         regular = false;
                     }
                     break;
                 case TokenMoreThan:
-                    if (f > 0 and f <= 7)
+                    if (isBranchImmediate(f, true))
                     {
                         compop = "bgei"; // not equal
-                        h = numl;
-                        numl = leftl;
-                        leftl = h;
+                        leftl = numl;
                         f++;
                         regular = false;
                     }
                     break;
                 case TokenLessOrEqualThan:
-                    if (f > 0 and f <= 7)
+                    if (isBranchImmediate(f, true))
                     {
                         compop = "blti"; // not equal
-                        h = numl;
-                        numl = leftl;
-                        leftl = h;
+                        leftl = numl;
                         f++;
                         regular = false;
                     }
@@ -3309,8 +3417,8 @@ void _visitcomparatorNode(NodeToken *nd)
             else
             {
                 bufferText->blankCurrent();
-                if (f == 128)
-                    f = 14;
+
+                f = valBranchImmediate(f);
                 bufferText->addAfter(string_format("%s%s a%d,%d,%s_if", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
             }
             bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
@@ -3329,7 +3437,7 @@ void _visitcomparatorNode(NodeToken *nd)
                 switch (nd->type)
                 {
                 case TokenLessThan:
-                    if ((f > 0 and f <= 8) or f == 128)
+                    if (isBranchImmediate(f, false))
                     {
                         printf("on est ici doublec\n");
                         compop = "bgei"; // not equal
@@ -3341,7 +3449,7 @@ void _visitcomparatorNode(NodeToken *nd)
                     }
                     break;
                 case TokenDoubleEqual:
-                    if (f > 0 and f <= 8)
+                    if (isBranchImmediate(f, false))
                     {
                         compop = "bnei"; // equal
                         regular = false;
@@ -3349,14 +3457,14 @@ void _visitcomparatorNode(NodeToken *nd)
                     }
                     break;
                 case TokenNotEqual:
-                    if (f > 0 and f <= 8)
+                    if (isBranchImmediate(f, false))
                     {
                         compop = "beqi"; // equal
                         regular = false;
                     }
                     break;
                 case TokenMoreOrEqualThan:
-                    if ((f > 0 and f <= 8) or f == 128)
+                    if (isBranchImmediate(f, false))
                     {
                         compop = "blti"; // not equal
                         h = numl;
@@ -3367,7 +3475,7 @@ void _visitcomparatorNode(NodeToken *nd)
                     }
                     break;
                 case TokenMoreThan:
-                    if (f > 0 and f <= 7)
+                    if (isBranchImmediate(f, true))
                     {
                         compop = "blti"; // not equal
                         h = numl;
@@ -3378,7 +3486,7 @@ void _visitcomparatorNode(NodeToken *nd)
                     }
                     break;
                 case TokenLessOrEqualThan:
-                    if (f > 0 and f <= 7)
+                    if (isBranchImmediate(f, true))
                     {
                         compop = "bgei"; // not equal
                         h = numl;
@@ -3432,8 +3540,7 @@ void _visitcomparatorNode(NodeToken *nd)
             else
             {
                 bufferText->blankCurrent();
-                if (f == 128)
-                    f = 14;
+                f = valBranchImmediate(f);
                 bufferText->addAfter(string_format("%s%s a%d,%d,%s_end", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
             }
             // bufferText->addAfter(_compare.back()+1,string_format("j %s_end", nd->target.c_str()));
@@ -5647,32 +5754,48 @@ void optimize(Text *text)
                 if (d[0].compare("l32i") == 0)
                 {
                     tmp = string((*text->getChildAtPos(i - 1)));
-                    if(*text->getChildAtPos(i) != NULL)
+                    if (*text->getChildAtPos(i) != NULL)
                     {
                         if (tmp.compare(" ") != 0 && tmp != "")
                         {
-                            d2= split(tmp, " ");
-                            if(d2[0].compare("s32i")==0)
+                            d2 = split(tmp, " ");
+                            if (d2[0].compare("s32i") == 0)
                             {
-                                if(d2[1].compare(d[1])==0)
-                                     text->replaceText(i, " ");
+                                if (d2[1].compare(d[1]) == 0)
+                                    text->replaceText(i, " ");
                             }
                         }
                     }
                 }
-                
-                if (d[0].compare("lsi") == 0)
+                if (d[0].compare("l8ui") == 0)
                 {
                     tmp = string((*text->getChildAtPos(i - 1)));
-                    if(*text->getChildAtPos(i) != NULL)
+                    if (*text->getChildAtPos(i) != NULL)
                     {
                         if (tmp.compare(" ") != 0 && tmp != "")
                         {
-                            d2= split(tmp, " ");
-                            if(d2[0].compare("ssi")==0)
+                            d2 = split(tmp, " ");
+                            if (d2[0].compare("s8i") == 0)
                             {
-                                if(d2[1].compare(d[1])==0)
-                                     text->replaceText(i, " ");
+                                if (d2[1].compare(d[1]) == 0)
+                                    text->replaceText(i, " ");
+                            }
+                        }
+                    }
+                }
+
+                if (d[0].compare("lsi") == 0)
+                {
+                    tmp = string((*text->getChildAtPos(i - 1)));
+                    if (*text->getChildAtPos(i) != NULL)
+                    {
+                        if (tmp.compare(" ") != 0 && tmp != "")
+                        {
+                            d2 = split(tmp, " ");
+                            if (d2[0].compare("ssi") == 0)
+                            {
+                                if (d2[1].compare(d[1]) == 0)
+                                    text->replaceText(i, " ");
                             }
                         }
                     }

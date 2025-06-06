@@ -598,6 +598,10 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   {
     return parseOperandes(sp.operandes, 3, op_and, 3, bin_and);
   }
+    if (sp.opcde.compare("salt") == 0)
+  {
+    return parseOperandes(sp.operandes, 3, op_and, 3, bin_salt);
+  }
   if (sp.opcde.compare("or") == 0)
   {
     return parseOperandes(sp.operandes, 3, op_and, 3, bin_or);

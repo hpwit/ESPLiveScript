@@ -2486,7 +2486,7 @@ public:
         {
             return;
         }
-        while (Match(TokenDoubleEqual) || Match(TokenLessOrEqualThan) || Match(TokenLessThan) || Match(TokenMoreOrEqualThan) || Match(TokenMoreThan))
+        while (Match(TokenDoubleEqual) || Match(TokenNotEqual) ||Match(TokenLessOrEqualThan) || Match(TokenLessThan) || Match(TokenMoreOrEqualThan) || Match(TokenMoreThan))
         {
 
             // token *op = current();
