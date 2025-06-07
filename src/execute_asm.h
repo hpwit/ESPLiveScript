@@ -457,7 +457,7 @@ error_message_struct updateParameters(executable ex, string json)
   }
   else
   {
-    printf("no json\n");
+    //printf("no json\n");
   }
   return res;
 }

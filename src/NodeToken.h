@@ -1387,7 +1387,7 @@ void createNodeVariable(Token *_var, bool isStore)
             else
             {
                 extvariablestore = string(v.getTokenText());
-                printf("%s\n", v.getTokenText());
+                //printf("%s\n", v.getTokenText());
                 nbofextern++;
             }
             // current_node->asPointer=asPointer;
@@ -4051,7 +4051,7 @@ void _visitforNode(NodeToken *nd)
     switch (nd->getChildAtPos(1)->getChildAtPos(0)->type)
     {
     case TokenLessThan:
-        printf("on est ici doublecdd\n");
+       // printf("on est ici doublecdd\n");
         nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenMoreOrEqualThan; // greater or equal
         //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
         break;
@@ -4251,7 +4251,10 @@ void _visitextCallFunctionNode(NodeToken *nd)
             for (int i = 0; i < v->size; i++)
             {
                 // bufferText->addAfter(string_format("mov a15,a10"));
-                bufferText->addAfter(string_format("extui a%d,a%d,%d,%d", register_numl.get(), 10, start * 8, v->sizes[i] * 8));
+                if(i>-1)
+                    bufferText->addAfter(string_format("extui a%d,a%d,%d,%d", register_numl.get(), 10, start * 8, v->sizes[i] * 8));
+                    else
+                      bufferText->addAfter(string_format("mov a%d,a10", register_numl.get()));
                 // register_numl--;
                 start += v->sizes[i];
                 bufferText->sp.push(bufferText->get());

@@ -1494,7 +1494,7 @@ Token t;
             c2 = script->nextChar();
             if (c2 == '=')
             {
-                printf("kjkjkjkj\n");
+               
                 // token t;
                 // t._vartype = NULL;
                 // t.type = TokenNotEqual;
