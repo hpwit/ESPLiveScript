@@ -2,472 +2,373 @@
 #ifndef _ASM_STRUCT
 #define _ASM_STRUCT
 
-#include <stdlib.h>
-#include <vector>
-#include <string>
-#include "string_function.h"
 #include "functionlib.h"
+#include "string_function.h"
+#include <stdlib.h>
+#include <string>
+#include <vector>
 using namespace std;
 #define EOF_TEXTARRAY 9999
 #define EOF_VARTYPE 255
-int __exe_size=0;
+int __exe_size = 0;
 
-template <class T>
-class Stack
-{
+template <class T> class Stack {
 public:
-    Stack() {}
-    Stack(T def)
-    {
-        _default = def;
-    }
-    void push(T a)
-    {
-        _stack.push_back(a);
-    }
-    T pop()
-    {
-        if (_stack.size() < 1)
-            return _default;
-        T sav = _stack.back();
-        _stack.pop_back();
-        return sav;
-    }
-    T get()
-    {
+  Stack() {}
+  Stack(T def) { _default = def; }
+  void push(T a) { _stack.push_back(a); }
+  T pop() {
+    if (_stack.size() < 1)
+      return _default;
+    T sav = _stack.back();
+    _stack.pop_back();
+    return sav;
+  }
+  T get() {
 
-        if (_stack.size() < 1)
-            return _default;
-        return _stack.back();
+    if (_stack.size() < 1)
+      return _default;
+    return _stack.back();
+  }
+  void duplicate() {
+    if (_stack.size() > 0)
+      _stack.push_back(_stack.back());
+    else {
+      _stack.push_back(_default);
+      _stack.push_back(_default);
     }
-    void duplicate()
-    {
-        if (_stack.size() > 0)
-            _stack.push_back(_stack.back());
-        else
-        {
-            _stack.push_back(_default);
-            _stack.push_back(_default);
-        }
-    }
-    T front()
-    {
-        if (_stack.size() > 0)
-            return _stack.front();
-        else
-            return _default;
-    }
-    void swap()
-    {
+  }
+  T front() {
+    if (_stack.size() > 0)
+      return _stack.front();
+    else
+      return _default;
+  }
+  void swap() {
 
-        T sav = pop();
-        T sav2 = pop();
-        push(sav);
-        push(sav2);
-    }
-    void set(T k)
-    {
-        pop();
-        push(k);
-    }
-    void increase()
-    {
-        //  if( typeid(T).hash_code()==typeid(int).hash_code())
-        //  {
-        int sav = (int)pop();
-        push(sav + 1);
-        //  }
-    }
-    void decrease()
-    {
-        //  if( typeid(T).hash_code()==typeid(int).hash_code())
-        //  {
-        
-        int sav = (int)pop();
-        push(sav - 1);
-        //  }
-    }
-    void clear()
-    {
-        _stack.clear();
-        _stack.shrink_to_fit();
-    }
-    vector<T> _stack;
-    T _default;
+    T sav = pop();
+    T sav2 = pop();
+    push(sav);
+    push(sav2);
+  }
+  void set(T k) {
+    pop();
+    push(k);
+  }
+  void increase() {
+    //  if( typeid(T).hash_code()==typeid(int).hash_code())
+    //  {
+    int sav = (int)pop();
+    push(sav + 1);
+    //  }
+  }
+  void decrease() {
+    //  if( typeid(T).hash_code()==typeid(int).hash_code())
+    //  {
+
+    int sav = (int)pop();
+    push(sav - 1);
+    //  }
+  }
+  void clear() {
+    _stack.clear();
+    _stack.shrink_to_fit();
+  }
+  vector<T> _stack;
+  T _default;
 };
 char *m;
 
-class Text
-{
+class Text {
 public:
-    Text()
-    {
-        //_texts=t;
-        _texts.clear();
-        _texts.shrink_to_fit();
-        position = 0;
-        // _texts.push_back(cc);
-        _it = _texts.begin();
+  Text() {
+    //_texts=t;
+    _texts.clear();
+    _texts.shrink_to_fit();
+    position = 0;
+    // _texts.push_back(cc);
+    _it = _texts.begin();
+  }
+  int findText(char *str) {
+#ifdef __SPEED
+    return -1;
+#endif
+    // for (int i = 0; i < _texts.size(); i++)
+    for (int i = _texts.size() - 1; i >= 0; i--) {
+      if (strcmp(str, _texts[i]) == 0) {
+        return i;
+      }
     }
-    int findText(char * str)
-    {
-         #ifdef __SPEED
-        return -1;
-        #endif
-       // for (int i = 0; i < _texts.size(); i++)
-       for (int i =  _texts.size()-1; i >=0; i--)
-        {
-            if (strcmp(str,_texts[i]) == 0)
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
-    int addText(string str,uint16_t si)
-    {
-               m = (char *)malloc(si + 1);
-        memcpy(m, str.c_str(), si);
-        m[str.size()] = 0;
-        _texts.push_back(m);
-        position++;
-        str.clear();
-        return _texts.size() - 1;
-    }
-    int addText(string str)
-    {
-        int pos = findText((char *)str.c_str());
-        if (pos > -1)
-        {
-                    #ifdef __TEST_DEBUG
-       // printf(" find text:%d %s\r\n",pos,str.c_str());
-        #endif
+    return -1;
+  }
+  int addText(string str, uint16_t si) {
+    m = (char *)malloc(si + 1);
+    memcpy(m, str.c_str(), si);
+    m[str.size()] = 0;
+    _texts.push_back(m);
+    position++;
+    str.clear();
+    return _texts.size() - 1;
+  }
+  int addText(string str) {
+    int pos = findText((char *)str.c_str());
+    if (pos > -1) {
+#ifdef __TEST_DEBUG
+      // printf(" find text:%d %s\r\n",pos,str.c_str());
+#endif
 
-            return pos;
+      return pos;
+    }
+    m = (char *)malloc(str.size() + 1);
+    memcpy(m, str.c_str(), str.size());
+    m[str.size()] = 0;
+    _texts.push_back(m);
+    position++;
+    str.clear();
+#ifdef __TEST_DEBUG
+    // printf(" addtext:%d %s\r\n",_texts.size(),str.c_str());
+#endif
+    return _texts.size() - 1;
+  }
+  void addAfter(int pos, string s) {
+    _it = getChildAtPos(pos);
+    // printf(" on recupere %d:%s\n",pos,(*__it).c_str());
+    // if((*_it).compare(s)!=0)
+    //{
+    addAfter(s);
+    position--;
+    _it = getChildAtPos(position);
+    position++;
+    // }
+  }
+  void addBefore(int pos, string s) {
+    _it = getChildAtPos(pos - 1);
+    // printf(" on recupere %d:%s\n",pos,(*__it).c_str());
+    // if((*_it).compare(s)!=0)
+    //{
+    addBefore(s);
+    position--;
+    _it = getChildAtPos(position);
+    position++;
+    // }
+  }
+
+  void addAfter(string str) {
+    int pos = findText((char *)str.c_str());
+    // char *tmp;
+    if (pos > -1) {
+      m = _texts[pos];
+    } else {
+      m = (char *)malloc(str.size() + 1);
+      memcpy(m, str.c_str(), str.size());
+      m[str.size()] = 0;
+    }
+    if (_it == _texts.end()) {
+      _texts.push_back(m);
+      _it = _texts.end();
+      _it--;
+    } else {
+      _it = _texts.insert(next(_it), m);
+    }
+    position++;
+  }
+  string back() {
+    if (_texts.size() > 0)
+      return string(_texts.back());
+    else
+      return "";
+  }
+  string current() { return string(*_it); }
+  void blankCurrent() {
+    int pos = findText(" ");
+    if (pos > -1) {
+      *_it = _texts[pos];
+    } else {
+      string str = " ";
+      m = (char *)malloc(str.size() + 1);
+      memcpy(m, str.c_str(), str.size());
+      m[str.size()] = 0;
+      *_it = m;
+    }
+  }
+  string front() {
+    if (_texts.size() > 0)
+      return string(_texts.front());
+    else
+      return "";
+  }
+  string textAt(int pos) {
+    if (pos > 0 and pos < _texts.size()) {
+      return string(_texts[pos]);
+    }
+    return "";
+  }
+  void pop_front() {
+    if (_texts.size() > 0) {
+      if (_texts.front() != NULL) {
+        // printf("we tray to look to  delete:|%s|\n",_texts.front());
+        if (!isReused(0)) {
+          // printf("we tray to delete:|%s|\n",_texts.front());
+          free(_texts.front());
+
+          // printf("we delted the string\n\r");
         }
-         m = (char *)malloc(str.size() + 1);
+      }
+      _texts[0] = NULL;
+      _texts.erase(_texts.begin());
+    }
+  }
+  void addAfterNoDouble(string s) {
+
+    // char *str;
+    if (_it != _texts.end()) {
+
+      if (s.compare(string(*_it)) == 0) {
+
+        return;
+      }
+    }
+
+    addAfter(s);
+  }
+  void addBefore(string s) {
+    int pos = findText((char *)s.c_str());
+    if (pos > -1) {
+      _it = _texts.insert(_it, _texts[pos]);
+    } else {
+      m = (char *)malloc(s.size() + 1);
+      memcpy(m, s.c_str(), s.size());
+      m[s.size()] = 0;
+      _it = _texts.insert(_it, m);
+    }
+    _it++;
+    position++;
+  }
+  void replaceText(int pos, string str) {
+    if (pos >= 0 and pos < size()) {
+      // printf("repalce |%s| by  |%s|\r\n",_texts[pos],str.c_str());
+      if (!isReused(pos)) {
+        free(_texts[pos]);
+      }
+      int _pos = findText((char *)str.c_str());
+      _pos = -1;
+      if (_pos > -1 && _texts[_pos] != NULL) {
+        //   printf("exeist already %d:%d |%s| and
+        //   |%s|\n\r",_pos,pos,str.c_str(),_texts[_pos]);
+
+        _texts[pos] = _texts[_pos];
+      } else {
+        // printf("we add |%s|\n\r",str.c_str());
+        m = (char *)malloc(str.size() + 1);
         memcpy(m, str.c_str(), str.size());
         m[str.size()] = 0;
-        _texts.push_back(m);
-        position++;
-        str.clear();
-        #ifdef __TEST_DEBUG
-       // printf(" addtext:%d %s\r\n",_texts.size(),str.c_str());
-        #endif
-        return _texts.size() - 1;
-    }
-    void addAfter(int pos, string s)
-    {
-        _it = getChildAtPos(pos);
-        // printf(" on recupere %d:%s\n",pos,(*__it).c_str());
-        // if((*_it).compare(s)!=0)
-        //{
-        addAfter(s);
-        position--;
-        _it = getChildAtPos(position);
-        position++;
-        // }
-    }
-    void addBefore(int pos, string s)
-    {
-        _it = getChildAtPos(pos-1);
-        // printf(" on recupere %d:%s\n",pos,(*__it).c_str());
-        // if((*_it).compare(s)!=0)
-        //{
-        addBefore(s);
-        position--;
-        _it = getChildAtPos(position);
-        position++;
-        // }
-    }
-   
-    void addAfter(string str)
-    {
-        int pos = findText((char *)str.c_str());
-       // char *tmp;
-        if (pos > -1)
-        {
-            m = _texts[pos];
-        }
-        else
-        {
-            m = (char *)malloc(str.size() + 1);
-            memcpy(m, str.c_str(), str.size());
-            m[str.size()] = 0;
-        }
-        if (_it == _texts.end())
-        {
-            _texts.push_back(m);
-            _it = _texts.end();
-            _it--;
-        }
-        else
-        {
-            _it = _texts.insert(next(_it), m);
-        }
-        position++;
-    }
-    string back()
-    {
-              if (_texts.size() > 0)
-            return string(_texts.back());
-        else
-            return "";
-    }
-    string current()
-    {
-        return string(*_it);
-    }
-    void blankCurrent()
-    {
-        int pos = findText(" ");
-        if(pos>-1)
-        {
-            *_it=_texts[pos];
-        }
-        else
-        {
-            string str=" ";
-            m = (char *)malloc(str.size() + 1);
-            memcpy(m, str.c_str(), str.size());
-            m[str.size()] = 0;
-            *_it=m;
-        }
-    }
-    string front()
-    {
-        if (_texts.size() > 0)
-            return string(_texts.front());
-        else
-            return "";
-    }
-    string textAt(int pos)
-    {
-      if(pos>0 and pos<_texts.size())
-      {
-        return string(_texts[pos]);
+        _texts[pos] = m;
       }
-      return "";
     }
-    void pop_front()
-    {
-        if (_texts.size() > 0)
-        {
-            if(_texts.front() !=NULL)
-            {
-              // printf("we tray to look to  delete:|%s|\n",_texts.front());
-            if (!isReused(0))
-            {
-             //printf("we tray to delete:|%s|\n",_texts.front());
-                free(_texts.front());
-               
-              //printf("we delted the string\n\r");
-            }
-            }
-             _texts[0]=NULL;
-            _texts.erase(_texts.begin());
+  }
+  vector<char *>::iterator getChildAtPos(int pos) {
+    int i = 0;
+    if (pos >= _texts.size() || pos < 0) {
+      return _texts.end();
+    }
+    for (vector<char *>::iterator it = _texts.begin(); it != _texts.end();
+         it++) {
+      if (i == pos) {
+        return it;
+      }
+      i++;
+    }
+    return _texts.end();
+  }
+  void putIteratorAtPos(int pos) {
+    _it = getChildAtPos(pos);
+    // position=pos-1;
+  }
+  void end() { _it = getChildAtPos(_texts.size() - 1); }
+  void clear() {
+    // #ifndef __SPEED
+    // int kk = 0;
+    for (int i = 0; i < _texts.size(); i++) {
+      char *c1 = _texts[i];
+      if (c1 != NULL) {
+        if (i < _texts.size() - 2) {
+          for (int j = i + 1; j < _texts.size(); j++) {
+            if (_texts[j] == c1)
+              _texts[j] = NULL;
+          }
         }
+      }
     }
-    void addAfterNoDouble(string s)
-    {
-
-       // char *str;
-        if (_it != _texts.end())
-        {
-
-            if (s.compare(string(*_it)) == 0)
-            {
-
-                return;
-            }
-  
-
-        }
-
-        addAfter(s);
+    // #endif
+    for (int i = 0; i < _texts.size(); i++) {
+      if (_texts[i] != NULL) {
+        free(_texts[i]);
+        // kk++;
+      }
     }
-    void addBefore(string s)
-    {
-        int pos = findText((char *)s.c_str());
-        if (pos > -1)
-        {
-            _it = _texts.insert(_it, _texts[pos]);
-        }
-        else
-        {
-            m = (char *)malloc(s.size() + 1);
-            memcpy(m, s.c_str(), s.size());
-            m[s.size()] = 0;
-            _it = _texts.insert(_it, m);
-        }
-        _it++;
-        position++;
+    _texts.clear();
+    _texts.shrink_to_fit();
+    sp.clear();
+    position = 0;
+    _it = _texts.begin();
+  }
+  int size() { return _texts.size(); }
+  char *getText(int pos) {
+    if (pos >= 0 and pos < _texts.size()) {
+      return _texts[pos];
+    } else {
+      return cc;
     }
-    void replaceText(int pos, string str)
-    {
-        if (pos >= 0 and pos < size())
-        {
-           // printf("repalce |%s| by  |%s|\r\n",_texts[pos],str.c_str());
-            if (!isReused(pos))
-            {
-                free(_texts[pos]);
-            }
-             int _pos = findText((char *)str.c_str());
-             _pos=-1;
-             if(_pos>-1 && _texts[_pos]!=NULL)
-             {
-             //   printf("exeist already %d:%d |%s| and |%s|\n\r",_pos,pos,str.c_str(),_texts[_pos]);
-                
-                 _texts[pos] =  _texts[_pos];
-             }
-             else{
-               // printf("we add |%s|\n\r",str.c_str());
-                 m = (char *)malloc(str.size() + 1);
-            memcpy(m, str.c_str(), str.size());
-            m[str.size()] = 0;
-            _texts[pos] = m;
-             }
-        }
+  }
+  bool isReused(int pos) {
+#ifdef __SPEED
+    return false;
+#endif
+    if (pos < 0 or pos >= _texts.size()) {
+      return false;
     }
-    vector<char *>::iterator getChildAtPos(int pos)
-    {
-        int i = 0;
-        if (pos >= _texts.size() || pos < 0)
-        {
-            return _texts.end();
-        }
-        for (vector<char *>::iterator it = _texts.begin(); it != _texts.end(); it++)
-        {
-            if (i == pos)
-            {
-                return it;
-            }
-            i++;
-        }
-        return _texts.end();
+    char *c = _texts[pos];
+    for (int i = 0; i < _texts.size(); i++) {
+      if (i != pos && c == _texts[i]) {
+        return true;
+      }
     }
-    void putIteratorAtPos(int pos)
-    {
-        _it = getChildAtPos(pos);
-        //position=pos-1;
+    return false;
+  }
+  void pop() {
+    if (size() > 0) {
+      if (!isReused(_texts.size() - 1)) {
+        free(_texts.back());
+      }
+      _texts.pop_back();
+      // _texts.shrink_to_fit();
+      position--;
+      _it = _texts.end();
+      _it--;
     }
-    void end()
-    {
-        _it = getChildAtPos(_texts.size() - 1);
+  }
+  int get() { return position - 1; }
+  void begin() {
+    _it = _texts.begin();
+    position = 0;
+  }
+  void display() {
+    for (char *c : _texts) {
+      printf("%s\r\n", c);
     }
-    void clear()
-    {
-// #ifndef __SPEED
-       // int kk = 0;
-        for (int i = 0; i < _texts.size(); i++)
-        {
-            char *c1 = _texts[i];
-            if (c1 != NULL)
-            {
-                if (i < _texts.size() - 2)
-                {
-                    for (int j = i + 1; j < _texts.size(); j++)
-                    {
-                        if (_texts[j] == c1)
-                            _texts[j] = NULL;
-                    }
-                }
-            }
-        }
-//#endif
-        for (int i = 0; i < _texts.size(); i++)
-        {
-            if (_texts[i] != NULL)
-            {
-                free(_texts[i]);
-               // kk++;
-            }
-        }
-        _texts.clear();
-        _texts.shrink_to_fit();
-        sp.clear();
-        position = 0;
-        _it = _texts.begin();
-    }
-    int size()
-    {
-        return _texts.size();
-    }
-    char *getText(int pos)
-    {
-        if (pos >= 0 and pos < _texts.size())
-        {
-            return _texts[pos];
-        }
-        else
-        {
-            return cc;
-        }
-    }
-    bool isReused(int pos)
-    {
-        #ifdef __SPEED
-        return false;
-        #endif
-        if (pos < 0 or pos >= _texts.size())
-        {
-            return false;
-        }
-        char *c = _texts[pos];
-        for (int i = 0; i < _texts.size(); i++)
-        {
-            if (i != pos && c== _texts[i])
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-    void pop()
-    {
-        if (size() > 0)
-        {
-            if (!isReused(_texts.size() - 1))
-            {
-                free(_texts.back());
-            }
-            _texts.pop_back();
-           // _texts.shrink_to_fit();
-            position--;
-            _it = _texts.end();
-            _it--;
-        }
-    }
-    int get()
-    {
-
-        return position - 1;
-    }
-    void begin()
-    {
-        _it = _texts.begin();
-        position = 0;
-    }
-    void display()
-    {
-        for (char *c : _texts)
-        {
-            printf("%s\r\n", c);
-        }
-    }
-    Stack<int> sp;
-    vector<char *> _texts;
+  }
+  Stack<int> sp;
+  vector<char *> _texts;
 
 private:
-    char cc[1] = {'\0'};
-    int position;
-    vector<char *>::iterator _it;
+  char cc[1] = {'\0'};
+  int position;
+  vector<char *>::iterator _it;
 };
 
 Text all_text = Text();
 
-enum class operandeType
-{
+enum class operandeType {
   registers,
   floatregisters,
   boolregisters,
@@ -492,26 +393,24 @@ enum class operandeType
   l0_FFFFFFFF,
 
 };
-enum varTypeEnum
-{
-    __none__,
-    __uint8_t__,
-    __uint16_t__,
-    __uint32_t__,
-    __int__,
-    __s_int__,
-    __float__,
-    __void__,
-    __CRGB__,
-    __CRGBW__,
-    __char__,
-    __Args__,
-    __bool__,
-    __userDefined__,
-    __unknown__
+enum varTypeEnum {
+  __none__,
+  __uint8_t__,
+  __uint16_t__,
+  __uint32_t__,
+  __int__,
+  __s_int__,
+  __float__,
+  __void__,
+  __CRGB__,
+  __CRGBW__,
+  __char__,
+  __Args__,
+  __bool__,
+  __userDefined__,
+  __unknown__
 };
-enum class opCodeType
-{
+enum class opCodeType {
   standard,
   call,
   jump,
@@ -522,8 +421,8 @@ enum class opCodeType
   external_var,
   external_var_label,
   external_call,
-   ext_function_declaration,
-    external_call_label,
+  ext_function_declaration,
+  external_call_label,
   data,
   number,
   number_label,
@@ -532,32 +431,28 @@ enum class opCodeType
   not_known
 };
 
-enum class externalType
-{
+enum class externalType {
   function,
   value,
 };
 
-typedef struct
-{
-     void *ptr;
+typedef struct {
+  void *ptr;
   externalType type;
   string name;
   string signature;
   string shortname;
- 
+
   int offset;
 } asm_external;
 
-typedef struct
-{
+typedef struct {
   string opcde;
   string operandes;
   int error;
 } line;
 
-struct error_message_struct
-{
+struct error_message_struct {
   string error_message;
   int error;
   uint16_t line;
@@ -565,111 +460,80 @@ struct error_message_struct
 };
 error_message_struct asm_Error;
 
-typedef struct
-{
+typedef struct {
   error_message_struct error;
   int value;
   string label;
   uint32_t opcode;
 } result_parse_operande;
 
-class result_parse_line
-{
-  public:
-  result_parse_line(){}
+class result_parse_line {
+public:
+  result_parse_line() {}
   // error_message_struct  error;
-char *getText()
-    {
-        return all_text.getText(nameref);
-    }
-        void addText(string t)
-    {
-        nameref = all_text.addText(t);
-    }
-            void addText(string t,uint16_t si)
-    {
-        nameref = all_text.addText(t,si);
-    }
+  char *getText() { return all_text.getText(nameref); }
+  void addText(string t) { nameref = all_text.addText(t); }
+  void addText(string t, uint16_t si) { nameref = all_text.addText(t, si); }
   uint32_t bincode;
   uint16_t size;
   opCodeType op;
-  int16_t nameref=EOF_TEXTARRAY;
+  int16_t nameref = EOF_TEXTARRAY;
   uint32_t address;
   bool align;
-  #ifdef __TEST_DEBUG
-   string debugtxt;
-  #endif
+#ifdef __TEST_DEBUG
+  string debugtxt;
+#endif
   int line;
-  uint32_t (*calculateOfssetJump)(uint32_t value, uint32_t current_address, uint32_t destination_address) = NULL;
+  uint32_t (*calculateOfssetJump)(uint32_t value, uint32_t current_address,
+                                  uint32_t destination_address) = NULL;
 };
 
-class parsedLines
-{
+class parsedLines {
 
-  public:
+public:
   parsedLines(){};
 
-  int size()
-  {
-    return parsed_lines.size();
-  }
-  
-  result_parse_line *getChildAtPos(int pos)
-  {
-    if(pos>=0 and pos<parsed_lines.size())
-    {
+  int size() { return parsed_lines.size(); }
+
+  result_parse_line *getChildAtPos(int pos) {
+    if (pos >= 0 and pos < parsed_lines.size()) {
       return parsed_lines[pos];
-    }
-    else
-    {
+    } else {
       return NULL;
     }
-
   }
-  result_parse_line  *push_back(result_parse_line res)
-  {
-    result_parse_line *tmp=(result_parse_line *)malloc(sizeof(result_parse_line));
-    memcpy(tmp,&res,sizeof(result_parse_line));
+  result_parse_line *push_back(result_parse_line res) {
+    result_parse_line *tmp =
+        (result_parse_line *)malloc(sizeof(result_parse_line));
+    memcpy(tmp, &res, sizeof(result_parse_line));
     parsed_lines.push_back(tmp);
     return parsed_lines.back();
   }
 
+  vector<result_parse_line *>::iterator begin() { return parsed_lines.begin(); }
+  vector<result_parse_line *>::iterator end() { return parsed_lines.end(); }
 
-    vector<result_parse_line *>::iterator begin()
-    {
-      return parsed_lines.begin();
-    }
-    vector<result_parse_line *>::iterator end()
-    {
-      return parsed_lines.end();
-    }
-
-  void clear()
-  {
-    for(int i=0;i<parsed_lines.size();i++)
-    {
+  void clear() {
+    for (int i = 0; i < parsed_lines.size(); i++) {
       free(parsed_lines[i]);
     }
     parsed_lines.clear();
     parsed_lines.shrink_to_fit();
   }
 
-vector<result_parse_line *>::iterator insert(vector<result_parse_line *>::iterator t,result_parse_line op)
-{
-  result_parse_line *tmp=(result_parse_line *)malloc(sizeof(result_parse_line));
-    memcpy(tmp,&op,sizeof(result_parse_line));
-  return parsed_lines.insert(t,tmp);
-}
-result_parse_line * last()
-{
-  return parsed_lines.back();
-}
+  vector<result_parse_line *>::iterator
+  insert(vector<result_parse_line *>::iterator t, result_parse_line op) {
+    result_parse_line *tmp =
+        (result_parse_line *)malloc(sizeof(result_parse_line));
+    memcpy(tmp, &op, sizeof(result_parse_line));
+    return parsed_lines.insert(t, tmp);
+  }
+  result_parse_line *last() { return parsed_lines.back(); }
 
   vector<result_parse_line *> parsed_lines;
 };
 
-enum asmInstruction
-{
+enum asmInstruction {
   s8i,
   l8ui,
   l16ui,
@@ -693,33 +557,14 @@ enum asmInstruction
 
 };
 
-string asmInstructionsName[] =
-    {
-        "s8i",
-        "l8ui",
-        "l16ui",
-        "l16si",
-        "s16i",
-        "l32i",
-        "s32i",
-        "lsi",
-        "ssi",
-        "add",
-        "sub",
-        "quou",
-        "quos",
-        "mull",
-        "add.s",
-        "sub.s",
-        "quou",
-        "mul.s",
-        "neg",
-        "neg.s"
+string asmInstructionsName[] = {
+    "s8i",   "l8ui",  "l16ui", "l16si", "s16i", "l32i", "s32i",
+    "lsi",   "ssi",   "add",   "sub",   "quou", "quos", "mull",
+    "add.s", "sub.s", "quou",  "mul.s", "neg",  "neg.s"
 
 };
 
-typedef struct
-{
+typedef struct {
   string name;
   uint32_t address;
   string variables;
@@ -728,14 +573,13 @@ typedef struct
 } globalcall;
 
 typedef struct {
-  
-    string json;
-    uint8_t type;
-    uint32_t address;
+
+  string json;
+  uint8_t type;
+  uint32_t address;
 } jsonVariable;
 
-typedef struct
-{
+typedef struct {
   error_message_struct error;
   vector<globalcall> functions;
   vector<jsonVariable> jsonVars;
@@ -748,76 +592,83 @@ typedef struct
 
 } executable;
 
-typedef struct
-{
-    error_message_struct error;
-    uint8_t *binary_data;
-    uint8_t *function_data;
-    uint16_t instruction_size;
-     uint16_t tmp_instruction_size;
-      uint16_t function_size;
-      uint16_t data_size;
-
+typedef struct {
+  error_message_struct error;
+  uint8_t *binary_data;
+  uint8_t *function_data;
+  uint16_t instruction_size;
+  uint16_t tmp_instruction_size;
+  uint16_t function_size;
+  uint16_t data_size;
 
 } Binary;
 
 operandeType op_mov_n[2] = {operandeType::registers, operandeType::registers};
-operandeType *op_mov = op_mov_n; //[3] = {operandeType::registers, operandeType::registers};
-operandeType op_l8ui[3] = {operandeType::registers, operandeType::registers, operandeType::l0_255};
-operandeType *op_s8i = op_l8ui; //[3] = {operandeType::registers, operandeType::registers, operandeType::l0_255};
-operandeType op_l16si[3] = {operandeType::registers, operandeType::registers, operandeType::l0_510};
-operandeType *op_l16ui = op_l16si; //[3] = {operandeType::registers, operandeType::registers, operandeType::l0_510};
-operandeType *op_s16i = op_l16si;  //[3] = {operandeType::registers, operandeType::registers, operandeType::l0_510};
-operandeType op_l32i_n[3] = {operandeType::registers, operandeType::registers, operandeType::l0_60};
-operandeType op_s32i[3] = {operandeType::registers, operandeType::registers, operandeType::l0_1020};
-operandeType *op_s32i_n = op_l32i_n; //[3] = {operandeType::registers, operandeType::registers, operandeType::l0_60};
-operandeType *op_l32i = op_s32i;     // [3] = {operandeType::registers, operandeType::registers, operandeType::l0_1020};
-operandeType op_lsi[3] = {operandeType::floatregisters, operandeType::registers, operandeType::l0_1020};
-operandeType *op_ssi = op_lsi; //[3] = {operandeType::floatregisters, operandeType::registers, operandeType::l0_1020};
-operandeType op_rfr[2] = {operandeType::registers, operandeType::floatregisters};
-operandeType op_wfr[2] = {operandeType::floatregisters, operandeType::registers};
-operandeType op_add[3] = {operandeType::registers, operandeType::registers, operandeType::registers};
+operandeType *op_mov =
+    op_mov_n; //[3] = {operandeType::registers, operandeType::registers};
+operandeType op_l8ui[3] = {operandeType::registers, operandeType::registers,
+                           operandeType::l0_255};
+operandeType *op_s8i =
+    op_l8ui; //[3] = {operandeType::registers, operandeType::registers,
+             //operandeType::l0_255};
+operandeType op_l16si[3] = {operandeType::registers, operandeType::registers,
+                            operandeType::l0_510};
+operandeType *op_l16ui =
+    op_l16si; //[3] = {operandeType::registers, operandeType::registers,
+              //operandeType::l0_510};
+operandeType *op_s16i =
+    op_l16si; //[3] = {operandeType::registers, operandeType::registers,
+              //operandeType::l0_510};
+operandeType op_l32i_n[3] = {operandeType::registers, operandeType::registers,
+                             operandeType::l0_60};
+operandeType op_s32i[3] = {operandeType::registers, operandeType::registers,
+                           operandeType::l0_1020};
+operandeType *op_s32i_n =
+    op_l32i_n; //[3] = {operandeType::registers, operandeType::registers,
+               //operandeType::l0_60};
+operandeType *op_l32i =
+    op_s32i; // [3] = {operandeType::registers, operandeType::registers,
+             // operandeType::l0_1020};
+operandeType op_lsi[3] = {operandeType::floatregisters, operandeType::registers,
+                          operandeType::l0_1020};
+operandeType *op_ssi =
+    op_lsi; //[3] = {operandeType::floatregisters, operandeType::registers,
+            //operandeType::l0_1020};
+operandeType op_rfr[2] = {operandeType::registers,
+                          operandeType::floatregisters};
+operandeType op_wfr[2] = {operandeType::floatregisters,
+                          operandeType::registers};
+operandeType op_add[3] = {operandeType::registers, operandeType::registers,
+                          operandeType::registers};
 operandeType *op_quou = op_add;
 operandeType *op_sub = op_add;
 operandeType *op_mull = op_add;
-operandeType op_adds[3] = {operandeType::floatregisters, operandeType::floatregisters, operandeType::floatregisters};
+operandeType op_adds[3] = {operandeType::floatregisters,
+                           operandeType::floatregisters,
+                           operandeType::floatregisters};
 operandeType *op_quous = op_adds;
 operandeType *op_subs = op_adds;
 operandeType *op_muls = op_adds;
 operandeType *op_neg = op_mov;
-operandeType op_nexp01s[2] = {operandeType::floatregisters, operandeType::floatregisters};
+operandeType op_nexp01s[2] = {operandeType::floatregisters,
+                              operandeType::floatregisters};
 
 operandeType *op_negs = op_nexp01s;
-operandeType *asmInstructionOperandes[] =
-    {
-        op_s8i,
-        op_l8ui,
-        op_l16ui,
-        op_l16si,
-        op_s16i,
-        op_l32i,
-        op_s32i,
-        op_lsi,
-        op_ssi,
-        op_add,  // add
-        op_sub,  // sub
-        op_quou, // quou
-        op_quou,
-        op_mull, // mull
-        op_adds,
-        op_subs,
-        op_quou,
-        op_muls,
-        op_neg,
-        op_negs,
+operandeType *asmInstructionOperandes[] = {
+    op_s8i,  op_l8ui, op_l16ui, op_l16si, op_s16i, op_l32i,
+    op_s32i, op_lsi,  op_ssi,
+    op_add,  // add
+    op_sub,  // sub
+    op_quou, // quou
+    op_quou,
+    op_mull, // mull
+    op_adds, op_subs, op_quou,  op_muls,  op_neg,  op_negs,
 };
 operandeType *__l;
 operandeType __op;
 
-string getRegType(asmInstruction instr, int pos)
-{
-  if (instr >= 20)
-  {
+string getRegType(asmInstruction instr, int pos) {
+  if (instr >= 20) {
     printf("to hight\r\n");
     return " ";
   }
@@ -825,69 +676,44 @@ string getRegType(asmInstruction instr, int pos)
   __l = asmInstructionOperandes[instr];
   __op = __l[pos];
 
-  if (__op == operandeType::registers)
-  {
+  if (__op == operandeType::registers) {
     return "a";
-  }
-  else if (__op == operandeType::floatregisters)
-  {
+  } else if (__op == operandeType::floatregisters) {
 
     return "f";
-  }
-  else
-  {
+  } else {
     return "unknown";
   }
 }
 
-class _arguments
-{
+class _arguments {
 public:
-    _arguments()
-    {
-        vartype = __unknown__;
-    }
-    _arguments(int val)
-    {
-        vartype = __int__;
-        intval = val;
-    }
-    _arguments(float val)
-    {
-        vartype = __float__;
-        floatval = val;
-    }
+  _arguments() { vartype = __unknown__; }
+  _arguments(int val) {
+    vartype = __int__;
+    intval = val;
+  }
+  _arguments(float val) {
+    vartype = __float__;
+    floatval = val;
+  }
 
-    varTypeEnum vartype;
-    int intval;
-    float floatval;
+  varTypeEnum vartype;
+  int intval;
+  float floatval;
 };
 
-class Arguments
-{
+class Arguments {
 public:
-    Arguments() {}
-    void add(int val)
-    {
-        _args.push_back(_arguments(val));
-    }
-    void add(float val)
-    {
-        _args.push_back(_arguments(val));
-    }
-    void clear()
-    {
-        _args.clear();
-        _args.shrink_to_fit();
-    }
-    void add(_arguments a)
-    {
-        _args.push_back(a);
-    }
-    int size()
-    {
-        return _args.size();
-    }
-    vector<_arguments> _args;
+  Arguments() {}
+  void add(int val) { _args.push_back(_arguments(val)); }
+  void add(float val) { _args.push_back(_arguments(val)); }
+  void clear() {
+    _args.clear();
+    _args.shrink_to_fit();
+  }
+  void add(_arguments a) { _args.push_back(a); }
+  int size() { return _args.size(); }
+  vector<_arguments> _args;
 };
 #endif
