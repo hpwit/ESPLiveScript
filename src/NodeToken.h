@@ -10,10 +10,9 @@
 using namespace std;
 
 #include "string_function.h"
-
-#include "asm_external.h"
 #include "tokenizer.h"
-
+#include "asm_external.h"
+ 
 #define _MAX_FOR_DEPTH_REG 4
 #define _MAX_FOR_DEPTH_REG_2 2
 // int _for_depth_reg = 0;
@@ -27,7 +26,6 @@ void pushToConsole(string str, bool force) {
 #else
   printf("%s\r\n", str.c_str());
 #endif
-
 #endif
 }
 
