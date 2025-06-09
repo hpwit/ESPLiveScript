@@ -269,7 +269,7 @@ uint32_t jump_bne(uint32_t value, uint32_t current_address,
 }
 
 operandeType *op_beq = op_bge; //[3] = {operandeType::registers,
-                               //operandeType::registers, operandeType::label};
+                               // operandeType::registers, operandeType::label};
 uint32_t bin_beq(uint32_t *values) {
 
   return 0x7 + (((values[1] << 4) & 0xF0)) + (((values[0] << 8) & 0xF00)) +
@@ -334,7 +334,7 @@ uint32_t bin_and(uint32_t *values) {
 
 operandeType *op_remu =
     op_add; //[3] = {operandeType::registers, operandeType::registers,
-            //operandeType::registers};
+            // operandeType::registers};
 uint32_t bin_remu(uint32_t *values) {
   return (((values[2] << 4) & 0xF0)) + ((values[1] << 8) & 0xF00) +
          ((values[0] << 12) & 0x0F000) + 0xe20000;
@@ -412,7 +412,7 @@ uint32_t bin_rounds(uint32_t *values) {
 }
 operandeType *op_truncs =
     op_floors; //[3] = {operandeType::registers, operandeType::floatregisters,
-               //operandeType::l0_15};
+               // operandeType::l0_15};
 uint32_t bin_truncs(uint32_t *values) {
   return 0x0 + 0x9A0000 + (((values[0] << 12) & 0xF000)) +
          (((values[1] << 8) & 0xF00)) + +(((values[2] << 4) & 0xF0));
@@ -432,7 +432,7 @@ uint32_t bin_div0s(uint32_t *values) {
 }
 operandeType *op_divns =
     op_adds; //[3] = {operandeType::floatregisters,
-             //operandeType::floatregisters, operandeType::floatregisters};
+             // operandeType::floatregisters, operandeType::floatregisters};
 uint32_t bin_divns(uint32_t *values) {
   return 0x0 + 0x7A0000 + (((values[0] << 12) & 0xF000)) +
          (((values[1] << 8) & 0xF00)) + +(((values[2] << 4) & 0xF0));
@@ -477,7 +477,7 @@ uint32_t bin_consts(uint32_t *values) {
 }
 
 operandeType *op_movs = op_nexp01s; //[2] = {operandeType::floatregisters,
-                                    //operandeType::floatregisters};
+                                    // operandeType::floatregisters};
 uint32_t bin_movs(uint32_t *values) {
   return 0x00 + 0xFA0000 + (((values[0] << 12) & 0xF000)) +
          (((values[1] << 8) & 0xF00));

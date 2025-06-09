@@ -3729,12 +3729,12 @@ void _visitcallFunctionNode(NodeToken *nd) {
               // bufferText->sp.push(bufferText->get());
 
               bufferText->addAfter(
-                  sav,
-                  string_format("l32r a%d,@_stack_%s", save,
-                                nd->getTokenText())); // point_regnum
-                                                      // bufferText->addAfter(sav,
-                                                      // string_format("l32r
-                                                      // a%d,@_stack",save));
+                  sav, string_format(
+                           "l32r a%d,@_stack_%s", save,
+                           nd->getTokenText())); // point_regnum
+                                                 // bufferText->addAfter(sav,
+                                                 // string_format("l32r
+                                                 // a%d,@_stack",save));
             }
           } else {
             // sav = bufferText->get();

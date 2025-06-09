@@ -1,6 +1,6 @@
 #include "src/ESPLiveScript.h"
 #define __TEST_DEBUG
-string script="\
+string script = "\
 void main()\n\
 {\n\
 for(int i=0;i<20;i++)\n\
@@ -9,10 +9,9 @@ for(int i=0;i<20;i++)\n\
    }\n\
 }";
 int main() {
- // put your setup code here, to run once:
- 
- Parser _parser;
- Executable exec=_parser.parseScript(&script);
+  // put your setup code here, to run once:
+
+  Parser _parser;
+  Executable exec = _parser.parseScript(&script);
   return 0;
- 
 }

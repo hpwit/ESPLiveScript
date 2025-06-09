@@ -610,22 +610,22 @@ operandeType op_l8ui[3] = {operandeType::registers, operandeType::registers,
                            operandeType::l0_255};
 operandeType *op_s8i =
     op_l8ui; //[3] = {operandeType::registers, operandeType::registers,
-             //operandeType::l0_255};
+             // operandeType::l0_255};
 operandeType op_l16si[3] = {operandeType::registers, operandeType::registers,
                             operandeType::l0_510};
 operandeType *op_l16ui =
     op_l16si; //[3] = {operandeType::registers, operandeType::registers,
-              //operandeType::l0_510};
+              // operandeType::l0_510};
 operandeType *op_s16i =
     op_l16si; //[3] = {operandeType::registers, operandeType::registers,
-              //operandeType::l0_510};
+              // operandeType::l0_510};
 operandeType op_l32i_n[3] = {operandeType::registers, operandeType::registers,
                              operandeType::l0_60};
 operandeType op_s32i[3] = {operandeType::registers, operandeType::registers,
                            operandeType::l0_1020};
 operandeType *op_s32i_n =
     op_l32i_n; //[3] = {operandeType::registers, operandeType::registers,
-               //operandeType::l0_60};
+               // operandeType::l0_60};
 operandeType *op_l32i =
     op_s32i; // [3] = {operandeType::registers, operandeType::registers,
              // operandeType::l0_1020};
@@ -633,7 +633,7 @@ operandeType op_lsi[3] = {operandeType::floatregisters, operandeType::registers,
                           operandeType::l0_1020};
 operandeType *op_ssi =
     op_lsi; //[3] = {operandeType::floatregisters, operandeType::registers,
-            //operandeType::l0_1020};
+            // operandeType::l0_1020};
 operandeType op_rfr[2] = {operandeType::registers,
                           operandeType::floatregisters};
 operandeType op_wfr[2] = {operandeType::floatregisters,
