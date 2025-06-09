@@ -688,7 +688,14 @@ public:
     }
 error_message_struct updateParam(string json)
 {
+    #ifdef __JSON__OPTION__
     return  updateParameters(_executecmd, json);
+    #else
+error_message_struct res;
+res.error=0;
+return res;
+
+    #endif
 }
 
     void (*prekill)() = NULL;

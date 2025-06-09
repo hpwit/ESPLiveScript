@@ -2,10 +2,13 @@
 #ifndef __EXECUTE_ASM
 #define __EXECUTE_ASM
 #ifndef __TEST_DEBUG
+#ifdef __JSON__OPTION__
 #include <ArduinoJson.h>
+#endif
 #endif
 
 #ifndef __TEST_DEBUG
+#ifdef __JSON__OPTION__
 JsonVariant getfromJson(JsonDocument obj, string str)
 {
   vector<string> tile;
@@ -22,6 +25,7 @@ JsonVariant getfromJson(JsonDocument obj, string str)
   tile.clear();
   return res;
 }
+#endif
 #endif
 
 void freeBinary(Binary *bin)
@@ -186,6 +190,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       finalexe->functions.push_back(gc);
     }
     break;
+    #ifdef __JSON__OPTION__
     case 5:
     {
       jsonVariable jso;
@@ -205,6 +210,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       // printf("found %s  %d %s\n",jso.json.c_str(),jso.address,varTypeEnumNames[jso.type].c_str());
     }
     break;
+    #endif
     default:
       error.error = 1;
       error.error_message = "Unknown type binary header invalid";
@@ -391,6 +397,7 @@ void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
 
 #endif
 }
+#ifdef __JSON__OPTION__ 
 
 error_message_struct updateParameters(executable ex, string json)
 {
@@ -461,16 +468,17 @@ error_message_struct updateParameters(executable ex, string json)
   }
   return res;
 }
-
+#endif
 error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments, string json)
 {
 
   error_message_struct res;
   // printf("executvith %s %s\n",function.c_str(), json.c_str());
+  #ifdef __JSON__OPTION__
   res = updateParameters(ex, json);
   if (res.error == 1)
     return res;
-
+#endif
   for (int i = 0; i < ex.functions.size(); i++)
   {
     string ftofind = ex.functions[i].name;
