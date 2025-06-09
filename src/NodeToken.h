@@ -27,7 +27,6 @@ void pushToConsole(string str, bool force)
 #else
     printf("%s\r\n", str.c_str());
 #endif
-
 #endif
 }
 
