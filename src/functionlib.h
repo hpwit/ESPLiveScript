@@ -5,8 +5,8 @@
 #define __FUNCTION_LIB
 
 // vector<int> add_on;
-//string division="";
-string _sync="\
+// string division="";
+string _sync = "\
 uint32_t _handle_;\n\
 uint32_t _execaddr_;\n\
 __ASM__ void sync()\n\
@@ -17,7 +17,7 @@ __ASM__ void sync()\n\
 \"callExt a8,@__sync\"\n\
 \"retw.n\" \n\
 }@";
-string division="\
+string division = "\
 __ASM__ float __div(float a,float b)\n\
 { \n\
 \"entry a1,16\" \n\
@@ -48,40 +48,24 @@ __ASM__ float __div(float a,float b)\n\
 \"divn.s f0, f2, f6\"\n\
 \"retw.n\"\n\
 }@";
-char * _div[]={
-"@___div(d|d):",
-"entry a1,16",
-"div0.s f3, f2",
-"nexp01.s f4, f2",
-"const.s f5, 1",
-"maddn.s f5, f4, f3",
-"mov.s f6, f3",
-"mov.s f7, f2",
-"nexp01.s f2, f1",
-"maddn.s f6, f5, f6",
-"const.s f5, 1",
-"const.s f0, 0",
-"neg.s f8, f2",
-"maddn.s f5, f4, f6",
-"maddn.s f0, f8, f3",
-"mkdadj.s f7, f1",
-"maddn.s f6, f5, f6",
-"maddn.s f8, f4, f0",
-"const.s f3, 1",
-"maddn.s f3, f4, f6",
-"maddn.s f0, f8, f6",
-"neg.s f2, f2",
-"maddn.s f6, f3, f6",
-"maddn.s f2, f4, f0",
-"addexpm.s f0, f7",
-"addexp.s f6, f7",
-"divn.s f0, f2, f6",
-"retw.n"
-};
-int _div_size=28;
+char *_div[] = {"@___div(d|d):",      "entry a1,16",
+                "div0.s f3, f2",      "nexp01.s f4, f2",
+                "const.s f5, 1",      "maddn.s f5, f4, f3",
+                "mov.s f6, f3",       "mov.s f7, f2",
+                "nexp01.s f2, f1",    "maddn.s f6, f5, f6",
+                "const.s f5, 1",      "const.s f0, 0",
+                "neg.s f8, f2",       "maddn.s f5, f4, f6",
+                "maddn.s f0, f8, f3", "mkdadj.s f7, f1",
+                "maddn.s f6, f5, f6", "maddn.s f8, f4, f0",
+                "const.s f3, 1",      "maddn.s f3, f4, f6",
+                "maddn.s f0, f8, f6", "neg.s f2, f2",
+                "maddn.s f6, f3, f6", "maddn.s f2, f4, f0",
+                "addexpm.s f0, f7",   "addexp.s f6, f7",
+                "divn.s f0, f2, f6",  "retw.n"};
+int _div_size = 28;
 
-#if _TRIGGER ==0
-string _rand="\
+#if _TRIGGER == 0
+string _rand = "\
 __ASM__ uint32_t rand(uint32_t mod) \n\
 {\n\
 \"entry a1,56\" \n\
@@ -100,7 +84,7 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 \"retw.n\" \n\
 }@";
 #else
-string _rand="\__ASM__ uint32_t rand(uint32_t mod) \n\
+string _rand = "\__ASM__ uint32_t rand(uint32_t mod) \n\
 {\n\
 \"entry a1,56\" \n\
 //\"l32r a4,@_stack_rand(d)\" \n\
@@ -118,7 +102,7 @@ string _rand="\__ASM__ uint32_t rand(uint32_t mod) \n\
 \"retw.n\" \n\
 }@";
 #endif
-string _copycode="\
+string _copycode = "\
 __ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
 { \n\
    \"entry a1,80\"\n\
@@ -135,7 +119,7 @@ __ASM__ void copy(uint8_t *dest,uint8_t *from,uint16_t size) \n\
    \"bnez a7,loop\" \n\
    \"retw.n\" \n\
 }@";
-string _memset="\
+string _memset = "\
 __ASM__ void memset(uint8_t *obj,uint8_t val, uint16_t size )\n\
 {\n\
    \"entry a1,80\" \n\
@@ -151,7 +135,7 @@ __ASM__ void memset(uint8_t *obj,uint8_t val, uint16_t size )\n\
    \"retw.n\" \n\
 }@";
 
-string _millis="\
+string _millis = "\
 __ASM__ uint32_t millis()\n\
 {\n\
 \"rsr a14,234\" \n\
@@ -159,7 +143,7 @@ __ASM__ uint32_t millis()\n\
 }\n\
 @";
 
-string _fill="\
+string _fill = "\
 __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_iteration) \n\
 {\n\
    \"entry a1,80\" \n\
@@ -183,7 +167,7 @@ __ASM__ void fill(uint8_t *dest, uint8_t *obj, uint8_t objsize,uint16_t nb_itera
    \"retw.n\" \n\
 }@";
 
-string _arduino="\n\
+string _arduino = "\n\
 void main(){\n\
 setup();\n\
 while(2>1)\n\
@@ -192,28 +176,26 @@ loop();\n\
 }\n\
 }\n\
 ";
-string base_ext_functions="\n\
+string base_ext_functions = "\n\
 #define true 1\n\
 #define false 0\n\
 @";
 
-//external void printfln(char * s,Args a);\n
-string empty_header="";
-int stdlib_size=5;
-string stdlib[]={"sync","rand","copy","memset","fill","arduino"};
- string * _stdlib[]={&_sync,&_rand,&_copycode,&_memset,&_fill,&_arduino};
-string * _stdlib_header[]={&empty_header,&empty_header,&empty_header,&empty_header,&empty_header};
+// external void printfln(char * s,Args a);\n
+string empty_header = "";
+int stdlib_size = 5;
+string stdlib[] = {"sync", "rand", "copy", "memset", "fill", "arduino"};
+string *_stdlib[] = {&_sync, &_rand, &_copycode, &_memset, &_fill, &_arduino};
+string *_stdlib_header[] = {&empty_header, &empty_header, &empty_header,
+                            &empty_header, &empty_header};
 
-int findLibFunction(string name)
-{
-    //int pos=-1;
-    for(int i=0;i<stdlib_size;i++)
-    {
-        if(stdlib[i].compare(name)==0)
-            return i;
-    }
-    return -1;
+int findLibFunction(string name) {
+  // int pos=-1;
+  for (int i = 0; i < stdlib_size; i++) {
+    if (stdlib[i].compare(name) == 0)
+      return i;
+  }
+  return -1;
 }
-
 
 #endif

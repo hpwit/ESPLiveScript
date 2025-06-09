@@ -16,28 +16,25 @@ void main(int g)
 }
 )EOF";
 
-void setup()
-{
-    // put your setup code here, to run once:
-    Serial.begin(115200);
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
 
-    Parser p;
-    Executable exec = p.parseScript(&script);
-    if (exec.isExeExists())
-    {
-        Arguments args;
-        args.add(5);
-        exec.execute("main", args);
-        args.clear();
-        args.add(6);
-        exec.execute("main", args);
-        args.clear();
-        args.add(7);
-        exec.execute("main", args);
-    }
+  Parser p;
+  Executable exec = p.parseScript(&script);
+  if (exec.isExeExists()) {
+    Arguments args;
+    args.add(5);
+    exec.execute("main", args);
+    args.clear();
+    args.add(6);
+    exec.execute("main", args);
+    args.clear();
+    args.add(7);
+    exec.execute("main", args);
+  }
 }
 
-void loop()
-{
-    // put your main code here, to run repeatedly:
+void loop() {
+  // put your main code here, to run repeatedly:
 }
