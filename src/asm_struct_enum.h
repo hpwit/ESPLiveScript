@@ -65,6 +65,11 @@ public:
         push(sav);
         push(sav2);
     }
+    void set(T k)
+    {
+        pop();
+        push(k);
+    }
     void increase()
     {
         //  if( typeid(T).hash_code()==typeid(int).hash_code())
@@ -126,6 +131,7 @@ public:
         m[str.size()] = 0;
         _texts.push_back(m);
         position++;
+        str.clear();
         return _texts.size() - 1;
     }
     int addText(string str)
@@ -144,6 +150,7 @@ public:
         m[str.size()] = 0;
         _texts.push_back(m);
         position++;
+        str.clear();
         #ifdef __TEST_DEBUG
        // printf(" addtext:%d %s\r\n",_texts.size(),str.c_str());
         #endif
@@ -589,7 +596,9 @@ char *getText()
   int16_t nameref=EOF_TEXTARRAY;
   uint32_t address;
   bool align;
-  // string debugtxt;
+  #ifdef __TEST_DEBUG
+   string debugtxt;
+  #endif
   int line;
   uint32_t (*calculateOfssetJump)(uint32_t value, uint32_t current_address, uint32_t destination_address) = NULL;
 };
@@ -718,10 +727,18 @@ typedef struct
   int args_num;
 } globalcall;
 
+typedef struct {
+  
+    string json;
+    uint8_t type;
+    uint32_t address;
+} jsonVariable;
+
 typedef struct
 {
   error_message_struct error;
   vector<globalcall> functions;
+  vector<jsonVariable> jsonVars;
   uint32_t *start_program = NULL;
   uint8_t *data = NULL;
   uint32_t links;

@@ -14,8 +14,8 @@ void main()
    int k=0;
    while(true)
    {
-    for (int i=0;i<128;i++)
-      for(int j=0;j<96;j++)
+    for (int i=0;i<16;i++)
+      for(int j=0;j<16;j++)
           leds[j*16+i]=hsv(i+j+k,255,255);
     k++;
     show();

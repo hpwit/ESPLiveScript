@@ -42,6 +42,8 @@ bool exeExist;
 typedef struct
 {
     vector<string> args;
+    string json;
+   
     executable exe;
 
 } _exe_args;
@@ -469,7 +471,7 @@ public:
 #endif
     }
 
-    int _run(vector<string> args, bool second_core, int core, Arguments arguments)
+    int _run(vector<string> args, bool second_core, int core, Arguments arguments,string json)
     {
         __run_handle_index = 9999;
 #ifndef __TEST_DEBUG
@@ -482,9 +484,11 @@ public:
         if (exeExist == true)
         {
 
-            // printf("rrrr\r\n");
+            //printf("rrrr %d\r\n",args.size());
             df.args = args;
+
             df.exe = _executecmd;
+            df.json=json;
             //
             // we free the sync
 
@@ -579,6 +583,22 @@ public:
 #endif
     }
 
+    void execute (string prog, string json)
+    {
+        args.clear();
+        Arguments d;
+
+#ifndef __TEST_DEBUG
+        error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
+
+        res = executeBinary("@__" + prog, _executecmd, 9999, this, args,json);
+        if (res.error)
+        {
+            pushToConsole(res.error_message, true);
+        }
+#endif
+    }
+
     void execute(string prog, Arguments arguments)
     {
         args.clear();
@@ -589,10 +609,7 @@ public:
         }
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
-        if (res.error)
-        {
-            pushToConsole(res.error_message, true);
-        }
+
         res = executeBinary("@__" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
@@ -600,9 +617,26 @@ public:
         }
 #endif
     }
-
-    void executeAsTask(string prog, int core, Arguments arguments)
+ bool functionExist(string function)
+ {
+        for (int i = 0; i < _executecmd.functions.size(); i++)
+        {
+            string ftofind = _executecmd.functions[i].name;
+            if (_executecmd.functions[i].name.find_first_of("(") != string::npos)
+            {
+            ftofind = _executecmd.functions[i].name.substr(0, _executecmd.functions[i].name.find_first_of("("));
+            }
+            // printf("coparing %s\n",ftofind.c_str());
+            if (ftofind.compare("@__"+function) == 0)
+            {
+                return true;
+            }
+        }
+        return false;
+}
+    void executeAsTask(string prog, int core, Arguments arguments,string json)
     {
+//printf("herqsd sqdsq\n");
         args.clear();
         for (int i = 0; i < arguments._args.size(); i++)
         {
@@ -613,7 +647,7 @@ public:
         {
             vector<string> __args;
             __args.push_back("@__" + prog);
-            _run(__args, true, core, arguments);
+            _run(__args, true, core, arguments,json);
         }
         else
         {
@@ -622,6 +656,10 @@ public:
 #endif
     }
 
+    void executeAsTask(string prog, int core, Arguments arguments)
+    {
+        executeAsTask(prog,core,arguments,"");
+    }
     void executeAsTask(string prog, Arguments arguments)
     {
         executeAsTask(prog, __RUN_CORE, arguments);
@@ -637,11 +675,28 @@ public:
         args.clear();
         executeAsTask(prog, core, args);
     }
+    void executeAsTask(string prog,string json)
+    {
+       // printf("her\n");
+        args.clear();
+        executeAsTask(prog,__RUN_CORE,args,json);
+    }
 #endif
     bool isRunning()
     {
         return _isRunning;
     }
+error_message_struct updateParam(string json)
+{
+    #ifdef __JSON__OPTION__
+    return  updateParameters(_executecmd, json);
+    #else
+error_message_struct res;
+res.error=0;
+return res;
+
+    #endif
+}
 
     void (*prekill)() = NULL;
     void (*postkill)() = NULL;
@@ -656,15 +711,16 @@ static void _run_task(void *pvParameters)
 
     Executable *exec = ((Executable *)pvParameters);
     // esp_task_wdt_delete(NULL);
-    //  _exe_args *_fg = exec->df;
+      _exe_args *_fg = &exec->df;
     exec->_isRunning = true;
     Arguments d;
     // printf("as a ttaks:%d\n\r",exec->__run_handle_index);
     if (exec->df.args.size() > 0)
     {
+         //printf("as a ttaks args >0:%s %s\n\r",exec->df.args[0].c_str(),exec->df.json.c_str());
         error_message_struct res = executeBinary("@__footer", exec->df.exe, exec->__run_handle_index, exec, d);
-
-        res = executeBinary(exec->df.args[0], exec->df.exe, exec->__run_handle_index, exec, exec->args);
+//printf("as a ttaks args >0:%s %s\n\r",_fg->args[0].c_str(),_fg->json.c_str());
+        res = executeBinary(_fg->args[0], exec->df.exe, exec->__run_handle_index, exec, exec->args,_fg->json);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -672,8 +728,9 @@ static void _run_task(void *pvParameters)
     }
     else
     {
+        // printf("as a ttaks:%s\n\r",exec->df.json);
         error_message_struct res = executeBinary("@__footer", exec->df.exe, exec->__run_handle_index, exec, d);
-        res = executeBinary("@__main", exec->df.exe, exec->__run_handle_index, exec, exec->args);
+        res = executeBinary("@__main", exec->df.exe, exec->__run_handle_index, exec, exec->args,exec->df.json);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -763,6 +820,30 @@ public:
 #endif
         }
     }
+        void executeJ(string name, string json)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+
+            exec->execute("main",json);
+#endif
+        }
+    }
+    bool functionExist(string name, string function)
+    {
+
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+
+            return exec->functionExist(function);
+#endif
+        }
+        return false;
+    }
     void execute(string name, string function)
     {
         Executable *exec = findExecutable(name);
@@ -774,6 +855,19 @@ public:
 #endif
         }
     }
+    
+     void execute(string name, string function,string json)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
+Arguments args;
+            exec->execute(function,json);
+#endif
+        }
+    }
+        
     void execute(string name, Arguments arguments)
     {
         Executable *exec = findExecutable(name);
@@ -819,7 +913,17 @@ public:
 #endif
         }
     }
+    void executeAsTaskJ(string name,string json)
+    {
+        Executable *exec = findExecutable(name);
+        if (exec != NULL)
+        {
+#ifndef __TEST_DEBUG
 
+            exec->executeAsTask("main",json);
+#endif
+        }
+    }
     void executeAsTask(string name, string function, Arguments arguments)
     {
         Executable *exec = findExecutable(name);
@@ -831,6 +935,7 @@ public:
 #endif
         }
     }
+    
     void executeAsTask(string name, string function)
     {
         Executable *exec = findExecutable(name);
@@ -841,7 +946,7 @@ public:
             exec->executeAsTask(function);
 #endif
         }
-    }
+    } 
     void executeAsTask(string name, int core, Arguments args)
     {
         Executable *exec = findExecutable(name);

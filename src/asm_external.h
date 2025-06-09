@@ -22,7 +22,8 @@ uint32_t * createExternalLinks()
 
 }
 
-void addExternalFunction(string name,string out,string in, void * ptr)
+
+void bindFunction(string out,string name,string in, void * ptr)
 {
     asm_external asmex;
     asmex.name=name;
@@ -64,7 +65,11 @@ void addExternalFunction(string name,string out,string in, void * ptr)
          asmex.ptr=ptr;
     external_links.push_back(asmex);
 }
-void addExternalVariable(string name, string out,string in,void * ptr)
+void addExternalFunction(string name,string out,string in, void * ptr)  
+{
+  bindFunction(out,name,in, ptr);
+}
+void bindVariable( string out,string name,string in,void * ptr)
 {
     asm_external asmex;
     asmex.name=name;
@@ -75,6 +80,12 @@ void addExternalVariable(string name, string out,string in,void * ptr)
          asmex.ptr=ptr;
     external_links.push_back(asmex);
 }
+void addExternalVariable(string name, string out,string in,void * ptr) 
+{
+  bindVariable(out,name,in,ptr);
+}
+
+
 void addExternal(string name, externalType type, void * ptr)
 {
     asm_external asmex;

@@ -1,16 +1,12 @@
 int fib(int h)
 {
-   if(h<=1)
-   return h;
+   if(h>2)
+ 
    return fib(h-1)+fib(h-2);
+   return 1;
 }
 
-__ASM__ uint32_t cycles_count()
-{
-   "entry a1,56"
-   "rsr a2,234"
-   "retw.n"
-}
+
 
 void main()
 {

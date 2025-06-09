@@ -1026,18 +1026,18 @@ void setup()
 
 Here are the comparison between the the precompiled version and ESPlivescript. As ESPLiveScript is almost like C no code conversion was needed.
 I will try to convert the code for other scripting languages to have a full comparison.
-All the animations are run over 128x96 leds panel. The scripts can be found in the sc_examples directory:
+All the animations are run over 128x96 leds panel running on an ESP32. The scripts can be found in the sc_examples directory:
 
 |Script|Precompiled|EspLiveScript|% loss in performance|
 |:----|:----:|:----:|:----:|
-|Rainbow|240fps|209fps|12.9%|
-|20 boucing balls|160fps|139 fps|13.1%|
-|Octo|88fps|75fps|14.8%|
+|Rainbow|240fps|226fps|6%|
+|20 boucing balls|160fps|147fps|8%|
+|Octo|88fps|79fps|10%|
 |MandelBrot (50 iterations)|11fps|11fps|0%|
-|Caculation of fib(40)|17s|32s|47.7%|
+|Caculation of fib(40)|10s|13.4s|25%|
 
 
-We can notice that the simpliest programs tends to be largely faster when precompiled but more the performance for more complex programs seem to be around less than 15% and even on par with the precompiled one. As stated above to be fair with the ESPLiveScript a comparison with other scripting languages should be made.
+We can notice that the simpliest programs tends to be largely faster when precompiled but more the performance for more complex programs seem to be around less than 10% and even on par with the precompiled one. As stated above to be fair with the ESPLiveScript a comparison with other scripting languages should be made.
 
 
 # Advanced stuff

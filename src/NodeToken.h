@@ -14,19 +14,20 @@ using namespace std;
 #include "tokenizer.h"
 #include "asm_external.h"
 
-#define _MAX_FOR_DEPTH_REG 3
-int _for_depth_reg = 0;
-bool _is_variable_as_register = false;
+#define _MAX_FOR_DEPTH_REG 4
+#define _MAX_FOR_DEPTH_REG_2 2
+// int _for_depth_reg = 0;
+// bool _is_variable_as_register = false;
 void pushToConsole(string str, bool force)
 {
 #ifdef __CONSOLE_ESP32
     LedOS.pushToConsole(str, force);
 #else
 #ifndef __TEST_DEBUG
-    ESP_LOGD("ESPLiveScript","%s\r\n", str.c_str());
-    #else
+    ESP_LOGD("ESPLiveScript", "%s\r\n", str.c_str());
+#else
     printf("%s\r\n", str.c_str());
-    #endif
+#endif
 
 #endif
 }
@@ -48,6 +49,7 @@ uint32_t __starttime;
 bool addfloatdivision = false;
 int savestacksize = 0;
 bool oneFunction = false;
+bool onlyonestore = false;
 
 int stack_size = 0;
 
@@ -58,7 +60,7 @@ int block_statement_num = 0;
 int nb_argument = 0;
 
 int local_var_num = 0;
-
+int _for_num = 0;
 int __sav_arg = 0;
 bool _asPointer = false;
 bool found;
@@ -66,6 +68,15 @@ string struct_name = "";
 vector<int> nb_args;
 vector<string> sigs;
 vector<int> nb_sav_args;
+typedef struct
+{
+    string json;
+    string variable;
+    varTypeEnum type;
+
+} jsonStruct;
+
+vector<jsonStruct> jsonVar;
 
 // list<string> _header;
 
@@ -90,12 +101,19 @@ bool safeMode = false;
 bool saveReg = false;
 bool saveRegAbs = false;
 bool intest = false;
+
 // list<int> _register_numl;
 
 // list<int> _register_numr;
 Stack<int> register_numr = Stack<int>(15);
 Stack<int> register_numl = Stack<int>(15);
 bool isInFunction = false;
+Stack<int> _for_depth_reg;
+Stack<bool> _is_variable_as_register;
+Stack<string> _in_for;
+string extvariablestore;
+int nbofextern = 0;
+bool boolextern = false;
 // list<int> _sp;
 
 vector<int> _compare;
@@ -119,13 +137,13 @@ void initMem()
     // printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
 #endif
 }
-void displayStat(char * text)
+void displayStat(char *text)
 {
-    pushToConsole(string_format(" %s :max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms",text, __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
+    pushToConsole(string_format(" %s :max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms", text, __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
 }
 void displayStat()
 {
-displayStat("");
+    displayStat("");
 }
 void updateMem()
 {
@@ -226,7 +244,8 @@ enum nodeType
     callConstructorNode,
     defInputArgumentsNode,
     declarationFunctionNode,
-    UnknownNode
+    UnknownNode,
+    onlyNode
 
 };
 
@@ -282,6 +301,7 @@ string nodeTypeNames[] =
         "defInputArgumentsNode",
         "declarationFunctionNode",
         "UnknownNode"
+        "OnlyNode"
 
 #endif
 
@@ -1324,6 +1344,20 @@ void createNodeVariable(Token *_var, bool isStore)
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(var);
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(_var);
             v._nodetype = (int)storeExtGlocalVariableNode;
+            if (extvariablestore.size() > 0)
+            {
+                if (extvariablestore.compare(string(v.getTokenText())) != 0)
+                {
+                    nbofextern++;
+                }
+            }
+            else
+            {
+                extvariablestore = string(v.getTokenText());
+
+                nbofextern++;
+            }
+
             // current_node->asPointer=asPointer;
             //  return;
         }
@@ -1343,6 +1377,19 @@ void createNodeVariable(Token *_var, bool isStore)
         {
             // NodeStoreExtGlobalVariable v = NodeStoreExtGlobalVariable(_var);
             v._nodetype = (int)storeExtGlocalVariableNode;
+            if (extvariablestore.size() > 0)
+            {
+                if (extvariablestore.compare(string(v.getTokenText())) != 0)
+                {
+                    nbofextern++;
+                }
+            }
+            else
+            {
+                extvariablestore = string(v.getTokenText());
+                //printf("%s\n", v.getTokenText());
+                nbofextern++;
+            }
             // current_node->asPointer=asPointer;
             // return;
         }
@@ -1523,8 +1570,13 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
     {
 
         NodeToken v = NodeToken(var, defLocalVariableNode);
-        if (_is_variable_as_register)
+        if (_is_variable_as_register.get())
+        {
             v._nodetype = defLocalVariableNodeAsRegister;
+            v.target = _for_depth_reg.get();
+            _for_depth_reg.increase();
+            _is_variable_as_register.set(false);
+        }
         copyPrty(&nd, &v);
         return v;
     }
@@ -1535,10 +1587,12 @@ NodeToken createNodeLocalVariableForCreation(NodeToken var, NodeToken nd)
 
         copyPrty(&nd, &var);
         NodeToken v = NodeToken(var, defLocalVariableNode);
-        if (_is_variable_as_register)
+        if (_is_variable_as_register.get())
         {
             v._nodetype = defLocalVariableNodeAsRegister;
-            v.target = _for_depth_reg;
+            v.target = _for_depth_reg.get();
+            _for_depth_reg.increase();
+            _is_variable_as_register.set(false);
         }
         // copyPrty(&nd, &v);
         //  NodeDefLocalVariable v = NodeDefLocalVariable(var);
@@ -1654,11 +1708,19 @@ Stack<varTypeEnum> globalType = Stack<varTypeEnum>(__int__);
 void _visittypeNode(NodeToken *nd) {}
 void _visitstoreLocalVariableNodeAsRegister(NodeToken *nd)
 {
-    bufferText->addAfter(bufferText->sp.pop(), string_format("mov a%d,a%d", nd->target, register_numl.get()));
+    if (nd->getVarType()->_varType == __float__)
+    {
+        bufferText->addAfter(bufferText->sp.pop(), string_format("rfr a%d,f%d", nd->target, register_numl.get()));
+    }
+    else
+        bufferText->addAfter(bufferText->sp.pop(), string_format("mov a%d,a%d", nd->target, register_numl.get()));
 }
 void _visitlocalVariableNodeAsRegister(NodeToken *nd)
 {
-    bufferText->addAfter(string_format("movr a%d,a%d", register_numl.get(), nd->target));
+    if (nd->getVarType()->_varType == __float__)
+        bufferText->addAfter(string_format("wfr f%d,a%d", register_numl.get(), nd->target));
+    else
+        bufferText->addAfter(string_format("movr a%d,a%d", register_numl.get(), nd->target));
     bufferText->sp.push(bufferText->get());
     register_numl.decrease();
 }
@@ -1706,8 +1768,8 @@ void _visitnumberNode(NodeToken *nd)
             // val=val+'A';
             header.addAfter(val);
             // point_regnum++;
-            bufferText->addAfter(string_format("l32r a%d,@_%s_%d", 8, "local_var", local_var_num));
-            bufferText->addAfter(string_format("lsi f%d,a%d,0", register_numl.get(), 8));
+            bufferText->addAfter(string_format("l32r a%d,@_%s_%d", 9, "local_var", local_var_num)); // YBA 25-02-2025
+            bufferText->addAfter(string_format("lsi f%d,a%d,0", register_numl.get(), 9));           // YBA 25-02-2025
             bufferText->sp.push(bufferText->get());
             // point_regnum--;
             local_var_num++;
@@ -1740,8 +1802,8 @@ void _visitnumberNode(NodeToken *nd)
                 // val=val+'A';
                 header.addAfter(val);
                 // point_regnum++;
-                bufferText->addAfter(string_format("l32r a%d,@_%s_%d", 8, "local_var", local_var_num));
-                bufferText->addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), 8));
+                bufferText->addAfter(string_format("l32r a%d,@_%s_%d", 9, "local_var", local_var_num)); // YBA 25-02-2025
+                bufferText->addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), 9));          // YBA 25-02-2025
                 bufferText->sp.push(bufferText->get());
                 // point_regnum--;
                 local_var_num++;
@@ -1781,8 +1843,8 @@ void _visitnumberNode(NodeToken *nd)
                 // val=val+'A';
                 header.addAfter(val);
                 // point_regnum++;
-                bufferText->addAfter(string_format("l32r a%d,@_%s_%d", 8, "local_var", local_var_num));
-                bufferText->addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), 8));
+                bufferText->addAfter(string_format("l32r a%d,@_%s_%d", 9, "local_var", local_var_num)); // YBA 25-02-1975
+                bufferText->addAfter(string_format("l32i a%d,a%d,0", register_numl.get(), 9));          // YBA 25-02-1975
                 bufferText->sp.push(bufferText->get());
                 // point_regnum--;
                 local_var_num++;
@@ -1873,11 +1935,11 @@ void _visitunitaryOpNode(NodeToken *nd)
 
         nd->getChildAtPos(0)->visitNode();
         register_numl.pop();
-        bufferText->addAfter("movi a7,0");
+        bufferText->addAfter("movi a12,0");
         bufferText->addAfter(string_format("bnez a%d,label_not_%d", register_numl.get(), for_if_num));
-        bufferText->addAfter("movi a7,1");
+        bufferText->addAfter("movi a12,1");
         bufferText->addAfter(string_format("label_not_%d:", for_if_num));
-        bufferText->addAfter(string_format("mov a%d,a7", register_numl.get()));
+        bufferText->addAfter(string_format("mov a%d,a12", register_numl.get()));
         bufferText->sp.push(bufferText->get());
         register_numl.decrease();
         return;
@@ -2257,16 +2319,18 @@ void _visitglobalVariableNode(NodeToken *nd)
     varType *v = nd->getVarType();
     int start = nd->stack_pos;
     // uint8_t regnum = 1;
-    if (nd->asPointer or (nd->isPointer)) // && nd->children_size() == 0))
-        point_regnum++;
+    /*  YBA 25-02-2025
+      if (nd->asPointer or (nd->isPointer)) // && nd->children_size() == 0))
+          point_regnum++;
+      /*/
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
         //  regnum = point_regnum;
     }
-    //string body = "";
-    // register_numl++;
-    // bufferText->addAfter(string_format("l32r a%d,%s", point_regnum, nd->_token->text.c_str()));
+    // string body = "";
+    //  register_numl++;
+    //  bufferText->addAfter(string_format("l32r a%d,%s", point_regnum, nd->_token->text.c_str()));
     if (nd->isPointer && nd->children_size() > 0) // leds[g];
     {
         // f=f+number.f;
@@ -2367,8 +2431,10 @@ void _visitglobalVariableNode(NodeToken *nd)
     //    res.register_numl=register_numl;
     // res.register_numr=register_numr;
     register_numl.decrease();
-    if (nd->asPointer or (nd->isPointer)) // && nd->children_size() == 0))
-        point_regnum--;
+    /*  YBA 25-02-2025
+   if (nd->asPointer or (nd->isPointer)) // && nd->children_size() == 0))
+       point_regnum--;
+       */
     return;
 }
 
@@ -2605,6 +2671,8 @@ void _visitdefFunctionNode(NodeToken *nd)
 
             // printf("ee p\r\n");
             int start = variaToken->getChildAtPos(k)->stack_pos;
+            if (start < _STACK_SIZE)
+                start = _STACK_SIZE;
             for (int j = 0; j < variaToken->getChildAtPos(k)->getVarType()->size; j++)
             {
                 asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->load[0];
@@ -2762,7 +2830,7 @@ void _visitprogramNode(NodeToken *nd)
 void _visitassignementNode(NodeToken *nd)
 {
     // printf("entre assignemen\n") ;
-    point_regnum = 5;
+    point_regnum = 5; // YBA 25-02-2025
     bufferText->sp.clear();
     bufferText->sp.push(bufferText->get());
     register_numl.duplicate();
@@ -2821,7 +2889,7 @@ void _visitternaryIfNode(NodeToken *nd)
 
     register_numl.push(15);
     register_numr.push(15);
-    
+
 */
     register_numl.duplicate();
     nd->getChildAtPos(1)->visitNode();
@@ -2842,6 +2910,118 @@ void _visitternaryIfNode(NodeToken *nd)
     register_numl.pop();
     bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
 }
+
+bool isBranchImmediate(int val, bool inverse)
+{
+    if (!inverse)
+    {
+        switch (val)
+        {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 10:
+        case 12:
+        case 16:
+        case 32:
+        case 64:
+        case 128:
+        case 256:
+            return true;
+            break;
+        default:
+            return false;
+            break;
+        }
+    }
+    else
+    {
+        switch (val)
+        {
+            // case 1:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 9:
+        case 11:
+        case 15:
+        case 31:
+        case 63:
+        case 127:
+        case 255:
+            return true;
+            break;
+        default:
+            return false;
+            break;
+        }
+    }
+}
+
+int valBranchImmediate(int val)
+{
+    switch (val)
+    {
+    case 1:
+        return 1;
+        break;
+    case 2:
+        return 2;
+        break;
+    case 3:
+        return 3;
+        break;
+    case 4:
+        return 4;
+        break;
+    case 5:
+        return 5;
+        break;
+    case 6:
+        return 6;
+        break;
+    case 7:
+        return 7;
+        break;
+    case 8:
+        return 8;
+        break;
+    case 10:
+        return 9;
+        break;
+    case 12:
+        return 10;
+        break;
+    case 16:
+        return 11;
+        break;
+    case 32:
+        return 12;
+        break;
+    case 64:
+        return 13;
+        break;
+    case 128:
+        return 14;
+        break;
+    case 256:
+        return 14;
+        break;
+    default:
+        return 88;
+        break;
+    }
+}
+
 void _visittestNode(NodeToken *nd)
 {
 
@@ -2868,25 +3048,25 @@ void _visittestNode(NodeToken *nd)
     string compop = "";
     string compo2 = "";
     // to compose
-    int h=999;
+    int h = 999;
 
     if (nd->getChildAtPos(1)->_vartype == __float__)
     {
         switch (nd->type)
         {
         case TokenLessThan:
-        h = numl;
+            h = numl;
             compop = "olt.s"; // greater or equal
             //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
             compo2 = "bf";
             break;
         case TokenDoubleEqual:
-        h = numl;
+            h = numl;
             compop = "oeq.s"; // not equal
             compo2 = "bf";
             break;
         case TokenNotEqual:
-        h = numl;
+            h = numl;
             compop = "oeq.s"; // equal
             compo2 = "bt";
             break;
@@ -2905,7 +3085,7 @@ void _visittestNode(NodeToken *nd)
             compo2 = "bf";
             break;
         case TokenLessOrEqualThan:
-        h = numl;
+            h = numl;
             compop = "ole.s"; // not equal
             compo2 = "bf";
 
@@ -3128,76 +3308,241 @@ void _visitcomparatorNode(NodeToken *nd)
     }
     else
     {
-        if (nd->_total_size > 127)
+        if (nd->_total_size > 127) // 127
         {
-            switch (nd->type)
+            int f;
+            bool regular = true;
+
+            if (nd->getChildAtPos(1)->getChildAtPos(0)->_nodetype == numberNode)
             {
-            case TokenLessThan:
-                compop = "blt"; // greater or equal
-                //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
-                break;
-            case TokenDoubleEqual:
-                compop = "beq"; // not equal
-                break;
-            case TokenNotEqual:
-                compop = "bne"; // equal
-                break;
-            case TokenMoreOrEqualThan:
-                compop = "bge"; // less then
-                break;
-            case TokenMoreThan:
-                compop = "blt"; // not equal
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                break;
-            case TokenLessOrEqualThan:
-                compop = "bge"; // not equal
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                break;
-            default:
-                break;
+
+                f = stringToInt(nd->getChildAtPos(1)->getChildAtPos(0)->getTokenText());
+                switch (nd->type)
+                {
+                case TokenLessThan:
+                    if (isBranchImmediate(f, false))
+                    {
+
+                        compop = "blti"; // not equal
+                        leftl = numl;
+                        // f++;
+                        regular = false;
+                    }
+                    break;
+                case TokenDoubleEqual:
+                    if (isBranchImmediate(f, false))
+                    {
+                        compop = "bnei"; // equal
+                        regular = false;
+                        leftl = numl;
+                    }
+                    break;
+                case TokenNotEqual:
+                    if (isBranchImmediate(f, false))
+                    {
+                        compop = "beqi"; // equal
+                        regular = false;
+                        leftl = numl;
+                    }
+                    break;
+                case TokenMoreOrEqualThan:
+                    if (isBranchImmediate(f, false))
+                    {
+                        compop = "bgei"; // not equal
+                        leftl = numl;
+                        // f++;
+                        regular = false;
+                    }
+                    break;
+                case TokenMoreThan:
+                    if (isBranchImmediate(f, true))
+                    {
+                        compop = "bgei"; // not equal
+                        leftl = numl;
+                        f++;
+                        regular = false;
+                    }
+                    break;
+                case TokenLessOrEqualThan:
+                    if (isBranchImmediate(f, true))
+                    {
+                        compop = "blti"; // not equal
+                        leftl = numl;
+                        f++;
+                        regular = false;
+                    }
+
+                    break;
+                default:
+                    break;
+                }
             }
-            bufferText->addAfter(string_format("%s%s a%d,a%d,%s_if", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
+            if (regular)
+            {
+                switch (nd->type)
+                {
+                case TokenLessThan:
+                    compop = "blt"; // greater or equal
+                    //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
+                    break;
+                case TokenDoubleEqual:
+                    compop = "beq"; // not equal
+                    break;
+                case TokenNotEqual:
+                    compop = "bne"; // equal
+                    break;
+                case TokenMoreOrEqualThan:
+                    compop = "bge"; // less then
+                    break;
+                case TokenMoreThan:
+                    compop = "blt"; // not equal
+                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    break;
+                case TokenLessOrEqualThan:
+                    compop = "bge"; // not equal
+                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    break;
+                default:
+                    break;
+                }
+            }
+            if (regular)
+            {
+                bufferText->addAfter(string_format("%s%s a%d,a%d,%s_if", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
+            }
+            else
+            {
+                bufferText->blankCurrent();
+
+                f = valBranchImmediate(f);
+                bufferText->addAfter(string_format("%s%s a%d,%d,%s_if", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
+            }
             bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
             bufferText->addAfter(string_format("%s_if:", nd->getTargetText()));
             register_numl.increase();
         }
         else
         {
-            switch (nd->type)
+            int f;
+            bool regular = true;
+
+            if (nd->getChildAtPos(1)->getChildAtPos(0)->_nodetype == numberNode)
             {
-            case TokenLessThan:
-                compop = "bge"; // greater or equal blt
-                //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
-                break;
-            case TokenDoubleEqual:
-                compop = "bne"; // not equal beq
-                break;
-            case TokenNotEqual:
-                compop = "beq"; // equal
-                break;
-            case TokenMoreOrEqualThan:
-                compop = "blt"; // less then
-                break;
-            case TokenMoreThan:
-                compop = "bge"; // not equal
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                break;
-            case TokenLessOrEqualThan:
-                compop = "blt"; // not equal
-                h = numl;
-                numl = leftl;
-                leftl = h;
-                break;
-            default:
-                break;
+
+                f = stringToInt(nd->getChildAtPos(1)->getChildAtPos(0)->getTokenText());
+                switch (nd->type)
+                {
+                case TokenLessThan:
+                    if (isBranchImmediate(f, false))
+                    {
+                        printf("on est ici doublec\n");
+                        compop = "bgei"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        // f++;
+                        regular = false;
+                    }
+                    break;
+                case TokenDoubleEqual:
+                    if (isBranchImmediate(f, false))
+                    {
+                        compop = "bnei"; // equal
+                        regular = false;
+                        leftl = numl;
+                    }
+                    break;
+                case TokenNotEqual:
+                    if (isBranchImmediate(f, false))
+                    {
+                        compop = "beqi"; // equal
+                        regular = false;
+                    }
+                    break;
+                case TokenMoreOrEqualThan:
+                    if (isBranchImmediate(f, false))
+                    {
+                        compop = "blti"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        // f++;
+                        regular = false;
+                    }
+                    break;
+                case TokenMoreThan:
+                    if (isBranchImmediate(f, true))
+                    {
+                        compop = "blti"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        f++;
+                        regular = false;
+                    }
+                    break;
+                case TokenLessOrEqualThan:
+                    if (isBranchImmediate(f, true))
+                    {
+                        compop = "bgei"; // not equal
+                        h = numl;
+                        numl = leftl;
+                        leftl = h;
+                        f++;
+                        regular = false;
+                    }
+
+                    break;
+                default:
+                    break;
+                }
             }
-            bufferText->addAfter(string_format("%s%s a%d,a%d,%s_end", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
+
+            if (regular)
+            {
+                switch (nd->type)
+                {
+                case TokenLessThan:
+                    compop = "bge"; // greater or equal blt
+                    //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
+                    break;
+                case TokenDoubleEqual:
+                    compop = "bne"; // not equal beq
+                    break;
+                case TokenNotEqual:
+                    compop = "beq"; // equal
+                    break;
+                case TokenMoreOrEqualThan:
+                    compop = "blt"; // less then
+                    break;
+                case TokenMoreThan:
+                    compop = "bge"; // not equal
+                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    break;
+                case TokenLessOrEqualThan:
+                    compop = "blt"; // not equal
+                    h = numl;
+                    numl = leftl;
+                    leftl = h;
+                    break;
+                default:
+                    break;
+                }
+            }
+            if (regular)
+                bufferText->addAfter(string_format("%s%s a%d,a%d,%s_end", compop.c_str(), _add.c_str(), numl, leftl, nd->getTargetText()));
+            else
+            {
+                bufferText->blankCurrent();
+                f = valBranchImmediate(f);
+                bufferText->addAfter(string_format("%s%s a%d,%d,%s_end", compop.c_str(), _add.c_str(), leftl, f, nd->getTargetText()));
+            }
             // bufferText->addAfter(_compare.back()+1,string_format("j %s_end", nd->target.c_str()));
             // bufferText->addAfter(_compare.back()+2,string_format("%s_if:", nd->target.c_str()));
             register_numl.increase();
@@ -3674,41 +4019,82 @@ void _visitforNode(NodeToken *nd)
     register_numl.duplicate();
     nd->getChildAtPos(0)->visitNode();
     register_numl.pop();
-
-    bufferText->addAfter(string_format("%s:", nd->getTargetText()));
+    if (nd->getChildAtPos(nd->children_size() - 1)->_nodetype == onlyNode)
+    {
+        bufferText->addAfter(string_format("movExt a7,@_ext_%s", (nd->getChildAtPos(nd->children_size() - 1)->getTargetText())));
+        boolextern = true;
+    }
+    bufferText->addAfter(string_format("j test_%s", nd->getTargetText()));
+    bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
     _compare.push_back(bufferText->get());
 
     register_numl.duplicate();
+
+    nd->getChildAtPos(3)->visitNode();
     if (nd->children_size() > 4)
     {
-        nd->getChildAtPos(3)->visitNode();
-        nd->getChildAtPos(4)->visitNode();
+        if (nd->getChildAtPos(4)->_nodetype != onlyNode)
+        {
+            nd->getChildAtPos(4)->visitNode();
+        }
     }
-    else
+    if (nd->children_size() > 5)
     {
-        nd->getChildAtPos(3)->visitNode();
+
+        nd->getChildAtPos(5)->visitNode();
     }
     register_numl.pop();
-
-    bufferText->addAfter(string_format("%s_continue:", nd->getTargetText()));
 
     register_numl.duplicate();
     nd->getChildAtPos(2)->visitNode();
     register_numl.pop();
-
+    switch (nd->getChildAtPos(1)->getChildAtPos(0)->type)
+    {
+    case TokenLessThan:
+       // printf("on est ici doublecdd\n");
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenMoreOrEqualThan; // greater or equal
+        //  bufferText->addAfter( string_format("%s_end:\n",nd->target.c_str()));
+        break;
+    case TokenDoubleEqual:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenNotEqual;
+        break;
+    case TokenNotEqual:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenDoubleEqual;
+        break;
+    case TokenMoreOrEqualThan:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenLessThan;
+        break;
+    case TokenMoreThan:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenLessOrEqualThan;
+        break;
+    case TokenLessOrEqualThan:
+        nd->getChildAtPos(1)->getChildAtPos(0)->type = TokenMoreThan;
+        break;
+    default:
+        break;
+    }
     int jumpsize = (bufferText->get() - _compare.back()) * 3;
     nd->getChildAtPos(1)->_total_size = jumpsize;
-    bufferText->putIteratorAtPos(_compare.back());
+    // bufferText->putIteratorAtPos(_compare.back());
+    bufferText->addAfter(string_format("test_%s:", nd->getTargetText()));
 
     register_numl.duplicate();
     nd->getChildAtPos(1)->visitNode();
     register_numl.pop();
 
     _compare.pop_back();
-    bufferText->putIteratorAtPos(bufferText->get());
-    bufferText->addAfter(string_format("j %s", nd->getTargetText()));
-    bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
+
+    bufferText->addAfter(string_format("%s_continue:", nd->getTargetText()));
+    bufferText->addAfter(string_format("%s_break:", nd->getTargetText()));
+    // bufferText->putIteratorAtPos(bufferText->get());
+    // bufferText->addAfter(string_format("j %s", nd->getTargetText()));
+    // bufferText->addAfter(string_format("%s:", nd->getTargetText()));
     // clearNodeToken(nd);
+    if (nd->getChildAtPos(nd->children_size() - 1)->_nodetype == onlyNode)
+    {
+
+        boolextern = false;
+    }
     return;
 }
 void _visitargumentNode(NodeToken *nd) {}
@@ -3729,7 +4115,7 @@ void _visitextGlobalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         //  regnum = point_regnum;
     }
-   // string body = "";
+    // string body = "";
     // register_numl++;
 
     if (!nd->isPointer)
@@ -3865,7 +4251,10 @@ void _visitextCallFunctionNode(NodeToken *nd)
             for (int i = 0; i < v->size; i++)
             {
                 // bufferText->addAfter(string_format("mov a15,a10"));
-                bufferText->addAfter(string_format("extui a%d,a%d,%d,%d", register_numl.get(), 10, start * 8, v->sizes[i] * 8));
+                if(i>-1)
+                    bufferText->addAfter(string_format("extui a%d,a%d,%d,%d", register_numl.get(), 10, start * 8, v->sizes[i] * 8));
+                    else
+                      bufferText->addAfter(string_format("mov a%d,a10", register_numl.get()));
                 // register_numl--;
                 start += v->sizes[i];
                 bufferText->sp.push(bufferText->get());
@@ -3934,39 +4323,46 @@ void _visitdefInputArgumentsNode(NodeToken *nd)
         for (int i = 0; i < nd->children_size(); i++)
         {
             int start = nd->getChildAtPos(i)->stack_pos;
-            // printf("ee\r\n");
-            if (reg_num <= 7)
+            if (start >= _STACK_SIZE)
             {
+                // printf("ee\r\n");
+                if (reg_num <= 7)
+                {
 
-                // if (nd->getChildAtPos(i)->isPointer)
-                //{
-                // printf("ee p\r\n");
-                //  int start = nd->getChildAtPos(i)->stack_pos;
-                // bufferText->addAfter(string_format("l32i a15,a%d,%d", sav, start - _STACK_SIZE)); // point reg_bnum
-                //
-                if (nd->getChildAtPos(i)->isPointer)
-                {
-                    bufferText->addAfter(string_format("s32i a%d,a1,%d", reg_num, start));
-                }
-                else if (nd->getChildAtPos(i)->getVarType()->_varType == __float__)
-                {
-                    bufferText->addAfter(string_format("s32i a%d,a1,%d", reg_num, start));
-                    // bufferText->addAfter(string_format("%s %s15,%s1,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), getRegType(asmInstr, 1).c_str(), start));
+                    // if (nd->getChildAtPos(i)->isPointer)
+                    //{
+                    // printf("ee p\r\n");
+                    //  int start = nd->getChildAtPos(i)->stack_pos;
+                    // bufferText->addAfter(string_format("l32i a15,a%d,%d", sav, start - _STACK_SIZE)); // point reg_bnum
+                    //
+                    if (nd->getChildAtPos(i)->isPointer)
+                    {
+                        bufferText->addAfter(string_format("s32i a%d,a1,%d", reg_num, start));
+                    }
+                    else if (nd->getChildAtPos(i)->getVarType()->_varType == __float__)
+                    {
+                        bufferText->addAfter(string_format("s32i a%d,a1,%d", reg_num, start));
+                        // bufferText->addAfter(string_format("%s %s15,%s1,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), getRegType(asmInstr, 1).c_str(), start));
+                    }
+                    else
+                    {
+                        asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
+                        bufferText->addAfter(string_format("%s a%d,a1,%d", asmInstructionsName[asmInstr].c_str(), reg_num, start));
+                    }
+                    // reg_num++;
                 }
                 else
                 {
-                    asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
-                    bufferText->addAfter(string_format("%s a%d,a1,%d", asmInstructionsName[asmInstr].c_str(), reg_num, start));
+                    asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->load[0];
+                    bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(), stek + start - nd->getChildAtPos(6)->stack_pos));
+                    asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
+                    bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(), start));
                 }
-                reg_num++;
             }
-            else
+            else if (nd->getChildAtPos(i)->getVarType()->_varType == __float__)
             {
-                asmInstruction asmInstr = nd->getChildAtPos(i)->getVarType()->load[0];
-                bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(), stek + start - nd->getChildAtPos(6)->stack_pos));
-                asmInstr = nd->getChildAtPos(i)->getVarType()->store[0];
-                bufferText->addAfter(string_format("%s a15,a1,%d", asmInstructionsName[asmInstr].c_str(), start));
             }
+            reg_num++;
             /*
             }
             else
@@ -4189,14 +4585,14 @@ void _visitstoreGlobalVariableNode(NodeToken *nd)
     if (nd->asPointer or (nd->isPointer)) // && nd->children_size() == 0))
         point_regnum++;
     int savreg_num = point_regnum;
-    point_regnum = 7;
+    point_regnum = 6; // YBA 25-02-20252
     if (nd->isPointer)
     {
         // start = nd->stack_pos;
         // regnum = point_regnum;
     }
-    //string body = "";
-    // register_numl++;
+    // string body = "";
+    //  register_numl++;
     for (int h = 0; h < v->size - 1; h++)
     {
         start += v->sizes[h];
@@ -4354,9 +4750,9 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
         // start = nd->stack_pos;
         regnum = point_regnum;
     }
-   // string body = "";
+    // string body = "";
     int savreg_num = point_regnum;
-    point_regnum = 4;
+    point_regnum = 6; // YBA 25-02-2025
     // register_numl++;
     for (int h = 0; h < v->size - 1; h++)
     {
@@ -4420,8 +4816,9 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
 
             sscanf(tile[0].c_str(), "@%d", &nb);
         }
-        if (nb > 1 and sd.compare(0, 1, "@") == 0)
+        if (nb > 2 and sd.compare(0, 1, "@") == 0)
         {
+            // if(nd->children>2)
             bufferText->addAfter("movi a10,0");
         }
         for (int par = 0; par < nd->children_size(); par++)
@@ -4440,13 +4837,25 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
                     {
                         bufferText->addAfter(string_format("movi a11,%d", stringToInt((char *)tile[par + 1 + h].c_str())));
                         // bufferText->addAfter(string_format("mull a11,a10,a11"));
-                        bufferText->addAfter(string_format("mull a%d,a%d,a11", register_numl.get(), register_numl.get()));
+                        if (nb > 2)
+                            bufferText->addAfter(string_format("mull a%d,a%d,a11", register_numl.get(), register_numl.get()));
+                        else
+                            bufferText->addAfter(string_format("mull a10,a%d,a11", register_numl.get()));
                     }
-                    bufferText->addAfter(string_format("add a10,a10,a%d", register_numl.get()));
+                    if (nb > 2)
+                        bufferText->addAfter(string_format("add a10,a10,a%d", register_numl.get()));
+                    //  else
+                    //  bufferText->addAfter("nop");
                 }
                 else
                 {
+
+                    // bufferText->addAfter(string_format("mov a10,a%d", register_numl.get()));
                     bufferText->addAfter(string_format("add a%d,a10,a%d", register_numl.get(), register_numl.get()));
+                    // else
+                    // bufferText->addAfter(string_format("add a%d,a%d,a%d", register_numl.get(),register_numl.get(), register_numl.get()));
+                    //         if(nb<=2)
+                    // bufferText->addAfter("nop");
                 }
             }
 
@@ -4467,8 +4876,10 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
         bufferText->addAfter(string_format("__test_safe_%d:", for_if_num));
         for_if_num++;
     }
-    bufferText->addAfter(string_format("movExt a%d,@_ext_%s",
-                                       point_regnum, nd->getTokenText()));
+    if (!boolextern)
+        bufferText->addAfter(string_format("movExt a%d,@_ext_%s", point_regnum, nd->getTokenText()));
+    else
+        bufferText->addAfter(string_format("mov a%d,a7", point_regnum));
     if (nd->isPointer && nd->children_size() > 0)
     {
         // f=f+number.f;
@@ -4573,13 +4984,16 @@ void _visitwhileNode(NodeToken *nd)
     nd->getChildAtPos(0)->_total_size = (bufferText->get() - _compare.back()) * 3; // on estime que toutes les instructions ont la meme taille
 
     bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
-    bufferText->putIteratorAtPos(_compare.back());
-    intest = true;
-    nd->getChildAtPos(0)->visitNode();
-    intest = false;
-    register_numl.pop();
-
-    bufferText->putIteratorAtPos(bufferText->get());
+    bufferText->addAfter(string_format("%s_break:", nd->getTargetText()));
+    if (nd->getChildAtPos(0)->getChildAtPos(0)->_nodetype != numberNode)
+    {
+        bufferText->putIteratorAtPos(_compare.back());
+        intest = true;
+        nd->getChildAtPos(0)->visitNode();
+        intest = false;
+        register_numl.pop();
+        bufferText->putIteratorAtPos(bufferText->get());
+    }
     _compare.pop_back();
 }
 void _visitreturnNode(NodeToken *nd)
@@ -4712,14 +5126,14 @@ void _visitcontinueNode(NodeToken *nd)
 void _visitbreakNode(NodeToken *nd)
 {
 
-    bufferText->addAfter(string_format("j %s_end", nd->getTargetText()));
+    bufferText->addAfter(string_format("j %s_break", nd->getTargetText()));
 }
 void _visitUnknownNode(NodeToken *nd) {}
 
 void optimize(Text *text)
 {
-    // return;
-    // int regnum;
+    //  return;
+    //  int regnum;
     for (int regnum = 3; regnum < 11; regnum++)
     {
         // regnum=9;
@@ -4787,28 +5201,26 @@ void optimize(Text *text)
         }
     }
 
-
-
-
     vector<string> d;
     vector<string> d2;
     vector<string> d1;
     string before = " ";
     int indexbefore = 0;
 
-;
+    ;
 
     before = " ";
     indexbefore = 0;
     // on va dealer abec les floats
     string torep = " ";
+
     for (int i = 0; i < text->size(); i++)
     {
-    
+
         string tmp = string((*text->getChildAtPos(i)));
-        if(*text->getChildAtPos(i)==NULL)
+        if (*text->getChildAtPos(i) == NULL)
         {
-            printf("************************** %d \n\r",i);
+            printf("************************** %d \n\r", i);
         }
         if (tmp.compare(" ") != 0 && tmp != "")
         {
@@ -5023,7 +5435,7 @@ void optimize(Text *text)
                         */
                         // printf("new %s\n",newstr.c_str());
                     }
-                    else if (d[0].compare("bge") == 0 or d[0].compare("blt") == 0 or d[0].compare("beq") == 0 or d[0].compare("bne") == 0)
+                    else if (d[0].compare("bge") == 0 or d[0].compare("blt") == 0 or d[0].compare("beq") == 0 or d[0].compare("bne") == 0 or d[0].compare("blti") == 0 or d[0].compare("bgei") == 0 or d[0].compare("beqi") == 0 or d[0].compare("bnei") == 0)
                     {
 
                         d2 = split(d[1], ",");
@@ -5032,6 +5444,7 @@ void optimize(Text *text)
                         int ind = -1;
                         for (int mp = 0; mp < index.size(); mp++)
                         {
+                            // printf("compare %s:%s\n",from[mp].c_str(),d2[0].c_str());
                             if (d2[0].compare(from[mp]) == 0)
                             {
                                 newstr = newstr + to[mp] + ",";
@@ -5308,6 +5721,86 @@ void optimize(Text *text)
                         from.shrink_to_fit();
                         to.clear();
                         to.shrink_to_fit();
+                    }
+                }
+            }
+        }
+    }
+    for (int i = 0; i < text->size(); i++)
+    {
+        string tmp = string((*text->getChildAtPos(i)));
+        if (*text->getChildAtPos(i) != NULL)
+        {
+            if (tmp.compare(" ") != 0 && tmp != "")
+            {
+                d = split(tmp, " ");
+                if (d[0].compare("mov") == 0)
+                {
+                    d2 = split(d[1], ",");
+                    if (d2[0].compare(d2[1]) == 0)
+                    {
+                        text->replaceText(i, " ");
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < text->size(); i++)
+    {
+        string tmp = string((*text->getChildAtPos(i)));
+        if (*text->getChildAtPos(i) != NULL)
+        {
+            if (tmp.compare(" ") != 0 && tmp != "")
+            {
+                d = split(tmp, " ");
+                if (d[0].compare("l32i") == 0)
+                {
+                    tmp = string((*text->getChildAtPos(i - 1)));
+                    if (*text->getChildAtPos(i) != NULL)
+                    {
+                        if (tmp.compare(" ") != 0 && tmp != "")
+                        {
+                            d2 = split(tmp, " ");
+                            if (d2[0].compare("s32i") == 0)
+                            {
+                                if (d2[1].compare(d[1]) == 0)
+                                    text->replaceText(i, " ");
+                            }
+                        }
+                    }
+                }
+                if (d[0].compare("l8ui") == 0)
+                {
+                    tmp = string((*text->getChildAtPos(i - 1)));
+                    if (*text->getChildAtPos(i) != NULL)
+                    {
+                        if (tmp.compare(" ") != 0 && tmp != "")
+                        {
+                            d2 = split(tmp, " ");
+                            if (d2[0].compare("s8i") == 0)
+                            {
+                                if (d2[1].compare(d[1]) == 0)
+                                    text->replaceText(i, " ");
+                            }
+                        }
+                    }
+                }
+
+                if (d[0].compare("lsi") == 0)
+                {
+                    tmp = string((*text->getChildAtPos(i - 1)));
+                    if (*text->getChildAtPos(i) != NULL)
+                    {
+                        if (tmp.compare(" ") != 0 && tmp != "")
+                        {
+                            d2 = split(tmp, " ");
+                            if (d2[0].compare("ssi") == 0)
+                            {
+                                if (d2[1].compare(d[1]) == 0)
+                                    text->replaceText(i, " ");
+                            }
+                        }
                     }
                 }
             }
