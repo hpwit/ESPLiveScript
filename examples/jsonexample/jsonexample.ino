@@ -22,27 +22,22 @@ void main()
 }
 )EOF";
 
-void setup()
-{
-    // put your setup code here, to run once:
-    Serial.begin(115200);
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
 
-    Parser p;
-    Executable exec = p.parseScript(&script);
-    printf("copmùpile done\n");
-    if (exec.isExeExists())
-    {
+  Parser p;
+  Executable exec = p.parseScript(&script);
+  printf("copmùpile done\n");
+  if (exec.isExeExists()) {
 
-        exec.execute("main", "{\"dp\":{\"value\":6,\"test\":12},\"dp2\":4.5}");
-        exec.execute("main", "{\"dp\":{\"value\":10,\"test\":20},\"dp2\":7.5854}");
-    }
-    else
-    {
-        printf("%s\n", exec.error.error_message.c_str());
-    }
+    exec.execute("main", "{\"dp\":{\"value\":6,\"test\":12},\"dp2\":4.5}");
+    exec.execute("main", "{\"dp\":{\"value\":10,\"test\":20},\"dp2\":7.5854}");
+  } else {
+    printf("%s\n", exec.error.error_message.c_str());
+  }
 }
 
-void loop()
-{
-    // put your main code here, to run repeatedly:
+void loop() {
+  // put your main code here, to run repeatedly:
 }
