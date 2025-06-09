@@ -9,14 +9,12 @@
 
 #ifndef __TEST_DEBUG
 #ifdef __JSON__OPTION__
-JsonVariant getfromJson(JsonDocument obj, string str)
-{
+JsonVariant getfromJson(JsonDocument obj, string str) {
   vector<string> tile;
   JsonVariant jso = obj;
   tile = split(str, ".");
   if (tile.size() >= 1)
-    for (int i = 0; i < tile.size() - 1; i++)
-    {
+    for (int i = 0; i < tile.size() - 1; i++) {
       // rintf("d:%s\n",tile[i]);
       jso = jso[tile[i].c_str()];
     }
@@ -28,8 +26,7 @@ JsonVariant getfromJson(JsonDocument obj, string str)
 #endif
 #endif
 
-void freeBinary(Binary *bin)
-{
+void freeBinary(Binary *bin) {
 #ifndef __TEST_DEBUG
   if (bin->binary_data)
     heap_caps_free(bin->binary_data);
@@ -41,8 +38,9 @@ void freeBinary(Binary *bin)
 #endif
 }
 
-error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, uint8_t *_binary_data, uint32_t _exec, executable *finalexe, int offset)
-{
+error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header,
+                                        uint8_t *_binary_data, uint32_t _exec,
+                                        executable *finalexe, int offset) {
   error_message_struct error;
   uint16_t nb_data = 0;
   uint16_t tmp_data = 0;
@@ -63,15 +61,12 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
   memcpy(&nb_objects, binary_header, 2);
   binary_header = binary_header + 2;
   // printf("nb objecst %u\n", nb_objects);
-  for (int i = 0; i < nb_objects; i++)
-  {
+  for (int i = 0; i < nb_objects; i++) {
     memcpy(&type, binary_header, 1);
     binary_header++;
     // printf("type %d\r\n", type);
-    switch (type)
-    {
-    case 0:
-    {
+    switch (type) {
+    case 0: {
       memcpy(&bincode, binary_header, 4);
       binary_header = binary_header + 4;
       memcpy(&nb_data, binary_header, 2);
@@ -80,10 +75,8 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
 
       uint32_t *new_adr = (uint32_t *)exec + nb_data;
       memcpy(new_adr, &content, 4);
-    }
-    break;
-    case 1:
-    {
+    } break;
+    case 1: {
       memcpy(&text_size, binary_header, 2);
       binary_header = binary_header + 2;
       textptr = (char *)binary_header;
@@ -91,8 +84,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       memcpy(&nb_data, binary_header, 2);
       binary_header = binary_header + 2;
       int index = findLink(string(textptr).substr(6, 100), externalType::value);
-      if (index > -1)
-      {
+      if (index > -1) {
         uint32_t content;
         uint32_t *new_adr;
 #ifndef __TEST_DEBUG
@@ -102,17 +94,14 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
         memcpy(new_adr, &content, 4);
 #endif
         // printf("external var:%s\n\r", textptr);
-      }
-      else
-      {
+      } else {
         error.error = 1;
         // printf("b ou foune\r\n");
-        error.error_message += string_format("External variable %s not found\n\r", textptr);
+        error.error_message +=
+            string_format("External variable %s not found\n\r", textptr);
       }
-    }
-    break;
-    case 2:
-    {
+    } break;
+    case 2: {
       memcpy(&text_size, binary_header, 2);
       binary_header = binary_header + 2;
       textptr = (char *)binary_header;
@@ -123,14 +112,15 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       // binary_header = binary_header + 4;
       memcpy(&nb_data, binary_header, 2);
       binary_header = binary_header + 2;
-      int index = findLink(string(textptr).substr(2, 100), externalType::function);
-      if (index > -1)
-      {
+      int index =
+          findLink(string(textptr).substr(2, 100), externalType::function);
+      if (index > -1) {
 
         // printf("calculate ext %s\n\r", (*it)->getText());
         /*
-        bincode = jump_call8(bincode, _address + (uint32_t)_exec, (uint32_t)external_links[index].ptr);
-        memcpy(exec + _address, &bincode, 3);
+        bincode = jump_call8(bincode, _address + (uint32_t)_exec,
+        (uint32_t)external_links[index].ptr); memcpy(exec + _address, &bincode,
+        3);
         */
 #ifndef __TEST_DEBUG
         uint32_t content = (uint32_t)((external_links[index].ptr));
@@ -143,17 +133,14 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
         memcpy(new_adr, &content, 4);
 
         // printf("external func:%s\n\r", textptr);
-      }
-      else
-      {
+      } else {
         error.error = 1;
         // printf("b ou foune\r\n");
-        error.error_message += string_format("external function %s not found\n\r", textptr);
+        error.error_message +=
+            string_format("external function %s not found\n\r", textptr);
       }
-    }
-    break;
-    case 3:
-    {
+    } break;
+    case 3: {
       memcpy(&_address, binary_header, 4);
       binary_header = binary_header + 4;
       memcpy(&tmp_data, binary_header, 2);
@@ -161,11 +148,9 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       memcpy(&size, binary_header, 2);
       binary_header = binary_header + 2;
       memcpy(_binary_data + _address, exec + offset + tmp_data, size);
-    }
-    break;
+    } break;
 
-    case 4:
-    {
+    case 4: {
       globalcall gc;
       memcpy(&text_size, binary_header, 2);
       binary_header = binary_header + 2;
@@ -188,11 +173,9 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       gc.variableaddress = _address;
       // printf("funcrion %s adfrees:%d\n\r",gc.name .c_str(),gc.address);
       finalexe->functions.push_back(gc);
-    }
-    break;
-    #ifdef __JSON__OPTION__
-    case 5:
-    {
+    } break;
+#ifdef __JSON__OPTION__
+    case 5: {
       jsonVariable jso;
       memcpy(&text_size, binary_header, 2);
       binary_header = binary_header + 2;
@@ -207,10 +190,10 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       jso.type = type;
       binary_header = binary_header + 1;
       finalexe->jsonVars.push_back(jso);
-      // printf("found %s  %d %s\n",jso.json.c_str(),jso.address,varTypeEnumNames[jso.type].c_str());
-    }
-    break;
-    #endif
+      // printf("found %s  %d
+      // %s\n",jso.json.c_str(),jso.address,varTypeEnumNames[jso.type].c_str());
+    } break;
+#endif
     default:
       error.error = 1;
       error.error_message = "Unknown type binary header invalid";
@@ -221,15 +204,16 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
 
   return error;
 }
-executable _createExcutablefromBinary(Binary *bin)
-{
+executable _createExcutablefromBinary(Binary *bin) {
   executable exe;
   error_message_struct error;
   exe.error.error = 0;
 
-// printf("on cree un executbale de taiile %d et data %d \n",bin->instruction_size,bin->data_size);
+// printf("on cree un executbale de taiile %d et data %d
+// \n",bin->instruction_size,bin->data_size);
 #ifndef __TEST_DEBUG
-  uint32_t *exec = (uint32_t *)heap_caps_malloc(bin->instruction_size, MALLOC_CAP_EXEC);
+  uint32_t *exec =
+      (uint32_t *)heap_caps_malloc(bin->instruction_size, MALLOC_CAP_EXEC);
 #else
   uint32_t *exec = (uint32_t *)malloc(bin->instruction_size);
 #endif
@@ -237,19 +221,19 @@ executable _createExcutablefromBinary(Binary *bin)
   uint8_t *_binary_data = (uint8_t *)malloc(bin->data_size);
 #ifndef __TEST_DEBUG
 
-  error = decodeBinaryHeader(bin->binary_data, bin->function_data, _binary_data, (uint32_t)exec, &exe, bin->instruction_size);
+  error = decodeBinaryHeader(bin->binary_data, bin->function_data, _binary_data,
+                             (uint32_t)exec, &exe, bin->instruction_size);
 
 #else
-  error = decodeBinaryHeader(bin->binary_data, bin->function_data, _binary_data, 0, &exe, bin->instruction_size);
+  error = decodeBinaryHeader(bin->binary_data, bin->function_data, _binary_data,
+                             0, &exe, bin->instruction_size);
 #endif
-  if (exe.functions.size() == 0)
-  {
+  if (exe.functions.size() == 0) {
     exe.error.error = 1;
     exe.error.error_message = "No global start function found";
     return exe;
   }
-  if (error.error == 1)
-  {
+  if (error.error == 1) {
 
     exe.error = error;
     // _asm_parsed.clear();
@@ -261,8 +245,7 @@ executable _createExcutablefromBinary(Binary *bin)
 
   // free(tmp_exec);
 
-  for (int i = 0; i < exe.functions.size(); i++)
-  {
+  for (int i = 0; i < exe.functions.size(); i++) {
 
     exe.functions[i].address = (uint32_t)((exe.functions[i].address) / 4);
   }
@@ -273,9 +256,9 @@ executable _createExcutablefromBinary(Binary *bin)
 
   return exe;
 }
-void displayBinary(Binary *bin)
-{
-  printf("char _bin[%d]={\n", 19 + 8 + bin->tmp_instruction_size + bin->function_size);
+void displayBinary(Binary *bin) {
+  printf("char _bin[%d]={\n",
+         19 + 8 + bin->tmp_instruction_size + bin->function_size);
   printf("E,S,P,L,i,v,e,S,c,r,i,p,t,1,.,0,.,1,0x0");
   // char g[]="ESPLiveScript1.0.1";
 
@@ -287,15 +270,13 @@ void displayBinary(Binary *bin)
   printf(",0x%x", bin->data_size / 256);
   printf(",0x%x", bin->function_size & 0xff);
   printf(",0x%x", bin->function_size / 256);
-  for (int i = 0; i < bin->tmp_instruction_size; i++)
-  {
+  for (int i = 0; i < bin->tmp_instruction_size; i++) {
     if (*(bin->binary_data + i) >= 32 and *(bin->binary_data + i) < 125)
       printf(",%c", *(bin->binary_data + i));
     else
       printf(",0x%x", *(bin->binary_data + i));
   }
-  for (int i = 0; i < bin->function_size; i++)
-  {
+  for (int i = 0; i < bin->function_size; i++) {
     if (*(bin->function_data + i) >= 32 and *(bin->function_data + i) < 125)
       printf(",%c", *(bin->function_data + i));
     else
@@ -304,15 +285,14 @@ void displayBinary(Binary *bin)
   printf("}\n");
 }
 
-void binaryFromArray(char *_array, Binary *bin)
-{
+void binaryFromArray(char *_array, Binary *bin) {
   bin->error.error = 0;
   char ver[19];
   char *arr = _array;
-  if (strncmp(_array, "ESPLiveScript1.0.1", 18) != 0)
-  {
+  if (strncmp(_array, "ESPLiveScript1.0.1", 18) != 0) {
     bin->error.error = 1;
-    bin->error.error_message = string_format("wrong format expected ESPLiveScript1.0.1 got %s", (const char *)ver);
+    bin->error.error_message = string_format(
+        "wrong format expected ESPLiveScript1.0.1 got %s", (const char *)ver);
     return;
   }
   arr += 19;
@@ -333,17 +313,16 @@ void binaryFromArray(char *_array, Binary *bin)
   memcpy(tmp2, arr, bin->function_size);
 }
 #ifndef __TEST_DEBUG
-void loadBinary(char *name, fs::FS &fs, Binary *bin)
-{
+void loadBinary(char *name, fs::FS &fs, Binary *bin) {
 
   File root = fs.open(name);
   bin->error.error = 0;
   char ver[19];
   root.read((uint8_t *)ver, 19);
-  if (strcmp(ver, "ESPLiveScript1.0.1") != 0)
-  {
+  if (strcmp(ver, "ESPLiveScript1.0.1") != 0) {
     bin->error.error = 1;
-    bin->error.error_message = string_format("wrong format expected ESPLiveScript1.0.1 got %s", (const char *)ver);
+    bin->error.error_message = string_format(
+        "wrong format expected ESPLiveScript1.0.1 got %s", (const char *)ver);
     return;
   }
 
@@ -369,8 +348,7 @@ void loadBinary(char *name, fs::FS &fs, Binary *bin)
   root.close();
 }
 #endif
-executable createExectutable(Binary *bin)
-{
+executable createExectutable(Binary *bin) {
 
   executable exec;
   exec.binary_size = 0;
@@ -392,28 +370,26 @@ void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
   asm volatile( //"l32i a10,%1,0\n\t"
       "l32i a15,%0,0\n\t"
       "callx8 a15"
-      : : "r"(j) //, "r"(c)
+      :
+      : "r"(j) //, "r"(c)
       :);
 
 #endif
 }
-#ifdef __JSON__OPTION__ 
+#ifdef __JSON__OPTION__
 
-error_message_struct updateParameters(executable ex, string json)
-{
+error_message_struct updateParameters(executable ex, string json) {
   // uint32_t toexecute;
   // printf("execut |%s|\n", json.c_str());
   error_message_struct res;
 
-  if (json != "")
-  {
+  if (json != "") {
 #ifndef __TEST_DEBUG
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, json);
     res.error = 0;
     // Test if parsing succeeds.
-    if (error)
-    {
+    if (error) {
       Serial.print(F("deserializeJson() failed: "));
       Serial.println(error.f_str());
       res.error = 1;
@@ -422,78 +398,68 @@ error_message_struct updateParameters(executable ex, string json)
     }
 
     uint8_t *var = ex.data;
-    for (int i = 0; i < ex.jsonVars.size(); i++)
-    {
+    for (int i = 0; i < ex.jsonVars.size(); i++) {
       // printf(" taking:%s\n",ex.jsonVars[i].json.c_str());
 
       JsonVariant p = getfromJson(doc, ex.jsonVars[i].json);
-      switch (ex.jsonVars[i].type)
-      {
-      case __uint32_t__:
-      {
+      switch (ex.jsonVars[i].type) {
+      case __uint32_t__: {
         uint32_t jk = (uint32_t)p;
 
         memcpy(var + ex.jsonVars[i].address, &jk, 4);
-      }
-      break;
+      } break;
 
-      case __int__:
-      {
+      case __int__: {
         int jk = (int)p;
-        //  printf(" taking:%s %d %d\n",ex.jsonVars[i].json.c_str(),jk,ex.jsonVars[i].address);
+        //  printf(" taking:%s %d
+        //  %d\n",ex.jsonVars[i].json.c_str(),jk,ex.jsonVars[i].address);
         memcpy((uint8_t *)(ex.data + ex.jsonVars[i].address), &jk, 4);
-      }
-      break;
-      case __float__:
-      {
+      } break;
+      case __float__: {
         float jk = (float)p;
         memcpy(var + ex.jsonVars[i].address, &jk, 4);
-      }
-      break;
-      case __char__:
-      {
+      } break;
+      case __char__: {
         string jk = p.as<const char *>();
         memcpy(var + ex.jsonVars[i].address, jk.c_str(), jk.size());
-      }
-      break;
+      } break;
       default:
         break;
       }
     }
 #endif
-  }
-  else
-  {
-    //printf("no json\n");
+  } else {
+    // printf("no json\n");
   }
   return res;
 }
 #endif
-error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments, string json)
-{
+error_message_struct executeBinary(string function, executable ex,
+                                   uint32_t handle, void *exePtr,
+                                   Arguments arguments, string json) {
 
   error_message_struct res;
-  // printf("executvith %s %s\n",function.c_str(), json.c_str());
-  #ifdef __JSON__OPTION__
+// printf("executvith %s %s\n",function.c_str(), json.c_str());
+#ifdef __JSON__OPTION__
   res = updateParameters(ex, json);
   if (res.error == 1)
     return res;
 #endif
-  for (int i = 0; i < ex.functions.size(); i++)
-  {
+  for (int i = 0; i < ex.functions.size(); i++) {
     string ftofind = ex.functions[i].name;
-    if (ex.functions[i].name.find_first_of("(") != string::npos)
-    {
-      ftofind = ex.functions[i].name.substr(0, ex.functions[i].name.find_first_of("("));
+    if (ex.functions[i].name.find_first_of("(") != string::npos) {
+      ftofind = ex.functions[i].name.substr(
+          0, ex.functions[i].name.find_first_of("("));
     }
     // printf("coparing %s\n",ftofind.c_str());
-    if (ftofind.compare(function) == 0)
-    {
-// printf("address of function %s :%x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
+    if (ftofind.compare(function) == 0) {
+// printf("address of function %s :%x\n",ex.functions[i].name.c_str(),
+// ex.functions[i].address);
 
 //
 #ifndef __TEST_DEBUG
-      ex.functions[i].address = (uint32_t)(ex.start_program + ex.functions[i].address);
+      ex.functions[i].address =
+          (uint32_t)(ex.start_program + ex.functions[i].address);
 #endif
       uint32_t *t = (uint32_t *)ex.data;
       // t++;
@@ -506,11 +472,9 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
 #endif
       //   printf("exx %x\n",(uint32_t)exePtr);
       uint8_t *var = (ex.data + ex.functions[i].variableaddress);
-      if (ex.functions[i].args_num == arguments._args.size())
-      {
+      if (ex.functions[i].args_num == arguments._args.size()) {
         vector<string> args = split(trim(ex.functions[i].variables), " ");
-        for (int i = 1; i < args.size(); i++)
-        {
+        for (int i = 1; i < args.size(); i++) {
           int _size = 0;
           sscanf(args[i].c_str(), "%d", &_size);
           if (arguments._args[i - 1].vartype == __float__)
@@ -519,17 +483,18 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
             memcpy(var, &arguments._args[i - 1].intval, _size);
           var += _size;
         }
-      }
-      else
-      {
+      } else {
         res.error = 1;
-        res.error_message = string_format("Expected %d arguments got %d\n", ex.functions[i].args_num, arguments.size());
+        res.error_message =
+            string_format("Expected %d arguments got %d\n",
+                          ex.functions[i].args_num, arguments.size());
         return res;
       }
 
       executeBinaryAsm(&ex.functions[i].address); //, &ex.links);
 
-      // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), toexecute);
+      // printf("address of function %s :%x\n",ex.functions[i].name.c_str(),
+      // toexecute);
       //  executeBinaryAsm(&toexecute, &ex.links);
 
       // freeBinary(ex);
@@ -537,32 +502,30 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
     }
   }
   res.error = 1;
-  res.error_message = string_format("Immpossible to execute %s: not found\n", function.c_str());
+  res.error_message =
+      string_format("Immpossible to execute %s: not found\n", function.c_str());
   return res;
 }
 
-error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments)
-{
+error_message_struct executeBinary(string function, executable ex,
+                                   uint32_t handle, void *exePtr,
+                                   Arguments arguments) {
   return executeBinary(function, ex, handle, exePtr, arguments, "");
 }
-error_message_struct executeBinary(executable ex, uint32_t handle)
-{
+error_message_struct executeBinary(executable ex, uint32_t handle) {
   Arguments args;
   return executeBinary(ex.functions[0].name, ex, handle, NULL, args);
 }
-void freeExecutable(executable *ex)
-{
+void freeExecutable(executable *ex) {
 #ifndef __TEST_DEBUG
-  if (ex->start_program != NULL)
-  {
+  if (ex->start_program != NULL) {
 
     heap_caps_aligned_free(ex->start_program);
   }
 
   ex->start_program = NULL;
 
-  if (ex->data != NULL)
-  {
+  if (ex->data != NULL) {
 
     heap_caps_free(ex->data);
   }
@@ -572,25 +535,23 @@ void freeExecutable(executable *ex)
   // tmp_exec = NULL;
 }
 
-void artiPrintf(char const *format, ...)
-{
+void artiPrintf(char const *format, ...) {
   va_list argp;
   va_start(argp, format);
   vprintf(format, argp);
   // printf("\r\n");
   va_end(argp);
 }
-void artiPrintfln(char const *format, ...)
-{
+void artiPrintfln(char const *format, ...) {
   va_list argp;
   va_start(argp, format);
   vprintf(format, argp);
   printf("\r\n");
   va_end(argp);
 }
-void showError(int line, uint32_t size, uint32_t got)
-{
-  pushToConsole(string_format("Overflow error  max size: %d got %d", size, got), true);
+void showError(int line, uint32_t size, uint32_t got) {
+  pushToConsole(string_format("Overflow error  max size: %d got %d", size, got),
+                true);
 }
 
 #ifdef USE_FASTLED
@@ -600,8 +561,7 @@ void showError(int line, uint32_t size, uint32_t got)
 #define K170 170
 #define K85 85
 
-CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
-{
+CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val) {
   // Yellow has a higher inherent brightness than
   // any other color; 'pure' yellow is perceived to
   // be 93% as bright as white.  In order to make
@@ -649,35 +609,28 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
 
   uint8_t r, g, b;
 
-  if (!(hue & 0x80))
-  {
+  if (!(hue & 0x80)) {
     // 0XX
-    if (!(hue & 0x40))
-    {
+    if (!(hue & 0x40)) {
       // 00X
       // section 0-1
-      if (!(hue & 0x20))
-      {
+      if (!(hue & 0x20)) {
         // 000
         // case 0: // R -> O
         r = K255 - third;
         g = third;
         b = 0;
         FORCE_REFERENCE(b);
-      }
-      else
-      {
+      } else {
         // 001
         // case 1: // O -> Y
-        if (Y1)
-        {
+        if (Y1) {
           r = K171;
           g = K85 + third;
           b = 0;
           FORCE_REFERENCE(b);
         }
-        if (Y2)
-        {
+        if (Y2) {
           r = K170 + third;
           // uint8_t twothirds = (third << 1);
           uint8_t twothirds = scale8(offset8, ((256 * 2) / 3)); // max=170
@@ -686,17 +639,13 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
           FORCE_REFERENCE(b);
         }
       }
-    }
-    else
-    {
+    } else {
       // 01X
       //  section 2-3
-      if (!(hue & 0x20))
-      {
+      if (!(hue & 0x20)) {
         // 010
         // case 2: // Y -> G
-        if (Y1)
-        {
+        if (Y1) {
           // uint8_t twothirds = (third << 1);
           uint8_t twothirds = scale8(offset8, ((256 * 2) / 3)); // max=170
           r = K171 - twothirds;
@@ -704,16 +653,13 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
           b = 0;
           FORCE_REFERENCE(b);
         }
-        if (Y2)
-        {
+        if (Y2) {
           r = K255 - offset8;
           g = K255;
           b = 0;
           FORCE_REFERENCE(b);
         }
-      }
-      else
-      {
+      } else {
         // 011
         // case 3: // G -> A
         r = 0;
@@ -722,16 +668,12 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
         b = third;
       }
     }
-  }
-  else
-  {
+  } else {
     // section 4-7
     // 1XX
-    if (!(hue & 0x40))
-    {
+    if (!(hue & 0x40)) {
       // 10X
-      if (!(hue & 0x20))
-      {
+      if (!(hue & 0x20)) {
         // 100
         // case 4: // A -> B
         r = 0;
@@ -740,9 +682,7 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
         uint8_t twothirds = scale8(offset8, ((256 * 2) / 3)); // max=170
         g = K171 - twothirds;                                 // K170?
         b = K85 + twothirds;
-      }
-      else
-      {
+      } else {
         // 101
         // case 5: // B -> P
         r = third;
@@ -750,20 +690,15 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
         FORCE_REFERENCE(g);
         b = K255 - third;
       }
-    }
-    else
-    {
-      if (!(hue & 0x20))
-      {
+    } else {
+      if (!(hue & 0x20)) {
         // 110
         // case 6: // P -- K
         r = K85 + third;
         g = 0;
         FORCE_REFERENCE(g);
         b = K171 - third;
-      }
-      else
-      {
+      } else {
         // 111
         // case 7: // K -> R
         r = K170 + third;
@@ -783,16 +718,12 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
 
   // Scale down colors if we're desaturated at all
   // and add the brightness_floor to r, g, and b.
-  if (sat != 255)
-  {
-    if (sat == 0)
-    {
+  if (sat != 255) {
+    if (sat == 0) {
       r = 255;
       b = 255;
       g = 255;
-    }
-    else
-    {
+    } else {
       uint8_t desat = 255 - sat;
       desat = scale8_video(desat, desat);
 
@@ -821,18 +752,14 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
   }
 
   // Now scale everything down if we're at value < 255.
-  if (val != 255)
-  {
+  if (val != 255) {
 
     val = scale8_video_LEAVING_R1_DIRTY(val, val);
-    if (val == 0)
-    {
+    if (val == 0) {
       r = 0;
       g = 0;
       b = 0;
-    }
-    else
-    {
+    } else {
       // nscale8x3_video( r, g, b, val);
 #if (FASTLED_SCALE8_FIXED == 1)
       r = scale8_LEAVING_R1_DIRTY(r, val);
@@ -860,14 +787,14 @@ CRGB hsv(uint8_t hue, uint8_t sat, uint8_t val)
 }
 
 #endif
-class INIT_PARSER
-{
+class INIT_PARSER {
 public:
-  INIT_PARSER()
-  {
+  INIT_PARSER() {
     addExternalFunction("printf", "void", "char *,Args", (void *)artiPrintf);
-    addExternalFunction("printfln", "void", "char *,Args", (void *)artiPrintfln);
-    addExternalFunction("error", "void", "int,uint32_t,uint32_t", (void *)&showError);
+    addExternalFunction("printfln", "void", "char *,Args",
+                        (void *)artiPrintfln);
+    addExternalFunction("error", "void", "int,uint32_t,uint32_t",
+                        (void *)&showError);
 #ifdef USE_FASTLED
     addExternalFunction("hsv", "CRGB", "int,int,int", (void *)hsv);
 #endif

@@ -1,13 +1,11 @@
 
 #define USE_FASTLED
-#include "FastLED.h"
 #include "ESPLiveScript.h"
+#include "FastLED.h"
 #define NUM_LEDS 256
 #define DATA_PIN 15
 CRGB leds[NUM_LEDS];
-void show() {
-  FastLED.show();
-}
+void show() { FastLED.show(); }
 string script = R"EOF(
 void main()
 {

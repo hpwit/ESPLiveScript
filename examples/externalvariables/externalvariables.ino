@@ -20,8 +20,7 @@ void main()
 
 int variable = 0;
 uint16_t _array[10];
-void setup()
-{
+void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
@@ -29,8 +28,7 @@ void setup()
   addExternalVariable("value", "int", "", (void *)&variable);
   addExternalVariable("array", "int *", "", (void *)_array);
   Executable exec = p.parseScript(&script);
-  if (exec.isExeExists())
-  {
+  if (exec.isExeExists()) {
 
     variable = 5;
     exec.execute("main");
@@ -41,14 +39,12 @@ void setup()
     exec.execute("change");
     printf("new value:%d\n", variable);
     exec.execute("fillArray");
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
       printf("%d:%d\n", i, _array[i]);
     }
   }
 }
 
-void loop()
-{
+void loop() {
   // put your main code here, to run repeatedly:
 }

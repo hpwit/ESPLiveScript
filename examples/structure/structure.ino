@@ -25,20 +25,17 @@ void main()
 }
 )EOF";
 
-void setup()
-{
+void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
   Parser p;
   Executable exec = p.parseScript(&script);
-  if (exec.isExeExists())
-  {
+  if (exec.isExeExists()) {
     exec.execute("main");
   }
 }
 
-void loop()
-{
+void loop() {
   // put your main code here, to run repeatedly:
 }

@@ -1,8 +1,7 @@
 #include "ESPLiveScript.h"
 #include "driver/gpio.h"
 
-typedef struct
-{
+typedef struct {
   Executable *ptr;
   char *name;
   uint32_t last;
@@ -10,24 +9,23 @@ typedef struct
 } call_isr;
 call_isr isr_struct;
 
-
 static void IRAM_ATTR gpio_isr_handler(void *args) {
   call_isr *ll = (call_isr *)args;
   unsigned long currentTime = millis();
 
   if ((currentTime - ll->last) > 100) {
     ll->ptr->executeOnly(string(ll->name));
-    ll->last = currentTime;  // Update the last interrupt time
+    ll->last = currentTime; // Update the last interrupt time
   }
 }
 void setup_gpio_interrupt(Executable *ptr, char *str, int pin_num) {
   printf("Setting up the interrupt\n");
   gpio_config_t io_conf = {
-    .pin_bit_mask = (1ULL << pin_num),
-    .mode = GPIO_MODE_INPUT,
-    .pull_up_en = GPIO_PULLUP_ENABLE,
-    .pull_down_en = GPIO_PULLDOWN_DISABLE,  // Disable pull-down
-    .intr_type = GPIO_INTR_NEGEDGE,
+      .pin_bit_mask = (1ULL << pin_num),
+      .mode = GPIO_MODE_INPUT,
+      .pull_up_en = GPIO_PULLUP_ENABLE,
+      .pull_down_en = GPIO_PULLDOWN_DISABLE, // Disable pull-down
+      .intr_type = GPIO_INTR_NEGEDGE,
   };
 
   gpio_config(&io_conf);
@@ -58,14 +56,14 @@ void main()
 
 void setup() {
   Serial.begin(115200);
-  addExternalFunction("pinInterrupt", "void", "uint32_t,char *,int", (void *)setup_gpio_interrupt);
+  addExternalFunction("pinInterrupt", "void", "uint32_t,char *,int",
+                      (void *)setup_gpio_interrupt);
   Parser p;
   Executable exec = p.parseScript(&script);
   if (exec.isExeExists()) {
     exec.execute("main");
-  }
-  else {
-  printf("Error:%s\n",exec.error.error_message.c_str());
+  } else {
+    printf("Error:%s\n", exec.error.error_message.c_str());
   }
   // put your setup code here, to run once:
 }

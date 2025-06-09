@@ -1,6 +1,6 @@
 #include "ESPLiveScript.h"
-#include <LittleFS.h> 
 #include "FS.h"
+#include <LittleFS.h>
 string script = R"EOF(
 void main()
 {
@@ -20,19 +20,18 @@ void setup() {
   Binary bin2;
   LittleFS.begin(true);
   if (!bin.error.error) {
-    //display the content of the bin
-   // displayBinary(&bin);
-    //save the binary
+    // display the content of the bin
+    // displayBinary(&bin);
+    // save the binary
     saveBinary("/test.bin", LittleFS, &bin);
     freeBinary(&bin);
 
     loadBinary("/test.bin", LittleFS, &bin2);
     Executable ex;
-   
+
     ex.createExecutableFromBinary(&bin2);
     if (ex.isExeExists())
       ex.execute("main");
-
 
   } else {
     printf("%s\n\r", bin.error.error_message.c_str());
