@@ -10,7 +10,6 @@
 using namespace std;
 
 #include "string_function.h"
-
 #include "tokenizer.h"
 #include "asm_external.h"
 
