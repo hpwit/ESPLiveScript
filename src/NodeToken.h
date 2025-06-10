@@ -2773,6 +2773,8 @@ void _visitprogramNode(NodeToken *nd)
     header.addBefore(".bytes 4");
     header.addBefore("@__sync:");
     header.addBefore(".bytes 4");
+        header.addBefore("@__syncExt:");
+    header.addBefore(".bytes 4");
     // header.addAfter("@_stackr:");
     // header.addAfter(".bytes 32");
 

@@ -304,6 +304,7 @@ public:
 
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
+         main_script.addContent((char *)_syncExt.c_str());
         // main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)base_ext_functions.c_str());
         main_script.addContent((char *)str->c_str());
@@ -315,6 +316,7 @@ public:
 
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
+            main_script.addContent((char *)_syncExt.c_str());
         //  main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)base_ext_functions.c_str());
         main_script.addContent((char *)str->c_str());
@@ -325,6 +327,7 @@ public:
     {
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
+            main_script.addContent((char *)_syncExt.c_str());
         // main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)base_ext_functions.c_str());
         string sc = "";
@@ -339,6 +342,7 @@ public:
     {
         main_script.clear();
         main_script.addContent((char *)_sync.c_str());
+            main_script.addContent((char *)_syncExt.c_str());
         //  main_script.addContent((char *)division.c_str());
         main_script.addContent((char *)base_ext_functions.c_str());
         string sc = "";

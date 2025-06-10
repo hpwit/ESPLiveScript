@@ -17,6 +17,15 @@ __ASM__ void sync()\n\
 \"callExt a8,@__sync\"\n\
 \"retw.n\" \n\
 }@";
+string _syncExt="\
+__ASM__ void syncExt()\n\
+{\n\
+\"entry a1,32\" \n\
+\"l32r a4,@__handle_\" \n\
+\"l32i a10,a4,0\" \n\
+\"callExt a8,@__syncExt\"\n\
+\"retw.n\" \n\
+}@";
 string division="\
 __ASM__ float __div(float a,float b)\n\
 { \n\
