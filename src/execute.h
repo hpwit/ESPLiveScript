@@ -228,8 +228,10 @@ public:
 };
 _executablesClass runningPrograms = _executablesClass();
 #define ESPSCRIPTSYNC(func)                                                           \
-    {                                                                                 \
-        if (__MASK_EXTERN == 0 or resetSync)                                                       \
+    {                                   \
+         uint32_t MASK = runningPrograms.getMask(); \
+    __MASK_EXTERN = MASK;                                              \
+        if (__MASK_EXTERN == 0 or resetSync)                    \
         {                                                                             \
             func;                                                                     \
         }                                                                             \
