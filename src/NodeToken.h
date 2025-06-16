@@ -5132,7 +5132,7 @@ void _visitUnknownNode(NodeToken *nd) {}
 
 void optimize(Text *text)
 {
-    //  return;
+ return;
     //  int regnum;
     for (int regnum = 3; regnum < 11; regnum++)
     {
