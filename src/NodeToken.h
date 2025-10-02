@@ -2636,6 +2636,8 @@ void _visitdefFunctionNode(NodeToken *nd)
     if (nd->type == TokenUserDefinedVariableMemberFunction)
         isStructFunction = true;
     header.addAfter(string_format(".global @_%s", nd->getTokenText()));
+
+    /* THis is for the __*/
     if (!isStructFunction)
         header.addAfter(string_format(".global @__%s", nd->getTokenText()));
     // string variables = "";
@@ -2674,6 +2676,7 @@ void _visitdefFunctionNode(NodeToken *nd)
             for (int j = 0; j < variaToken->getChildAtPos(k)->getVarType()->size; j++)
             {
                 asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->load[0];
+                if(k<6)
                 bufferText->addAfter(string_format("%s %s%d,%s%d,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), k + 10, getRegType(asmInstr, 1).c_str(), 9, start - _STACK_SIZE)); // point_regnum
                                                                                                                                                                                                                  // asmInstruction asmInstr = variaToken->getChildAtPos(k)->getVarType()->store[0];
                 //                   bufferText->addAfter(string_format("%s %s%d,%s9,%d", asmInstructionsName[asmInstr].c_str(), getRegType(asmInstr, 0).c_str(), k+10,getRegType(asmInstr, 1).c_str(), start));
@@ -2687,7 +2690,7 @@ void _visitdefFunctionNode(NodeToken *nd)
             bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
         }
     }
-
+/*End of this is for the stuff external call*/
     bufferText->addAfter(string_format("@_%s:", nd->getTokenText()));
     bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
     int sav = 9;
@@ -5132,7 +5135,7 @@ void _visitUnknownNode(NodeToken *nd) {}
 
 void optimize(Text *text)
 {
- return;
+ //return;
     //  int regnum;
     for (int regnum = 3; regnum < 11; regnum++)
     {

@@ -378,6 +378,10 @@ result_parse_operande operandeParse(string s, operandeType optype)
   {
     return opNumber::parse(s, 0, 15);
   }
+    if (optype == operandeType::l1_16)
+  {
+    return opNumber::parse(s, 1, 16);
+  }
 
   if (optype == operandeType::l0_32760)
   {

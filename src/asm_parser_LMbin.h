@@ -336,7 +336,7 @@ uint32_t bin_word(uint32_t *values)
     return values[0];
 }
 
-operandeType op_extui[4] = {operandeType::registers, operandeType::registers, operandeType::l0_31, operandeType::l0_15};
+operandeType op_extui[4] = {operandeType::registers, operandeType::registers, operandeType::l0_31, operandeType::l1_16};
 uint32_t bin_extui(uint32_t *values)
 {
     return (values[1] << 4) + (values[0] << 12) + (2 << 17) + ((values[3] - 1) << 20) + ((values[2] & 0xF) << 8) + ((values[2] & 0x10) << 12);

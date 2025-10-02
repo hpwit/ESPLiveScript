@@ -629,6 +629,17 @@ public:
         }
 #endif
     }
+template<typename ... Args>
+    void executeArgs(string prog,Args ... arguments)
+    {
+ args.clear();
+        Arguments d;
+      error_message_struct  res = executeBinaryArgs("@_" + prog, _executecmd, 9999, this, arguments ...);
+        if (res.error)
+        {
+            pushToConsole(res.error_message, true);
+        }
+    }
     void execute(string prog)
     {
         args.clear();
@@ -636,7 +647,7 @@ public:
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
 
-        res = executeBinary("@__" + prog, _executecmd, 9999, this, args);
+        res = executeBinary("@_" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -652,7 +663,7 @@ public:
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
 
-        res = executeBinary("@__" + prog, _executecmd, 9999, this, args, json);
+        res = executeBinary("@_" + prog, _executecmd, 9999, this, args, json);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -671,7 +682,7 @@ public:
 #ifndef __TEST_DEBUG
         error_message_struct res = executeBinary("@__footer", _executecmd, 9999, this, d);
 
-        res = executeBinary("@__" + prog, _executecmd, 9999, this, args);
+        res = executeBinary("@_" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
             pushToConsole(res.error_message, true);
@@ -688,7 +699,7 @@ public:
                 ftofind = _executecmd.functions[i].name.substr(0, _executecmd.functions[i].name.find_first_of("("));
             }
             // printf("coparing %s\n",ftofind.c_str());
-            if (ftofind.compare("@__" + function) == 0)
+            if (ftofind.compare("@_" + function) == 0)
             {
                 return true;
             }
@@ -707,7 +718,7 @@ public:
         if (core == 0 or core == 1)
         {
             vector<string> __args;
-            __args.push_back("@__" + prog);
+            __args.push_back("@_" + prog);
             _run(__args, true, core, arguments, json);
         }
         else
@@ -791,7 +802,7 @@ static void _run_task(void *pvParameters)
     {
         // printf("as a ttaks:%s\n\r",exec->df.json);
         error_message_struct res = executeBinary("@__footer", exec->df.exe, exec->__run_handle_index, exec, d);
-        res = executeBinary("@__main", exec->df.exe, exec->__run_handle_index, exec, exec->args, exec->df.json);
+        res = executeBinary("@_main", exec->df.exe, exec->__run_handle_index, exec, exec->args, exec->df.json);
         if (res.error)
         {
             pushToConsole(res.error_message, true);

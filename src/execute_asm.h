@@ -28,6 +28,8 @@ JsonVariant getfromJson(JsonDocument obj, string str)
 #endif
 #endif
 
+uint32_t * address_to_execute;
+
 void freeBinary(Binary *bin)
 {
 #ifndef __TEST_DEBUG
@@ -397,6 +399,32 @@ void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
 
 #endif
 }
+template<typename ... Args>
+void executeBinaryAsmArgs(Args ... arguments) __attribute__((noinline, optimize("O0")));
+
+template<typename ... Args>
+void executeBinaryAsmArgs(Args ... arguments) //, uint32_t *c)
+{
+#ifndef __TEST_DEBUG
+ // string s = string_format("Executing asm code @%x", address_to_execute);
+  //pushToConsole(s, true);
+
+  asm volatile( //"l32i a10,%1,0\n\t"
+   "mov a10,a2\n\t"
+    "mov a11,a3\n\t"
+    "mov a12,a4\n\t"
+    "mov a13,a5\n\t"
+    "mov a14,a6\n\t"
+    "mov a15,a7\n\t"
+      "l32i a8,%0,0\n\t"
+      "callx8 a8\n\t"
+    //  "mov a2,a10\n\t"
+     // "mov f2,f10\n\t"
+      : : "r"(address_to_execute) //, "r"(c)
+      :);
+
+#endif
+}
 #ifdef __JSON__OPTION__ 
 
 error_message_struct updateParameters(executable ex, string json)
@@ -526,7 +554,8 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
         res.error_message = string_format("Expected %d arguments got %d\n", ex.functions[i].args_num, arguments.size());
         return res;
       }
-
+address_to_execute=(uint32_t *)&ex.functions[i].address;
+ printf("address of function %s :%x\n",ex.functions[i].name.c_str(), address_to_execute);
       executeBinaryAsm(&ex.functions[i].address); //, &ex.links);
 
       // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), toexecute);
@@ -540,7 +569,54 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
   res.error_message = string_format("Immpossible to execute %s: not found\n", function.c_str());
   return res;
 }
+template<typename ... Args>
+error_message_struct executeBinaryArgs(string function, executable ex, uint32_t handle, void *exePtr, Args ... arguments)
+{
+  error_message_struct res;
+  for (int i = 0; i < ex.functions.size(); i++)
+  {
+    string ftofind = ex.functions[i].name;
+    if (ex.functions[i].name.find_first_of("(") != string::npos)
+    {
+      ftofind = ex.functions[i].name.substr(0, ex.functions[i].name.find_first_of("("));
+    }
+    // printf("coparing %s\n",ftofind.c_str());
+    if (ftofind.compare(function) == 0)
+    {
+// printf("address of function %s :%x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
 
+//
+#ifndef __TEST_DEBUG
+      ex.functions[i].address = (uint32_t)(ex.start_program + ex.functions[i].address);
+#endif
+      uint32_t *t = (uint32_t *)ex.data;
+      // t++;
+      *t = handle;
+      t++;
+      *t = handle;
+      t++;
+#ifndef __TEST_DEBUG
+      *t = (uint32_t)exePtr;
+#endif
+      //   printf("exx %x\n",(uint32_t)exePtr);
+      uint8_t *var = (ex.data + ex.functions[i].variableaddress);
+      
+
+address_to_execute=(uint32_t *)&ex.functions[i].address;
+ printf("address of function %s :%x\n",ex.functions[i].name.c_str(), address_to_execute);
+      executeBinaryAsmArgs(arguments ...); //, &ex.links);
+
+    // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), toexecute);
+      //  executeBinaryAsm(&toexecute, &ex.links);
+
+      // freeBinary(ex);
+      return res;
+    }
+  }
+  res.error = 1;
+  res.error_message = string_format("Immpossible to execute %s: not found\n", function.c_str());
+  return res;
+}
 error_message_struct executeBinary(string function, executable ex, uint32_t handle, void *exePtr, Arguments arguments)
 {
   return executeBinary(function, ex, handle, exePtr, arguments, "");

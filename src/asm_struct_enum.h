@@ -475,6 +475,7 @@ enum class operandeType
   lm32_95,
   lm2048_2047,
   l0_15,
+  l1_16,
   lm1_15,
   l0_32760,
   l0_240,

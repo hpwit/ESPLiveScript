@@ -2557,7 +2557,7 @@ public:
         {
             return;
         }
-        while (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenShiftLeft) || Match(TokenShiftRight))
+        while (Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenShiftLeft) || Match(TokenShiftRight) || Match(TokenUppersand) )
         {
 
             // token *op = current();
@@ -2644,8 +2644,9 @@ public:
             return;
         }
 
-        else if (Match(TokenNot) || Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand) || Match(TokenKeywordFabs) || Match(TokenKeywordAbs))
-        {
+       // else if (Match(TokenNot) || Match(TokenAddition) || Match(TokenSubstraction) || Match(TokenUppersand) || Match(TokenKeywordFabs) || Match(TokenKeywordAbs))
+        else if (Match(TokenNot) || Match(TokenAddition) || Match(TokenSubstraction) ||  Match(TokenKeywordFabs) || Match(TokenKeywordAbs))
+       {
             // token *t = current();
             // NodeUnitary g = NodeUnitary();
             current_node = current_node->addChild(NodeToken(unitaryOpNode));
