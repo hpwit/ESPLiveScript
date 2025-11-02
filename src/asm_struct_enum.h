@@ -109,7 +109,7 @@ public:
         // _texts.push_back(cc);
         _it = _texts.begin();
     }
-    int findText(char * str)
+    int findText(const char * str)
     {
          #ifdef __SPEED
         return -1;

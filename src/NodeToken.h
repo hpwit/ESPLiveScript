@@ -135,7 +135,7 @@ void initMem()
     // printf("We satrt with: %ld free and stack:%ld  \n", __startmem, __startStackMemory);
 #endif
 }
-void displayStat(char *text)
+void displayStat(const char *text)
 {
     pushToConsole(string_format(" %s :max used memory: %ld maxstack:%ld  started %d free mem:%ld consumed %ld time:%dms", text, __maxMemUsage, __MaxStackMemory, __startmem, esp_get_free_heap_size(), __startmem - esp_get_free_heap_size(), (__endtime - __starttime) / 240000));
 }

@@ -556,7 +556,7 @@ void freeExecutable(executable *ex)
   if (ex->start_program != NULL)
   {
 
-    heap_caps_aligned_free(ex->start_program);
+    heap_caps_free(ex->start_program);
   }
 
   ex->start_program = NULL;
