@@ -48,6 +48,7 @@ enum varTypeEnum
     __char__,
     __Args__,
     __bool__,
+    __R565__,
     __userDefined__,
     __unknown__
 };

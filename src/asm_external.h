@@ -44,11 +44,16 @@ void bindFunction(string out,string name,string in, void * ptr)
     {
 //printf("%s %d\n\r",j[i].c_str(),j[i].find("Args"));
       if(j[i].find("Args")==string::npos)
-       asmex.signature= asmex.signature+"d";
+      {
+        if(j[i].find("int")!=string::npos or j[i].find("float")!=string::npos  or j[i].find("uint32_t")!=string::npos or j[i].find("uint16_t")!=string::npos or j[i].find("uint8_t")!=string::npos)
+        asmex.signature= asmex.signature+"num";
+        else  
+        asmex.signature= asmex.signature+j[i];
+    }
       else
        asmex.signature= asmex.signature+"Args";
-       if(j[i].find("*")!=string::npos)
-        asmex.signature= asmex.signature+"*";
+      // if(j[i].find("*")!=string::npos)
+      //  asmex.signature= asmex.signature+"*";
       asmex.name=string_format("%s%s a%d",asmex.name.c_str(),j[i].c_str(),i);
        if (i<j.size()-1)
        {
@@ -59,7 +64,7 @@ void bindFunction(string out,string name,string in, void * ptr)
     
     asmex.signature= asmex.signature+")";
     asmex.name=asmex.name+");";
-  //  printf("%s %s \n\r",asmex.signature.c_str(),asmex.name.c_str());
+   printf("%s %s \n\r",asmex.signature.c_str(),asmex.name.c_str());
     }
     if(ptr!=NULL)
          asmex.ptr=ptr;

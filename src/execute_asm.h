@@ -188,7 +188,7 @@ error_message_struct decodeBinaryHeader(uint8_t *exec, uint8_t *binary_header, u
       memcpy(&_address, binary_header, 4);
       binary_header = binary_header + 4;
       gc.variableaddress = _address;
-      // printf("funcrion %s adfrees:%d\n\r",gc.name .c_str(),gc.address);
+      // printf("funcrion %s adfrees:%x\n\r",gc.name .c_str(),gc.address);
       finalexe->functions.push_back(gc);
     }
     break;
@@ -232,6 +232,7 @@ executable _createExcutablefromBinary(Binary *bin)
 // printf("on cree un executbale de taiile %d et data %d \n",bin->instruction_size,bin->data_size);
 #ifndef __TEST_DEBUG
   uint32_t *exec = (uint32_t *)heap_caps_malloc(bin->instruction_size, MALLOC_CAP_EXEC);
+ // printf("exe address:%x\n",exec);
 #else
   uint32_t *exec = (uint32_t *)malloc(bin->instruction_size);
 #endif
@@ -388,8 +389,8 @@ executable createExectutable(Binary *bin)
 void executeBinaryAsm(uint32_t *j) //, uint32_t *c)
 {
 #ifndef __TEST_DEBUG
-  string s = string_format("Executing asm code @%x", j);
-  pushToConsole(s, false);
+ // string s = string_format("Executing asm code @%x", j);
+  //pushToConsole(s, false);
 
   asm volatile( //"l32i a10,%1,0\n\t"
       "l32i a15,%0,0\n\t"
@@ -555,7 +556,15 @@ error_message_struct executeBinary(string function, executable ex, uint32_t hand
         return res;
       }
 address_to_execute=(uint32_t *)&ex.functions[i].address;
- printf("address of function %s :%x\n",ex.functions[i].name.c_str(), address_to_execute);
+// printf("address of function %s :%8x\n",ex.functions[i].name.c_str(), ex.functions[i].address);
+/* 
+uint32_t *p;
+ p=(uint32_t *)ex.functions[i].address;
+ for(int i=0;i<10;i++)
+ {
+  printf("%x ",p[i]);
+ }
+ printf("\n");*/
       executeBinaryAsm(&ex.functions[i].address); //, &ex.links);
 
       // printf("address of function %s :%x\n",ex.functions[i].name.c_str(), toexecute);
@@ -941,8 +950,8 @@ class INIT_PARSER
 public:
   INIT_PARSER()
   {
-    addExternalFunction("printf", "void", "char *,Args", (void *)artiPrintf);
-    addExternalFunction("printfln", "void", "char *,Args", (void *)artiPrintfln);
+    addExternalFunction("printf", "void", "char*,Args", (void *)artiPrintf);
+    addExternalFunction("printfln", "void", "char*,Args", (void *)artiPrintfln);
     addExternalFunction("error", "void", "int,uint32_t,uint32_t", (void *)&showError);
 #ifdef USE_FASTLED
     addExternalFunction("hsv", "CRGB", "int,int,int", (void *)hsv);

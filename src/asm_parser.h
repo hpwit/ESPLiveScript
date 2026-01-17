@@ -31,11 +31,11 @@ uint8_t *binary_header = NULL;
 uint32_t _address_data = 0;
 uint32_t _tmp_data_address = 0;
 uint32_t _address_instr = 0;
-uint16_t _instr_size = 0;
-uint16_t tmp_instr_size = 0;
-uint16_t _data_size = 0;
-uint16_t tmp_data_size = 0;
-uint16_t binary_header_size = 0;
+uint32_t _instr_size = 0;
+uint32_t tmp_instr_size = 0;
+uint32_t _data_size = 0;
+uint32_t tmp_data_size = 0;
+uint32_t binary_header_size = 0;
 
 // vector<result_parse_line> _asm_parsed;
 parsedLines _asm_parsed;
@@ -80,9 +80,10 @@ void addInstr(result_parse_line operande, parsedLines *asm_parsed)
       //if (op > 0)
       //  add_size = ALIGN_INSTR - op;
       operande.address += add_size;
+     // printf("decalage %d\n",add_size);
     }
     memcpy(tmp_exec + operande.address, &operande.bincode, operande.size);
-    // printf("parseASM instr %d\r\n",operande.address);
+   //  printf("parseASM instr %8x %6x\r\n",operande.address,operande.bincode);
     _address_instr = operande.size + operande.address;
     #ifndef __TEST_DEBUG
     if (operande.op != opCodeType::standard)
@@ -91,8 +92,8 @@ void addInstr(result_parse_line operande, parsedLines *asm_parsed)
   }
   else
   {
-    int add_size = 0;
-    int op = (_address_data % ALIGN_DATA);
+    uint32_t add_size = 0;
+    uint32_t op = (_address_data % ALIGN_DATA);
     if (op > 0)
     {
       add_size = ALIGN_DATA - op;
@@ -942,7 +943,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
   {
     char *endptr = NULL;
     // vector<string> sf=split(sp.operandes," ");
-    uint16_t value;
+    uint32_t value;
     string suite;
 
     string depart = trim(sp.operandes);
@@ -1078,7 +1079,7 @@ result_parse_line parseline(line sp, parsedLines *asm_parsed)
     //  else
     //  {
     // string debugsav=ps.debugtxt;
-    int savbin = ps.bincode;
+    uint32_t savbin = ps.bincode;
     ps = parseOperandes(string_format("a%d,%s", ps.bincode, ps.getText()), 2, op_l32r, 3, bin_l32r);
     ps.op = opCodeType::jump_32aligned;
     ps.calculateOfssetJump = jump_l32r;
@@ -1332,14 +1333,14 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
     string str = _header->textAt(i);
     if (str.compare(0, 6, ".bytes") == 0)
     {
-      int h = 0;
+      uint32_t h = 0;
       _nb_data++;
       vector<string> __v = split(trim(str), " ");
       sscanf(__v[1].c_str(), "%d", &h);
       h = (h / 4) * 4 + 4;
       if (__v.size() > 2)
       {
-        //  printf("%s \n\r",str.c_str());
+         // printf("%s \n\r",str.c_str());
         tmp_data_size += h;
       }
       _size += h;
@@ -1347,7 +1348,7 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
       __v.shrink_to_fit();
     }
   }
-  // printf("taille %d\r\n",_size);
+   //printf("taille %d\r\n",_size);
   int _nb_align_label = 0;
   int _nb_not_aligned_label = 0;
   for (int i = 0; i < _content->size(); i++)
@@ -1384,7 +1385,7 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   _instr_size = (_nb_align_label + 1) * ALIGN_INSTR + (_content->size() + _footer->size() - _nb_not_aligned_label) * 3;
   // printf("taille instr %d\r\n",_instr_size);
 
-  _instr_size = (_instr_size / 8) * 8 + 8;
+  _instr_size = (_instr_size / 8) * 8 + 16;
   tmp_instr_size = _instr_size + (tmp_data_size / 4) * 4 + 4;
 
   string _d = string_format("Creation of an %d bytes binary and %d bytes data %d", _instr_size, _size, (tmp_data_size / 4) * 4 + 4);
@@ -1548,9 +1549,9 @@ error_message_struct parseASM(Text *_footer, Text *_header, Text *_content, pars
   }
   updateMem();
   displayStat();
-      #ifdef __TEST_DEBUG
-printparsdAsm(0,asm_parsed);
-     #endif
+   //   #ifdef __TEST_DEBUG
+  // printparsdAsm(0,asm_parsed);
+   //  #endif
   return main_error;
 }
 
@@ -1571,9 +1572,9 @@ void printparsdAsm(uint32_t start_address, parsedLines *asm_parsed)
       }
       else
       {
-        #ifdef __TEST_DEBUG
-         printf("%8x \t %6x\t %s\n", re_sparse.address + start_address, re_sparse.bincode, re_sparse.debugtxt.c_str());
-      #endif
+      //  #ifdef __TEST_DEBUG
+         printf("%8x \t %6x\t %s\n", re_sparse.address + start_address, re_sparse.bincode, re_sparse.getText());
+     // #endif
         }
     }
   }
@@ -1736,7 +1737,7 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
     if ((*it)->op == opCodeType::data_label || (*it)->op == opCodeType::number_label)
     {
       type = 0;
-      // printf("looking at %s %d\n",(*it)->getText(),(*it)->address);
+     // printf("looking at %s %d %d\n",(*it)->getText(),(*it)->address,(*it)->bincode);
       memcpy(binary_header, &type, 1);
       binary_header = binary_header + 1;
       memcpy(binary_header, &((*it)->bincode), 4);
@@ -1782,7 +1783,7 @@ uint8_t *createBinaryHeader(parsedLines *asm_parsed)
     else if ((*it)->op == opCodeType::data)
     {
       type = 3;
-      // printf("looking at %s %d\n",(*it)->getText(),(*it)->address);
+     // printf("looking at data %s %d %d\n",(*it)->getText(),(*it)->address,(*it)->size);
       memcpy(binary_header, &type, 1);
       binary_header = binary_header + 1;
       memcpy(binary_header, &(*it)->address, 4);

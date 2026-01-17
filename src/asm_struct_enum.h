@@ -25,6 +25,12 @@ public:
     {
         _stack.push_back(a);
     }
+    T back()
+    {
+                if (_stack.size() < 1)
+            return _default;
+           return  _stack.back();
+    }
     T pop()
     {
         if (_stack.size() < 1)
@@ -508,6 +514,7 @@ enum varTypeEnum
     __char__,
     __Args__,
     __bool__,
+    __R565__,
     __userDefined__,
     __unknown__
 };
@@ -592,7 +599,7 @@ char *getText()
         nameref = all_text.addText(t,si);
     }
   uint32_t bincode;
-  uint16_t size;
+  uint32_t size;
   opCodeType op;
   int16_t nameref=EOF_TEXTARRAY;
   uint32_t address;
@@ -754,10 +761,11 @@ typedef struct
     error_message_struct error;
     uint8_t *binary_data;
     uint8_t *function_data;
+    uint32_t data_size;
     uint16_t instruction_size;
      uint16_t tmp_instruction_size;
       uint16_t function_size;
-      uint16_t data_size;
+      
 
 
 } Binary;

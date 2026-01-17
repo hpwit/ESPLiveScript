@@ -625,7 +625,7 @@ public:
         error_message_struct res = executeBinary("@_" + prog, _executecmd, 9999, this, args);
         if (res.error)
         {
-            pushToConsole(res.error_message, true);
+           // pushToConsole(res.error_message, true);
         }
 #endif
     }

@@ -56,13 +56,14 @@ struct varType
     uint8_t sizes[20];
     uint8_t size;
     uint8_t total_size;
+    uint8_t repeat;
 };
 varType usded;
 
 vector<varType> _userDefinedTypes;
 varType __v;
 string varTypeEnumNames[] = {
-#ifdef __TEST_DEBUG
+//#ifdef __TEST_DEBUG
     "__none__",
     "__unit8_t__",
     "__unit16_t__",
@@ -76,9 +77,10 @@ string varTypeEnumNames[] = {
     "__char__",
     "__Args__",
     "__bool__",
+    "__R565__",
     "__userDefined__",
     "__unknown__"
-#endif
+//#endif
 
 };
 
@@ -86,7 +88,7 @@ vector<string> userDefinedVarTypeNames;
 
 varType _varTypes[] = {
     {._varType = __none__,
-     .varName = "d",
+     .varName = "void",
      ._varSize = 0,
      .load = {},
      .store = {},
@@ -96,10 +98,11 @@ varType _varTypes[] = {
      .types = {},
      .sizes = {},
      .size = 0,
-     .total_size = 0},
+     .total_size = 0,
+    .repeat=1},
 
     {._varType = __uint8_t__,
-     .varName = "d",
+     .varName = "num",
      ._varSize = 1,
      .load = {l8ui},
      .store = {s8i},
@@ -109,10 +112,11 @@ varType _varTypes[] = {
      .types = {},
      .sizes = {1},
      .size = 1,
-     .total_size = 1},
+     .total_size = 1,
+    .repeat=1},
     {
         ._varType = __uint16_t__,
-        .varName = "d",
+        .varName = "num",
         ._varSize = 2,
         .load = {l16ui},
         .store = {s16i},
@@ -123,10 +127,11 @@ varType _varTypes[] = {
         .sizes = {2},
         .size = 1,
         .total_size = 2,
+        .repeat=1
     },
     {
         ._varType = __uint32_t__,
-        .varName = "d",
+        .varName = "num",
         ._varSize = 4,
         .load = {l32i},
         .store = {s32i},
@@ -137,10 +142,11 @@ varType _varTypes[] = {
         .sizes = {4},
         .size = 1,
         .total_size = 4,
+        .repeat=1
     },
     {
         ._varType = __int__,
-        .varName = "d",
+        .varName = "num",
         ._varSize = 4,
         .load = {l32i},
         .store = {s32i},
@@ -151,10 +157,11 @@ varType _varTypes[] = {
         .sizes = {4},
         .size = 1,
         .total_size = 4,
+        .repeat=1
     },
     {
         ._varType = __s_int__,
-        .varName = "d",
+        .varName = "num",
         ._varSize = 2,
         .load = {l16si},
         .store = {s16i},
@@ -165,10 +172,11 @@ varType _varTypes[] = {
         .sizes = {2},
         .size = 1,
         .total_size = 2,
+        .repeat=1
     },
     {
         ._varType = __float__,
-        .varName = "d",
+        .varName = "num",
         ._varSize = 4,
         .load = {lsi},
         .store = {ssi},
@@ -179,10 +187,11 @@ varType _varTypes[] = {
         .sizes = {4},
         .size = 1,
         .total_size = 4,
+        .repeat=1
     },
     {
         ._varType = __void__,
-        .varName = "d",
+        .varName = "void",
         ._varSize = 0,
         .load = {},
         .store = {},
@@ -193,10 +202,11 @@ varType _varTypes[] = {
         .sizes = {0},
         .size = 0,
         .total_size = 0,
+        .repeat=1
     },
     {
         ._varType = __CRGB__,
-        .varName = "d",
+        .varName = "CRGB",
         ._varSize = 3,
         .load = {l8ui, l8ui, l8ui},
         .store = {s8i, s8i, s8i},
@@ -207,10 +217,11 @@ varType _varTypes[] = {
         .sizes = {1, 1, 1},
         .size = 3,
         .total_size = 3,
+        .repeat=1
     },
     {
         ._varType = __CRGBW__,
-        .varName = "d",
+        .varName = "CRGBW",
         ._varSize = 4,
         .load = {l8ui, l8ui, l8ui, l8ui},
         .store = {s8i, s8i, s8i, s8i},
@@ -221,10 +232,11 @@ varType _varTypes[] = {
         .sizes = {1, 1, 1, 1},
         .size = 4,
         .total_size = 4,
+        .repeat=1
     },
     {
         ._varType = __char__,
-        .varName = "d",
+        .varName = "char",
         ._varSize = 1,
         .load = {l8ui},
         .store = {s8i},
@@ -235,6 +247,7 @@ varType _varTypes[] = {
         .sizes = {1},
         .size = 1,
         .total_size = 1,
+        .repeat=1
     },
     {
         ._varType = __Args__,
@@ -249,10 +262,10 @@ varType _varTypes[] = {
         .sizes = {1},
         .size = 1,
         .total_size = 1,
-
+         .repeat=1
     },
     {._varType = __bool__,
-     .varName = "d",
+     .varName = "bool",
      ._varSize = 1,
      .load = {l8ui},
      .store = {s8i},
@@ -262,12 +275,27 @@ varType _varTypes[] = {
      .types = {},
      .sizes = {1},
      .size = 1,
-     .total_size = 1},
+     .total_size = 1,
+    .repeat=1},
+    {._varType = __R565__,
+     .varName = "R565",
+     ._varSize = 2,
+     .load = {l16ui},
+     .store = {s16i},
+     .membersNames = {},
+     .starts = {},
+     .memberSize = {},
+     .types = {},
+     .sizes = {2},
+     .size = 1,
+     .total_size = 2,
+    .repeat=4}
 
 };
 
 string keywordTypeNames[] = {
-#ifdef __TEST_DEBUG
+//#ifdef __TEST_DEBUG
+    "KeywordVarType",
     "KeywordVarType",
     "KeywordVarType",
     "KeywordVarType",
@@ -294,15 +322,15 @@ string keywordTypeNames[] = {
     "KeywordSafeMode",
     "KeywordHeader",
     "KeywordContent",
-#endif
+//#endif
 
 };
 
-#define nb_keywords 39
-#define nb_typeVariables 13
+#define nb_keywords 40
+#define nb_typeVariables 14
 string keyword_array[nb_keywords] =
     {"none", "uint8_t", "uint16_t", "uint32_t", "int", "s_int", "float", "void", "CRGB",
-     "CRGBW", "char", "Args", "bool", "external", "for", "if", "then", "else", "while", "return",
+     "CRGBW", "char", "Args", "bool","R565", "external", "for", "if", "then", "else", "while", "return",
      "import", "from", "__ASM__",
      "define", "safe_mode", "_header_", "_content_", "and", "or", "continue",
      "break", "fabs", "abs", "save_reg",
@@ -392,11 +420,13 @@ enum tokenType
     TokenSlashEqual,
     TokenOverride,
     TokenJson,
-    TokenAs
+    TokenAs,
+    TokenCharacter
 
 };
 
 tokenType __keywordTypes[] = {
+    TokenKeywordVarType,
     TokenKeywordVarType,
     TokenKeywordVarType,
     TokenKeywordVarType,
@@ -435,12 +465,13 @@ tokenType __keywordTypes[] = {
     TokenKeywordStruct,
     TokenOverride,
     TokenJson,
-    TokenAs
+    TokenAs,
+    TokenCharacter
 
 };
 
 string tokenNames[] = {
-#ifdef __TEST_DEBUG
+//#ifdef __TEST_DEBUG
     "TokenNumber",
     "TokenAddition",
     "TokenStar",
@@ -522,9 +553,10 @@ string tokenNames[] = {
     "TokenSlashEqual",
     "TokenOverride",
     "TokenJson",
-    "TokenAs"
+    "TokenAs",
+    "TokenCharacter"
 
-#endif
+//#endif
 };
 
 typedef struct
@@ -685,8 +717,9 @@ const char *tokenFormat[] = {
     termColor.BWhite,   // TokenSlashEqual
     termColor.LMagenta,   // TokenSlashEqual
     termColor.LMagenta,   // TokenStarEqual
-    termColor.LMagenta,   // TokenSlashEqual
-    termColor.LMagenta,   // TokenSlashEqual
+    termColor.Orange,   // TokenSlashEqual
+    termColor.Orange,   // TokenSlashEqual
+
 };
 
 /*
@@ -2026,10 +2059,11 @@ Token t;
                 {
                     if (_for_display)
                         // str = string_format("%s%c", t.getText(), c);
-                        str = str + c2;
+                        str = str + c;
                     c = c2;
                     c2 = script->nextChar();
                 }
+                str=str+c+c2;
                 if (_for_display)
                     t.addText(str);
                 t.line = _token_line;
@@ -2260,15 +2294,60 @@ Token t;
         if (c == '\'')
         {
             // Token t;
-            t.type = (int)TokenUnknown;
-            if (_for_display)
-                t.addText("\'");
+           vchar = "";
+            // Token t;
+            t._vartype = EOF_VARTYPE;
             t.line = _token_line;
             t.pos = pos_in_line;
-            //  _token_line++;
-            //  pos = 0;
-            if (_for_display)
-                _tks->push(t);
+            vchar += c;
+            c = script->nextChar();
+            pos_in_line++;
+            while (c != '\'' && c != EOF_TEXT)
+            {
+                if (!_for_display)
+                {
+                    char c2 = script->nextChar();
+                    if (c == '\\' and c2 == 'n')
+                    {
+                        c = '\x0d';
+                        vchar += c;
+                        c = '\x0a';
+                        vchar += c;
+                        c = script->nextChar();
+                    }
+                    else
+                    {
+                        vchar += c;
+                        c = c2;
+                    }
+
+                    pos_in_line++;
+                }
+                else
+                {
+                    vchar += c;
+                    c = script->nextChar();
+                    pos_in_line++;
+                }
+            }
+            // script->previousChar(); //on revient un caractere en arriere
+            // pos--;
+            vchar += c;
+           // t.type = (int)TokenNumber;
+           if(_for_display)
+           {
+            t.type=TokenCharacter;
+            t.addText(vchar);
+           }
+           else
+           {
+            t = Token(TokenNumber, (int)__int__);
+            vchar=string_format("%d",vchar.c_str()[1]);
+           // printf("char foind:%s\n",vchar.c_str());
+            t.addText(vchar);
+           }
+            _tks->push(t);
+            nbReadToken++;
             continue;
         }
         if (c == ':')

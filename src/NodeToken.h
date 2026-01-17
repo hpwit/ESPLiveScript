@@ -250,7 +250,7 @@ enum nodeType
 string nodeTypeNames[] =
     {
 
-#ifdef __TEST_DEBUG
+//#ifdef __TEST_DEBUG
         "typeNode",
         "numberNode",
         "binOpNode",
@@ -301,7 +301,7 @@ string nodeTypeNames[] =
         "UnknownNode"
         "OnlyNode"
 
-#endif
+//#endif
 
 };
 
@@ -789,10 +789,10 @@ public:
         int cur_size = 0;
         if (_nodetype == extCallFunctionNode or _nodetype == callFunctionNode)
         {
-            cur_size = getChildAtPos(1)->children_size();
-            for (int i = 0; i < getChildAtPos(2)->children_size(); i++)
+            cur_size = getChildAtPos(0)->children_size(); //1
+            for (int i = 0; i < getChildAtPos(0)->children_size(); i++) //2
             {
-                int cmp = getChildAtPos(2)->getChildAtPos(i)->findMaxArgumentSize();
+                int cmp = getChildAtPos(0)->getChildAtPos(i)->findMaxArgumentSize(); //2
                 if (cmp > cur_size)
                     cur_size = cmp;
             }
@@ -997,7 +997,7 @@ public:
     }
     vector<NodeToken *> *children = NULL;
     NodeToken *parent = NULL;
-    uint16_t _total_size = 1;
+    uint32_t _total_size = 1;
     uint16_t target = EOF_TEXTARRAY;
     uint16_t textref = EOF_TEXTARRAY;
     uint16_t stack_pos = 0;
@@ -1940,6 +1940,7 @@ void _visitunitaryOpNode(NodeToken *nd)
         bufferText->addAfter(string_format("mov a%d,a12", register_numl.get()));
         bufferText->sp.push(bufferText->get());
         register_numl.decrease();
+        for_if_num++;
         return;
     }
     else if (nd->type == TokenSubstraction)
@@ -2630,6 +2631,8 @@ void _visitblockStatementNode(NodeToken *nd)
 }
 void _visitdefFunctionNode(NodeToken *nd)
 {
+    if(nd->children_size()<3)
+        return;
     // printf("compiling %s\n", nd->getTokenText());
     bufferText = &content;
     isStructFunction = false;
@@ -2637,7 +2640,7 @@ void _visitdefFunctionNode(NodeToken *nd)
         isStructFunction = true;
     header.addAfter(string_format(".global @_%s", nd->getTokenText()));
 
-    /* THis is for the __*/
+    /* THis is for the __
     if (!isStructFunction)
         header.addAfter(string_format(".global @__%s", nd->getTokenText()));
     // string variables = "";
@@ -2690,7 +2693,7 @@ void _visitdefFunctionNode(NodeToken *nd)
             bufferText->addAfter(string_format("retw.n", nd->getTokenText()));
         }
     }
-/*End of this is for the stuff external call*/
+End of this is for the stuff external call*/
     bufferText->addAfter(string_format("@_%s:", nd->getTokenText()));
     bufferText->addAfter(string_format("entry a1,%d", ((nd->stack_pos) / 8 + 1) * 8 + 16 + _STACK_SIZE)); // ((nd->stack_pos) / 8 + 1) * 8+20)
     int sav = 9;
@@ -2857,6 +2860,7 @@ void _visitassignementNode(NodeToken *nd)
 
         bufferText->sp.pop();
         bufferText->sp.push(bufferText->get());
+    
 
         point_regnum++;
     }
@@ -3587,7 +3591,7 @@ void _visitCallFunctionTemplate(NodeToken *nd, int regbase, bool isExtCall)
     // for (int i = 0; i < t->getChildAtPos(1)->children_size(); i++)
 
     // printf("number of arg %s %d\r\n", nd->getTokenText(), nd->findMaxArgumentSize());
-    for (int i = t->getChildAtPos(0)->children_size() - 1; i >= 0; i--)
+    for (int i = t->getChildAtPos(0)->children_size() -1; i >= 0; i--)
     {
         // printf("***number of arg %d %d\r\n", i, nd->getChildAtPos(2)->getChildAtPos(i)->findMaxArgumentSize());
         bool save_in_stack = false;
@@ -4761,15 +4765,26 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
     {
         start += v->sizes[h];
     }
+    //int savstar=start;
     if (nd->children_size() > 0 or !nd->isPointer or nd->asPointer)
     {
+       
+           // start=savstar;
         for (int i = v->size - 1; i >= 0; i--)
         {
-            bufferText->addAfter(bufferText->sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[v->store[i]].c_str(), getRegType(v->store[i], 0).c_str(), register_numl.get(), getRegType(v->store[i], 1).c_str(), point_regnum, start));
-            // register_numl--;
+            for(int p=0;p<v->repeat;p++)
+            {
+           
+             //   bufferText->addAfter(bufferText->sp.pop(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[v->store[i]].c_str(), getRegType(v->store[i], 0).c_str(), register_numl.get(), getRegType(v->store[i], 1).c_str(), point_regnum, start));
+            bufferText->addAfter(bufferText->sp.back(), string_format("%s %s%d,%s%d,%d", asmInstructionsName[v->store[i]].c_str(), getRegType(v->store[i], 0).c_str(), register_numl.get(), getRegType(v->store[i], 1).c_str(), point_regnum, start+p*v->total_size));
+           
+        }// register_numl--;
+        bufferText->sp.pop(); //new yves
             start -= v->sizes[i];
             // bufferText->sp.push(bufferText->get());
         }
+        
+    
     }
     else
     {
@@ -4886,7 +4901,8 @@ void _visitstoreExtGlocalVariableNode(NodeToken *nd)
     if (nd->isPointer && nd->children_size() > 0)
     {
         // f=f+number.f;
-        for (int i = 0; i < v->total_size; i++)
+       //\n",v->total_size,v->repeat);
+        for (int i = 0; i < v->total_size*v->repeat; i++)
         {
             bufferText->addAfter(string_format("add a%d,a%d,a%d", point_regnum, point_regnum, register_numl.get()));
         }
@@ -4988,15 +5004,15 @@ void _visitwhileNode(NodeToken *nd)
 
     bufferText->addAfter(string_format("%s_end:", nd->getTargetText()));
     bufferText->addAfter(string_format("%s_break:", nd->getTargetText()));
-    if (nd->getChildAtPos(0)->getChildAtPos(0)->_nodetype != numberNode)
-    {
+    //if (nd->getChildAtPos(0)->getChildAtPos(0)->_nodetype != numberNode)
+    //{
         bufferText->putIteratorAtPos(_compare.back());
         intest = true;
         nd->getChildAtPos(0)->visitNode();
         intest = false;
         register_numl.pop();
         bufferText->putIteratorAtPos(bufferText->get());
-    }
+    //}
     _compare.pop_back();
 }
 void _visitreturnNode(NodeToken *nd)
@@ -5135,7 +5151,7 @@ void _visitUnknownNode(NodeToken *nd) {}
 
 void optimize(Text *text)
 {
- //return;
+// return;
     //  int regnum;
     for (int regnum = 3; regnum < 11; regnum++)
     {

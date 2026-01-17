@@ -31,9 +31,10 @@ Token __t;
 
 #include "asm_parser.h"
 #include "execute.h"
-#ifdef __TEST_DEBUG
+//#ifdef __TEST_DEBUG
 void prettyPrint(NodeToken *_nd, string ident)
 {
+    //printf("pretty rint\n");
     NodeToken nd = NodeToken(*_nd);
     if (_nd == NULL)
     {
@@ -74,7 +75,7 @@ void prettyPrint(NodeToken *_nd, string ident)
     // printf("we go back\n");
 }
 
-#endif
+//#endif
 
 class Parser
 {
@@ -191,10 +192,10 @@ public:
         pushToConsole("***********PARSING DONE*********");
         updateMem();
         buildParents(&program);
-#ifdef __TEST_DEBUG
+//#ifdef __TEST_DEBUG
         pushToConsole("***********dispalying  DONE*********");
-        prettyPrint(&program, "");
-#endif
+        //prettyPrint(&program, "");
+//#endif
         program.visitNode();
         pushToConsole("***********COMPILING DONE*********");
         updateMem();
@@ -730,7 +731,12 @@ public:
         {
             return;
         }
-        string _signature = sigs.back() + current_node->getVarType()->varName;
+       // string _signature = sigs.back() + current_node->getVarType()->varName;
+       string _signature;
+       if(current_node->getChildAtPos(0)->getVarType()!=NULL)
+        _signature = sigs.back() + current_node->getChildAtPos(0)->getVarType()->varName;
+        else
+        _signature = sigs.back() + "num";
         sigs.pop_back();
         sigs.push_back(_signature);
         if (current_node->isPointer)
@@ -763,7 +769,13 @@ public:
                 return;
             }
 
-            string _signature = sigs.back() + "|" + current_node->getVarType()->varName;
+             string _signature="";
+                   if(current_node->getChildAtPos(0)->getVarType()!=NULL)
+        _signature = sigs.back() + "|" +current_node->getChildAtPos(0)->getVarType()->varName;
+        else
+        _signature = sigs.back() + "|" +"num";
+           // string _signature = sigs.back() + "|" + current_node->getVarType()->varName;
+          // string _signature =sigs.back() + "|" +current_node->getChildAtPos(0)->getVarType()->varName;
             sigs.pop_back();
             sigs.push_back(_signature);
             if (current_node->isPointer)
@@ -791,6 +803,7 @@ public:
         _signature = sigs.back() + ")";
         sigs.pop_back();
         sigs.push_back(_signature);
+       //printf("sigantude call %s\n",_signature.c_str());
         current_node = current_node->parent;
         return;
     }
@@ -2076,6 +2089,8 @@ public:
         {
             _is_variable_as_register.set(true);
         }
+            if(_nd.type==TokenUserDefinedVariable or _nd.getVarType()->_varType==__CRGB__)
+        _is_variable_as_register.set(false);
         if (_is_variable_as_register.get())
         {
             _nd = NodeToken(_nd, defLocalVariableNodeAsRegister);
@@ -2137,7 +2152,7 @@ public:
         // resParse result;
         Error.error = 0;
         signature = signature + ")";
-
+        //printf("signature def: %s%s\n",current_node->parent->getTokenText(), signature.c_str());
         current_node = current_node->parent;
         return;
     }
@@ -2305,6 +2320,7 @@ public:
                 point_regnum = 4;
 
 #ifndef __MEM_PARSER
+//printf("on parse la function %s\n",current_node->getTokenText());
                 buildParents(current_node);
 
                 current_node->visitNode();
@@ -3143,6 +3159,7 @@ public:
                     _pos = 0;
                     // _totalsize = 0;
                     usded.varName = current()->getText();
+                    usded.repeat=1;
                     struct_name = usded.varName;
 
                     next(); //{
