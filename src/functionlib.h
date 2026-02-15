@@ -57,7 +57,7 @@ __ASM__ float __div(float a,float b)\n\
 \"divn.s f0, f2, f6\"\n\
 \"retw.n\"\n\
 }@";
-char * _div[]={
+const char * _div[]={
 "@___div(d|d):",
 "entry a1,16",
 "div0.s f3, f2",
@@ -109,7 +109,8 @@ __ASM__ uint32_t rand(uint32_t mod) \n\
 \"retw.n\" \n\
 }@";
 #else
-string _rand="\__ASM__ uint32_t rand(uint32_t mod) \n\
+string _rand="\
+__ASM__ uint32_t rand(uint32_t mod) \n\
 {\n\
 \"entry a1,56\" \n\
 //\"l32r a4,@_stack_rand(d)\" \n\
