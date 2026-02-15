@@ -5202,7 +5202,8 @@ void optimize(Text *text)
                             //}
                             else
                             {
-                                if (d[0].compare("movi") == 0 or d[0].compare("l32i") == 0 or d[0].compare("l32r") == 0 or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("movExt") == 0)
+                               // or d[0].compare("l32r") == 0
+                                if (d[0].compare("movi") == 0 or d[0].compare("l32i") == 0  or d[0].compare("l16i") == 0 or d[0].compare("l16ui") == 0 or d[0].compare("l8ui") == 0 or d[0].compare("movExt") == 0)
                                 {
                                     str = tmp;
                                 }
