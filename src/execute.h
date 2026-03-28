@@ -6,6 +6,13 @@
 #ifndef __RUN_CORE
 #define __RUN_CORE 0
 #endif
+#ifndef __LS_STACK_CAPS                                                                                                                                                                                            
+#if defined(CONFIG_IDF_TARGET_ESP32S3) || defined(CONFIG_IDF_TARGET_ESP32P4)                                                                                                                                     
+    #define __LS_STACK_CAPS (MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)                                                                                                                                                  
+#else                                                                                                                                                                                                            
+    #define __LS_STACK_CAPS (MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT)                                                                                                                                                
+#endif                                                                                                                                                                                                           
+#endif    
 using namespace std;
 #ifndef _MAX_PROG_AT_ONCE
 #define _MAX_PROG_AT_ONCE 10
@@ -507,7 +514,7 @@ public:
 
             if (__run_handle_index != 9999)
             {
-                vTaskDelete(*runningPrograms.getHandleByIndex(__run_handle_index));
+                vTaskDeleteWithCaps(*runningPrograms.getHandleByIndex(__run_handle_index));
             }
 
             _isRunning = false;
@@ -580,7 +587,7 @@ public:
                 taskname = string_format("_run_task_%d", __run_handle_index);
             else
                 taskname = string_format("%s_%d", name.c_str(), __run_handle_index);
-            xTaskCreateUniversal(_run_task, taskname.c_str(), stack_size, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), core);
+            xTaskCreatePinnedToCoreWithCaps(_run_task, taskname.c_str(), stack_size, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), core, __LS_STACK_CAPS);
 
             pushToConsole("Execution on going CTRL + k to stop", true);
         }
@@ -802,7 +809,7 @@ static void _run_task(void *pvParameters)
     exec->_isRunning = false;
     runningPrograms.removeHandle(exec->__run_handle_index);
     isSyncalled = false;
-    vTaskDelete(NULL);
+    vTaskDeleteWithCaps(xTaskGetCurrentTaskHandle()); 
 #endif
 }
 
