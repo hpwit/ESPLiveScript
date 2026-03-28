@@ -531,7 +531,7 @@ public:
 #endif
     }
 
-    int _run(vector<string> args, bool second_core, int core, Arguments arguments, string json)
+    int _run(vector<string> args, bool second_core, int core, Arguments arguments, string json, uint32_t stack_size = 4096 * 2)
     {
         __run_handle_index = 9999;
 #ifndef __TEST_DEBUG
@@ -580,7 +580,7 @@ public:
                 taskname = string_format("_run_task_%d", __run_handle_index);
             else
                 taskname = string_format("%s_%d", name.c_str(), __run_handle_index);
-            xTaskCreateUniversal(_run_task, taskname.c_str(), 4096 * 2, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), core);
+            xTaskCreateUniversal(_run_task, taskname.c_str(), stack_size, this, 3, (TaskHandle_t *)runningPrograms.getHandleByIndex(__run_handle_index), core);
 
             pushToConsole("Execution on going CTRL + k to stop", true);
         }
@@ -695,7 +695,7 @@ public:
         }
         return false;
     }
-    void executeAsTask(string prog, int core, Arguments arguments, string json)
+    void executeAsTask(string prog, int core, Arguments arguments, string json, uint32_t stack_size = 8192)
     {
         // printf("herqsd sqdsq\n");
         args.clear();
@@ -708,7 +708,7 @@ public:
         {
             vector<string> __args;
             __args.push_back("@__" + prog);
-            _run(__args, true, core, arguments, json);
+            _run(__args, true, core, arguments, json, stack_size);
         }
         else
         {
@@ -717,30 +717,30 @@ public:
 #endif
     }
 
-    void executeAsTask(string prog, int core, Arguments arguments)
+    void executeAsTask(string prog, int core, Arguments arguments, uint32_t stack_size = 8192)
     {
-        executeAsTask(prog, core, arguments, "");
+        executeAsTask(prog, core, arguments, "", stack_size);
     }
-    void executeAsTask(string prog, Arguments arguments)
+    void executeAsTask(string prog, Arguments arguments, uint32_t stack_size = 8192)
     {
-        executeAsTask(prog, __RUN_CORE, arguments);
+        executeAsTask(prog, __RUN_CORE, arguments, stack_size);
     }
-    void executeAsTask(string prog)
+    void executeAsTask(string prog, uint32_t stack_size = 8192)
     {
         args.clear();
-        executeAsTask(prog, __RUN_CORE, args);
+        executeAsTask(prog, __RUN_CORE, args, stack_size);
     }
 
-    void executeAsTask(string prog, int core)
+    void executeAsTask(string prog, int core, uint32_t stack_size = 8192)
     {
         args.clear();
-        executeAsTask(prog, core, args);
+        executeAsTask(prog, core, args, stack_size);
     }
-    void executeAsTask(string prog, string json)
+    void executeAsTask(string prog, string json, uint32_t stack_size = 8192)
     {
         // printf("her\n");
         args.clear();
-        executeAsTask(prog, __RUN_CORE, args, json);
+        executeAsTask(prog, __RUN_CORE, args, json, stack_size);
     }
 #endif
     bool isRunning()
@@ -952,81 +952,81 @@ public:
         }
     }
 
-    void executeAsTask(string name, Arguments arguments)
+    void executeAsTask(string name, Arguments arguments, uint32_t stack_size = 8192)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
         {
 #ifndef __TEST_DEBUG
 
-            exec->executeAsTask("main", arguments);
+            exec->executeAsTask("main", arguments, stack_size);
 #endif
         }
     }
-    void executeAsTask(string name)
+    void executeAsTask(string name, uint32_t stack_size = 8192)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
         {
 #ifndef __TEST_DEBUG
 
-            exec->executeAsTask("main");
+            exec->executeAsTask("main", stack_size);
 #endif
         }
     }
-    void executeAsTaskJ(string name, string json)
+    void executeAsTaskJ(string name, string json, uint32_t stack_size = 8192)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
         {
 #ifndef __TEST_DEBUG
 
-            exec->executeAsTask("main", json);
+            exec->executeAsTask("main", json, stack_size);
 #endif
         }
     }
-    void executeAsTask(string name, string function, Arguments arguments)
+    void executeAsTask(string name, string function, Arguments arguments, uint32_t stack_size = 8192)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
         {
 #ifndef __TEST_DEBUG
 
-            exec->executeAsTask(function, arguments);
+            exec->executeAsTask(function, arguments, stack_size);
 #endif
         }
     }
 
-    void executeAsTask(string name, string function)
+    void executeAsTask(string name, string function, uint32_t stack_size = 8192)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
         {
 #ifndef __TEST_DEBUG
 
-            exec->executeAsTask(function);
+            exec->executeAsTask(function, stack_size);
 #endif
         }
     }
-    void executeAsTask(string name, int core, Arguments args)
+    void executeAsTask(string name, int core, Arguments args, uint32_t stack_size = 8192)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
         {
 #ifndef __TEST_DEBUG
 
-            exec->executeAsTask("main", core, args);
+            exec->executeAsTask("main", core, args, stack_size);
 #endif
         }
     }
-    void executeAsTask(string name, int core)
+    void executeAsTask(string name, int core, uint32_t stack_size = 8192)
     {
         Executable *exec = findExecutable(name);
         if (exec != NULL)
         {
 #ifndef __TEST_DEBUG
 
-            exec->executeAsTask("main", core);
+            exec->executeAsTask("main", core, stack_size);
 #endif
         }
     }
