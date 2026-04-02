@@ -789,10 +789,14 @@ public:
         int cur_size = 0;
         if (_nodetype == extCallFunctionNode or _nodetype == callFunctionNode)
         {
-            cur_size = getChildAtPos(1)->children_size();
-            for (int i = 0; i < getChildAtPos(2)->children_size(); i++)
+            NodeToken *child1 = getChildAtPos(1);
+            if (!child1) return cur_size;  // nested extern call built without formal-param child — scalar, no spill needed
+            cur_size = child1->children_size();
+            NodeToken *child2 = getChildAtPos(2);
+            if (!child2) return cur_size;
+            for (int i = 0; i < child2->children_size(); i++)
             {
-                int cmp = getChildAtPos(2)->getChildAtPos(i)->findMaxArgumentSize();
+                int cmp = child2->getChildAtPos(i)->findMaxArgumentSize();
                 if (cmp > cur_size)
                     cur_size = cmp;
             }
